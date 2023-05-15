@@ -1,0 +1,13 @@
+stages:          #  of stages for jobs, and their order of execution
+  - build
+
+build-job:       # This job runs in the build stage, which runs first.
+  stage: build
+  script:
+        - echo "Compiling the code..." 
+        - git clone https://dkorolkov:glpat-K-ZrVQ8Mxnqjk9t6WseT@gitlab.mmtr.ru/Dkorolkov/mmtback.git  
+        - cd /home/perf/builds/PkUT_uDe/0/Dkorolkov/mmtback
+        - docker-compose up -d
+        - echo "Скачалося и запустилося"
+  rules:
+    - if: ($CI_COMMIT_BRANCH == "master")

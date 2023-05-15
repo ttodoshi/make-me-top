@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="43124371-4036-4515-9165-6234c8c07826" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/../auth-service/.idea/uiDesigner.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../auth-service/src/main/java/org/example/config/CORSConfiguration.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../auth-service/src/main/java/org/example/controller/TestContoller.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../auth-service/src/main/java/org/example/controller/testModel.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../auth-service/src/main/java/org/example/exception/ConnectException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../auth-service/src/main/java/org/example/model/Person.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../auth-service/src/main/java/org/example/model/UserAuthResponse.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../auth-service/src/main/java/org/example/model/UserRequest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../auth-service/src/main/java/org/example/repository/PersonRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../auth-service/src/main/java/org/example/sevice/PersonService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../auth-service/src/main/java/org/example/utils/PersonMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../auth-service/src/main/resources/config.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../auth-service/target/classes/config.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../auth-service/target/classes/org/example/config/CORSConfiguration.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../auth-service/target/classes/org/example/controller/TestContoller.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../auth-service/target/classes/org/example/controller/testModel.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../auth-service/target/classes/org/example/exception/ConnectException.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../auth-service/target/classes/org/example/model/Person.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../auth-service/target/classes/org/example/model/UserAuthResponse.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../auth-service/target/classes/org/example/model/UserRequest.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../auth-service/target/classes/org/example/repository/PersonRepository.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../auth-service/target/classes/org/example/sevice/PersonService.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../auth-service/target/classes/org/example/utils/PersonMapper.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../galaxy-service/src/main/java/org/example/controller/TestContoller.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../galaxy-service/src/main/java/org/example/controller/testModel.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../galaxy-service/target/classes/org/example/controller/TestContoller.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../galaxy-service/target/classes/org/example/controller/testModel.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../gitlab-ci.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/jarRepositories.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/jpa-buddy.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../planet-service/src/main/java/org/example/controller/TestContoller.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../planet-service/src/main/java/org/example/controller/testModel.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../planet-service/target/classes/org/example/controller/TestContoller.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../planet-service/target/classes/org/example/controller/testModel.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../auth-service/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../auth-service/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../auth-service/.idea/jpa-buddy.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../auth-service/.idea/jpa-buddy.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../auth-service/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../auth-service/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../auth-service/src/main/java/org/example/config/JwtGeneratorImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/../auth-service/src/main/java/org/example/config/JwtGeneratorImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../auth-service/src/main/java/org/example/config/JwtGeneratorInterface.java" beforeDir="false" afterPath="$PROJECT_DIR$/../auth-service/src/main/java/org/example/config/JwtGeneratorInterface.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../auth-service/src/main/java/org/example/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../auth-service/src/main/java/org/example/controller/UserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../auth-service/src/main/java/org/example/exception/UserNotFoundException.java" beforeDir="false" afterPath="$PROJECT_DIR$/../auth-service/src/main/java/org/example/exception/UserNotFoundException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../auth-service/src/main/java/org/example/model/User.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../auth-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../auth-service/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../auth-service/target/classes/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../auth-service/target/classes/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../auth-service/target/classes/org/example/config/JwtGeneratorImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/../auth-service/target/classes/org/example/config/JwtGeneratorImpl.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../auth-service/target/classes/org/example/config/JwtGeneratorInterface.class" beforeDir="false" afterPath="$PROJECT_DIR$/../auth-service/target/classes/org/example/config/JwtGeneratorInterface.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../auth-service/target/classes/org/example/controller/UserController.class" beforeDir="false" afterPath="$PROJECT_DIR$/../auth-service/target/classes/org/example/controller/UserController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../auth-service/target/classes/org/example/exception/UserNotFoundException.class" beforeDir="false" afterPath="$PROJECT_DIR$/../auth-service/target/classes/org/example/exception/UserNotFoundException.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../auth-service/target/classes/org/example/model/User.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../galaxy-service/src/main/java/org/example/model/modelDAO/StarSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/../galaxy-service/src/main/java/org/example/model/modelDAO/StarSystem.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../galaxy-service/src/main/java/org/example/service/SystemService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../galaxy-service/src/main/java/org/example/service/SystemService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../galaxy-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../galaxy-service/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../galaxy-service/target/classes/org/example/model/modelDAO/StarSystem.class" beforeDir="false" afterPath="$PROJECT_DIR$/../galaxy-service/target/classes/org/example/model/modelDAO/StarSystem.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../planet-service/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../planet-service/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../planet-service/src/main/java/org/example/model/PlanetDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/../planet-service/src/main/java/org/example/model/PlanetDAO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../planet-service/src/main/java/org/example/model/PlanetModel.java" beforeDir="false" afterPath="$PROJECT_DIR$/../planet-service/src/main/java/org/example/model/PlanetModel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../planet-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../planet-service/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../planet-service/target/classes/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../planet-service/target/classes/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../planet-service/target/classes/org/example/model/PlanetDAO.class" beforeDir="false" afterPath="$PROJECT_DIR$/../planet-service/target/classes/org/example/model/PlanetDAO.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../planet-service/target/classes/org/example/model/PlanetModel.class" beforeDir="false" afterPath="$PROJECT_DIR$/../planet-service/target/classes/org/example/model/PlanetModel.class" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="CodeStyleSettingsInfer">
+    <option name="done" value="true" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="ProjectCodeStyleSettingsMigration">
+    <option name="version" value="2" />
+  </component>
+  <component name="ProjectId" id="2PpBeQOnJKdyml3KvxIkJxrNEc3" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true"
+  }
+}]]></component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="43124371-4036-4515-9165-6234c8c07826" name="Changes" comment="" />
+      <created>1684144238461</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1684144238461</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+  </component>
+</project>
