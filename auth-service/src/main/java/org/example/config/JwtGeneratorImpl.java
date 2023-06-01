@@ -19,6 +19,7 @@ public class JwtGeneratorImpl implements JwtGeneratorInterface {
         claims.put("role", person.getRole());
         Date now = new Date();
         Date kill = new Date(now.getTime() + 55250 * 1000);
+
         return Jwts.builder().setClaims(claims)
                 .setIssuedAt(now)
                 .setExpiration(kill)
