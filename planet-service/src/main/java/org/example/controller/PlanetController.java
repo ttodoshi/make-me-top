@@ -53,8 +53,7 @@ public class PlanetController {
     })
     public void addPlanet(@PathVariable("galaxyId") Integer galaxyId,
                           @RequestBody List<PlanetModel> list,
-                          HttpServletRequest request,
-                          HttpServletResponse response) {
+                          HttpServletRequest request) {
         planetService.setAuthHeader(request.getHeader("Authorization"));
         planetService.addPlanet(list, galaxyId);
     }

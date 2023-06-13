@@ -60,7 +60,7 @@ public class PlanetService {
     }
 
     public void addPlanet(List<PlanetModel> list, Integer galaxyId) {
-        StringBuilder QUERY_GALAXY = new StringBuilder("INSERT INTO planet VALUES");
+        StringBuilder galaxyQuery = new StringBuilder("INSERT INTO planet VALUES");
         List<PlanetDAO> planetDAOList = planetRepository.checkPlanetExists(galaxyId);
         for (PlanetModel model : list) {
             if (planetDAOList.stream()
@@ -68,7 +68,7 @@ public class PlanetService {
                             x -> !Objects.equals(
                                     x.getPlanetName(), model.getPlanetName()))) {
                 checkSystemExist(model.getSystemId());
-                QUERY_GALAXY.append("(")
+                galaxyQuery.append("(")
                         .append(model.getPlanetId())
                         .append(",'")
                         .append(model.getPlanetName())
@@ -82,9 +82,9 @@ public class PlanetService {
             }
         }
 
-        QUERY_GALAXY.replace(QUERY_GALAXY.length() - 1, QUERY_GALAXY.length(), ";");
+        galaxyQuery.replace(galaxyQuery.length() - 1, galaxyQuery.length(), ";");
         try {
-            jdbcTemplate.execute(QUERY_GALAXY.toString());
+            jdbcTemplate.execute(galaxyQuery.toString());
         } catch (Exception e) {
             logger.severe(e.getMessage());
             throw new PlanetAlreadyExists();

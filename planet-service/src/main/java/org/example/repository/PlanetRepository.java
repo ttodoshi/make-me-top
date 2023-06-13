@@ -14,7 +14,7 @@ public interface PlanetRepository extends JpaRepository<PlanetDAO, Integer> {
     List<PlanetDAO> getListPlanetBySystemId(Integer id);
 
 
-    @Query(value = "SELECT planet_id, planet_name, planet.system_id FROM planet\n" +
+    @Query(value = "SELECT planet_id, planet_name, planet_number, planet.system_id FROM planet\n" +
             "JOIN star_system ON star_system.system_id = planet.system_id\n" +
             "JOIN orbit ON orbit.orbit_id = star_system.orbit_id\n" +
             "JOIN galaxy ON galaxy.galaxy_id = orbit.galaxy_id\n" +
