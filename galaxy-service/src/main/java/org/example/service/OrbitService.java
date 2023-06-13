@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,19 +35,26 @@ public class OrbitService {
     private final SystemMapper systemMapper;
     private final DependencyMapper dependencyMapper;
 
+    private final Logger logger = Logger.getLogger(GalaxyService.class.getName());
+
     public void createOrbit(OrbitCreateModel model) {
         List<Orbit> orbitList;
         try {
             orbitList = orbitRepository.getOrbitsByGalacticId(model.getGalaxyId());
         } catch (Exception e) {
+            logger.severe(e.getMessage());
             throw new GalacxyNotFoundException();
         }
-        for (Orbit orbit : orbitList) {
-            if (Objects.equals(orbit.getOrbitLevel(), model.getLevelOrbit())) {
-                throw new OrbitCoordinatesException();
+        try {
+            for (Orbit orbit : orbitList) {
+                if (Objects.equals(orbit.getOrbitLevel(), model.getLevelOrbit())) {
+                    throw new OrbitCoordinatesException();
+                }
             }
+            orbitRepository.save(orbitMapper.createOrbitModelToOrbit(model));
+        } catch (Exception e) {
+            logger.severe(e.getMessage());
         }
-        orbitRepository.save(orbitMapper.createOrbitModelToOrbit(model));
     }
 
 
@@ -62,6 +70,7 @@ public class OrbitService {
             }
             return orbit;
         } catch (Exception e) {
+            logger.severe(e.getMessage());
             throw new OrbitNotFoundException();
         }
     }
@@ -71,6 +80,7 @@ public class OrbitService {
             return orbitMapper.createOrbitModelToOrbitModel(orbitRepository.getReferenceById(id));
 
         } catch (Exception e) {
+            logger.severe(e.getMessage());
             throw new OrbitNotFoundException();
         }
     }
@@ -82,8 +92,10 @@ public class OrbitService {
             updatedOrbit.setCountSystem(orbit.getCountSystem());
             orbitRepository.save(updatedOrbit);
         } catch (RuntimeException e) {
+            logger.severe(e.getMessage());
             throw new OrbitAlreadyExistsException();
         } catch (Exception e) {
+            logger.severe(e.getMessage());
             throw new OrbitNotFoundException();
         }
     }
@@ -93,6 +105,7 @@ public class OrbitService {
         try {
             orbitRepository.deleteById(id);
         } catch (Exception e) {
+            logger.severe(e.getMessage());
             throw new OrbitDeleteException();
         }
     }

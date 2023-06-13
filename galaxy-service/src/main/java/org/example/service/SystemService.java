@@ -15,12 +15,11 @@ import org.example.repository.DependencyRepository;
 import org.example.repository.GalaxyRepository;
 import org.example.repository.OrbitRepository;
 import org.example.repository.SystemRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,7 +32,8 @@ public class SystemService {
 
     private final SystemMapper systemMapper;
     private final DependencyMapper dependencyMapper;
-    final static Logger logger = LoggerFactory.getLogger(SystemService.class);
+
+    private final Logger logger = Logger.getLogger(GalaxyService.class.getName());
 
     public SystemWithDependencyModel getStarSystemById(Integer id) {
         try {
@@ -49,6 +49,7 @@ public class SystemService {
             }
             return system;
         } catch (Exception e) {
+            logger.severe(e.getMessage());
             throw new SystemNotFoundException();
         }
     }
@@ -59,6 +60,7 @@ public class SystemService {
             logger.info(starSystem.getSystemName());
             return starSystem;
         } catch (Exception e) {
+            logger.severe(e.getMessage());
             throw new SystemNotFoundException();
         }
     }
@@ -68,11 +70,13 @@ public class SystemService {
         try {
             logger.info(galaxyRepository.getReferenceById(id).getGalaxyName());
         } catch (Exception e) {
+            logger.severe(e.getMessage());
             throw new GalacxyNotFoundException();
         }
         try {
             logger.info(orbitRepository.getReferenceById(model.getOrbitId()).getOrbitId().toString());
         } catch (Exception e) {
+            logger.severe(e.getMessage());
             throw new OrbitNotFoundException();
         }
 
@@ -88,6 +92,7 @@ public class SystemService {
             }
 
         } catch (Exception e) {
+            logger.severe(e.getMessage());
             throw new SystemAlreadyExistsException();
         }
     }
@@ -97,11 +102,13 @@ public class SystemService {
         try {
             orbitRepository.getReferenceById(model.getOrbitId());
         } catch (Exception e) {
+            logger.severe(e.getMessage());
             throw new OrbitNotFoundException();
         }
         try {
             starSystem = systemRepository.getReferenceById(model.getOrbitId());
         } catch (Exception e) {
+            logger.severe(e.getMessage());
             throw new SystemNotFoundException();
         }
         try {
@@ -117,6 +124,7 @@ public class SystemService {
             }
 
         } catch (Exception e) {
+            logger.severe(e.getMessage());
             throw new SystemAlreadyExistsException();
         }
     }
@@ -125,6 +133,7 @@ public class SystemService {
         try {
             systemRepository.deleteById(id);
         } catch (Exception e) {
+            logger.severe(e.getMessage());
             throw new SystemNotFoundException();
         }
     }

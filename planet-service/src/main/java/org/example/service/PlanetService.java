@@ -54,6 +54,7 @@ public class PlanetService {
                                     .map(x, PlanetModel.class))
                     .collect(Collectors.toList());
         } catch (Exception e) {
+            logger.severe(e.getMessage());
             throw new SystemNotFoundException();
         }
     }
@@ -85,6 +86,7 @@ public class PlanetService {
         try {
             jdbcTemplate.execute(QUERY_GALAXY.toString());
         } catch (Exception e) {
+            logger.severe(e.getMessage());
             throw new PlanetAlreadyExists();
         }
     }
@@ -93,6 +95,7 @@ public class PlanetService {
         try {
             planetRepository.deleteById(planetId);
         } catch (Exception e) {
+            logger.severe(e.getMessage());
             throw new PlanetNotFoundException();
         }
     }
@@ -107,16 +110,22 @@ public class PlanetService {
             planetDAO.setSystemId(model.getSystemId());
             planetDAOList = planetRepository.checkPlanetExists(galaxyId);
         } catch (Exception e) {
+            logger.severe(e.getMessage());
             throw new PlanetNotFoundException();
         }
-        if (planetDAOList.stream().allMatch(x -> !Objects.equals(x.getPlanetName(), model.getPlanetName()))) {
-            planetDAO.setPlanetName(model.getPlanetName());
-        } else {
-            throw new PlanetAlreadyExists();
+        try {
+            if (planetDAOList.stream().allMatch(x -> !Objects.equals(x.getPlanetName(), model.getPlanetName()))) {
+                planetDAO.setPlanetName(model.getPlanetName());
+            } else {
+                throw new PlanetAlreadyExists();
+            }
+        } catch (Exception e) {
+            logger.severe(e.getMessage());
         }
         try {
             planetRepository.save(planetDAO);
         } catch (Exception e) {
+            logger.severe(e.getMessage());
             throw new ConnectException();
         }
     }
@@ -133,6 +142,7 @@ public class PlanetService {
                 throw new SystemNotFoundException();
             }
         } catch (Exception e) {
+            logger.severe(e.getMessage());
             throw new ConnectException();
         }
     }

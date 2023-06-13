@@ -5,8 +5,26 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c3067b5c-43fe-4418-8539-cf3ac548c919" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/auth-service/src/main/java/org/example/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/auth-service/src/main/java/org/example/controller/UserController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mmt-nginx.conf" beforeDir="false" afterPath="$PROJECT_DIR$/mmt-nginx.conf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/auth-service/src/main/java/org/example/service/PersonService.java" beforeDir="false" afterPath="$PROJECT_DIR$/auth-service/src/main/java/org/example/service/PersonService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/galaxy-service/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/galaxy-service/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/galaxy-service/src/main/java/org/example/service/DependencyService.java" beforeDir="false" afterPath="$PROJECT_DIR$/galaxy-service/src/main/java/org/example/service/DependencyService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/galaxy-service/src/main/java/org/example/service/GalaxyService.java" beforeDir="false" afterPath="$PROJECT_DIR$/galaxy-service/src/main/java/org/example/service/GalaxyService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/galaxy-service/src/main/java/org/example/service/OrbitService.java" beforeDir="false" afterPath="$PROJECT_DIR$/galaxy-service/src/main/java/org/example/service/OrbitService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/galaxy-service/src/main/java/org/example/service/SystemService.java" beforeDir="false" afterPath="$PROJECT_DIR$/galaxy-service/src/main/java/org/example/service/SystemService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lk-service/.idea/codeStyles/Project.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lk-service/.idea/codeStyles/codeStyleConfig.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lk-service/.idea/compiler.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lk-service/.idea/jarRepositories.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lk-service/.idea/jpa-buddy.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lk-service/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lk-service/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lk-service/.idea/workspace.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lk-service/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/planet-service/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/planet-service/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planet-service/src/main/java/org/example/service/PlanetService.java" beforeDir="false" afterPath="$PROJECT_DIR$/planet-service/src/main/java/org/example/service/PlanetService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

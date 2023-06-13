@@ -7,12 +7,12 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="planet-service" />
-        <module name="lk-service" />
         <module name="galaxy-service" />
         <module name="auth-service" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="lk-service" target="11" />
       <module name="token-confirmation-module" target="11" />
     </bytecodeTargetLevel>
   </component>

@@ -28,8 +28,11 @@ import java.util.logging.Logger;
 @RequiredArgsConstructor
 public class PersonService {
     private final PersonRepository personRepository;
+
     private final JwtServiceInterface jwtGenerator;
+
     private final PersonMapper personMapper;
+
     private final Logger logger = Logger.getLogger(PersonService.class.getName());
 
     @Value("${url_auth_mmtr}")
@@ -48,6 +51,7 @@ public class PersonService {
             );
             return jwtGenerator.generateToken(person);
         } catch (Exception e) {
+            logger.severe(e.getMessage());
             throw new UserNotFoundException();
         }
     }
@@ -109,6 +113,7 @@ public class PersonService {
             personRepository.save(person);
             return "Роль успешно изменена";
         } catch (EntityNotFoundException e) {
+            logger.severe(e.getMessage());
             throw new UserNotFoundException();
         }
     }

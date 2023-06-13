@@ -13,6 +13,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 @Service
 @RequiredArgsConstructor
@@ -22,32 +23,37 @@ public class DependencyService {
 
     private final JdbcTemplate jdbcTemplate;
 
+    private final Logger logger = Logger.getLogger(DependencyService.class.getName());
+
     public void addDependency(List<CreateDependencyModel> systemDependency) {
         StringBuilder dependencyQuery = new StringBuilder("INSERT INTO system_dependency (child_id, parent_id, is_alternative)VALUES");
-
-        for (CreateDependencyModel dependency : systemDependency) {
-            if (systemRepository.checkExistsSystem(dependency.getChildId()) == null ||
-                    (dependency.getParentId() != null && systemRepository.checkExistsSystem(dependency.getParentId()) == null)) {
-                throw new SystemNotFoundException();
-            }
-            if (dependency.getParentId() == null) {
-                if (dependencyRepository.getSystemDependencyByChildIdAndParentNull(dependency.getChildId()) != null) {
-                    throw new DependencyAlreadyExistsException();
+        try {
+            for (CreateDependencyModel dependency : systemDependency) {
+                if (systemRepository.checkExistsSystem(dependency.getChildId()) == null ||
+                        (dependency.getParentId() != null && systemRepository.checkExistsSystem(dependency.getParentId()) == null)) {
+                    throw new SystemNotFoundException();
                 }
-            } else {
-                if (dependencyRepository.getSystemDependencyByChildIDAndParentId(dependency.getChildId(), dependency.getParentId()) != null) {
-                    throw new DependencyAlreadyExistsException();
+                if (dependency.getParentId() == null) {
+                    if (dependencyRepository.getSystemDependencyByChildIdAndParentNull(dependency.getChildId()) != null) {
+                        throw new DependencyAlreadyExistsException();
+                    }
+                } else {
+                    if (dependencyRepository.getSystemDependencyByChildIDAndParentId(dependency.getChildId(), dependency.getParentId()) != null) {
+                        throw new DependencyAlreadyExistsException();
+                    }
                 }
+                dependencyQuery
+                        .append("(").append(dependency.getChildId())
+                        .append(",").append(dependency.getParentId())
+                        .append(",")
+                        .append(dependency.getIsAlternative())
+                        .append("),");
             }
-            dependencyQuery
-                    .append("(").append(dependency.getChildId())
-                    .append(",").append(dependency.getParentId())
-                    .append(",")
-                    .append(dependency.getIsAlternative())
-                    .append("),");
+            dependencyQuery.replace(dependencyQuery.length() - 1, dependencyQuery.length(), "");
+            jdbcTemplate.execute(dependencyQuery.toString());
+        } catch (Exception e) {
+            logger.severe(e.getMessage());
         }
-        dependencyQuery.replace(dependencyQuery.length() - 1, dependencyQuery.length(), "");
-        jdbcTemplate.execute(dependencyQuery.toString());
     }
 
     public void deleteDependency(DeleteDependencyModel dependency) {
@@ -57,6 +63,7 @@ public class DependencyService {
                 systemDependency = dependencyRepository.getSystemDependencyByChildIdAndParentNull(dependency.getChildId());
                 dependencyRepository.deleteById(systemDependency.getId());
             } catch (Exception e) {
+                logger.severe(e.getMessage());
                 throw new DependencyNotFound();
             }
         } else {
@@ -64,6 +71,7 @@ public class DependencyService {
                 systemDependency = dependencyRepository.getSystemDependencyByChildIDAndParentId(dependency.getChildId(), dependency.getParentId());
                 dependencyRepository.deleteById(systemDependency.getId());
             } catch (Exception e) {
+                logger.severe(e.getMessage());
                 throw new DependencyNotFound();
             }
         }

@@ -25,6 +25,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,7 +43,7 @@ public class GalaxyService {
 
     private final JdbcTemplate jdbcTemplate;
 
-    private StringBuilder systemQuery;
+    private final Logger logger = Logger.getLogger(GalaxyService.class.getName());
 
     public GalaxyWithOrbitModel getGalaxyById(Integer id) {
         try {
@@ -61,6 +62,7 @@ public class GalaxyService {
             }
             return galaxy;
         } catch (Exception e) {
+            logger.severe(e.getMessage());
             throw new GalacxyNotFoundException();
         }
     }
@@ -73,9 +75,11 @@ public class GalaxyService {
         try {
             jdbcTemplate.execute(galaxyQuery.toString());
         } catch (RuntimeException e) {
+            logger.severe(e.getMessage());
             throw new GalacxycAlreadyExistsException();
         }
         StringBuilder orbitQuery = new StringBuilder("INSERT INTO orbit VALUES");
+        StringBuilder systemQuery = new StringBuilder("INSERT INTO star_system VALUES");
         if (model.getOrbitsList() != null) {
             for (OrbitCreateWithOutGalaxyIdModel orbit : model.getOrbitsList()) {
                 orbitQuery.append("(")
@@ -88,7 +92,6 @@ public class GalaxyService {
                         .append(model.getGalaxyId())
                         .append("),");
                 if (orbit.getSystemsList() != null) {
-                    systemQuery = new StringBuilder("INSERT INTO star_system VALUES");
                     for (SystemCreateModel system : orbit.getSystemsList()) {
                         systemQuery.append("(")
                                 .append(system.getSystemId())
@@ -109,6 +112,7 @@ public class GalaxyService {
             try {
                 jdbcTemplate.execute(orbitQuery.toString());
             } catch (RuntimeException e) {
+                logger.severe(e.getMessage());
                 galaxyRepository.deleteById(model.getGalaxyId());
                 throw new OrbitAlreadyExistsException();
 
@@ -116,6 +120,7 @@ public class GalaxyService {
             try {
                 jdbcTemplate.execute(systemQuery.toString());
             } catch (RuntimeException e) {
+                logger.severe(e.getMessage());
                 for (OrbitCreateWithOutGalaxyIdModel orbit : model.getOrbitsList()) {
                     orbitRepository.deleteById(orbit.getOrbitId());
                 }
@@ -131,8 +136,10 @@ public class GalaxyService {
             galaxyUp.setGalaxyName(model.getGalaxyName());
             galaxyRepository.save(galaxyUp);
         } catch (RuntimeException e) {
+            logger.severe(e.getMessage());
             throw new GalacxycAlreadyExistsException();
         } catch (Exception e) {
+            logger.severe(e.getMessage());
             throw new GalacxyNotFoundException();
         }
     }
@@ -141,6 +148,7 @@ public class GalaxyService {
         try {
             galaxyRepository.deleteById(id);
         } catch (Exception e) {
+            logger.severe(e.getMessage());
             throw new GalacxyNotFoundException();
         }
     }
