@@ -7,7 +7,6 @@ public class UserRequest {
     private String login;
     private String password;
 
-
     @Override
     public String toString() {
         return "{" +

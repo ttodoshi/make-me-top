@@ -1,11 +1,12 @@
 package org.example.service;
 
+import lombok.RequiredArgsConstructor;
 import org.example.config.mapper.DependencyMapper;
 import org.example.config.mapper.GalaxyMapper;
 import org.example.config.mapper.OrbitMapper;
 import org.example.config.mapper.SystemMapper;
-import org.example.exception.galaxyEX.GalacxycAlreadyExistsException;
 import org.example.exception.galaxyEX.GalacxyNotFoundException;
+import org.example.exception.galaxyEX.GalacxycAlreadyExistsException;
 import org.example.exception.orbitEX.OrbitAlreadyExistsException;
 import org.example.exception.systemEX.SystemAlreadyExistsException;
 import org.example.model.galaxyModel.CreateGalaxyModel;
@@ -20,7 +21,6 @@ import org.example.repository.DependencyRepository;
 import org.example.repository.GalaxyRepository;
 import org.example.repository.OrbitRepository;
 import org.example.repository.SystemRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -28,39 +28,25 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class GalaxyService {
-    @Autowired
-    GalaxyMapper galaxyMapper;
-    @Autowired
-    OrbitMapper orbitMapper;
-    @Autowired
-    SystemMapper systemMapper;
-    @Autowired
-    DependencyMapper dependencyMapper;
+    private final GalaxyRepository galaxyRepository;
+    private final OrbitRepository orbitRepository;
+    private final SystemRepository systemRepository;
+    private final DependencyRepository dependencyRepository;
 
-    @Autowired
-    GalaxyRepository galaxyRepository;
-    @Autowired
-    OrbitRepository orbitRepository;
+    private final GalaxyMapper galaxyMapper;
+    private final OrbitMapper orbitMapper;
+    private final SystemMapper systemMapper;
+    private final DependencyMapper dependencyMapper;
 
-    @Autowired
-    SystemRepository systemRepository;
+    private final JdbcTemplate jdbcTemplate;
 
-    @Autowired
-    DependencyRepository dependencyRepository;
-
-    @Autowired
-    JdbcTemplate jdbcTemplate;
-
-    private StringBuilder QUERY_GALAXY;
-    private StringBuilder QUERY_ORBIT;
-    private StringBuilder QUERY_SYSTEM;
-    GalaxyWithOrbitModel galaxy;
-    Galaxy galaxyUp;
+    private StringBuilder systemQuery;
 
     public GalaxyWithOrbitModel getGalaxyById(Integer id) {
         try {
-            galaxy = galaxyMapper.mapGalaxy(galaxyRepository.getReferenceById(id));
+            GalaxyWithOrbitModel galaxy = galaxyMapper.mapGalaxy(galaxyRepository.getReferenceById(id));
 
             galaxy.setOrbitsList(orbitRepository.getOrbitsByGalacticId(id).stream().map(x -> orbitMapper.orbitToOrbitWithSystemModel(x)).collect(Collectors.toList()));
             for (OrbitWithSystemModel orbitWithSystemModel : galaxy.getOrbitsList()) {
@@ -80,20 +66,19 @@ public class GalaxyService {
     }
 
     public void createGalaxy(CreateGalaxyModel model) {
-
-        QUERY_GALAXY = new StringBuilder("INSERT INTO galaxy VALUES (").append(model.getGalaxyId())
+        StringBuilder galaxyQuery = new StringBuilder("INSERT INTO galaxy VALUES (").append(model.getGalaxyId())
                 .append(",'")
                 .append(model.getGalaxyName())
                 .append("');");
         try {
-            jdbcTemplate.execute(QUERY_GALAXY.toString());
+            jdbcTemplate.execute(galaxyQuery.toString());
         } catch (RuntimeException e) {
             throw new GalacxycAlreadyExistsException();
         }
-        QUERY_ORBIT = new StringBuilder("INSERT INTO orbit VALUES");
+        StringBuilder orbitQuery = new StringBuilder("INSERT INTO orbit VALUES");
         if (model.getOrbitsList() != null) {
             for (OrbitCreateWithOutGalaxyIdModel orbit : model.getOrbitsList()) {
-                QUERY_ORBIT.append("(")
+                orbitQuery.append("(")
                         .append(orbit.getOrbitId())
                         .append(",")
                         .append(orbit.getLevelOrbit())
@@ -103,9 +88,9 @@ public class GalaxyService {
                         .append(model.getGalaxyId())
                         .append("),");
                 if (orbit.getSystemsList() != null) {
-                    QUERY_SYSTEM = new StringBuilder("INSERT INTO star_system VALUES");
+                    systemQuery = new StringBuilder("INSERT INTO star_system VALUES");
                     for (SystemCreateModel system : orbit.getSystemsList()) {
-                        QUERY_SYSTEM.append("(")
+                        systemQuery.append("(")
                                 .append(system.getSystemId())
                                 .append(",")
                                 .append(system.getPositionSystem())
@@ -119,17 +104,17 @@ public class GalaxyService {
                     }
                 }
             }
-            QUERY_SYSTEM.replace(QUERY_SYSTEM.length() - 1, QUERY_SYSTEM.length(), ";");
-            QUERY_ORBIT.replace(QUERY_ORBIT.length() - 1, QUERY_ORBIT.length(), ";");
+            systemQuery.replace(systemQuery.length() - 1, systemQuery.length(), ";");
+            orbitQuery.replace(orbitQuery.length() - 1, orbitQuery.length(), ";");
             try {
-                jdbcTemplate.execute(QUERY_ORBIT.toString());
+                jdbcTemplate.execute(orbitQuery.toString());
             } catch (RuntimeException e) {
                 galaxyRepository.deleteById(model.getGalaxyId());
                 throw new OrbitAlreadyExistsException();
 
             }
             try {
-                jdbcTemplate.execute(QUERY_SYSTEM.toString());
+                jdbcTemplate.execute(systemQuery.toString());
             } catch (RuntimeException e) {
                 for (OrbitCreateWithOutGalaxyIdModel orbit : model.getOrbitsList()) {
                     orbitRepository.deleteById(orbit.getOrbitId());
@@ -142,15 +127,13 @@ public class GalaxyService {
 
     public void updateGalaxy(Integer id, GalaxyModel model) {
         try {
-            galaxyUp = galaxyRepository.getReferenceById(id);
+            Galaxy galaxyUp = galaxyRepository.getReferenceById(id);
             galaxyUp.setGalaxyName(model.getGalaxyName());
-        } catch (Exception e) {
-            throw new GalacxyNotFoundException();
-        }
-        try {
             galaxyRepository.save(galaxyUp);
         } catch (RuntimeException e) {
             throw new GalacxycAlreadyExistsException();
+        } catch (Exception e) {
+            throw new GalacxyNotFoundException();
         }
     }
 
@@ -162,7 +145,7 @@ public class GalaxyService {
         }
     }
 
-    public List<Galaxy> getAllGalaxy() {
+    public List<Galaxy> getAllGalaxies() {
         return galaxyRepository.getAllGalaxy();
     }
 }

@@ -1,6 +1,15 @@
 version: '3.5'
 
 services:
+  wiremock:
+    image: rodolpheche/wiremock
+    container_name: wiremock
+    ports:
+      - "8083:8080"
+    networks:
+      postgres:
+        ipv4_address: 10.10.0.15
+
   postgres:
     container_name: postgres_container
     image: postgres
@@ -15,8 +24,8 @@ services:
     ports:
       - "5432:5432"
     networks:
-       postgres:
-         ipv4_address: 10.10.0.14
+      postgres:
+        ipv4_address: 10.10.0.14
     restart: unless-stopped
   
   pgadmin:
@@ -30,8 +39,8 @@ services:
     ports:
       - "8081:80"
     networks:
-       postgres:
-         ipv4_address: 10.10.0.13
+      postgres:
+        ipv4_address: 10.10.0.13
     restart: unless-stopped
   app_galaxy:
     container_name: app_galaxy_container
@@ -57,7 +66,7 @@ services:
     container_name: app_auth_container
     build: ./auth-service
     ports:
-      - "8200:8200"
+      - "8103:8103"
     depends_on:
       - postgres
     networks:
@@ -72,6 +81,7 @@ services:
     networks:
       postgres:
         ipv4_address: 10.10.0.3
+
 
 networks:
   postgres:

@@ -5,28 +5,30 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import lombok.RequiredArgsConstructor;
 import org.example.model.dependencyModel.CreateDependencyModel;
 import org.example.model.dependencyModel.DeleteDependencyModel;
 import org.example.service.DependencyService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/galaxy-app/dependency/")
+@RequiredArgsConstructor
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @JsonIgnoreProperties({"trace"})
 public class SystemDependencyController {
-    @Autowired
-    DependencyService dependencyService;
+    private final DependencyService dependencyService;
 
-    @PostMapping("createDependency")
-    @Operation(summary = "add dependency", tags = "dependency")
+    @PostMapping
+    @Secured("ROLE_BIG_BROTHER")
+    @Operation(summary = "Add dependency", tags = "dependency")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "system discovered",
+                    description = "Dependency created",
                     content = {
                             @Content(
                                     mediaType = "application/json")
@@ -36,13 +38,13 @@ public class SystemDependencyController {
         dependencyService.addDependency(dependency);
     }
 
-
-    @DeleteMapping("delete")
-    @Operation(summary = "delete dependency", tags = "dependency")
+    @DeleteMapping
+    @Secured("ROLE_BIG_BROTHER")
+    @Operation(summary = "Delete dependency", tags = "dependency")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "system discovered",
+                    description = "Dependency deleted",
                     content = {
                             @Content(
                                     mediaType = "application/json")

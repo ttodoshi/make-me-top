@@ -9,7 +9,6 @@ import javax.persistence.*;
 @Entity
 @Data
 public class PlanetDAO {
-
     @Id
     private Integer planetId;
     private String planetName;

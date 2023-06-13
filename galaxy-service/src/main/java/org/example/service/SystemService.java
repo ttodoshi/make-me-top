@@ -1,5 +1,6 @@
 package org.example.service;
 
+import lombok.RequiredArgsConstructor;
 import org.example.config.mapper.DependencyMapper;
 import org.example.config.mapper.SystemMapper;
 import org.example.exception.galaxyEX.GalacxyNotFoundException;
@@ -16,7 +17,6 @@ import org.example.repository.OrbitRepository;
 import org.example.repository.SystemRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,34 +24,26 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class SystemService {
+    private final SystemRepository systemRepository;
+    private final DependencyRepository dependencyRepository;
+    private final GalaxyRepository galaxyRepository;
+    private final OrbitRepository orbitRepository;
 
-    final static Logger LOGGER = LoggerFactory.getLogger(SystemService.class);
-    @Autowired
-    SystemRepository systemRepository;
-    @Autowired
-    DependencyRepository dependencyRepository;
-    @Autowired
-    SystemMapper systemMapper;
-    @Autowired
-    DependencyMapper dependencyMapper;
-    @Autowired
-    GalaxyRepository galaxyRepository;
-    @Autowired
-    OrbitRepository orbitRepository;
-    SystemWithDependencyModel system;
-    List<DependencyGetInfoModel> list;
-    StarSystem starSystem;
+    private final SystemMapper systemMapper;
+    private final DependencyMapper dependencyMapper;
+    final static Logger logger = LoggerFactory.getLogger(SystemService.class);
 
-    public SystemWithDependencyModel getStartSystemById(Integer id) {
+    public SystemWithDependencyModel getStarSystemById(Integer id) {
         try {
-            system = systemMapper.systemToSystemWithDependencyModel(systemRepository.getReferenceById(id));
+            SystemWithDependencyModel system = systemMapper.systemToSystemWithDependencyModel(systemRepository.getReferenceById(id));
             system.setDependencyList(dependencyRepository.getListSystemDependencyParent(system.getSystemId())
                     .stream().map(x -> dependencyMapper.DependencyModelToDependencyParentModel(x)).collect(Collectors.toList()));
-            list = dependencyRepository.getListSystemDependencyChild(system.getSystemId())
+            List<DependencyGetInfoModel> dependencies = dependencyRepository.getListSystemDependencyChild(system.getSystemId())
                     .stream().filter(x -> x.getParent() != null).map(x -> dependencyMapper.DependencyModelToDependencyChildModel(x)).collect(Collectors.toList());
-            if (list != null) {
-                for (DependencyGetInfoModel model : list) {
+            if (dependencies != null) {
+                for (DependencyGetInfoModel model : dependencies) {
                     system.getDependencyList().add(model);
                 }
             }
@@ -61,10 +53,10 @@ public class SystemService {
         }
     }
 
-    public StarSystem getStartSystemByIdWithOutDependency(Integer systemId) {
+    public StarSystem getStarSystemByIdWithoutDependency(Integer systemId) {
         try {
-            starSystem = systemRepository.getReferenceById(systemId);
-            LOGGER.info(starSystem.getSystemName());
+            StarSystem starSystem = systemRepository.getReferenceById(systemId);
+            logger.info(starSystem.getSystemName());
             return starSystem;
         } catch (Exception e) {
             throw new SystemNotFoundException();
@@ -74,12 +66,12 @@ public class SystemService {
     public void createSystem(SystemCreateModel model, Integer id) {
 
         try {
-            LOGGER.info(galaxyRepository.getReferenceById(id).getGalaxyName());
+            logger.info(galaxyRepository.getReferenceById(id).getGalaxyName());
         } catch (Exception e) {
             throw new GalacxyNotFoundException();
         }
         try {
-            LOGGER.info(orbitRepository.getReferenceById(model.getOrbitId()).getOrbitId().toString());
+            logger.info(orbitRepository.getReferenceById(model.getOrbitId()).getOrbitId().toString());
         } catch (Exception e) {
             throw new OrbitNotFoundException();
         }

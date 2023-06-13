@@ -1,6 +1,5 @@
 package org.example.model;
 
-import com.google.gson.annotations.SerializedName;
 import lombok.Data;
 
 @Data

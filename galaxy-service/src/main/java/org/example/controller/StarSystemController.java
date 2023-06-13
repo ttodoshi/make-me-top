@@ -4,95 +4,89 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import lombok.RequiredArgsConstructor;
 import org.example.model.modelDAO.StarSystem;
 import org.example.model.systemModel.SystemCreateModel;
 import org.example.model.systemModel.SystemWithDependencyModel;
 import org.example.service.SystemService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping("/galaxy-app/system/")
+@RequestMapping("/galaxy-app/")
+@RequiredArgsConstructor
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class StarSystemController {
+    private final SystemService systemService;
 
-    @Autowired
-    SystemService systemService;
-
-    @GetMapping("{ID}")
-    @Operation(summary = "get system by id", tags = "system")
+    @GetMapping("system/{systemId}")
+    @Secured({"ROLE_EXPLORER", "ROLE_KEEPER", "ROLE_BIG_BROTHER"})
+    @Operation(summary = "Get system by id", tags = "system")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "system discovered",
+                    description = "System by id",
                     content = {
                             @Content(
                                     mediaType = "application/json")
                     })
     })
-    public SystemWithDependencyModel getSystemById(@PathVariable("ID") Integer id) {
-        return systemService.getStartSystemById(id);
+    public ResponseEntity<?> getSystemById(@PathVariable("systemId") Integer id,
+                                           @RequestParam(name = "withDependency", required = false) Boolean withDependency) {
+        if (withDependency != null && withDependency)
+            return ResponseEntity.ok(systemService.getStarSystemById(id));
+        else
+            return ResponseEntity.ok(systemService.getStarSystemByIdWithoutDependency(id));
     }
 
-    @PostMapping("create/{GALAXY_ID}")
-    @Operation(summary = "create system", tags = "system")
+    @PostMapping("galaxy/{galaxyId}/system")
+    @Secured("ROLE_BIG_BROTHER")
+    @Operation(summary = "Create system", tags = "system")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "system discovered",
+                    description = "System created",
                     content = {
                             @Content(
                                     mediaType = "application/json")
                     })
     })
-    public void createSystem(@RequestBody SystemCreateModel model, @PathVariable("GALAXY_ID") Integer id) {
+    public void createSystem(@RequestBody SystemCreateModel model, @PathVariable("galaxyId") Integer id) {
         systemService.createSystem(model, id);
     }
 
 
-    @PutMapping("update/{GALAXY_ID}")
-    @Operation(summary = "get system by id", tags = "system")
+    @PutMapping("galaxy/{galaxyId}/system")
+    @Secured("ROLE_BIG_BROTHER")
+    @Operation(summary = "Update system by id", tags = "system")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "system discovered",
+                    description = "System updated",
                     content = {
                             @Content(
                                     mediaType = "application/json")
                     })
     })
-    public void updateSystem(@RequestBody SystemCreateModel model, @PathVariable("GALAXY_ID") Integer id) {
+    public void updateSystem(@RequestBody SystemCreateModel model, @PathVariable("galaxyId") Integer id) {
         systemService.updateSystem(model, id);
     }
 
-    @PutMapping("delete/{ID}")
-    @Operation(summary = "get system by id", tags = "system")
+    @DeleteMapping("system/{systemId}")
+    @Secured("ROLE_BIG_BROTHER")
+    @Operation(summary = "Delete system by id", tags = "system")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "system discovered",
+                    description = "System deleted",
                     content = {
                             @Content(
                                     mediaType = "application/json")
                     })
     })
-    public void deleteSystem(@PathVariable("ID") Integer id) {
+    public void deleteSystem(@PathVariable("systemId") Integer id) {
         systemService.deleteSystem(id);
-    }
-
-    @GetMapping("byId/{ID}")
-    @Operation(summary = "get system by id", tags = "system")
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "system discovered",
-                    content = {
-                            @Content(
-                                    mediaType = "application/json")
-                    })
-    })
-    public StarSystem getSystemByIdWithOutDep(@PathVariable("ID") Integer id) {
-        return systemService.getStartSystemByIdWithOutDependency(id);
     }
 }

@@ -1,5 +1,6 @@
 package org.example.service;
 
+import lombok.RequiredArgsConstructor;
 import org.example.exception.dependencyEX.DependencyAlreadyExistsException;
 import org.example.exception.dependencyEX.DependencyNotFound;
 import org.example.exception.systemEX.SystemNotFoundException;
@@ -8,25 +9,21 @@ import org.example.model.dependencyModel.DeleteDependencyModel;
 import org.example.model.modelDAO.SystemDependency;
 import org.example.repository.DependencyRepository;
 import org.example.repository.SystemRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class DependencyService {
-    @Autowired
-    JdbcTemplate jdbcTemplate;
-    @Autowired
-    DependencyRepository dependencyRepository;
-    @Autowired
-    SystemRepository systemRepository;
-    private StringBuilder DEPENDENCY_QUERY;
-    SystemDependency systemDependency;
+    private final DependencyRepository dependencyRepository;
+    private final SystemRepository systemRepository;
+
+    private final JdbcTemplate jdbcTemplate;
 
     public void addDependency(List<CreateDependencyModel> systemDependency) {
-        DEPENDENCY_QUERY = new StringBuilder("INSERT INTO system_dependency (child_id, parent_id, is_alternative)VALUES");
+        StringBuilder dependencyQuery = new StringBuilder("INSERT INTO system_dependency (child_id, parent_id, is_alternative)VALUES");
 
         for (CreateDependencyModel dependency : systemDependency) {
             if (systemRepository.checkExistsSystem(dependency.getChildId()) == null ||
@@ -42,18 +39,19 @@ public class DependencyService {
                     throw new DependencyAlreadyExistsException();
                 }
             }
-            DEPENDENCY_QUERY
+            dependencyQuery
                     .append("(").append(dependency.getChildId())
                     .append(",").append(dependency.getParentId())
                     .append(",")
                     .append(dependency.getIsAlternative())
                     .append("),");
         }
-        DEPENDENCY_QUERY.replace(DEPENDENCY_QUERY.length() - 1, DEPENDENCY_QUERY.length(), "");
-        jdbcTemplate.execute(DEPENDENCY_QUERY.toString());
+        dependencyQuery.replace(dependencyQuery.length() - 1, dependencyQuery.length(), "");
+        jdbcTemplate.execute(dependencyQuery.toString());
     }
 
     public void deleteDependency(DeleteDependencyModel dependency) {
+        SystemDependency systemDependency;
         if (dependency.getParentId() == null) {
             try {
                 systemDependency = dependencyRepository.getSystemDependencyByChildIdAndParentNull(dependency.getChildId());
@@ -61,7 +59,6 @@ public class DependencyService {
             } catch (Exception e) {
                 throw new DependencyNotFound();
             }
-
         } else {
             try {
                 systemDependency = dependencyRepository.getSystemDependencyByChildIDAndParentId(dependency.getChildId(), dependency.getParentId());
@@ -70,6 +67,5 @@ public class DependencyService {
                 throw new DependencyNotFound();
             }
         }
-
     }
 }

@@ -1,85 +1,74 @@
 package org.example.controller;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonParser;
-import lombok.SneakyThrows;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import org.example.config.JwtGeneratorInterface;
-import org.example.exception.UserNotFoundException;
-import org.example.model.Person;
-import org.example.model.UserAuthResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
+import lombok.RequiredArgsConstructor;
 import org.example.model.UserRequest;
-import org.example.sevice.PersonService;
-import org.example.utils.PersonMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.example.service.PersonService;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Objects;
-import java.util.logging.Logger;
 
 @RestController
 @RequestMapping("/auth/")
 @PropertySource(value = {"classpath:config.properties"})
+@RequiredArgsConstructor
+@SecurityScheme(
+        name = "bearerAuth",
+        type = SecuritySchemeType.HTTP,
+        scheme = "bearer",
+        bearerFormat = "JWT"
+)
 public class UserController {
-
-    Logger logger = Logger.getLogger(UserController.class.getName());
-    @Autowired
-    private JwtGeneratorInterface jwtGenerator;
-    @Autowired
-    private PersonService personService;
-    @Autowired
-    private PersonMapper personMapper;
-
-    @Value("${url_auth_mmtr}")
-    String url_auth_mmtr;
-    Person person;
-    GsonBuilder builder;
-    Gson gson;
-    UserAuthResponse userAuthResponse;
-
-
-    public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+    private final PersonService personService;
 
     @PostMapping("login")
+    @Operation(summary = "Log in", tags = "Authentication")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Log in by username and password successful",
+                    content = {
+                            @Content(
+                                    mediaType = "text/plain")
+                    })
+    })
     public ResponseEntity<?> loginUser(@RequestBody UserRequest userRequest) {
-
-        person = personService.checkPersonById(personMapper.UserAuthResponseToPerson(Objects.requireNonNull(checkExistsUser(userRequest))));
         try {
-            return new ResponseEntity<>(jwtGenerator.generateToken(person), HttpStatus.OK);
+            return new ResponseEntity<>(personService.login(userRequest), HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
 
-    @GetMapping("toCurator/{Id}")
-    public void updatePersonToCurator(@PathVariable("Id") Integer personId) {
-        personService.updatePersonToCurator(personId);
-    }
-
-    @SneakyThrows
-    private UserAuthResponse checkExistsUser(UserRequest userRequest) {
-        builder = new GsonBuilder();
-        gson = builder.create();
-
-        okhttp3.RequestBody bodyRequest = okhttp3.RequestBody.create(JSON, userRequest.toString());
-        var getSystemById = new Request.Builder().post(bodyRequest).url(url_auth_mmtr).addHeader("content-type", "application/json").build();
-        try (var response = new OkHttpClient().newCall(getSystemById).execute()) {
-            if (response.code() == 200) {
-
-                String bodyResponse = response.body().string();
-                return new Gson().fromJson(JsonParser.parseString(bodyResponse).getAsJsonObject().getAsJsonObject("object"), UserAuthResponse.class);
-            }
+    @Secured("ROLE_BIG_BROTHER")
+    @PatchMapping("toKeeper/{Id}")
+    @Operation(
+            summary = "Update person role to keeper",
+            tags = "For admin",
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Successfully changed person role to keeper",
+                    content = {
+                            @Content(
+                                    mediaType = "text/plain")
+                    })
+    })
+    public ResponseEntity<?> updatePersonRoleToCurator(@PathVariable("Id") Integer personId) {
+        try {
+            return new ResponseEntity<>(personService.updatePersonRoleToCurator(personId), HttpStatus.OK);
         } catch (Exception e) {
-            throw new UserNotFoundException();
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
-        return null;
     }
-
 }
