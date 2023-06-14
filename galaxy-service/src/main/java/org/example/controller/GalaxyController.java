@@ -5,11 +5,12 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.example.exception.galaxyEX.GalaxyNotFoundException;
 import org.example.model.galaxyModel.CreateGalaxyModel;
 import org.example.model.galaxyModel.GalaxyModel;
-import org.example.model.galaxyModel.GalaxyWithOrbitModel;
 import org.example.model.modelDAO.Galaxy;
 import org.example.service.GalaxyService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
@@ -50,8 +51,12 @@ public class GalaxyController {
                                     mediaType = "application/json")
                     })
     })
-    public GalaxyWithOrbitModel getGalaxyById(@PathVariable("galaxyId") Integer id) {
-        return galaxyService.getGalaxyById(id);
+    public ResponseEntity<?> getGalaxyById(@PathVariable("galaxyId") Integer id) {
+        try {
+            return ResponseEntity.ok(galaxyService.getGalaxyById(id));
+        } catch (Exception e) {
+            throw new GalaxyNotFoundException();
+        }
     }
 
     @PostMapping

@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.config.mapper.DependencyMapper;
 import org.example.config.mapper.OrbitMapper;
 import org.example.config.mapper.SystemMapper;
-import org.example.exception.galaxyEX.GalacxyNotFoundException;
+import org.example.exception.galaxyEX.GalaxyNotFoundException;
 import org.example.exception.orbitEX.OrbitAlreadyExistsException;
 import org.example.exception.orbitEX.OrbitCoordinatesException;
 import org.example.exception.orbitEX.OrbitDeleteException;
@@ -43,7 +43,7 @@ public class OrbitService {
             orbitList = orbitRepository.getOrbitsByGalacticId(model.getGalaxyId());
         } catch (Exception e) {
             logger.severe(e.getMessage());
-            throw new GalacxyNotFoundException();
+            throw new GalaxyNotFoundException();
         }
         try {
             for (Orbit orbit : orbitList) {

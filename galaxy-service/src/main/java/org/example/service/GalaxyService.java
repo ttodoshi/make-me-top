@@ -5,7 +5,7 @@ import org.example.config.mapper.DependencyMapper;
 import org.example.config.mapper.GalaxyMapper;
 import org.example.config.mapper.OrbitMapper;
 import org.example.config.mapper.SystemMapper;
-import org.example.exception.galaxyEX.GalacxyNotFoundException;
+import org.example.exception.galaxyEX.GalaxyNotFoundException;
 import org.example.exception.galaxyEX.GalacxycAlreadyExistsException;
 import org.example.exception.orbitEX.OrbitAlreadyExistsException;
 import org.example.exception.systemEX.SystemAlreadyExistsException;
@@ -63,7 +63,7 @@ public class GalaxyService {
             return galaxy;
         } catch (Exception e) {
             logger.severe(e.getMessage());
-            throw new GalacxyNotFoundException();
+            throw new GalaxyNotFoundException();
         }
     }
 
@@ -140,7 +140,7 @@ public class GalaxyService {
             throw new GalacxycAlreadyExistsException();
         } catch (Exception e) {
             logger.severe(e.getMessage());
-            throw new GalacxyNotFoundException();
+            throw new GalaxyNotFoundException();
         }
     }
 
@@ -149,7 +149,7 @@ public class GalaxyService {
             galaxyRepository.deleteById(id);
         } catch (Exception e) {
             logger.severe(e.getMessage());
-            throw new GalacxyNotFoundException();
+            throw new GalaxyNotFoundException();
         }
     }
 

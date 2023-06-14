@@ -5,13 +5,14 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.example.exception.SystemNotFoundException;
 import org.example.model.PlanetModel;
 import org.example.service.PlanetService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 @RestController
@@ -33,10 +34,14 @@ public class PlanetController {
                                     mediaType = "application/json")
                     })
     })
-    public List<PlanetModel> getPlanetsBySystemId(@PathVariable("systemId") Integer id,
+    public ResponseEntity<?> getPlanetsBySystemId(@PathVariable("systemId") Integer id,
                                                   HttpServletRequest request) {
-        planetService.setAuthHeader(request.getHeader("Authorization"));
-        return planetService.getPlanetsListBySystemId(id);
+        try {
+            planetService.setAuthHeader(request.getHeader("Authorization"));
+            return ResponseEntity.ok(planetService.getPlanetsListBySystemId(id));
+        } catch (Exception e) {
+            throw new SystemNotFoundException();
+        }
     }
 
     @PostMapping("galaxy/{galaxyId}/planet")

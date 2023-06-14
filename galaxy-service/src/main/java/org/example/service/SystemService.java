@@ -3,7 +3,7 @@ package org.example.service;
 import lombok.RequiredArgsConstructor;
 import org.example.config.mapper.DependencyMapper;
 import org.example.config.mapper.SystemMapper;
-import org.example.exception.galaxyEX.GalacxyNotFoundException;
+import org.example.exception.galaxyEX.GalaxyNotFoundException;
 import org.example.exception.orbitEX.OrbitNotFoundException;
 import org.example.exception.systemEX.SystemAlreadyExistsException;
 import org.example.exception.systemEX.SystemNotFoundException;
@@ -71,7 +71,7 @@ public class SystemService {
             logger.info(galaxyRepository.getReferenceById(id).getGalaxyName());
         } catch (Exception e) {
             logger.severe(e.getMessage());
-            throw new GalacxyNotFoundException();
+            throw new GalaxyNotFoundException();
         }
         try {
             logger.info(orbitRepository.getReferenceById(model.getOrbitId()).getOrbitId().toString());
