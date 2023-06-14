@@ -1,15 +1,6 @@
 version: '3.5'
 
 services:
-  wiremock:
-    image: rodolpheche/wiremock
-    container_name: wiremock
-    ports:
-      - "8083:8080"
-    networks:
-      postgres:
-        ipv4_address: 10.10.0.15
-
   postgres:
     container_name: postgres_container
     image: postgres

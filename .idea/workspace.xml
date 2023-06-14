@@ -5,18 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c3067b5c-43fe-4418-8539-cf3ac548c919" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/galaxy-service/src/main/java/org/example/config/ErrorHandler.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/planet-service/src/main/java/org/example/config/ErrorHandler.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/galaxy-service/src/main/java/org/example/controller/GalaxyController.java" beforeDir="false" afterPath="$PROJECT_DIR$/galaxy-service/src/main/java/org/example/controller/GalaxyController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/galaxy-service/src/main/java/org/example/exception/galaxyEX/GalacxyNotFoundException.java" beforeDir="false" afterPath="$PROJECT_DIR$/galaxy-service/src/main/java/org/example/exception/galaxyEX/GalaxyNotFoundException.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/galaxy-service/src/main/java/org/example/service/GalaxyService.java" beforeDir="false" afterPath="$PROJECT_DIR$/galaxy-service/src/main/java/org/example/service/GalaxyService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/galaxy-service/src/main/java/org/example/service/OrbitService.java" beforeDir="false" afterPath="$PROJECT_DIR$/galaxy-service/src/main/java/org/example/service/OrbitService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/galaxy-service/src/main/java/org/example/service/SystemService.java" beforeDir="false" afterPath="$PROJECT_DIR$/galaxy-service/src/main/java/org/example/service/SystemService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/planet-service/src/main/java/org/example/controller/PlanetController.java" beforeDir="false" afterPath="$PROJECT_DIR$/planet-service/src/main/java/org/example/controller/PlanetController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/planet-service/src/main/java/org/example/exception/SystemNotFoundException.java" beforeDir="false" afterPath="$PROJECT_DIR$/planet-service/src/main/java/org/example/exception/SystemNotFoundException.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/planet-service/src/main/java/org/example/exception/connecntExceprion/ConnectException.java" beforeDir="false" afterPath="$PROJECT_DIR$/planet-service/src/main/java/org/example/exception/connecntExceprion/ConnectException.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/planet-service/src/main/java/org/example/repository/PlanetRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/planet-service/src/main/java/org/example/repository/PlanetRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/auth-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/auth-service/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/auth-service/src/main/resources/config.properties" beforeDir="false" afterPath="$PROJECT_DIR$/auth-service/src/main/resources/config.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/galaxy-service/src/main/java/org/example/service/DependencyService.java" beforeDir="false" afterPath="$PROJECT_DIR$/galaxy-service/src/main/java/org/example/service/DependencyService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/galaxy-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/galaxy-service/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planet-service/src/main/java/org/example/service/PlanetService.java" beforeDir="false" afterPath="$PROJECT_DIR$/planet-service/src/main/java/org/example/service/PlanetService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planet-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/planet-service/src/main/resources/application.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

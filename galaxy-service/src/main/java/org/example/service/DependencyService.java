@@ -26,7 +26,7 @@ public class DependencyService {
     private final Logger logger = Logger.getLogger(DependencyService.class.getName());
 
     public void addDependency(List<CreateDependencyModel> systemDependency) {
-        StringBuilder dependencyQuery = new StringBuilder("INSERT INTO system_dependency (child_id, parent_id, is_alternative)VALUES");
+        StringBuilder dependencyQuery = new StringBuilder("INSERT INTO system_dependency (child_id, parent_id, is_alternative) VALUES");
         try {
             for (CreateDependencyModel dependency : systemDependency) {
                 if (systemRepository.checkExistsSystem(dependency.getChildId()) == null ||
@@ -45,8 +45,7 @@ public class DependencyService {
                 dependencyQuery
                         .append("(").append(dependency.getChildId())
                         .append(",").append(dependency.getParentId())
-                        .append(",")
-                        .append(dependency.getIsAlternative())
+                        .append(",").append(dependency.getIsAlternative())
                         .append("),");
             }
             dependencyQuery.replace(dependencyQuery.length() - 1, dependencyQuery.length(), "");

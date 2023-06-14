@@ -16,9 +16,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpStatus;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Objects;
 import java.util.logging.Logger;
@@ -34,8 +34,6 @@ public class PlanetService {
     private final PlanetRepository planetRepository;
 
     private final ModelMapper mapper;
-
-    private final JdbcTemplate jdbcTemplate;
 
     private final Logger logger = Logger.getLogger(PlanetService.class.getName());
 
@@ -59,32 +57,21 @@ public class PlanetService {
         }
     }
 
+    @Transactional
     public void addPlanet(List<PlanetModel> list, Integer galaxyId) {
-        StringBuilder galaxyQuery = new StringBuilder("INSERT INTO planet VALUES");
-        List<PlanetDAO> planetDAOList = planetRepository.checkPlanetExists(galaxyId);
-        for (PlanetModel model : list) {
-            if (planetDAOList.stream()
-                    .allMatch(
-                            x -> !Objects.equals(
-                                    x.getPlanetName(), model.getPlanetName()))) {
-                checkSystemExist(model.getSystemId());
-                galaxyQuery.append("(")
-                        .append(model.getPlanetId())
-                        .append(",'")
-                        .append(model.getPlanetName())
-                        .append("',")
-                        .append(model.getPlanetNumber())
-                        .append(",")
-                        .append(model.getSystemId())
-                        .append("),");
-            } else {
-                throw new PlanetAlreadyExists();
-            }
-        }
-
-        galaxyQuery.replace(galaxyQuery.length() - 1, galaxyQuery.length(), ";");
         try {
-            jdbcTemplate.execute(galaxyQuery.toString());
+            List<PlanetDAO> planetDAOList = planetRepository.checkPlanetExists(galaxyId);
+            for (PlanetModel model : list) {
+                if (planetDAOList.stream()
+                        .noneMatch(
+                                x -> Objects.equals(
+                                        x.getPlanetName(), model.getPlanetName()))) {
+                    checkSystemExist(model.getSystemId());
+                    planetRepository.save(mapper.map(model, PlanetDAO.class));
+                } else {
+                    throw new PlanetAlreadyExists();
+                }
+            }
         } catch (Exception e) {
             logger.severe(e.getMessage());
             throw new PlanetAlreadyExists();
@@ -114,7 +101,7 @@ public class PlanetService {
             throw new PlanetNotFoundException();
         }
         try {
-            if (planetDAOList.stream().allMatch(x -> !Objects.equals(x.getPlanetName(), model.getPlanetName()))) {
+            if (planetDAOList.stream().noneMatch(x -> Objects.equals(x.getPlanetName(), model.getPlanetName()))) {
                 planetDAO.setPlanetName(model.getPlanetName());
             } else {
                 throw new PlanetAlreadyExists();
