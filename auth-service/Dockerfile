@@ -10,5 +10,5 @@ RUN mvn -f /home/app/pom.xml clean package -DskipTests
 #
 FROM adoptopenjdk/openjdk11:alpine-jre
 COPY --from=build /home/app/target/auth-service-1.0-SNAPSHOT.jar /usr/local/lib/auth-service.jar
-EXPOSE 8200
+EXPOSE 8103
 ENTRYPOINT ["java","-jar","/usr/local/lib/auth-service.jar"]

@@ -17,7 +17,6 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/auth/")
 @PropertySource(value = {"classpath:config.properties"})
 @RequiredArgsConstructor
 @SecurityScheme(
