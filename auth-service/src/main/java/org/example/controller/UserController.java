@@ -49,7 +49,7 @@ public class UserController {
     }
 
     @Secured("ROLE_BIG_BROTHER")
-    @PatchMapping("toKeeper/{Id}")
+    @PatchMapping("toKeeper/{personId}")
     @Operation(
             summary = "Update person role to keeper",
             tags = "For admin",
@@ -64,7 +64,7 @@ public class UserController {
                                     mediaType = "text/plain")
                     })
     })
-    public ResponseEntity<?> updatePersonRoleToCurator(@PathVariable("Id") Integer personId) {
+    public ResponseEntity<?> updatePersonRoleToCurator(@PathVariable("personId") Integer personId) {
         try {
             return new ResponseEntity<>(personService.updatePersonRoleToCurator(personId), HttpStatus.OK);
         } catch (Exception e) {

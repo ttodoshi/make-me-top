@@ -81,7 +81,7 @@ public class SystemService {
         }
 
         try {
-            if (systemRepository.getStarSystemByGalaxyId(id).stream().allMatch(x -> !Objects.equals(x.getSystemName(), model.getSystemName()))) {
+            if (systemRepository.getStarSystemByGalaxyId(id).stream().noneMatch(x -> Objects.equals(x.getSystemName(), model.getSystemName()))) {
                 if (systemRepository.checkExistsSystem(model.getSystemId()) == null) {
                     systemRepository.save(systemMapper.systemCreateModelToStarSystem(model));
                 } else {
@@ -106,7 +106,7 @@ public class SystemService {
             throw new OrbitNotFoundException();
         }
         try {
-            starSystem = systemRepository.getReferenceById(model.getOrbitId());
+            starSystem = systemRepository.getReferenceById(model.getSystemId());
         } catch (Exception e) {
             logger.severe(e.getMessage());
             throw new SystemNotFoundException();

@@ -27,6 +27,7 @@ public class SystemMapper {
         starSystem.setPositionSystem(model.getPositionSystem());
         starSystem.setSystemName(model.getSystemName());
         starSystem.setOrbitId(model.getOrbitId());
+        starSystem.setSystemLevel(model.getSystemLevel());
         return starSystem;
     }
 
