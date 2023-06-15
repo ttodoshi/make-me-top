@@ -6,7 +6,7 @@ import org.example.config.mapper.GalaxyMapper;
 import org.example.config.mapper.OrbitMapper;
 import org.example.config.mapper.SystemMapper;
 import org.example.exception.galaxyEX.GalaxyNotFoundException;
-import org.example.exception.galaxyEX.GalacxycAlreadyExistsException;
+import org.example.exception.galaxyEX.GalaxyAlreadyExistsException;
 import org.example.exception.orbitEX.OrbitAlreadyExistsException;
 import org.example.exception.systemEX.SystemAlreadyExistsException;
 import org.example.model.galaxyModel.CreateGalaxyModel;
@@ -76,7 +76,7 @@ public class GalaxyService {
             jdbcTemplate.execute(galaxyQuery.toString());
         } catch (RuntimeException e) {
             logger.severe(e.getMessage());
-            throw new GalacxycAlreadyExistsException();
+            throw new GalaxyAlreadyExistsException();
         }
         StringBuilder orbitQuery = new StringBuilder("INSERT INTO orbit VALUES");
         StringBuilder systemQuery = new StringBuilder("INSERT INTO star_system VALUES");
@@ -137,7 +137,7 @@ public class GalaxyService {
             galaxyRepository.save(galaxyUp);
         } catch (RuntimeException e) {
             logger.severe(e.getMessage());
-            throw new GalacxycAlreadyExistsException();
+            throw new GalaxyAlreadyExistsException();
         } catch (Exception e) {
             logger.severe(e.getMessage());
             throw new GalaxyNotFoundException();

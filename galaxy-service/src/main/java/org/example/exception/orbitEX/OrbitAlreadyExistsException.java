@@ -11,6 +11,6 @@ public class OrbitAlreadyExistsException extends RuntimeException {
     }
 
     public OrbitAlreadyExistsException() {
-
+        super("Орбита уже существует");
     }
 }

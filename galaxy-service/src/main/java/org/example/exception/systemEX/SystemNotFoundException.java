@@ -12,6 +12,6 @@ public class SystemNotFoundException extends RuntimeException{
     }
 
     public SystemNotFoundException() {
-
+        super("Система не найдена");
     }
 }

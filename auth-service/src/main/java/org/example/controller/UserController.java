@@ -41,15 +41,11 @@ public class UserController {
                     })
     })
     public ResponseEntity<?> loginUser(@RequestBody UserRequest userRequest) {
-        try {
-            return new ResponseEntity<>(personService.login(userRequest), HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-        }
+        return new ResponseEntity<>(personService.login(userRequest), HttpStatus.OK);
     }
 
-    @Secured("ROLE_BIG_BROTHER")
     @PatchMapping("toKeeper/{personId}")
+    @Secured("ROLE_BIG_BROTHER")
     @Operation(
             summary = "Update person role to keeper",
             tags = "For admin",
@@ -61,14 +57,10 @@ public class UserController {
                     description = "Successfully changed person role to keeper",
                     content = {
                             @Content(
-                                    mediaType = "text/plain")
+                                    mediaType = "application/json")
                     })
     })
     public ResponseEntity<?> updatePersonRoleToCurator(@PathVariable("personId") Integer personId) {
-        try {
-            return new ResponseEntity<>(personService.updatePersonRoleToCurator(personId), HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-        }
+        return new ResponseEntity<>(personService.updatePersonRoleToCurator(personId), HttpStatus.OK);
     }
 }

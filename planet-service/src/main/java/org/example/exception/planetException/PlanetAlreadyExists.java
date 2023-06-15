@@ -11,6 +11,6 @@ public class PlanetAlreadyExists extends RuntimeException {
     }
 
     public PlanetAlreadyExists() {
-
+        super("Планета уже существует");
     }
 }

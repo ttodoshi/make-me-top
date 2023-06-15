@@ -20,6 +20,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -106,12 +108,14 @@ public class PersonService {
         personRepository.save(person);
     }
 
-    public String updatePersonRoleToCurator(Integer personId) {
+    public Map<String, String> updatePersonRoleToCurator(Integer personId) {
         try {
             Person person = personRepository.getReferenceById(personId);
             person.setRole(Role.KEEPER);
             personRepository.save(person);
-            return "Роль успешно изменена";
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Роль успешно изменена");
+            return response;
         } catch (EntityNotFoundException e) {
             logger.severe(e.getMessage());
             throw new UserNotFoundException();

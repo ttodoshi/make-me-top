@@ -12,6 +12,6 @@ public class SystemAlreadyExistsException extends RuntimeException {
     }
 
     public SystemAlreadyExistsException() {
-
+        super("Система уже существует");
     }
 }

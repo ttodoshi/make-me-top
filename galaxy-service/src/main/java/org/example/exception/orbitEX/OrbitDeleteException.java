@@ -11,6 +11,6 @@ public class OrbitDeleteException extends RuntimeException {
     }
 
     public OrbitDeleteException() {
-
+        super("Ошибка удаления орбиты");
     }
 }

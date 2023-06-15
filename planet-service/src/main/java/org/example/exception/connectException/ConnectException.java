@@ -1,4 +1,4 @@
-package org.example.exception.connecntExceprion;
+package org.example.exception.connectException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -11,6 +11,6 @@ public class ConnectException extends RuntimeException {
     }
 
     public ConnectException() {
-
+        super("Бортовой компьютер не смог связать с внутренней системой данных");
     }
 }

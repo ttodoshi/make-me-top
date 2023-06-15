@@ -11,6 +11,6 @@ public class DependencyNotFound extends RuntimeException {
     }
 
     public DependencyNotFound() {
-
+        super("Зависимость не найдена");
     }
 }
