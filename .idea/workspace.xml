@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="c3067b5c-43fe-4418-8539-cf3ac548c919" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/auth-service/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/auth-service/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/auth-service/src/main/java/org/example/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/auth-service/src/main/java/org/example/config/SecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/auth-service/src/main/java/org/example/config/SwaggerConfiguration.java" beforeDir="false" afterPath="$PROJECT_DIR$/auth-service/src/main/java/org/example/config/SwaggerConfiguration.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/auth-service/src/main/java/org/example/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/auth-service/src/main/java/org/example/controller/UserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/auth-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/auth-service/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/galaxy-service/src/main/java/org/example/config/SwaggerConfiguration.java" beforeDir="false" afterPath="$PROJECT_DIR$/galaxy-service/src/main/java/org/example/config/SwaggerConfiguration.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/galaxy-service/src/main/java/org/example/controller/GalaxyController.java" beforeDir="false" afterPath="$PROJECT_DIR$/galaxy-service/src/main/java/org/example/controller/GalaxyController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/galaxy-service/src/main/java/org/example/controller/OrbitController.java" beforeDir="false" afterPath="$PROJECT_DIR$/galaxy-service/src/main/java/org/example/controller/OrbitController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/galaxy-service/src/main/java/org/example/controller/StarSystemController.java" beforeDir="false" afterPath="$PROJECT_DIR$/galaxy-service/src/main/java/org/example/controller/StarSystemController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/galaxy-service/src/main/java/org/example/controller/SystemDependencyController.java" beforeDir="false" afterPath="$PROJECT_DIR$/galaxy-service/src/main/java/org/example/controller/SystemDependencyController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/galaxy-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/galaxy-service/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planet-service/src/main/java/org/example/config/SwaggerConfiguration.java" beforeDir="false" afterPath="$PROJECT_DIR$/planet-service/src/main/java/org/example/config/SwaggerConfiguration.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planet-service/src/main/java/org/example/controller/PlanetController.java" beforeDir="false" afterPath="$PROJECT_DIR$/planet-service/src/main/java/org/example/controller/PlanetController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planet-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/planet-service/src/main/resources/application.properties" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Enum" />
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="useMavenConfig" value="true" />
+      </MavenGeneralSettings>
+    </option>
+  </component>
+  <component name="ProjectId" id="2Qe8U7j0F3iu7aP40BqGQEjOWxr" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_MARK_IGNORED_FILES_AS_EXCLUDED": "true",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "git-widget-placeholder": "Cherry-picking in master",
+    "jdk.selected.JAVA_MODULE": "openjdk-19",
+    "last_opened_file_path": "/home/alexander/mmtback/auth-service/.idea",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.0",
+    "settings.editor.selected.configurable": "reference.settings.project.maven.importing"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/auth-service/.idea" />
+      <recent name="$PROJECT_DIR$/galaxy-service/src/main/resources" />
+      <recent name="$PROJECT_DIR$/galaxy-service/src/main/java/org/example/model" />
+      <recent name="$PROJECT_DIR$/galaxy-service/src/main/java/org/example/config" />
+      <recent name="$PROJECT_DIR$/planet-service/src/main/java/org/example/config" />
+    </key>
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="org.example.config" />
+      <recent name="org.example.repository" />
+    </key>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="c3067b5c-43fe-4418-8539-cf3ac548c919" name="Changes" comment="" />
+      <created>1685702700309</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1685702700309</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="UnknownFeatures">
+    <option featureType="com.intellij.fileTypeFactory" implementationName="Dockerfile" />
+    <option featureType="com.intellij.fileTypeFactory" implementationName="*.conf" />
+    <option featureType="com.intellij.fileTypeFactory" implementationName="docker-compose.yml" />
+  </component>
+  <component name="Vcs.Log.History.Properties">
+    <option name="COLUMN_ID_ORDER">
+      <list>
+        <option value="Default.Root" />
+        <option value="Default.Author" />
+        <option value="Default.Date" />
+        <option value="Default.Subject" />
+        <option value="Space.CommitStatus" />
+      </list>
+    </option>
+  </component>
+</project>
