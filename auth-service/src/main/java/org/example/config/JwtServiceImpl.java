@@ -22,7 +22,7 @@ public class JwtServiceImpl implements JwtServiceInterface {
         Claims claims = Jwts.claims().setSubject(person.getPersonId().toString());
         claims.put("role", person.getRole());
         Date now = new Date();
-        Date kill = new Date(now.getTime() + 55250 * 1000);
+        Date kill = new Date(now.getTime() + 43200 * 1000);
         return Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(now)

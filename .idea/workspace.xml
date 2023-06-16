@@ -1,25 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AnalysisUIOptions">
+    <option name="SCOPE_TYPE" value="3" />
+  </component>
   <component name="AutoImportSettings">
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c3067b5c-43fe-4418-8539-cf3ac548c919" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/auth-service/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/auth-service/Dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/auth-service/src/main/java/org/example/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/auth-service/src/main/java/org/example/config/SecurityConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/auth-service/src/main/java/org/example/config/SwaggerConfiguration.java" beforeDir="false" afterPath="$PROJECT_DIR$/auth-service/src/main/java/org/example/config/SwaggerConfiguration.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/auth-service/src/main/java/org/example/config/JwtAuthFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/auth-service/src/main/java/org/example/config/JwtAuthFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/auth-service/src/main/java/org/example/config/JwtServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/auth-service/src/main/java/org/example/config/JwtServiceImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/auth-service/src/main/java/org/example/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/auth-service/src/main/java/org/example/controller/UserController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/auth-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/auth-service/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/auth-service/src/main/java/org/example/service/PersonService.java" beforeDir="false" afterPath="$PROJECT_DIR$/auth-service/src/main/java/org/example/service/PersonService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/galaxy-service/src/main/java/org/example/config/JwtAuthFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/galaxy-service/src/main/java/org/example/config/JwtAuthFilter.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/galaxy-service/src/main/java/org/example/config/SwaggerConfiguration.java" beforeDir="false" afterPath="$PROJECT_DIR$/galaxy-service/src/main/java/org/example/config/SwaggerConfiguration.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/galaxy-service/src/main/java/org/example/controller/GalaxyController.java" beforeDir="false" afterPath="$PROJECT_DIR$/galaxy-service/src/main/java/org/example/controller/GalaxyController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/galaxy-service/src/main/java/org/example/controller/OrbitController.java" beforeDir="false" afterPath="$PROJECT_DIR$/galaxy-service/src/main/java/org/example/controller/OrbitController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/galaxy-service/src/main/java/org/example/controller/StarSystemController.java" beforeDir="false" afterPath="$PROJECT_DIR$/galaxy-service/src/main/java/org/example/controller/StarSystemController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/galaxy-service/src/main/java/org/example/controller/SystemDependencyController.java" beforeDir="false" afterPath="$PROJECT_DIR$/galaxy-service/src/main/java/org/example/controller/SystemDependencyController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/galaxy-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/galaxy-service/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planet-service/src/main/java/org/example/config/JwtAuthFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/planet-service/src/main/java/org/example/config/JwtAuthFilter.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/planet-service/src/main/java/org/example/config/SwaggerConfiguration.java" beforeDir="false" afterPath="$PROJECT_DIR$/planet-service/src/main/java/org/example/config/SwaggerConfiguration.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/planet-service/src/main/java/org/example/controller/PlanetController.java" beforeDir="false" afterPath="$PROJECT_DIR$/planet-service/src/main/java/org/example/controller/PlanetController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/planet-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/planet-service/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planet-service/src/main/java/org/example/service/PlanetService.java" beforeDir="false" afterPath="$PROJECT_DIR$/planet-service/src/main/java/org/example/service/PlanetService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -43,6 +42,9 @@
         <option name="useMavenConfig" value="true" />
       </MavenGeneralSettings>
     </option>
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
   </component>
   <component name="ProjectId" id="2Qe8U7j0F3iu7aP40BqGQEjOWxr" />
   <component name="ProjectLevelVcsManager">

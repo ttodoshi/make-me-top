@@ -13,10 +13,12 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -28,15 +30,16 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
-        final String authHeader = request.getHeader("Authorization");
+        Optional<String> jwtTokenOptional = getToken(request);
         final String jwtToken;
-        final String userId;
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        if (jwtTokenOptional.isPresent())
+            jwtToken = jwtTokenOptional.get();
+        else {
             filterChain.doFilter(request, response);
             return;
         }
-        jwtToken = authHeader.substring(7);
-        userId = jwtService.extractId(jwtToken);
+
+        final String userId = jwtService.extractId(jwtToken);
         if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             Person person = personRepository.getPersonById(Integer.valueOf(userId));
             if (jwtService.isTokenValid(jwtToken, person)) {
@@ -54,5 +57,19 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             }
         }
         filterChain.doFilter(request, response);
+    }
+
+    private Optional<String> getToken(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) {
+            return Optional.empty();
+        }
+        for (Cookie cookie : cookies) {
+            if (!cookie.getName().equals("token")) {
+                continue;
+            }
+            return Optional.of(cookie.getValue());
+        }
+        return Optional.empty();
     }
 }

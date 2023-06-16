@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 @PropertySource(value = {"classpath:config.properties"})
 public class PlanetService {
     @Setter
-    private String authHeader;
+    private String token;
 
     private final PlanetRepository planetRepository;
 
@@ -87,7 +87,9 @@ public class PlanetService {
         }
     }
 
-    public void updateSystem(Integer planetId, Integer galaxyId, PlanetModel model) {
+    public void updateSystem(Integer planetId,
+                             Integer galaxyId,
+                             PlanetModel model) {
         List<PlanetDAO> planetDAOList;
         PlanetDAO planetDAO;
         try {
@@ -121,7 +123,7 @@ public class PlanetService {
     private void checkSystemExist(Integer systemId) {
         var getSystemById = new Request.Builder()
                 .get()
-                .header("Authorization", authHeader)
+                .header("Cookie", "token=" + token)
                 .url(APP_GALAXY_URL + GET_SYSTEM_BY_ID_URL + systemId + "?withDependency=true")
                 .build();
         try (var response = new OkHttpClient().newCall(getSystemById).execute()) {

@@ -13,18 +13,17 @@ import org.example.service.PersonService;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.net.http.HttpResponse;
 
 @RestController
 @PropertySource(value = {"classpath:config.properties"})
 @RequiredArgsConstructor
-@SecurityScheme(
-        name = "bearerAuth",
-        type = SecuritySchemeType.HTTP,
-        scheme = "bearer",
-        bearerFormat = "JWT"
-)
 public class UserController {
     private final PersonService personService;
 
@@ -39,16 +38,15 @@ public class UserController {
                                     mediaType = "text/plain")
                     })
     })
-    public ResponseEntity<?> loginUser(@RequestBody UserRequest userRequest) {
-        return new ResponseEntity<>(personService.login(userRequest), HttpStatus.OK);
+    public ResponseEntity<?> loginUser(@RequestBody UserRequest userRequest, HttpServletResponse response) {
+        return new ResponseEntity<>(personService.login(userRequest, response), HttpStatus.OK);
     }
 
     @PatchMapping("toKeeper/{personId}")
     @Secured("ROLE_BIG_BROTHER")
     @Operation(
             summary = "Update person role to keeper",
-            tags = "For admin",
-            security = @SecurityRequirement(name = "bearerAuth")
+            tags = "For admin"
     )
     @ApiResponses(value = {
             @ApiResponse(

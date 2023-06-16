@@ -19,14 +19,6 @@ public class SwaggerConfiguration {
     public OpenAPI customOpenAPI() {
         final String secSchemeName = "bearerAuth";
         return new OpenAPI().info(new Info().title("Make Me Top").version("v 0.1"))
-                .addServersItem(new Server().url("http://localhost:4401"+basePath))
-                .addSecurityItem(new SecurityRequirement().addList(secSchemeName))
-                .components(new Components()
-                        .addSecuritySchemes(secSchemeName,
-                                new SecurityScheme()
-                                        .name(secSchemeName)
-                                        .type(SecurityScheme.Type.HTTP)
-                                        .scheme("bearer")
-                                        .bearerFormat("JWT")));
+                .addServersItem(new Server().url("http://localhost:4401"+basePath));
     }
 }

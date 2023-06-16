@@ -20,6 +20,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -42,7 +44,7 @@ public class PersonService {
 
     private final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
-    public String login(UserRequest request) {
+    public String login(UserRequest request, HttpServletResponse response) {
         try {
             Person person = getPersonById(
                     personMapper.UserAuthResponseToPerson(
@@ -51,7 +53,12 @@ public class PersonService {
                                             .orElseThrow(UserNotFoundException::new))
                     )
             );
-            return jwtGenerator.generateToken(person);
+            String token = jwtGenerator.generateToken(person);
+            Cookie tokenCookie = new Cookie("token", token);
+            tokenCookie.setMaxAge(43200);
+            tokenCookie.setPath("/");
+            response.addCookie(tokenCookie);
+            return token;
         } catch (Exception e) {
             logger.severe(e.getMessage());
             throw new UserNotFoundException();

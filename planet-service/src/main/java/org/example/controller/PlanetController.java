@@ -2,6 +2,7 @@ package org.example.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
@@ -33,8 +33,8 @@ public class PlanetController {
                     })
     })
     public ResponseEntity<?> getPlanetsBySystemId(@PathVariable("systemId") Integer id,
-                                                  HttpServletRequest request) {
-        planetService.setAuthHeader(request.getHeader("Authorization"));
+                                                  @CookieValue("token") @Schema(hidden = true) String token) {
+        planetService.setToken(token);
         return ResponseEntity.ok(planetService.getPlanetsListBySystemId(id));
     }
 
@@ -52,8 +52,8 @@ public class PlanetController {
     })
     public void addPlanet(@PathVariable("galaxyId") Integer galaxyId,
                           @RequestBody List<PlanetModel> list,
-                          HttpServletRequest request) {
-        planetService.setAuthHeader(request.getHeader("Authorization"));
+                          @CookieValue("token") @Schema(hidden = true) String token) {
+        planetService.setToken(token);
         planetService.addPlanet(list, galaxyId);
     }
 
@@ -88,8 +88,8 @@ public class PlanetController {
     public void updatePlanetById(@PathVariable("planetId") Integer planetId,
                                  @PathVariable("galaxyId") Integer galaxyId,
                                  @RequestBody PlanetModel model,
-                                 HttpServletRequest request) {
-        planetService.setAuthHeader(request.getHeader("Authorization"));
+                                 @CookieValue("token") @Schema(hidden = true) String token) {
+        planetService.setToken(token);
         planetService.updateSystem(planetId, galaxyId, model);
     }
 }
