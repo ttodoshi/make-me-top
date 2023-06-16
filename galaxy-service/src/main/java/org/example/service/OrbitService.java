@@ -19,7 +19,9 @@ import org.example.repository.OrbitRepository;
 import org.example.repository.SystemRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -37,10 +39,10 @@ public class OrbitService {
 
     private final Logger logger = Logger.getLogger(GalaxyService.class.getName());
 
-    public void createOrbit(OrbitCreateModel model) {
+    public Orbit createOrbit(OrbitCreateModel model) {
         List<Orbit> orbitList;
         try {
-            orbitList = orbitRepository.getOrbitsByGalacticId(model.getGalaxyId());
+            orbitList = orbitRepository.getOrbitsByGalaxyId(model.getGalaxyId());
         } catch (Exception e) {
             logger.severe(e.getMessage());
             throw new GalaxyNotFoundException();
@@ -51,9 +53,10 @@ public class OrbitService {
                     throw new OrbitCoordinatesException();
                 }
             }
-            orbitRepository.save(orbitMapper.createOrbitModelToOrbit(model));
+            return orbitRepository.save(orbitMapper.createOrbitModelToOrbit(model));
         } catch (Exception e) {
             logger.severe(e.getMessage());
+            throw new OrbitCoordinatesException();
         }
     }
 
@@ -85,12 +88,12 @@ public class OrbitService {
         }
     }
 
-    public void updateOrbit(Integer id, Orbit orbit) {
+    public Orbit updateOrbit(Integer id, Orbit orbit) {
         try {
             Orbit updatedOrbit = orbitRepository.getReferenceById(id);
             updatedOrbit.setOrbitLevel(orbit.getOrbitLevel());
             updatedOrbit.setCountSystem(orbit.getCountSystem());
-            orbitRepository.save(updatedOrbit);
+            return orbitRepository.save(updatedOrbit);
         } catch (RuntimeException e) {
             logger.severe(e.getMessage());
             throw new OrbitAlreadyExistsException();
@@ -100,10 +103,13 @@ public class OrbitService {
         }
     }
 
-    public void deleteOrbit(Integer id) {
+    public Map<String, String> deleteOrbit(Integer id) {
         getOrbitById(id);
         try {
             orbitRepository.deleteById(id);
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Орбита успешно удалена");
+            return response;
         } catch (Exception e) {
             logger.severe(e.getMessage());
             throw new OrbitDeleteException();

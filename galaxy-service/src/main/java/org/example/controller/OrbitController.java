@@ -52,8 +52,8 @@ public class OrbitController {
                                     mediaType = "application/json")
                     })
     })
-    public void createOrbit(@RequestBody OrbitCreateModel model) {
-        orbitService.createOrbit(model);
+    public ResponseEntity<?> createOrbit(@RequestBody OrbitCreateModel model) {
+        return ResponseEntity.ok(orbitService.createOrbit(model));
     }
 
     @PutMapping("{orbitId}")
@@ -68,8 +68,8 @@ public class OrbitController {
                                     mediaType = "application/json")
                     })
     })
-    public void updateOrbit(@PathVariable("orbitId") Integer id, @RequestBody Orbit orbit) throws OrbitNotFoundException {
-        orbitService.updateOrbit(id, orbit);
+    public ResponseEntity<?> updateOrbit(@PathVariable("orbitId") Integer id, @RequestBody Orbit orbit) throws OrbitNotFoundException {
+        return ResponseEntity.ok(orbitService.updateOrbit(id, orbit));
     }
 
     @DeleteMapping("{orbitId}")
@@ -84,7 +84,7 @@ public class OrbitController {
                                     mediaType = "application/json")
                     })
     })
-    public void deleteOrbit(@PathVariable("orbitId") Integer id) throws OrbitNotFoundException {
-        orbitService.deleteOrbit(id);
+    public ResponseEntity<?> deleteOrbit(@PathVariable("orbitId") Integer id) throws OrbitNotFoundException {
+        return ResponseEntity.ok(orbitService.deleteOrbit(id));
     }
 }

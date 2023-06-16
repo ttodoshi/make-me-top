@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.model.dependencyModel.CreateDependencyModel;
 import org.example.model.dependencyModel.DeleteDependencyModel;
 import org.example.service.DependencyService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,8 +35,8 @@ public class SystemDependencyController {
                                     mediaType = "application/json")
                     })
     })
-    public void addDependency(@RequestBody List<CreateDependencyModel> dependency) {
-        dependencyService.addDependency(dependency);
+    public ResponseEntity<?> addDependency(@RequestBody List<CreateDependencyModel> dependency) {
+        return ResponseEntity.ok(dependencyService.addDependency(dependency));
     }
 
     @DeleteMapping
@@ -50,7 +51,7 @@ public class SystemDependencyController {
                                     mediaType = "application/json")
                     })
     })
-    public void deleteDependency(@RequestBody DeleteDependencyModel model) {
-        dependencyService.deleteDependency(model);
+    public ResponseEntity<?> deleteDependency(@RequestBody DeleteDependencyModel model) {
+        return ResponseEntity.ok(dependencyService.deleteDependency(model));
     }
 }

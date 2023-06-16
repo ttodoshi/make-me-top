@@ -50,11 +50,11 @@ public class PlanetController {
                                     mediaType = "application/json")
                     })
     })
-    public void addPlanet(@PathVariable("galaxyId") Integer galaxyId,
-                          @RequestBody List<PlanetModel> list,
-                          @CookieValue("token") @Schema(hidden = true) String token) {
+    public ResponseEntity<?> addPlanet(@PathVariable("galaxyId") Integer galaxyId,
+                                       @RequestBody List<PlanetModel> list,
+                                       @CookieValue("token") @Schema(hidden = true) String token) {
         planetService.setToken(token);
-        planetService.addPlanet(list, galaxyId);
+        return ResponseEntity.ok(planetService.addPlanet(list, galaxyId));
     }
 
     @DeleteMapping("planet/{planetId}")
@@ -69,8 +69,8 @@ public class PlanetController {
                                     mediaType = "application/json")
                     })
     })
-    public void deletePlanetById(@PathVariable("planetId") Integer id) {
-        planetService.deletePlanetById(id);
+    public ResponseEntity<?> deletePlanetById(@PathVariable("planetId") Integer id) {
+        return ResponseEntity.ok(planetService.deletePlanetById(id));
     }
 
     @PutMapping("galaxy/{galaxyId}/planet/{planetId}")
@@ -85,11 +85,12 @@ public class PlanetController {
                                     mediaType = "application/json")
                     })
     })
-    public void updatePlanetById(@PathVariable("planetId") Integer planetId,
-                                 @PathVariable("galaxyId") Integer galaxyId,
-                                 @RequestBody PlanetModel model,
-                                 @CookieValue("token") @Schema(hidden = true) String token) {
+    public ResponseEntity<?> updatePlanetById(
+            @PathVariable("planetId") Integer planetId,
+            @PathVariable("galaxyId") Integer galaxyId,
+            @RequestBody PlanetModel model,
+            @CookieValue("token") @Schema(hidden = true) String token) {
         planetService.setToken(token);
-        planetService.updateSystem(planetId, galaxyId, model);
+        return ResponseEntity.ok(planetService.updateSystem(planetId, galaxyId, model));
     }
 }

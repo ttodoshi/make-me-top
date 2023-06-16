@@ -19,7 +19,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -58,7 +60,7 @@ public class PlanetService {
     }
 
     @Transactional
-    public void addPlanet(List<PlanetModel> list, Integer galaxyId) {
+    public List<PlanetDAO> addPlanet(List<PlanetModel> list, Integer galaxyId) {
         try {
             List<PlanetDAO> planetDAOList = planetRepository.checkPlanetExists(galaxyId);
             for (PlanetModel model : list) {
@@ -72,22 +74,26 @@ public class PlanetService {
                     throw new PlanetAlreadyExists();
                 }
             }
+            return planetDAOList;
         } catch (Exception e) {
             logger.severe(e.getMessage());
             throw new PlanetAlreadyExists();
         }
     }
 
-    public void deletePlanetById(Integer planetId) {
+    public Map<String, String> deletePlanetById(Integer planetId) {
         try {
             planetRepository.deleteById(planetId);
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Планета успешно удалена");
+            return response;
         } catch (Exception e) {
             logger.severe(e.getMessage());
             throw new PlanetNotFoundException();
         }
     }
 
-    public void updateSystem(Integer planetId,
+    public PlanetDAO updateSystem(Integer planetId,
                              Integer galaxyId,
                              PlanetModel model) {
         List<PlanetDAO> planetDAOList;
@@ -112,7 +118,7 @@ public class PlanetService {
             logger.severe(e.getMessage());
         }
         try {
-            planetRepository.save(planetDAO);
+            return planetRepository.save(planetDAO);
         } catch (Exception e) {
             logger.severe(e.getMessage());
             throw new ConnectException();

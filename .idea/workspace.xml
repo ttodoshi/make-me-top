@@ -9,6 +9,7 @@
   <component name="ChangeListManager">
     <list default="true" id="c3067b5c-43fe-4418-8539-cf3ac548c919" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+<<<<<<< Updated upstream
       <change beforePath="$PROJECT_DIR$/auth-service/src/main/java/org/example/config/JwtAuthFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/auth-service/src/main/java/org/example/config/JwtAuthFilter.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/auth-service/src/main/java/org/example/config/JwtServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/auth-service/src/main/java/org/example/config/JwtServiceImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/auth-service/src/main/java/org/example/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/auth-service/src/main/java/org/example/controller/UserController.java" afterDir="false" />
@@ -17,6 +18,8 @@
       <change beforePath="$PROJECT_DIR$/galaxy-service/src/main/java/org/example/config/SwaggerConfiguration.java" beforeDir="false" afterPath="$PROJECT_DIR$/galaxy-service/src/main/java/org/example/config/SwaggerConfiguration.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/planet-service/src/main/java/org/example/config/JwtAuthFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/planet-service/src/main/java/org/example/config/JwtAuthFilter.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/planet-service/src/main/java/org/example/config/SwaggerConfiguration.java" beforeDir="false" afterPath="$PROJECT_DIR$/planet-service/src/main/java/org/example/config/SwaggerConfiguration.java" afterDir="false" />
+=======
+>>>>>>> Stashed changes
       <change beforePath="$PROJECT_DIR$/planet-service/src/main/java/org/example/controller/PlanetController.java" beforeDir="false" afterPath="$PROJECT_DIR$/planet-service/src/main/java/org/example/controller/PlanetController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/planet-service/src/main/java/org/example/service/PlanetService.java" beforeDir="false" afterPath="$PROJECT_DIR$/planet-service/src/main/java/org/example/service/PlanetService.java" afterDir="false" />
     </list>

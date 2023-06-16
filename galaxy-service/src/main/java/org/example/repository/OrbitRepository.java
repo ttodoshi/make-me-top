@@ -9,7 +9,7 @@ import java.util.List;
 public interface OrbitRepository extends JpaRepository<Orbit, Integer> {
 
     @Query(value = "SELECT * FROM Orbit  WHERE galaxy_id = ?1", nativeQuery = true)
-    List<Orbit> getOrbitsByGalacticId(Integer id);
+    List<Orbit> getOrbitsByGalaxyId(Integer id);
 
 
 }

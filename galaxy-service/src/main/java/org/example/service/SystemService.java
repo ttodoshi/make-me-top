@@ -17,7 +17,9 @@ import org.example.repository.OrbitRepository;
 import org.example.repository.SystemRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -65,14 +67,14 @@ public class SystemService {
         }
     }
 
-    public void createSystem(SystemCreateModel model, Integer id) {
-
+    public StarSystem createSystem(SystemCreateModel model, Integer id) {
         try {
             logger.info(galaxyRepository.getReferenceById(id).getGalaxyName());
         } catch (Exception e) {
             logger.severe(e.getMessage());
             throw new GalaxyNotFoundException();
         }
+
         try {
             logger.info(orbitRepository.getReferenceById(model.getOrbitId()).getOrbitId().toString());
         } catch (Exception e) {
@@ -83,21 +85,20 @@ public class SystemService {
         try {
             if (systemRepository.getStarSystemByGalaxyId(id).stream().noneMatch(x -> Objects.equals(x.getSystemName(), model.getSystemName()))) {
                 if (systemRepository.checkExistsSystem(model.getSystemId()) == null) {
-                    systemRepository.save(systemMapper.systemCreateModelToStarSystem(model));
+                    return systemRepository.save(systemMapper.systemCreateModelToStarSystem(model));
                 } else {
                     throw new SystemAlreadyExistsException();
                 }
             } else {
                 throw new SystemAlreadyExistsException();
             }
-
         } catch (Exception e) {
             logger.severe(e.getMessage());
             throw new SystemAlreadyExistsException();
         }
     }
 
-    public void updateSystem(SystemCreateModel model, Integer id) {
+    public StarSystem updateSystem(SystemCreateModel model, Integer id) {
         StarSystem starSystem;
         try {
             orbitRepository.getReferenceById(model.getOrbitId());
@@ -118,20 +119,22 @@ public class SystemService {
                 starSystem.setOrbitId(model.getOrbitId());
                 starSystem.setSystemLevel(model.getSystemLevel());
                 starSystem.setSystemId(model.getSystemId());
-                systemRepository.save(starSystem);
+                return systemRepository.save(starSystem);
             } else {
                 throw new SystemAlreadyExistsException();
             }
-
         } catch (Exception e) {
             logger.severe(e.getMessage());
             throw new SystemAlreadyExistsException();
         }
     }
 
-    public void deleteSystem(Integer id) {
+    public Map<String, String> deleteSystem(Integer id) {
         try {
             systemRepository.deleteById(id);
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Система успешно удалена");
+            return response;
         } catch (Exception e) {
             logger.severe(e.getMessage());
             throw new SystemNotFoundException();

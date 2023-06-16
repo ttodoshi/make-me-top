@@ -12,7 +12,10 @@ import org.example.repository.SystemRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 @Service
@@ -25,7 +28,7 @@ public class DependencyService {
 
     private final Logger logger = Logger.getLogger(DependencyService.class.getName());
 
-    public void addDependency(List<CreateDependencyModel> systemDependency) {
+    public List<CreateDependencyModel> addDependency(List<CreateDependencyModel> systemDependency) {
         StringBuilder dependencyQuery = new StringBuilder("INSERT INTO system_dependency (child_id, parent_id, is_alternative) VALUES");
         try {
             for (CreateDependencyModel dependency : systemDependency) {
@@ -53,9 +56,10 @@ public class DependencyService {
         } catch (Exception e) {
             logger.severe(e.getMessage());
         }
+        return systemDependency;
     }
 
-    public void deleteDependency(DeleteDependencyModel dependency) {
+    public Map<String, String> deleteDependency(DeleteDependencyModel dependency) {
         SystemDependency systemDependency;
         if (dependency.getParentId() == null) {
             try {
@@ -74,5 +78,8 @@ public class DependencyService {
                 throw new DependencyNotFound();
             }
         }
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Зависимость удалена");
+        return response;
     }
 }

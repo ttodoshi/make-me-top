@@ -50,8 +50,8 @@ public class StarSystemController {
                                     mediaType = "application/json")
                     })
     })
-    public void createSystem(@RequestBody SystemCreateModel model, @PathVariable("galaxyId") Integer id) {
-        systemService.createSystem(model, id);
+    public ResponseEntity<?> createSystem(@RequestBody SystemCreateModel model, @PathVariable("galaxyId") Integer id) {
+        return ResponseEntity.ok(systemService.createSystem(model, id));
     }
 
 
@@ -67,8 +67,8 @@ public class StarSystemController {
                                     mediaType = "application/json")
                     })
     })
-    public void updateSystem(@RequestBody SystemCreateModel model, @PathVariable("galaxyId") Integer id) {
-        systemService.updateSystem(model, id);
+    public ResponseEntity<?> updateSystem(@RequestBody SystemCreateModel model, @PathVariable("galaxyId") Integer id) {
+        return ResponseEntity.ok(systemService.updateSystem(model, id));
     }
 
     @DeleteMapping("system/{systemId}")
@@ -83,7 +83,7 @@ public class StarSystemController {
                                     mediaType = "application/json")
                     })
     })
-    public void deleteSystem(@PathVariable("systemId") Integer id) {
-        systemService.deleteSystem(id);
+    public ResponseEntity<?> deleteSystem(@PathVariable("systemId") Integer id) {
+        return ResponseEntity.ok(systemService.deleteSystem(id));
     }
 }

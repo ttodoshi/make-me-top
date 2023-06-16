@@ -5,16 +5,12 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.example.exception.galaxyEX.GalaxyNotFoundException;
 import org.example.model.galaxyModel.CreateGalaxyModel;
 import org.example.model.galaxyModel.GalaxyModel;
-import org.example.model.modelDAO.Galaxy;
 import org.example.service.GalaxyService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/galaxy/")
@@ -35,8 +31,8 @@ public class GalaxyController {
                                     mediaType = "application/json")
                     })
     })
-    public List<Galaxy> getAllGalaxies() {
-        return galaxyService.getAllGalaxies();
+    public ResponseEntity<?> getAllGalaxies() {
+        return ResponseEntity.ok(galaxyService.getAllGalaxies());
     }
 
     @GetMapping("{galaxyId}")
@@ -52,11 +48,7 @@ public class GalaxyController {
                     })
     })
     public ResponseEntity<?> getGalaxyById(@PathVariable("galaxyId") Integer id) {
-        try {
-            return ResponseEntity.ok(galaxyService.getGalaxyById(id));
-        } catch (Exception e) {
-            throw new GalaxyNotFoundException();
-        }
+        return ResponseEntity.ok(galaxyService.getGalaxyById(id));
     }
 
     @PostMapping
@@ -71,8 +63,8 @@ public class GalaxyController {
                                     mediaType = "application/json")
                     })
     })
-    public void createGalaxy(@RequestBody CreateGalaxyModel model) {
-        galaxyService.createGalaxy(model);
+    public ResponseEntity<?> createGalaxy(@RequestBody CreateGalaxyModel model) {
+        return ResponseEntity.ok(galaxyService.createGalaxy(model));
     }
 
 
@@ -88,8 +80,8 @@ public class GalaxyController {
                                     mediaType = "application/json")
                     })
     })
-    public void updateGalaxy(@RequestBody GalaxyModel model, @PathVariable("galaxyId") Integer id) {
-        galaxyService.updateGalaxy(id, model);
+    public ResponseEntity<?> updateGalaxy(@RequestBody GalaxyModel model, @PathVariable("galaxyId") Integer id) {
+        return ResponseEntity.ok(galaxyService.updateGalaxy(id, model));
     }
 
     @DeleteMapping("{galaxyId}")
@@ -104,9 +96,7 @@ public class GalaxyController {
                                     mediaType = "application/json")
                     })
     })
-    public void deleteGalaxy(@PathVariable("galaxyId") Integer id) {
-        galaxyService.deleteGalaxy(id);
+    public ResponseEntity<?> deleteGalaxy(@PathVariable("galaxyId") Integer id) {
+        return ResponseEntity.ok(galaxyService.deleteGalaxy(id));
     }
-
-
 }

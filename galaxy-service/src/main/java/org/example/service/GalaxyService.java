@@ -5,8 +5,8 @@ import org.example.config.mapper.DependencyMapper;
 import org.example.config.mapper.GalaxyMapper;
 import org.example.config.mapper.OrbitMapper;
 import org.example.config.mapper.SystemMapper;
-import org.example.exception.galaxyEX.GalaxyNotFoundException;
 import org.example.exception.galaxyEX.GalaxyAlreadyExistsException;
+import org.example.exception.galaxyEX.GalaxyNotFoundException;
 import org.example.exception.orbitEX.OrbitAlreadyExistsException;
 import org.example.exception.systemEX.SystemAlreadyExistsException;
 import org.example.model.galaxyModel.CreateGalaxyModel;
@@ -24,7 +24,9 @@ import org.example.repository.SystemRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -49,7 +51,7 @@ public class GalaxyService {
         try {
             GalaxyWithOrbitModel galaxy = galaxyMapper.mapGalaxy(galaxyRepository.getReferenceById(id));
 
-            galaxy.setOrbitsList(orbitRepository.getOrbitsByGalacticId(id).stream().map(x -> orbitMapper.orbitToOrbitWithSystemModel(x)).collect(Collectors.toList()));
+            galaxy.setOrbitsList(orbitRepository.getOrbitsByGalaxyId(id).stream().map(x -> orbitMapper.orbitToOrbitWithSystemModel(x)).collect(Collectors.toList()));
             for (OrbitWithSystemModel orbitWithSystemModel : galaxy.getOrbitsList()) {
                 orbitWithSystemModel.setSystemWithDependencyModelList(systemRepository.getStarSystemByOrbitId(orbitWithSystemModel.getOrbitId()).stream().
                         map(x -> systemMapper.systemToSystemWithDependencyModel(x)).collect(Collectors.toList()));
@@ -67,7 +69,7 @@ public class GalaxyService {
         }
     }
 
-    public void createGalaxy(CreateGalaxyModel model) {
+    public CreateGalaxyModel createGalaxy(CreateGalaxyModel model) {
         StringBuilder galaxyQuery = new StringBuilder("INSERT INTO galaxy VALUES (").append(model.getGalaxyId())
                 .append(",'")
                 .append(model.getGalaxyName())
@@ -115,7 +117,6 @@ public class GalaxyService {
                 logger.severe(e.getMessage());
                 galaxyRepository.deleteById(model.getGalaxyId());
                 throw new OrbitAlreadyExistsException();
-
             }
             try {
                 jdbcTemplate.execute(systemQuery.toString());
@@ -128,13 +129,15 @@ public class GalaxyService {
                 throw new SystemAlreadyExistsException();
             }
         }
+        return model;
     }
 
-    public void updateGalaxy(Integer id, GalaxyModel model) {
+    public GalaxyModel updateGalaxy(Integer id, GalaxyModel model) {
         try {
             Galaxy galaxyUp = galaxyRepository.getReferenceById(id);
             galaxyUp.setGalaxyName(model.getGalaxyName());
             galaxyRepository.save(galaxyUp);
+            return model;
         } catch (RuntimeException e) {
             logger.severe(e.getMessage());
             throw new GalaxyAlreadyExistsException();
@@ -144,9 +147,12 @@ public class GalaxyService {
         }
     }
 
-    public void deleteGalaxy(Integer id) {
+    public Map<String, String> deleteGalaxy(Integer id) {
         try {
             galaxyRepository.deleteById(id);
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Господин Аман уничтожил эту галактику");
+            return response;
         } catch (Exception e) {
             logger.severe(e.getMessage());
             throw new GalaxyNotFoundException();
