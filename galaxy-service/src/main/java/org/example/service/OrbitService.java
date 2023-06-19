@@ -53,7 +53,7 @@ public class OrbitService {
                         .collect(Collectors.toList()));
                 dependencyRepository.getListSystemDependencyChild(system.getSystemId())
                         .stream()
-                        .filter(x -> x.getParent() != null)
+                        .filter(x -> x.getParentId() != null)
                         .map(dependencyMapper::dependencyToDependencyChildModel)
                         .forEach(x -> system.getDependencyList().add(x));
             }

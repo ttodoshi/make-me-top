@@ -47,7 +47,7 @@ public class StarSystemService {
                     .collect(Collectors.toList()));
             List<DependencyGetInfoModel> dependencies = dependencyRepository.getListSystemDependencyChild(id)
                     .stream()
-                    .filter(x -> x.getParent() != null)
+                    .filter(x -> x.getParentId() != null)
                     .map(dependencyMapper::dependencyToDependencyChildModel)
                     .collect(Collectors.toList());
             if (dependencies != null) {

@@ -65,7 +65,7 @@ public class GalaxyService {
                     dependencyRepository.getListSystemDependencyChild(
                                     starSystemWithDependencies.getSystemId())
                             .stream()
-                            .filter(x -> x.getParent() != null)
+                            .filter(x -> x.getParentId() != null)
                             .map(dependencyMapper::dependencyToDependencyChildModel)
                             .forEach(x -> starSystemWithDependencies.getDependencyList().add(x));
                 }
@@ -124,7 +124,7 @@ public class GalaxyService {
         }
     }
 
-    public List<org.example.model.Galaxy> getAllGalaxies() {
+    public List<Galaxy> getAllGalaxies() {
         return galaxyRepository.getAllGalaxy();
     }
 }

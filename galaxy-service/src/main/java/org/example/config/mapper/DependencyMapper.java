@@ -11,7 +11,7 @@ public class DependencyMapper {
 
     public DependencyGetInfoModel dependencyToDependencyParentModel(SystemDependency systemDependency) {
         dependencyGetInfoModel = new DependencyGetInfoModel();
-        dependencyGetInfoModel.setSystemId(systemDependency.getChild().getSystemId());
+        dependencyGetInfoModel.setSystemId(systemDependency.getChildId().getSystemId());
         dependencyGetInfoModel.setIsAlternative(systemDependency.getIsAlternative());
         dependencyGetInfoModel.setType("child");
         return dependencyGetInfoModel;
@@ -19,7 +19,7 @@ public class DependencyMapper {
 
     public DependencyGetInfoModel dependencyToDependencyChildModel(SystemDependency systemDependency) {
         dependencyGetInfoModel = new DependencyGetInfoModel();
-        dependencyGetInfoModel.setSystemId(systemDependency.getParent().getSystemId());
+        dependencyGetInfoModel.setSystemId(systemDependency.getParentId().getSystemId());
         dependencyGetInfoModel.setIsAlternative(systemDependency.getIsAlternative());
         dependencyGetInfoModel.setType("parent");
         return dependencyGetInfoModel;
