@@ -6,8 +6,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.example.model.dependencyModel.CreateDependencyModel;
-import org.example.model.dependencyModel.DeleteDependencyModel;
+import org.example.dto.dependency.DeleteDependencyRequest;
+import org.example.dto.dependency.DependencyDTO;
 import org.example.service.DependencyService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
@@ -35,7 +35,7 @@ public class SystemDependencyController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> addDependency(@RequestBody List<CreateDependencyModel> dependency) {
+    public ResponseEntity<?> addDependency(@RequestBody List<DependencyDTO> dependency) {
         return ResponseEntity.ok(dependencyService.addDependency(dependency));
     }
 
@@ -51,7 +51,7 @@ public class SystemDependencyController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> deleteDependency(@RequestBody DeleteDependencyModel model) {
+    public ResponseEntity<?> deleteDependency(@RequestBody DeleteDependencyRequest model) {
         return ResponseEntity.ok(dependencyService.deleteDependency(model));
     }
 }

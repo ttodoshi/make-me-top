@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.example.model.PlanetModel;
+import org.example.dto.PlanetRequest;
 import org.example.service.PlanetService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
@@ -51,10 +51,10 @@ public class PlanetController {
                     })
     })
     public ResponseEntity<?> addPlanet(@PathVariable("galaxyId") Integer galaxyId,
-                                       @RequestBody List<PlanetModel> list,
+                                       @RequestBody List<PlanetRequest> planetList,
                                        @CookieValue("token") @Schema(hidden = true) String token) {
         planetService.setToken(token);
-        return ResponseEntity.ok(planetService.addPlanet(list, galaxyId));
+        return ResponseEntity.ok(planetService.addPlanet(planetList, galaxyId));
     }
 
     @DeleteMapping("planet/{planetId}")
@@ -88,9 +88,9 @@ public class PlanetController {
     public ResponseEntity<?> updatePlanetById(
             @PathVariable("planetId") Integer planetId,
             @PathVariable("galaxyId") Integer galaxyId,
-            @RequestBody PlanetModel model,
+            @RequestBody PlanetRequest planet,
             @CookieValue("token") @Schema(hidden = true) String token) {
         planetService.setToken(token);
-        return ResponseEntity.ok(planetService.updateSystem(planetId, galaxyId, model));
+        return ResponseEntity.ok(planetService.updatePlanet(planetId, galaxyId, planet));
     }
 }

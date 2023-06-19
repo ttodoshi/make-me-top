@@ -1,7 +1,7 @@
 package org.example.config;
 
 import lombok.RequiredArgsConstructor;
-import org.example.model.person.Person;
+import org.example.model.Person;
 import org.example.repository.PersonRepository;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

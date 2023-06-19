@@ -1,19 +1,19 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.exception.dependencyEX.DependencyAlreadyExistsException;
-import org.example.exception.dependencyEX.DependencyNotFound;
-import org.example.exception.systemEX.SystemNotFoundException;
-import org.example.model.dependencyModel.CreateDependencyModel;
-import org.example.model.dependencyModel.DeleteDependencyModel;
-import org.example.model.modelDAO.SystemDependency;
+import org.example.dto.dependency.DeleteDependencyRequest;
+import org.example.dto.dependency.DependencyDTO;
+import org.example.exception.classes.dependencyEX.DependencyAlreadyExistsException;
+import org.example.exception.classes.dependencyEX.DependencyNotFoundException;
+import org.example.exception.classes.systemEX.SystemNotFoundException;
+import org.example.model.SystemDependency;
 import org.example.repository.DependencyRepository;
-import org.example.repository.SystemRepository;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.example.repository.StarSystemRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityNotFoundException;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -22,18 +22,18 @@ import java.util.logging.Logger;
 @RequiredArgsConstructor
 public class DependencyService {
     private final DependencyRepository dependencyRepository;
-    private final SystemRepository systemRepository;
+    private final StarSystemRepository starSystemRepository;
 
-    private final JdbcTemplate jdbcTemplate;
+    private final ModelMapper mapper;
 
     private final Logger logger = Logger.getLogger(DependencyService.class.getName());
 
-    public List<CreateDependencyModel> addDependency(List<CreateDependencyModel> systemDependency) {
-        StringBuilder dependencyQuery = new StringBuilder("INSERT INTO system_dependency (child_id, parent_id, is_alternative) VALUES");
+    public List<SystemDependency> addDependency(List<DependencyDTO> systemDependency) {
+        List<SystemDependency> dependencies = new LinkedList<>();
         try {
-            for (CreateDependencyModel dependency : systemDependency) {
-                if (systemRepository.checkExistsSystem(dependency.getChildId()) == null ||
-                        (dependency.getParentId() != null && systemRepository.checkExistsSystem(dependency.getParentId()) == null)) {
+            for (DependencyDTO dependency : systemDependency) {
+                if (starSystemRepository.checkExistsSystem(dependency.getChildId()) == null ||
+                        (dependency.getParentId() != null && starSystemRepository.checkExistsSystem(dependency.getParentId()) == null)) {
                     throw new SystemNotFoundException();
                 }
                 if (dependency.getParentId() == null) {
@@ -45,37 +45,31 @@ public class DependencyService {
                         throw new DependencyAlreadyExistsException();
                     }
                 }
-                dependencyQuery
-                        .append("(").append(dependency.getChildId())
-                        .append(",").append(dependency.getParentId())
-                        .append(",").append(dependency.getIsAlternative())
-                        .append("),");
+                dependencies.add(dependencyRepository.save(mapper.map(dependency, SystemDependency.class)));
             }
-            dependencyQuery.replace(dependencyQuery.length() - 1, dependencyQuery.length(), "");
-            jdbcTemplate.execute(dependencyQuery.toString());
         } catch (Exception e) {
             logger.severe(e.getMessage());
         }
-        return systemDependency;
+        return dependencies;
     }
 
-    public Map<String, String> deleteDependency(DeleteDependencyModel dependency) {
+    public Map<String, String> deleteDependency(DeleteDependencyRequest dependency) {
         SystemDependency systemDependency;
         if (dependency.getParentId() == null) {
             try {
                 systemDependency = dependencyRepository.getSystemDependencyByChildIdAndParentNull(dependency.getChildId());
-                dependencyRepository.deleteById(systemDependency.getId());
+                dependencyRepository.deleteById(systemDependency.getDependencyId());
             } catch (Exception e) {
                 logger.severe(e.getMessage());
-                throw new DependencyNotFound();
+                throw new DependencyNotFoundException();
             }
         } else {
             try {
                 systemDependency = dependencyRepository.getSystemDependencyByChildIDAndParentId(dependency.getChildId(), dependency.getParentId());
-                dependencyRepository.deleteById(systemDependency.getId());
+                dependencyRepository.deleteById(systemDependency.getDependencyId());
             } catch (Exception e) {
                 logger.severe(e.getMessage());
-                throw new DependencyNotFound();
+                throw new DependencyNotFoundException();
             }
         }
         Map<String, String> response = new HashMap<>();

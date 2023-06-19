@@ -2,7 +2,7 @@ package org.example.config;
 
 
 import io.jsonwebtoken.Claims;
-import org.example.model.person.Person;
+import org.example.model.Person;
 
 import java.util.function.Function;
 

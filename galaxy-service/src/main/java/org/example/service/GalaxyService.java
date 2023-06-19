@@ -2,28 +2,26 @@ package org.example.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.config.mapper.DependencyMapper;
-import org.example.config.mapper.GalaxyMapper;
-import org.example.config.mapper.OrbitMapper;
-import org.example.config.mapper.SystemMapper;
-import org.example.exception.galaxyEX.GalaxyAlreadyExistsException;
-import org.example.exception.galaxyEX.GalaxyNotFoundException;
-import org.example.exception.orbitEX.OrbitAlreadyExistsException;
-import org.example.exception.systemEX.SystemAlreadyExistsException;
-import org.example.model.galaxyModel.CreateGalaxyModel;
-import org.example.model.galaxyModel.GalaxyModel;
-import org.example.model.galaxyModel.GalaxyWithOrbitModel;
-import org.example.model.modelDAO.Galaxy;
-import org.example.model.orbitModel.OrbitCreateWithOutGalaxyIdModel;
-import org.example.model.orbitModel.OrbitWithSystemModel;
-import org.example.model.systemModel.SystemCreateModel;
-import org.example.model.systemModel.SystemWithDependencyModel;
+import org.example.dto.galaxy.CreateGalaxyRequest;
+import org.example.dto.galaxy.GalaxyDTO;
+import org.example.dto.galaxy.GetGalaxyRequest;
+import org.example.dto.orbit.OrbitWithStarSystems;
+import org.example.dto.orbit.OrbitWithStarSystemsAndDependencies;
+import org.example.dto.starsystem.StarSystemDTO;
+import org.example.dto.starsystem.StarSystemWithDependencies;
+import org.example.exception.classes.galaxyEX.GalaxyAlreadyExistsException;
+import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
+import org.example.model.Galaxy;
+import org.example.model.Orbit;
+import org.example.model.StarSystem;
 import org.example.repository.DependencyRepository;
 import org.example.repository.GalaxyRepository;
 import org.example.repository.OrbitRepository;
-import org.example.repository.SystemRepository;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.example.repository.StarSystemRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,31 +33,41 @@ import java.util.stream.Collectors;
 public class GalaxyService {
     private final GalaxyRepository galaxyRepository;
     private final OrbitRepository orbitRepository;
-    private final SystemRepository systemRepository;
+    private final StarSystemRepository starSystemRepository;
     private final DependencyRepository dependencyRepository;
 
-    private final GalaxyMapper galaxyMapper;
-    private final OrbitMapper orbitMapper;
-    private final SystemMapper systemMapper;
+    private final ModelMapper mapper;
     private final DependencyMapper dependencyMapper;
-
-    private final JdbcTemplate jdbcTemplate;
 
     private final Logger logger = Logger.getLogger(GalaxyService.class.getName());
 
-    public GalaxyWithOrbitModel getGalaxyById(Integer id) {
+    public GetGalaxyRequest getGalaxyById(Integer id) {
         try {
-            GalaxyWithOrbitModel galaxy = galaxyMapper.mapGalaxy(galaxyRepository.getReferenceById(id));
+            GetGalaxyRequest galaxy = mapper.map(galaxyRepository.getReferenceById(id), GetGalaxyRequest.class);
 
-            galaxy.setOrbitsList(orbitRepository.getOrbitsByGalaxyId(id).stream().map(x -> orbitMapper.orbitToOrbitWithSystemModel(x)).collect(Collectors.toList()));
-            for (OrbitWithSystemModel orbitWithSystemModel : galaxy.getOrbitsList()) {
-                orbitWithSystemModel.setSystemWithDependencyModelList(systemRepository.getStarSystemByOrbitId(orbitWithSystemModel.getOrbitId()).stream().
-                        map(x -> systemMapper.systemToSystemWithDependencyModel(x)).collect(Collectors.toList()));
-                for (SystemWithDependencyModel systemWithDependencyModel : orbitWithSystemModel.getSystemWithDependencyModelList()) {
-                    systemWithDependencyModel.setDependencyList(dependencyRepository.getListSystemDependencyParent(systemWithDependencyModel.getSystemId()
-                    ).stream().map(x -> dependencyMapper.DependencyModelToDependencyParentModel(x)).collect(Collectors.toList()));
-                    dependencyRepository.getListSystemDependencyChild(systemWithDependencyModel.getSystemId()).stream().filter(x -> x.getParent() != null)
-                            .map(x -> dependencyMapper.DependencyModelToDependencyChildModel(x)).forEach(x -> systemWithDependencyModel.getDependencyList().add(x));
+            galaxy.setOrbitsList(orbitRepository.getOrbitsByGalaxyId(id)
+                    .stream()
+                    .map(orbit -> mapper.map(orbit, OrbitWithStarSystems.class))
+                    .collect(Collectors.toList()));
+            for (OrbitWithStarSystems orbitWithStarSystems : galaxy.getOrbitsList()) {
+                orbitWithStarSystems.setSystemWithDependenciesList(
+                        starSystemRepository.getStarSystemByOrbitId(orbitWithStarSystems.getOrbitId())
+                                .stream()
+                                .map(system -> mapper.map(system, StarSystemWithDependencies.class))
+                                .collect(Collectors.toList()));
+                for (StarSystemWithDependencies starSystemWithDependencies : orbitWithStarSystems.getSystemWithDependenciesList()) {
+                    starSystemWithDependencies.setDependencyList(
+                            dependencyRepository.getListSystemDependencyParent(
+                                            starSystemWithDependencies.getSystemId())
+                                    .stream()
+                                    .map(dependencyMapper::dependencyToDependencyParentModel)
+                                    .collect(Collectors.toList()));
+                    dependencyRepository.getListSystemDependencyChild(
+                                    starSystemWithDependencies.getSystemId())
+                            .stream()
+                            .filter(x -> x.getParent() != null)
+                            .map(dependencyMapper::dependencyToDependencyChildModel)
+                            .forEach(x -> starSystemWithDependencies.getDependencyList().add(x));
                 }
             }
             return galaxy;
@@ -69,75 +77,32 @@ public class GalaxyService {
         }
     }
 
-    public CreateGalaxyModel createGalaxy(CreateGalaxyModel model) {
-        StringBuilder galaxyQuery = new StringBuilder("INSERT INTO galaxy VALUES (").append(model.getGalaxyId())
-                .append(",'")
-                .append(model.getGalaxyName())
-                .append("');");
-        try {
-            jdbcTemplate.execute(galaxyQuery.toString());
-        } catch (RuntimeException e) {
-            logger.severe(e.getMessage());
-            throw new GalaxyAlreadyExistsException();
-        }
-        StringBuilder orbitQuery = new StringBuilder("INSERT INTO orbit VALUES");
-        StringBuilder systemQuery = new StringBuilder("INSERT INTO star_system VALUES");
-        if (model.getOrbitsList() != null) {
-            for (OrbitCreateWithOutGalaxyIdModel orbit : model.getOrbitsList()) {
-                orbitQuery.append("(")
-                        .append(orbit.getOrbitId())
-                        .append(",")
-                        .append(orbit.getLevelOrbit())
-                        .append(",")
-                        .append(orbit.getCountSystem())
-                        .append(",")
-                        .append(model.getGalaxyId())
-                        .append("),");
+    @Transactional
+    public GetGalaxyRequest createGalaxy(CreateGalaxyRequest createGalaxyRequest) {
+        Galaxy galaxy = new Galaxy();
+        galaxy.setGalaxyName(createGalaxyRequest.getGalaxyName());
+        Integer savedGalaxyId = galaxyRepository.save(galaxy).getGalaxyId();
+        if (createGalaxyRequest.getOrbitsList() != null) {
+            for (OrbitWithStarSystemsAndDependencies orbit : createGalaxyRequest.getOrbitsList()) {
+                orbit.setGalaxyId(savedGalaxyId);
+                Integer savedOrbitId = orbitRepository.save(mapper.map(orbit, Orbit.class)).getOrbitId();
                 if (orbit.getSystemsList() != null) {
-                    for (SystemCreateModel system : orbit.getSystemsList()) {
-                        systemQuery.append("(")
-                                .append(system.getSystemId())
-                                .append(",")
-                                .append(system.getPositionSystem())
-                                .append(",")
-                                .append(system.getSystemLevel())
-                                .append(",'")
-                                .append(system.getSystemName())
-                                .append("',")
-                                .append(orbit.getOrbitId())
-                                .append("),");
+                    for (StarSystemDTO system : orbit.getSystemsList()) {
+                        system.setOrbitId(savedOrbitId);
+                        starSystemRepository.save(mapper.map(system, StarSystem.class));
                     }
                 }
             }
-            systemQuery.replace(systemQuery.length() - 1, systemQuery.length(), ";");
-            orbitQuery.replace(orbitQuery.length() - 1, orbitQuery.length(), ";");
-            try {
-                jdbcTemplate.execute(orbitQuery.toString());
-            } catch (RuntimeException e) {
-                logger.severe(e.getMessage());
-                galaxyRepository.deleteById(model.getGalaxyId());
-                throw new OrbitAlreadyExistsException();
-            }
-            try {
-                jdbcTemplate.execute(systemQuery.toString());
-            } catch (RuntimeException e) {
-                logger.severe(e.getMessage());
-                for (OrbitCreateWithOutGalaxyIdModel orbit : model.getOrbitsList()) {
-                    orbitRepository.deleteById(orbit.getOrbitId());
-                }
-                galaxyRepository.deleteById(model.getGalaxyId());
-                throw new SystemAlreadyExistsException();
-            }
         }
-        return model;
+        return getGalaxyById(savedGalaxyId);
     }
 
-    public GalaxyModel updateGalaxy(Integer id, GalaxyModel model) {
+    public GalaxyDTO updateGalaxy(Integer id, GalaxyDTO galaxy) {
         try {
-            Galaxy galaxyUp = galaxyRepository.getReferenceById(id);
-            galaxyUp.setGalaxyName(model.getGalaxyName());
-            galaxyRepository.save(galaxyUp);
-            return model;
+            Galaxy updatedGalaxy = galaxyRepository.getReferenceById(id);
+            updatedGalaxy.setGalaxyName(galaxy.getGalaxyName());
+            galaxyRepository.save(updatedGalaxy);
+            return galaxy;
         } catch (RuntimeException e) {
             logger.severe(e.getMessage());
             throw new GalaxyAlreadyExistsException();
@@ -159,7 +124,7 @@ public class GalaxyService {
         }
     }
 
-    public List<Galaxy> getAllGalaxies() {
+    public List<org.example.model.Galaxy> getAllGalaxies() {
         return galaxyRepository.getAllGalaxy();
     }
 }

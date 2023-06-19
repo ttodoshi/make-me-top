@@ -5,8 +5,9 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.example.model.galaxyModel.CreateGalaxyModel;
-import org.example.model.galaxyModel.GalaxyModel;
+import org.example.dto.galaxy.CreateGalaxyRequest;
+import org.example.dto.galaxy.GalaxyDTO;
+import org.example.model.Galaxy;
 import org.example.service.GalaxyService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
@@ -63,7 +64,7 @@ public class GalaxyController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> createGalaxy(@RequestBody CreateGalaxyModel model) {
+    public ResponseEntity<?> createGalaxy(@RequestBody CreateGalaxyRequest model) {
         return ResponseEntity.ok(galaxyService.createGalaxy(model));
     }
 
@@ -80,8 +81,9 @@ public class GalaxyController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> updateGalaxy(@RequestBody GalaxyModel model, @PathVariable("galaxyId") Integer id) {
-        return ResponseEntity.ok(galaxyService.updateGalaxy(id, model));
+    public ResponseEntity<?> updateGalaxy(@RequestBody GalaxyDTO galaxy,
+                                          @PathVariable("galaxyId") Integer id) {
+        return ResponseEntity.ok(galaxyService.updateGalaxy(id, galaxy));
     }
 
     @DeleteMapping("{galaxyId}")

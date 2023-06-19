@@ -1,6 +1,6 @@
 package org.example.repository;
 
-import org.example.model.modelDAO.SystemDependency;
+import org.example.model.SystemDependency;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -8,13 +8,13 @@ import java.util.List;
 
 public interface DependencyRepository extends JpaRepository<SystemDependency, Integer> {
     @Query(value = "WITH RECURSIVE r AS (\n" +
-            "   SELECT id,child_id, parent_id, is_alternative\n" +
+            "   SELECT dependency_id,child_id, parent_id, is_alternative\n" +
             "   FROM system_dependency\n" +
             "   WHERE parent_id = ?1\n" +
             "\n" +
             "   UNION\n" +
             "\n" +
-            "   SELECT system_dependency.id, system_dependency.child_id, system_dependency.parent_id, system_dependency.is_alternative\n" +
+            "   SELECT system_dependency.dependency_id, system_dependency.child_id, system_dependency.parent_id, system_dependency.is_alternative\n" +
             "   FROM system_dependency\n" +
             "      JOIN r\n" +
             "          ON system_dependency.child_id = r.parent_id\n" +
@@ -26,13 +26,13 @@ public interface DependencyRepository extends JpaRepository<SystemDependency, In
 
 
     @Query(value = "WITH RECURSIVE r AS (\n" +
-            "   SELECT id,child_id, parent_id, is_alternative\n" +
+            "   SELECT dependency_id,child_id, parent_id, is_alternative\n" +
             "   FROM system_dependency\n" +
             "   WHERE child_id = ?1\n" +
             "\n" +
             "   UNION\n" +
             "\n" +
-            "   SELECT system_dependency.id, system_dependency.child_id, system_dependency.parent_id, system_dependency.is_alternative\n" +
+            "   SELECT system_dependency.dependency_id, system_dependency.child_id, system_dependency.parent_id, system_dependency.is_alternative\n" +
             "   FROM system_dependency\n" +
             "      JOIN r\n" +
             "          ON system_dependency.child_id = r.parent_id\n" +

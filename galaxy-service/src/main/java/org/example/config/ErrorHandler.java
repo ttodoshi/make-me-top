@@ -1,20 +1,31 @@
 package org.example.config;
 
-import org.example.exception.access.AccessException;
-import org.example.exception.dependencyEX.DependencyAlreadyExistsException;
-import org.example.exception.dependencyEX.DependencyNotFound;
-import org.example.exception.galaxyEX.GalaxyAlreadyExistsException;
-import org.example.exception.galaxyEX.GalaxyNotFoundException;
-import org.example.exception.orbitEX.OrbitAlreadyExistsException;
-import org.example.exception.orbitEX.OrbitCoordinatesException;
-import org.example.exception.orbitEX.OrbitDeleteException;
-import org.example.exception.orbitEX.OrbitNotFoundException;
-import org.example.exception.systemEX.SystemAlreadyExistsException;
-import org.example.exception.systemEX.SystemNotFoundException;
-import org.springframework.http.HttpStatus;
+import org.example.exception.classes.accessEX.AccessException;
+import org.example.exception.classes.dependencyEX.DependencyAlreadyExistsException;
+import org.example.exception.classes.dependencyEX.DependencyNotFoundException;
+import org.example.exception.classes.galaxyEX.GalaxyAlreadyExistsException;
+import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
+import org.example.exception.classes.orbitEX.OrbitAlreadyExistsException;
+import org.example.exception.classes.orbitEX.OrbitCoordinatesException;
+import org.example.exception.classes.orbitEX.OrbitDeleteException;
+import org.example.exception.classes.orbitEX.OrbitNotFoundException;
+import org.example.exception.classes.systemEX.SystemAlreadyExistsException;
+import org.example.exception.classes.systemEX.SystemNotFoundException;
+import org.example.exception.responses.ErrorResponse;
+import org.example.exception.responses.access.AccessExceptionResponse;
+import org.example.exception.responses.dependency.DependencyAlreadyExistsExceptionResponse;
+import org.example.exception.responses.dependency.DependencyNotFoundExceptionResponse;
+import org.example.exception.responses.galaxy.GalaxyAlreadyExistsExceptionResponse;
+import org.example.exception.responses.galaxy.GalaxyNotFoundExceptionResponse;
+import org.example.exception.responses.orbit.OrbitAlreadyExistsExceptionResponse;
+import org.example.exception.responses.orbit.OrbitCoordinatesExceptionResponse;
+import org.example.exception.responses.orbit.OrbitDeleteExceptionResponse;
+import org.example.exception.responses.orbit.OrbitNotFoundExceptionResponse;
+import org.example.exception.responses.system.SystemAlreadyExistsExceptionResponse;
+import org.example.exception.responses.system.SystemNotFoundExceptionResponse;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.security.SignatureException;
@@ -23,80 +34,67 @@ import java.security.SignatureException;
 public class ErrorHandler {
 
     @ExceptionHandler(AccessException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    public AccessException handleAccessException(AccessException e) {
-        return e;
+    public ResponseEntity<ErrorResponse> handleAccessException(AccessException e) {
+        return ResponseEntity.ok(new AccessExceptionResponse(e));
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    public AccessException handleAccessDeniedException(AccessDeniedException e) {
-        return new AccessException();
+    public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException e) {
+        return ResponseEntity.ok(new AccessExceptionResponse(e));
     }
 
     @ExceptionHandler(SignatureException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    public AccessException handleSignatureException(SignatureException e) {
-        return new AccessException();
+    public ResponseEntity<ErrorResponse> handleSignatureException(SignatureException e) {
+        return ResponseEntity.ok(new AccessExceptionResponse(e));
     }
 
     @ExceptionHandler(GalaxyNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public GalaxyNotFoundException handleGalaxyNotFoundException(GalaxyNotFoundException e) {
-        return e;
+    public ResponseEntity<ErrorResponse> handleGalaxyNotFoundException(GalaxyNotFoundException e) {
+        return ResponseEntity.ok(new GalaxyNotFoundExceptionResponse(e));
     }
 
     @ExceptionHandler(GalaxyAlreadyExistsException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    public GalaxyAlreadyExistsException handleGalaxyAlreadyExistsException(GalaxyAlreadyExistsException e) {
-        return e;
+    public ResponseEntity<ErrorResponse> handleGalaxyAlreadyExistsException(GalaxyAlreadyExistsException e) {
+        return ResponseEntity.ok(new GalaxyAlreadyExistsExceptionResponse(e));
     }
 
     @ExceptionHandler(OrbitNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public OrbitNotFoundException handleOrbitNotFoundException(OrbitNotFoundException e) {
-        return e;
+    public ResponseEntity<ErrorResponse> handleOrbitNotFoundException(OrbitNotFoundException e) {
+        return ResponseEntity.ok(new OrbitNotFoundExceptionResponse(e));
     }
 
     @ExceptionHandler(OrbitAlreadyExistsException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    public OrbitAlreadyExistsException handleOrbitAlreadyExistsException(OrbitAlreadyExistsException e) {
-        return e;
+    public ResponseEntity<ErrorResponse> handleOrbitAlreadyExistsException(OrbitAlreadyExistsException e) {
+        return ResponseEntity.ok(new OrbitAlreadyExistsExceptionResponse(e));
     }
 
     @ExceptionHandler(OrbitDeleteException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    public OrbitDeleteException handleOrbitDeleteException(OrbitDeleteException e) {
-        return e;
+    public ResponseEntity<ErrorResponse> handleOrbitDeleteException(OrbitDeleteException e) {
+        return ResponseEntity.ok(new OrbitDeleteExceptionResponse(e));
     }
 
     @ExceptionHandler(OrbitCoordinatesException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    public OrbitCoordinatesException handleOrbitCoordinatesException(OrbitCoordinatesException e) {
-        return e;
+    public ResponseEntity<ErrorResponse> handleOrbitCoordinatesException(OrbitCoordinatesException e) {
+        return ResponseEntity.ok(new OrbitCoordinatesExceptionResponse(e));
     }
 
     @ExceptionHandler(SystemNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public SystemNotFoundException handleSystemNotFoundException(SystemNotFoundException e) {
-        return e;
+    public ResponseEntity<ErrorResponse> handleSystemNotFoundException(SystemNotFoundException e) {
+        return ResponseEntity.ok(new SystemNotFoundExceptionResponse(e));
     }
 
     @ExceptionHandler(SystemAlreadyExistsException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    public SystemAlreadyExistsException handleSystemAlreadyExistsException(SystemAlreadyExistsException e) {
-        return e;
+    public ResponseEntity<ErrorResponse> handleSystemAlreadyExistsException(SystemAlreadyExistsException e) {
+        return ResponseEntity.ok(new SystemAlreadyExistsExceptionResponse(e));
     }
 
-    @ExceptionHandler(DependencyNotFound.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public DependencyNotFound handleDependencyNotFound(DependencyNotFound e) {
-        return e;
+    @ExceptionHandler(DependencyNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleDependencyNotFound(DependencyNotFoundException e) {
+        return ResponseEntity.ok(new DependencyNotFoundExceptionResponse(e));
     }
 
     @ExceptionHandler(DependencyAlreadyExistsException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    public DependencyAlreadyExistsException handleDependencyAlreadyExistsException(DependencyAlreadyExistsException e) {
-        return e;
+    public ResponseEntity<ErrorResponse> handleDependencyAlreadyExistsException(DependencyAlreadyExistsException e) {
+        return ResponseEntity.ok(new DependencyAlreadyExistsExceptionResponse(e));
     }
 }

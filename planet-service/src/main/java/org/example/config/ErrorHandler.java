@@ -1,38 +1,45 @@
 package org.example.config;
 
-import org.example.exception.connectException.ConnectException;
-import org.example.exception.systemEX.SystemNotFoundException;
-import org.example.exception.planetException.PlanetAlreadyExists;
-import org.example.exception.planetException.PlanetNotFoundException;
-import org.springframework.http.HttpStatus;
+import org.example.exception.classes.connectEX.ConnectException;
+import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
+import org.example.exception.classes.planetEX.PlanetAlreadyExistsException;
+import org.example.exception.classes.planetEX.PlanetNotFoundException;
+import org.example.exception.classes.systemEX.SystemNotFoundException;
+import org.example.exception.responses.ErrorResponse;
+import org.example.exception.responses.connect.ConnectExceptionResponse;
+import org.example.exception.responses.galaxy.GalaxyNotFoundExceptionResponse;
+import org.example.exception.responses.planet.PlanetAlreadyExistsExceptionResponse;
+import org.example.exception.responses.planet.PlanetNotFoundExceptionResponse;
+import org.example.exception.responses.system.SystemNotFoundExceptionResponse;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class ErrorHandler {
 
     @ExceptionHandler(SystemNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public SystemNotFoundException handleSystemNotFoundException(SystemNotFoundException e) {
-        return e;
+    public ResponseEntity<ErrorResponse> handleSystemNotFoundException(SystemNotFoundException e) {
+        return ResponseEntity.ok(new SystemNotFoundExceptionResponse(e));
+    }
+
+    @ExceptionHandler(GalaxyNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleGalaxyNotFoundException(GalaxyNotFoundException e) {
+        return ResponseEntity.ok(new GalaxyNotFoundExceptionResponse(e));
     }
 
     @ExceptionHandler(PlanetNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public PlanetNotFoundException handlePlanetNotFoundException(PlanetNotFoundException e) {
-        return e;
+    public ResponseEntity<ErrorResponse> handlePlanetNotFoundException(PlanetNotFoundException e) {
+        return ResponseEntity.ok(new PlanetNotFoundExceptionResponse(e));
     }
 
-    @ExceptionHandler(PlanetAlreadyExists.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    public PlanetAlreadyExists handlePlanetAlreadyExists(PlanetAlreadyExists e) {
-        return e;
+    @ExceptionHandler(PlanetAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handlePlanetAlreadyExistsException(PlanetAlreadyExistsException e) {
+        return ResponseEntity.ok(new PlanetAlreadyExistsExceptionResponse(e));
     }
 
     @ExceptionHandler(ConnectException.class)
-    @ResponseStatus(HttpStatus.BAD_GATEWAY)
-    public ConnectException handleConnectException(ConnectException e) {
-        return e;
+    public ResponseEntity<ErrorResponse> handleConnectException(ConnectException e) {
+        return ResponseEntity.ok(new ConnectExceptionResponse(e));
     }
 }

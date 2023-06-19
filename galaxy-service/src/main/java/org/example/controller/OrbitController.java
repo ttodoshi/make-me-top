@@ -5,9 +5,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.example.exception.orbitEX.OrbitNotFoundException;
-import org.example.model.modelDAO.Orbit;
-import org.example.model.orbitModel.OrbitCreateModel;
+import org.example.dto.orbit.OrbitDTO;
+import org.example.exception.classes.orbitEX.OrbitNotFoundException;
 import org.example.service.OrbitService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
@@ -52,8 +51,8 @@ public class OrbitController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> createOrbit(@RequestBody OrbitCreateModel model) {
-        return ResponseEntity.ok(orbitService.createOrbit(model));
+    public ResponseEntity<?> createOrbit(@RequestBody OrbitDTO orbit) {
+        return ResponseEntity.ok(orbitService.createOrbit(orbit));
     }
 
     @PutMapping("{orbitId}")
@@ -68,7 +67,7 @@ public class OrbitController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> updateOrbit(@PathVariable("orbitId") Integer id, @RequestBody Orbit orbit) throws OrbitNotFoundException {
+    public ResponseEntity<?> updateOrbit(@PathVariable("orbitId") Integer id, @RequestBody OrbitDTO orbit) {
         return ResponseEntity.ok(orbitService.updateOrbit(id, orbit));
     }
 

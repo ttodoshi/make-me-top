@@ -1,6 +1,6 @@
 package org.example.repository;
 
-import org.example.model.modelDAO.Galaxy;
+import org.example.model.Galaxy;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

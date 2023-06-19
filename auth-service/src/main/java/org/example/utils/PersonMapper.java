@@ -2,7 +2,7 @@ package org.example.utils;
 
 import org.example.model.Person;
 import org.example.model.Role;
-import org.example.model.UserAuthResponse;
+import org.example.dto.UserAuthResponse;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration

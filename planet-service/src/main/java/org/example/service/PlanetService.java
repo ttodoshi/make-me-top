@@ -5,12 +5,13 @@ import lombok.Setter;
 import lombok.SneakyThrows;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import org.example.exception.connectException.ConnectException;
-import org.example.exception.planetException.PlanetAlreadyExists;
-import org.example.exception.planetException.PlanetNotFoundException;
-import org.example.exception.systemEX.SystemNotFoundException;
-import org.example.model.PlanetDAO;
-import org.example.model.PlanetModel;
+import org.example.dto.PlanetRequest;
+import org.example.exception.classes.connectEX.ConnectException;
+import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
+import org.example.exception.classes.planetEX.PlanetAlreadyExistsException;
+import org.example.exception.classes.planetEX.PlanetNotFoundException;
+import org.example.exception.classes.systemEX.SystemNotFoundException;
+import org.example.model.Planet;
 import org.example.repository.PlanetRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,12 +20,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -44,41 +41,33 @@ public class PlanetService {
     @Value("${get_system_by_id}")
     private String GET_SYSTEM_BY_ID_URL;
 
-    public List<PlanetModel> getPlanetsListBySystemId(Integer systemId) {
-        try {
-            checkSystemExist(systemId);
-            return planetRepository.getListPlanetBySystemId(systemId)
-                    .stream()
-                    .map(
-                            x -> mapper
-                                    .map(x, PlanetModel.class))
-                    .collect(Collectors.toList());
-        } catch (Exception e) {
-            logger.severe(e.getMessage());
-            throw new SystemNotFoundException();
-        }
+    public List<Planet> getPlanetsListBySystemId(Integer systemId) {
+        if (checkSystemExists(systemId))
+            return planetRepository.getListPlanetBySystemId(systemId);
+        throw new SystemNotFoundException();
     }
 
     @Transactional
-    public List<PlanetDAO> addPlanet(List<PlanetModel> list, Integer galaxyId) {
+    public List<Planet> addPlanet(List<PlanetRequest> planets, Integer galaxyId) {
+        List<Planet> savedPlanets = new LinkedList<>();
+        List<Planet> planetsByGalaxyId;
         try {
-            List<PlanetDAO> planetDAOList = planetRepository.checkPlanetExists(galaxyId);
-            for (PlanetModel model : list) {
-                if (planetDAOList.stream()
-                        .noneMatch(
-                                x -> Objects.equals(
-                                        x.getPlanetName(), model.getPlanetName()))) {
-                    checkSystemExist(model.getSystemId());
-                    planetRepository.save(mapper.map(model, PlanetDAO.class));
-                } else {
-                    throw new PlanetAlreadyExists();
-                }
-            }
-            return planetDAOList;
+            planetsByGalaxyId = planetRepository.getAllPlanetsByGalaxyId(galaxyId);
         } catch (Exception e) {
             logger.severe(e.getMessage());
-            throw new PlanetAlreadyExists();
+            throw new GalaxyNotFoundException();
         }
+        for (PlanetRequest planet : planets) {
+            if (planetsByGalaxyId.stream().noneMatch(
+                    x -> Objects.equals(x.getPlanetName(), planet.getPlanetName()))) {
+                if (checkSystemExists(planet.getSystemId()))
+                    savedPlanets.add(planetRepository.save(mapper.map(planet, Planet.class)));
+                else
+                    throw new SystemNotFoundException();
+            } else
+                throw new PlanetAlreadyExistsException();
+        }
+        return savedPlanets;
     }
 
     public Map<String, String> deletePlanetById(Integer planetId) {
@@ -93,52 +82,44 @@ public class PlanetService {
         }
     }
 
-    public PlanetDAO updateSystem(Integer planetId,
-                             Integer galaxyId,
-                             PlanetModel model) {
-        List<PlanetDAO> planetDAOList;
-        PlanetDAO planetDAO;
-        try {
-            planetDAO = planetRepository.getReferenceById(planetId);
-            planetDAO.setPlanetId(model.getPlanetId());
-            checkSystemExist(model.getSystemId());
-            planetDAO.setSystemId(model.getSystemId());
-            planetDAOList = planetRepository.checkPlanetExists(galaxyId);
-        } catch (Exception e) {
-            logger.severe(e.getMessage());
+    public Planet updatePlanet(Integer planetId,
+                               Integer galaxyId,
+                               PlanetRequest planet) {
+        if (!checkSystemExists(planet.getSystemId()))
+            throw new SystemNotFoundException();
+        Optional<Planet> updatedPlanetOptional = planetRepository.findById(planetId);
+        Planet updatedPlanet;
+        if (updatedPlanetOptional.isEmpty())
             throw new PlanetNotFoundException();
-        }
+        else
+            updatedPlanet = updatedPlanetOptional.get();
+        List<Planet> planetList;
         try {
-            if (planetDAOList.stream().noneMatch(x -> Objects.equals(x.getPlanetName(), model.getPlanetName()))) {
-                planetDAO.setPlanetName(model.getPlanetName());
-            } else {
-                throw new PlanetAlreadyExists();
-            }
+            planetList = planetRepository.getAllPlanetsByGalaxyId(galaxyId);
         } catch (Exception e) {
             logger.severe(e.getMessage());
+            throw new GalaxyNotFoundException();
         }
-        try {
-            return planetRepository.save(planetDAO);
-        } catch (Exception e) {
-            logger.severe(e.getMessage());
-            throw new ConnectException();
-        }
+        updatedPlanet.setPlanetName(planet.getPlanetName());
+        updatedPlanet.setSystemId(planet.getSystemId());
+        updatedPlanet.setPlanetNumber(planet.getPlanetNumber());
+        return planetRepository.save(updatedPlanet);
     }
 
     @SneakyThrows
-    private void checkSystemExist(Integer systemId) {
+    private boolean checkSystemExists(Integer systemId) {
         var getSystemById = new Request.Builder()
                 .get()
                 .header("Cookie", "token=" + token)
                 .url(APP_GALAXY_URL + GET_SYSTEM_BY_ID_URL + systemId + "?withDependency=true")
                 .build();
         try (var response = new OkHttpClient().newCall(getSystemById).execute()) {
-            if (response.code() != HttpStatus.OK.value()) {
-                throw new SystemNotFoundException();
-            }
+            if (response.code() != HttpStatus.OK.value())
+                return false;
         } catch (Exception e) {
             logger.severe(e.getMessage());
             throw new ConnectException();
         }
+        return true;
     }
 }
