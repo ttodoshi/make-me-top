@@ -15,6 +15,6 @@ public class SwaggerConfiguration {
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI().info(new Info().title("Make Me Top").version("v 0.1"))
-                .addServersItem(new Server().url("http://localhost:4401"+basePath));
+                .addServersItem(new Server().url("http://10.254.7.231:4401"+basePath));
     }
 }
