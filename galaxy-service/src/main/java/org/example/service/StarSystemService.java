@@ -3,6 +3,8 @@ package org.example.service;
 import lombok.RequiredArgsConstructor;
 import org.example.config.mapper.DependencyMapper;
 import org.example.dto.dependency.DependencyGetInfoModel;
+import org.example.dto.starsystem.GetStarSystemWithDependencies;
+import org.example.dto.starsystem.GetStarSystemWithoutDependency;
 import org.example.dto.starsystem.StarSystemDTO;
 import org.example.dto.starsystem.StarSystemWithDependencies;
 import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
@@ -37,10 +39,10 @@ public class StarSystemService {
 
     private final Logger logger = Logger.getLogger(GalaxyService.class.getName());
 
-    public StarSystemWithDependencies getStarSystemById(Integer id) {
+    public GetStarSystemWithDependencies getStarSystemById(Integer id) {
         try {
-            StarSystemWithDependencies system = mapper.map(
-                    starSystemRepository.getReferenceById(id), StarSystemWithDependencies.class);
+            GetStarSystemWithDependencies system = mapper.map(
+                    starSystemRepository.getReferenceById(id), GetStarSystemWithDependencies.class);
             system.setDependencyList(dependencyRepository.getListSystemDependencyParent(id)
                     .stream()
                     .map(dependencyMapper::dependencyToDependencyParentModel)
@@ -62,9 +64,9 @@ public class StarSystemService {
         }
     }
 
-    public StarSystemDTO getStarSystemByIdWithoutDependency(Integer systemId) {
+    public GetStarSystemWithoutDependency getStarSystemByIdWithoutDependency(Integer systemId) {
         try {
-            return mapper.map(starSystemRepository.getReferenceById(systemId), StarSystemDTO.class);
+            return mapper.map(starSystemRepository.getReferenceById(systemId), GetStarSystemWithoutDependency.class);
         } catch (Exception e) {
             logger.severe(e.getMessage());
             throw new SystemNotFoundException();
@@ -100,7 +102,7 @@ public class StarSystemService {
         }
     }
 
-    public StarSystemDTO updateSystem(StarSystemDTO starSystem, Integer galaxyId, Integer systemId) {
+    public StarSystem updateSystem(StarSystemDTO starSystem, Integer galaxyId, Integer systemId) {
         StarSystem updatedStarSystem;
         try {
             updatedStarSystem = starSystemRepository.getReferenceById(systemId);
@@ -122,7 +124,7 @@ public class StarSystemService {
                 updatedStarSystem.setSystemPosition(starSystem.getSystemPosition());
                 updatedStarSystem.setOrbitId(starSystem.getOrbitId());
                 updatedStarSystem.setSystemLevel(starSystem.getSystemLevel());
-                return mapper.map(starSystemRepository.save(updatedStarSystem), StarSystemDTO.class);
+                return starSystemRepository.save(updatedStarSystem);
             } else {
                 throw new SystemAlreadyExistsException();
             }

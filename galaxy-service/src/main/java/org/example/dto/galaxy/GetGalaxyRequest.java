@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.example.dto.orbit.OrbitWithStarSystems;
+import org.example.dto.orbit.OrbitWithStarSystemsWithoutGalaxyId;
 
 import java.util.List;
 
@@ -13,6 +14,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @JsonIgnoreProperties("galaxyDescription")
 public class GetGalaxyRequest extends GalaxyDTO {
+    private Integer galaxyId;
     @JsonProperty("orbitList")
-    private List<OrbitWithStarSystems> orbitsList;
+    private List<OrbitWithStarSystemsWithoutGalaxyId> orbitsList;
 }

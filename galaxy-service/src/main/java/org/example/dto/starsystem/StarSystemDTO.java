@@ -1,6 +1,5 @@
 package org.example.dto.starsystem;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
 @Data

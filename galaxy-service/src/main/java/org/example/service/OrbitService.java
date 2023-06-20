@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.config.mapper.DependencyMapper;
 import org.example.dto.orbit.OrbitDTO;
 import org.example.dto.orbit.OrbitWithStarSystems;
-import org.example.dto.starsystem.StarSystemWithDependencies;
+import org.example.dto.starsystem.GetStarSystemWithDependencies;
 import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
 import org.example.exception.classes.orbitEX.OrbitAlreadyExistsException;
 import org.example.exception.classes.orbitEX.OrbitCoordinatesException;
@@ -43,14 +43,14 @@ public class OrbitService {
             orbit.setSystemWithDependenciesList(
                     starSystemRepository.getStarSystemByOrbitId(id)
                             .stream()
-                            .map(system -> mapper.map(system, StarSystemWithDependencies.class))
+                            .map(system -> mapper.map(system, GetStarSystemWithDependencies.class))
                             .collect(Collectors.toList()));
-            for (StarSystemWithDependencies system : orbit.getSystemWithDependenciesList()) {
+            for (GetStarSystemWithDependencies system : orbit.getSystemWithDependenciesList()) {
                 system.setDependencyList(
                         dependencyRepository.getListSystemDependencyParent(system.getSystemId())
-                        .stream()
-                        .map(dependencyMapper::dependencyToDependencyParentModel)
-                        .collect(Collectors.toList()));
+                                .stream()
+                                .map(dependencyMapper::dependencyToDependencyParentModel)
+                                .collect(Collectors.toList()));
                 dependencyRepository.getListSystemDependencyChild(system.getSystemId())
                         .stream()
                         .filter(x -> x.getParentId() != null)
@@ -64,9 +64,9 @@ public class OrbitService {
         }
     }
 
-    public OrbitDTO getOrbitById(Integer id) {
+    public Orbit getOrbitById(Integer id) {
         try {
-            return mapper.map(orbitRepository.getReferenceById(id), OrbitDTO.class);
+            return orbitRepository.getReferenceById(id);
         } catch (Exception e) {
             logger.severe(e.getMessage());
             throw new OrbitNotFoundException();
@@ -94,12 +94,12 @@ public class OrbitService {
         }
     }
 
-    public OrbitDTO updateOrbit(Integer id, OrbitDTO orbit) {
+    public Orbit updateOrbit(Integer id, OrbitDTO orbit) {
         try {
             Orbit updatedOrbit = orbitRepository.getReferenceById(id);
             updatedOrbit.setOrbitLevel(orbit.getOrbitLevel());
             updatedOrbit.setSystemCount(orbit.getSystemCount());
-            return mapper.map(orbitRepository.save(updatedOrbit), OrbitDTO.class);
+            return orbitRepository.save(updatedOrbit);
         } catch (RuntimeException e) {
             logger.severe(e.getMessage());
             throw new OrbitAlreadyExistsException();

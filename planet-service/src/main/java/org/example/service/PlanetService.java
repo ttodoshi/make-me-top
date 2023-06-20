@@ -5,7 +5,7 @@ import lombok.Setter;
 import lombok.SneakyThrows;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import org.example.dto.PlanetRequest;
+import org.example.dto.PlanetDTO;
 import org.example.exception.classes.connectEX.ConnectException;
 import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
 import org.example.exception.classes.planetEX.PlanetAlreadyExistsException;
@@ -48,7 +48,7 @@ public class PlanetService {
     }
 
     @Transactional
-    public List<Planet> addPlanet(List<PlanetRequest> planets, Integer galaxyId) {
+    public List<Planet> addPlanet(List<PlanetDTO> planets, Integer galaxyId) {
         List<Planet> savedPlanets = new LinkedList<>();
         List<Planet> planetsByGalaxyId;
         try {
@@ -57,7 +57,7 @@ public class PlanetService {
             logger.severe(e.getMessage());
             throw new GalaxyNotFoundException();
         }
-        for (PlanetRequest planet : planets) {
+        for (PlanetDTO planet : planets) {
             if (planetsByGalaxyId.stream().noneMatch(
                     x -> Objects.equals(x.getPlanetName(), planet.getPlanetName()))) {
                 if (checkSystemExists(planet.getSystemId()))
@@ -84,7 +84,7 @@ public class PlanetService {
 
     public Planet updatePlanet(Integer planetId,
                                Integer galaxyId,
-                               PlanetRequest planet) {
+                               PlanetDTO planet) {
         if (!checkSystemExists(planet.getSystemId()))
             throw new SystemNotFoundException();
         Optional<Planet> updatedPlanetOptional = planetRepository.findById(planetId);
@@ -93,9 +93,8 @@ public class PlanetService {
             throw new PlanetNotFoundException();
         else
             updatedPlanet = updatedPlanetOptional.get();
-        List<Planet> planetList;
         try {
-            planetList = planetRepository.getAllPlanetsByGalaxyId(galaxyId);
+            planetRepository.getAllPlanetsByGalaxyId(galaxyId);
         } catch (Exception e) {
             logger.severe(e.getMessage());
             throw new GalaxyNotFoundException();

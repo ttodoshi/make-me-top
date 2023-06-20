@@ -4,14 +4,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.example.dto.starsystem.GetStarSystemWithDependencies;
-import org.example.dto.starsystem.GetStarSystemWithoutDependency;
-import org.example.dto.starsystem.StarSystemWithDependencies;
 
 import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class OrbitWithStarSystems extends OrbitDTO {
+public class OrbitWithStarSystemsWithoutGalaxyId extends OrbitDTO {
     private Integer orbitId;
     @JsonProperty("systemList")
     List<GetStarSystemWithDependencies> systemWithDependenciesList;

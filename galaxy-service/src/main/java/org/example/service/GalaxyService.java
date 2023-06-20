@@ -7,6 +7,8 @@ import org.example.dto.galaxy.GalaxyDTO;
 import org.example.dto.galaxy.GetGalaxyRequest;
 import org.example.dto.orbit.OrbitWithStarSystems;
 import org.example.dto.orbit.OrbitWithStarSystemsAndDependencies;
+import org.example.dto.orbit.OrbitWithStarSystemsWithoutGalaxyId;
+import org.example.dto.starsystem.GetStarSystemWithDependencies;
 import org.example.dto.starsystem.StarSystemDTO;
 import org.example.dto.starsystem.StarSystemWithDependencies;
 import org.example.exception.classes.galaxyEX.GalaxyAlreadyExistsException;
@@ -47,15 +49,15 @@ public class GalaxyService {
 
             galaxy.setOrbitsList(orbitRepository.getOrbitsByGalaxyId(id)
                     .stream()
-                    .map(orbit -> mapper.map(orbit, OrbitWithStarSystems.class))
+                    .map(orbit -> mapper.map(orbit, OrbitWithStarSystemsWithoutGalaxyId.class))
                     .collect(Collectors.toList()));
-            for (OrbitWithStarSystems orbitWithStarSystems : galaxy.getOrbitsList()) {
+            for (OrbitWithStarSystemsWithoutGalaxyId orbitWithStarSystems : galaxy.getOrbitsList()) {
                 orbitWithStarSystems.setSystemWithDependenciesList(
                         starSystemRepository.getStarSystemByOrbitId(orbitWithStarSystems.getOrbitId())
                                 .stream()
-                                .map(system -> mapper.map(system, StarSystemWithDependencies.class))
+                                .map(system -> mapper.map(system, GetStarSystemWithDependencies.class))
                                 .collect(Collectors.toList()));
-                for (StarSystemWithDependencies starSystemWithDependencies : orbitWithStarSystems.getSystemWithDependenciesList()) {
+                for (GetStarSystemWithDependencies starSystemWithDependencies : orbitWithStarSystems.getSystemWithDependenciesList()) {
                     starSystemWithDependencies.setDependencyList(
                             dependencyRepository.getListSystemDependencyParent(
                                             starSystemWithDependencies.getSystemId())
@@ -97,12 +99,11 @@ public class GalaxyService {
         return getGalaxyById(savedGalaxyId);
     }
 
-    public GalaxyDTO updateGalaxy(Integer id, GalaxyDTO galaxy) {
+    public Galaxy updateGalaxy(Integer id, GalaxyDTO galaxy) {
         try {
             Galaxy updatedGalaxy = galaxyRepository.getReferenceById(id);
             updatedGalaxy.setGalaxyName(galaxy.getGalaxyName());
-            galaxyRepository.save(updatedGalaxy);
-            return galaxy;
+            return galaxyRepository.save(updatedGalaxy);
         } catch (RuntimeException e) {
             logger.severe(e.getMessage());
             throw new GalaxyAlreadyExistsException();
