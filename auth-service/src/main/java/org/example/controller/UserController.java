@@ -53,7 +53,7 @@ public class UserController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> updatePersonRoleToCurator(@PathVariable("personId") Integer personId) {
-        return new ResponseEntity<>(personService.updatePersonRoleToCurator(personId), HttpStatus.OK);
+    public ResponseEntity<?> updatePersonRoleToKeeper(@PathVariable("personId") Integer personId) {
+        return new ResponseEntity<>(personService.updatePersonRoleToKeeper(personId), HttpStatus.OK);
     }
 }

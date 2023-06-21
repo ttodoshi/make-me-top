@@ -115,7 +115,7 @@ public class PersonService {
         personRepository.save(person);
     }
 
-    public Map<String, String> updatePersonRoleToCurator(Integer personId) {
+    public Map<String, String> updatePersonRoleToKeeper(Integer personId) {
         try {
             Person person = personRepository.getReferenceById(personId);
             person.setRole(Role.KEEPER);
