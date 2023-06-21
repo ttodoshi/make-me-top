@@ -22,7 +22,7 @@ public class PlanetController {
     private final PlanetService planetService;
 
     @GetMapping("system/{systemId}/planet")
-    @Secured({"ROLE_EXPLORER", "ROLE_KEEPER", "ROLE_BIG_BROTHER"})
+    @Secured({"ROLE_EXPLORER", "ROLE_CURATOR", "ROLE_BIG_BROTHER"})
     @Operation(summary = "Get planets by system id", tags = "planet")
     @ApiResponses(value = {
             @ApiResponse(

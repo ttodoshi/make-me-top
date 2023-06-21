@@ -20,7 +20,7 @@ public class StarSystemController {
     private final StarSystemService starSystemService;
 
     @GetMapping("system/{systemId}")
-    @Secured({"ROLE_EXPLORER", "ROLE_KEEPER", "ROLE_BIG_BROTHER"})
+    @Secured({"ROLE_EXPLORER", "ROLE_CURATOR", "ROLE_BIG_BROTHER"})
     @Operation(summary = "Get system by id", tags = "system")
     @ApiResponses(value = {
             @ApiResponse(

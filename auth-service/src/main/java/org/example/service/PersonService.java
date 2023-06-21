@@ -118,7 +118,7 @@ public class PersonService {
     public Map<String, String> updatePersonRoleToCurator(Integer personId) {
         try {
             Person person = personRepository.getReferenceById(personId);
-            person.setRole(Role.KEEPER);
+            person.setRole(Role.CURATOR);
             personRepository.save(person);
             Map<String, String> response = new HashMap<>();
             response.put("message", "Роль успешно изменена");

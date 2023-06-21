@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("/auth/")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @PropertySource(value = {"classpath:config.properties"})
 @RequiredArgsConstructor
 public class UserController {

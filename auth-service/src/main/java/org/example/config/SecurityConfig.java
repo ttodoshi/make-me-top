@@ -1,7 +1,6 @@
 package org.example.config;
 
 import lombok.RequiredArgsConstructor;
-import org.example.model.Role;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;

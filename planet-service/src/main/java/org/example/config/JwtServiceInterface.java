@@ -8,8 +8,6 @@ import java.util.function.Function;
 
 public interface JwtServiceInterface {
 
-    String generateToken(Person person);
-
     String extractId(String jwtToken);
 
     <T> T extractClaim(String jwtToken, Function<Claims, T> claimsResolver);

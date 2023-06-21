@@ -1,4 +1,4 @@
-package org.example.config.mapper;
+package org.example.config;
 
 import org.springframework.stereotype.Component;
 

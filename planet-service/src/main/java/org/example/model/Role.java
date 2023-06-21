@@ -2,6 +2,6 @@ package org.example.model;
 
 public enum Role {
     EXPLORER,
-    KEEPER,
+    CURATOR,
     BIG_BROTHER
 }
