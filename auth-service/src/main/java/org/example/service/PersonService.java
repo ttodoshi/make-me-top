@@ -69,8 +69,6 @@ public class PersonService {
     public Optional<UserAuthResponse> sendAuthRequest(UserRequest userRequest) {
         okhttp3.RequestBody requestBody = okhttp3.RequestBody
                 .create(JSON, userRequest.toString());
-        logger.info(userRequest.toString());
-        logger.info(mmtrAuthUrl);
         var loginRequest = new Request.Builder()
                 .url(mmtrAuthUrl)
                 .post(requestBody)
@@ -78,7 +76,6 @@ public class PersonService {
                 .build();
         Optional<UserAuthResponse> authResponseOptional = Optional.empty();
         try (var response = new OkHttpClient().newCall(loginRequest).execute()) {
-            logger.info("1");
             if (response.code() == HttpStatus.OK.value()) {
                 String responseBody = response.body().string();
                 if (isResponseSuccess(responseBody)) {
