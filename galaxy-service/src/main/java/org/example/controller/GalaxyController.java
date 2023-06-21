@@ -21,7 +21,7 @@ public class GalaxyController {
     private final GalaxyService galaxyService;
 
     @GetMapping
-    @Secured({"ROLE_EXPLORER", "ROLE_CURATOR", "ROLE_BIG_BROTHER"})
+    @Secured({"ROLE_EXPLORER", "ROLE_KEEPER", "ROLE_BIG_BROTHER"})
     @Operation(summary = "Get all Galaxies", tags = "galaxy")
     @ApiResponses(value = {
             @ApiResponse(
@@ -37,7 +37,7 @@ public class GalaxyController {
     }
 
     @GetMapping("{galaxyId}")
-    @Secured({"ROLE_EXPLORER", "ROLE_CURATOR", "ROLE_BIG_BROTHER"})
+    @Secured({"ROLE_EXPLORER", "ROLE_KEEPER", "ROLE_BIG_BROTHER"})
     @Operation(summary = "Get galaxy by Id", tags = "galaxy")
     @ApiResponses(value = {
             @ApiResponse(

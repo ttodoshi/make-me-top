@@ -20,7 +20,7 @@ public class OrbitController {
     private final OrbitService orbitService;
 
     @GetMapping("{orbitId}")
-    @Secured({"ROLE_EXPLORER", "ROLE_CURATOR", "ROLE_BIG_BROTHER"})
+    @Secured({"ROLE_EXPLORER", "ROLE_KEEPER", "ROLE_BIG_BROTHER"})
     @Operation(summary = "Get Orbit", tags = "orbit")
     @ApiResponses(value = {
             @ApiResponse(
