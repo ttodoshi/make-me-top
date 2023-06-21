@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/galaxy-app/")
-@RequiredArgsConstructor
 @CrossOrigin(origins = "*", allowedHeaders = "*")
+@RequiredArgsConstructor
 public class StarSystemController {
     private final StarSystemService starSystemService;
 

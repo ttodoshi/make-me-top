@@ -16,8 +16,8 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/planet-app/")
-@RequiredArgsConstructor
 @CrossOrigin(origins = "*", allowedHeaders = "*")
+@RequiredArgsConstructor
 public class PlanetController {
     private final PlanetService planetService;
 
