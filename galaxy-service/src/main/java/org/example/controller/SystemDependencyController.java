@@ -17,7 +17,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/galaxy-app/dependency/")
-@CrossOrigin(origins = "*", allowedHeaders = "*")
+@CrossOrigin(allowedHeaders = "*")
 @RequiredArgsConstructor
 @JsonIgnoreProperties({"trace"})
 public class SystemDependencyController {

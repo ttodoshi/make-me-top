@@ -20,7 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("/auth/")
-@CrossOrigin(origins = "*", allowedHeaders = "*")
+@CrossOrigin(allowedHeaders = "*")
 @PropertySource(value = {"classpath:config.properties"})
 @RequiredArgsConstructor
 @SecurityScheme(
