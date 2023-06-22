@@ -93,11 +93,16 @@ public class PlanetService {
             throw new PlanetNotFoundException();
         else
             updatedPlanet = updatedPlanetOptional.get();
+        List<Planet> planets;
         try {
-            planetRepository.getAllPlanetsByGalaxyId(galaxyId);
+            planets = planetRepository.getAllPlanetsByGalaxyId(galaxyId);
         } catch (Exception e) {
             logger.severe(e.getMessage());
             throw new GalaxyNotFoundException();
+        }
+        for (Planet currentPlanet: planets) {
+            if (currentPlanet.getPlanetName().equals(updatedPlanet.getPlanetName()) && !currentPlanet.getPlanetId().equals(updatedPlanet.getPlanetId()))
+                throw new PlanetAlreadyExistsException();
         }
         updatedPlanet.setPlanetName(planet.getPlanetName());
         updatedPlanet.setSystemId(planet.getSystemId());

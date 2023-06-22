@@ -17,10 +17,7 @@ import org.example.repository.StarSystemRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -29,10 +26,10 @@ import java.util.stream.Collectors;
 public class OrbitService {
     private final OrbitRepository orbitRepository;
     private final StarSystemRepository starSystemRepository;
-    private final DependencyRepository dependencyRepository;
+
+    private final StarSystemService systemService;
 
     private final ModelMapper mapper;
-    private final DependencyMapper dependencyMapper;
 
     private final Logger logger = Logger.getLogger(GalaxyService.class.getName());
 
@@ -41,22 +38,14 @@ public class OrbitService {
             OrbitWithStarSystems orbit = mapper.map(
                     orbitRepository.getReferenceById(id), OrbitWithStarSystems.class);
             orbit.setSystemWithDependenciesList(
-                    starSystemRepository.getStarSystemByOrbitId(id)
+                    starSystemRepository.getStarSystemsByOrbitId(id)
                             .stream()
                             .map(system -> mapper.map(system, GetStarSystemWithDependencies.class))
                             .collect(Collectors.toList()));
-            for (GetStarSystemWithDependencies system : orbit.getSystemWithDependenciesList()) {
-                system.setDependencyList(
-                        dependencyRepository.getListSystemDependencyParent(system.getSystemId())
-                                .stream()
-                                .map(dependencyMapper::dependencyToDependencyParentModel)
-                                .collect(Collectors.toList()));
-                dependencyRepository.getListSystemDependencyChild(system.getSystemId())
-                        .stream()
-                        .filter(x -> x.getParentId() != null)
-                        .map(dependencyMapper::dependencyToDependencyChildModel)
-                        .forEach(x -> system.getDependencyList().add(x));
-            }
+            List<GetStarSystemWithDependencies> systemWithDependenciesList = new LinkedList<>();
+            for (GetStarSystemWithDependencies system : orbit.getSystemWithDependenciesList())
+                systemWithDependenciesList.add(systemService.getStarSystemByIdWithDependencies(system.getSystemId()));
+            orbit.setSystemWithDependenciesList(systemWithDependenciesList);
             return orbit;
         } catch (Exception e) {
             logger.severe(e.getMessage());

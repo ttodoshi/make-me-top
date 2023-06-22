@@ -34,9 +34,9 @@ public class StarSystemController {
     public ResponseEntity<?> getSystemById(@PathVariable("systemId") Integer id,
                                            @RequestParam(name = "withDependencies", required = false) Boolean withDependencies) {
         if (withDependencies != null && withDependencies)
-            return ResponseEntity.ok(starSystemService.getStarSystemById(id));
+            return ResponseEntity.ok(starSystemService.getStarSystemByIdWithDependencies(id));
         else
-            return ResponseEntity.ok(starSystemService.getStarSystemByIdWithoutDependency(id));
+            return ResponseEntity.ok(starSystemService.getStarSystemById(id));
     }
 
     @PostMapping("galaxy/{galaxyId}/system")
@@ -51,8 +51,8 @@ public class StarSystemController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> createSystem(@RequestBody StarSystemDTO starSystem, @PathVariable("galaxyId") Integer id) {
-        return ResponseEntity.ok(starSystemService.createSystem(starSystem, id));
+    public ResponseEntity<?> createSystem(@RequestBody StarSystemDTO starSystem, @PathVariable("galaxyId") Integer galaxyId) {
+        return ResponseEntity.ok(starSystemService.createSystem(starSystem, galaxyId));
     }
 
 

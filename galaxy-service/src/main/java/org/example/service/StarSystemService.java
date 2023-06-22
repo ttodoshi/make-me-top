@@ -6,7 +6,6 @@ import org.example.dto.dependency.DependencyGetInfoModel;
 import org.example.dto.starsystem.GetStarSystemWithDependencies;
 import org.example.dto.starsystem.GetStarSystemWithoutDependency;
 import org.example.dto.starsystem.StarSystemDTO;
-import org.example.dto.starsystem.StarSystemWithDependencies;
 import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
 import org.example.exception.classes.orbitEX.OrbitNotFoundException;
 import org.example.exception.classes.systemEX.SystemAlreadyExistsException;
@@ -39,7 +38,7 @@ public class StarSystemService {
 
     private final Logger logger = Logger.getLogger(GalaxyService.class.getName());
 
-    public GetStarSystemWithDependencies getStarSystemById(Integer id) {
+    public GetStarSystemWithDependencies getStarSystemByIdWithDependencies(Integer id) {
         try {
             GetStarSystemWithDependencies system = mapper.map(
                     starSystemRepository.getReferenceById(id), GetStarSystemWithDependencies.class);
@@ -52,10 +51,8 @@ public class StarSystemService {
                     .filter(x -> x.getParentId() != null)
                     .map(dependencyMapper::dependencyToDependencyChildModel)
                     .collect(Collectors.toList());
-            if (dependencies != null) {
-                for (DependencyGetInfoModel dependency : dependencies) {
-                    system.getDependencyList().add(dependency);
-                }
+            for (DependencyGetInfoModel dependency : dependencies) {
+                system.getDependencyList().add(dependency);
             }
             return system;
         } catch (Exception e) {
@@ -64,7 +61,7 @@ public class StarSystemService {
         }
     }
 
-    public GetStarSystemWithoutDependency getStarSystemByIdWithoutDependency(Integer systemId) {
+    public GetStarSystemWithoutDependency getStarSystemById(Integer systemId) {
         try {
             return mapper.map(starSystemRepository.getReferenceById(systemId), GetStarSystemWithoutDependency.class);
         } catch (Exception e) {
@@ -73,63 +70,37 @@ public class StarSystemService {
         }
     }
 
-    public StarSystem createSystem(StarSystemDTO starSystem, Integer id) {
-        try {
-            logger.info(galaxyRepository.getReferenceById(id).getGalaxyName());
-        } catch (Exception e) {
-            logger.severe(e.getMessage());
+    public StarSystem createSystem(StarSystemDTO starSystem, Integer galaxyId) {
+        if (!galaxyRepository.existsById(galaxyId))
             throw new GalaxyNotFoundException();
-        }
-
-        try {
-            logger.info(orbitRepository.getReferenceById(starSystem.getOrbitId()).getOrbitId().toString());
-        } catch (Exception e) {
-            logger.severe(e.getMessage());
+        if (!orbitRepository.existsById(starSystem.getOrbitId()))
             throw new OrbitNotFoundException();
-        }
 
-        try {
-            if (starSystemRepository.getStarSystemByGalaxyId(id).stream().noneMatch(
-                    x -> Objects.equals(x.getSystemName(), starSystem.getSystemName()))) {
-                return starSystemRepository.save(
-                        mapper.map(starSystem, StarSystem.class));
-            } else {
-                throw new SystemAlreadyExistsException();
-            }
-        } catch (Exception e) {
-            logger.severe(e.getMessage());
+        if (starSystemRepository.getStarSystemsByGalaxyId(galaxyId).stream()
+                .noneMatch(
+                        x -> Objects.equals(x.getSystemName(), starSystem.getSystemName())))
+            return starSystemRepository.save(mapper.map(starSystem, StarSystem.class));
+        else
             throw new SystemAlreadyExistsException();
-        }
     }
 
     public StarSystem updateSystem(StarSystemDTO starSystem, Integer galaxyId, Integer systemId) {
-        StarSystem updatedStarSystem;
-        try {
-            updatedStarSystem = starSystemRepository.getReferenceById(systemId);
-        } catch (Exception e) {
-            logger.severe(e.getMessage());
+        if (!starSystemRepository.existsById(systemId))
             throw new SystemNotFoundException();
-        }
-        try {
-            orbitRepository.getReferenceById(starSystem.getOrbitId());
-        } catch (Exception e) {
-            logger.severe(e.getMessage());
+        StarSystem updatedStarSystem = starSystemRepository.getReferenceById(systemId);
+        if (!galaxyRepository.existsById(galaxyId))
+            throw new GalaxyNotFoundException();
+        if (!orbitRepository.existsById(starSystem.getOrbitId()))
             throw new OrbitNotFoundException();
-        }
-        try {
-            if (starSystemRepository.getStarSystemByGalaxyId(galaxyId).stream()
-                    .noneMatch(
-                            x -> Objects.equals(x.getSystemName(), starSystem.getSystemName()))) {
-                updatedStarSystem.setSystemName(starSystem.getSystemName());
-                updatedStarSystem.setSystemPosition(starSystem.getSystemPosition());
-                updatedStarSystem.setOrbitId(starSystem.getOrbitId());
-                updatedStarSystem.setSystemLevel(starSystem.getSystemLevel());
-                return starSystemRepository.save(updatedStarSystem);
-            } else {
-                throw new SystemAlreadyExistsException();
-            }
-        } catch (Exception e) {
-            logger.severe(e.getMessage());
+        if (starSystemRepository.getStarSystemsByGalaxyId(galaxyId).stream()
+                .noneMatch(
+                        x -> Objects.equals(x.getSystemName(), starSystem.getSystemName()))) {
+            updatedStarSystem.setSystemName(starSystem.getSystemName());
+            updatedStarSystem.setSystemPosition(starSystem.getSystemPosition());
+            updatedStarSystem.setOrbitId(starSystem.getOrbitId());
+            updatedStarSystem.setSystemLevel(starSystem.getSystemLevel());
+            return starSystemRepository.save(updatedStarSystem);
+        } else {
             throw new SystemAlreadyExistsException();
         }
     }
