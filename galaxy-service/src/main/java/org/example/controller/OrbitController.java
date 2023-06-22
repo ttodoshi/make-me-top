@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/galaxy-app/orbit/")
-@CrossOrigin(allowedHeaders = "*")
 @RequiredArgsConstructor
 public class OrbitController {
     private final OrbitService orbitService;
