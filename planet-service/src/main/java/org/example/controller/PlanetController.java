@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.PlanetDTO;
 import org.example.service.PlanetService;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
@@ -33,8 +34,9 @@ public class PlanetController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> getPlanetsBySystemId(@PathVariable("systemId") Integer id,
-                                                  @CookieValue("token") @Schema(hidden = true) String token) {
+    public ResponseEntity<?> getPlanetsBySystemId(
+            @PathVariable("systemId") Integer id,
+            @RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token) {
         planetService.setToken(token);
         return ResponseEntity.ok(planetService.getPlanetsListBySystemId(id));
     }
@@ -53,7 +55,7 @@ public class PlanetController {
     })
     public ResponseEntity<?> addPlanet(@PathVariable("galaxyId") Integer galaxyId,
                                        @RequestBody List<PlanetDTO> planetList,
-                                       @CookieValue("token") @Schema(hidden = true) String token) {
+                                       @RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token) {
         planetService.setToken(token);
         return ResponseEntity.ok(planetService.addPlanet(planetList, galaxyId));
     }
@@ -90,7 +92,7 @@ public class PlanetController {
             @PathVariable("planetId") Integer planetId,
             @PathVariable("galaxyId") Integer galaxyId,
             @RequestBody PlanetDTO planet,
-            @CookieValue("token") @Schema(hidden = true) String token) {
+            @RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token) {
         planetService.setToken(token);
         return ResponseEntity.ok(planetService.updatePlanet(planetId, galaxyId, planet));
     }

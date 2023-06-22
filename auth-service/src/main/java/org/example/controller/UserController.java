@@ -1,9 +1,12 @@
 package org.example.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.UserRequest;
 import org.example.service.PersonService;
@@ -20,6 +23,12 @@ import javax.servlet.http.HttpServletResponse;
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @PropertySource(value = {"classpath:config.properties"})
 @RequiredArgsConstructor
+@SecurityScheme(
+        name = "bearerAuth",
+        type = SecuritySchemeType.HTTP,
+        scheme = "bearer",
+        bearerFormat = "JWT"
+)
 public class UserController {
     private final PersonService personService;
 
@@ -42,7 +51,8 @@ public class UserController {
     @Secured("ROLE_BIG_BROTHER")
     @Operation(
             summary = "Update person role to keeper",
-            tags = "For admin"
+            tags = "For admin",
+            security = @SecurityRequirement(name = "bearerAuth")
     )
     @ApiResponses(value = {
             @ApiResponse(

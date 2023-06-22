@@ -109,7 +109,7 @@ public class PlanetService {
     private boolean checkSystemExists(Integer systemId) {
         var getSystemById = new Request.Builder()
                 .get()
-                .header("Cookie", "token=" + token)
+                .header("Authorization", token)
                 .url(APP_GALAXY_URL + GET_SYSTEM_BY_ID_URL + systemId + "?withDependency=true")
                 .build();
         try (var response = new OkHttpClient().newCall(getSystemById).execute()) {
