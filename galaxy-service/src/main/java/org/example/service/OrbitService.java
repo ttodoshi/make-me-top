@@ -103,7 +103,7 @@ public class OrbitService {
         try {
             orbitRepository.deleteById(id);
             Map<String, String> response = new HashMap<>();
-            response.put("message", "Орбита успешно удалена");
+            response.put("message", "Орбита была уничтожена неизвестным оружием инопланетной цивилизации");
             return response;
         } catch (Exception e) {
             logger.severe(e.getMessage());

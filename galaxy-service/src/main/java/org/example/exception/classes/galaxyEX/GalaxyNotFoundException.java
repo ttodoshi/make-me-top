@@ -5,4 +5,3 @@ public class GalaxyNotFoundException extends RuntimeException {
         super("Не удалось найти информацию о данной галактике в памяти бортового компьютера");
     }
 }
-

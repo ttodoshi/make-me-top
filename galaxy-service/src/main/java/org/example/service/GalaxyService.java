@@ -98,7 +98,7 @@ public class GalaxyService {
         try {
             galaxyRepository.deleteById(id);
             Map<String, String> response = new HashMap<>();
-            response.put("message", "Господин Аман уничтожил эту галактику");
+            response.put("message", "Галактика была уничтожена квазаром");
             return response;
         } catch (Exception e) {
             logger.severe(e.getMessage());

@@ -156,7 +156,7 @@ public class StarSystemService {
         try {
             starSystemRepository.deleteById(id);
             Map<String, String> response = new HashMap<>();
-            response.put("message", "Система успешно удалена");
+            response.put("message", "Система была уничжтожена чёрной дырой");
             return response;
         } catch (Exception e) {
             logger.severe(e.getMessage());

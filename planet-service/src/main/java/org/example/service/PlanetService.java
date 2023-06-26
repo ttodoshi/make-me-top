@@ -74,7 +74,7 @@ public class PlanetService {
         try {
             planetRepository.deleteById(planetId);
             Map<String, String> response = new HashMap<>();
-            response.put("message", "Планета успешно удалена");
+            response.put("message", "Планета подлежит уничтожению для создания межгалактической трассы");
             return response;
         } catch (Exception e) {
             logger.severe(e.getMessage());
