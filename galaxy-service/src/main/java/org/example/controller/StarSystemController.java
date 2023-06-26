@@ -20,22 +20,38 @@ public class StarSystemController {
 
     @GetMapping("system/{systemId}")
     @Secured({"ROLE_EXPLORER", "ROLE_KEEPER", "ROLE_BIG_BROTHER"})
-    @Operation(summary = "Get system by id", tags = "system")
+    @Operation(summary = "Get system by systemId", tags = "system")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "System by id",
+                    description = "System by systemId",
                     content = {
                             @Content(
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> getSystemById(@PathVariable("systemId") Integer id,
+    public ResponseEntity<?> getSystemById(@PathVariable("systemId") Integer systemId,
                                            @RequestParam(name = "withDependencies", required = false) Boolean withDependencies) {
         if (withDependencies != null && withDependencies)
-            return ResponseEntity.ok(starSystemService.getStarSystemByIdWithDependencies(id));
+            return ResponseEntity.ok(starSystemService.getStarSystemByIdWithDependencies(systemId));
         else
-            return ResponseEntity.ok(starSystemService.getStarSystemById(id));
+            return ResponseEntity.ok(starSystemService.getStarSystemById(systemId));
+    }
+
+    @GetMapping("galaxy/{galaxyId}/system")
+    @Secured({"ROLE_EXPLORER", "ROLE_KEEPER", "ROLE_BIG_BROTHER"})
+    @Operation(summary = "Get systems progress for current user", tags = "system")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Systems progress",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json")
+                    })
+    })
+    public ResponseEntity<?> getSystemsProgress(@PathVariable("galaxyId") Integer galaxyId) {
+        return ResponseEntity.ok(starSystemService.getSystemsProgressForCurrentUser(galaxyId));
     }
 
     @PostMapping("galaxy/{galaxyId}/system")

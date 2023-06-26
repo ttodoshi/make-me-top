@@ -47,12 +47,4 @@ public interface DependencyRepository extends JpaRepository<SystemDependency, In
 
     @Query(value = "SELECT * FROM system_dependency WHERE child_id=?1 and  parent_id  ISNULL", nativeQuery = true)
     SystemDependency getSystemDependencyByChildIdAndParentNull(Integer childId);
-
-    @Query(value = "DELETE FROM public.system_dependency\n" +
-            "\tWHERE child_id = ?1 and parent_id ISNULL",nativeQuery = true)
-    void deleteDependencyWithNullParentId(Integer id);
-
-    @Query(value = "DELETE FROM public.system_dependency\n" +
-            "\tWHERE child_id = ?1 and parent_id = ?2",nativeQuery = true)
-    void deleteDependency(Integer child_id, Integer parent_id);
 }

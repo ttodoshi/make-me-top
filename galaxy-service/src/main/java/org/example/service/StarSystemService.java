@@ -3,25 +3,21 @@ package org.example.service;
 import lombok.RequiredArgsConstructor;
 import org.example.config.mapper.DependencyMapper;
 import org.example.dto.dependency.DependencyGetInfoModel;
-import org.example.dto.starsystem.GetStarSystemWithDependencies;
-import org.example.dto.starsystem.GetStarSystemWithoutDependency;
-import org.example.dto.starsystem.StarSystemDTO;
+import org.example.dto.starsystem.*;
 import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
 import org.example.exception.classes.orbitEX.OrbitNotFoundException;
 import org.example.exception.classes.systemEX.SystemAlreadyExistsException;
 import org.example.exception.classes.systemEX.SystemNotFoundException;
+import org.example.model.Person;
 import org.example.model.StarSystem;
-import org.example.repository.DependencyRepository;
-import org.example.repository.GalaxyRepository;
-import org.example.repository.OrbitRepository;
-import org.example.repository.StarSystemRepository;
+import org.example.model.SystemProgress;
+import org.example.repository.*;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import javax.transaction.Transactional;
+import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -32,6 +28,7 @@ public class StarSystemService {
     private final DependencyRepository dependencyRepository;
     private final GalaxyRepository galaxyRepository;
     private final OrbitRepository orbitRepository;
+    private final SystemProgressRepository systemProgressRepository;
 
     private final ModelMapper mapper;
     private final DependencyMapper dependencyMapper;
@@ -68,6 +65,56 @@ public class StarSystemService {
             logger.severe(e.getMessage());
             throw new SystemNotFoundException();
         }
+    }
+
+    public StarSystemsForUser getSystemsProgressForCurrentUser(Integer galaxyId) {
+        Person authenticatedPerson = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        StarSystemsForUser.StarSystemsForUserBuilder builder = StarSystemsForUser.builder()
+                .firstName(authenticatedPerson.getFirstName())
+                .lastName(authenticatedPerson.getLastName())
+                .patronymic(authenticatedPerson.getPatronymic());
+        List<Integer> openedSystems = systemProgressRepository
+                .findOpenedSystemsForPerson(authenticatedPerson.getPersonId(), galaxyId);
+        List<SystemWithProgress> studiedSystems = systemProgressRepository
+                .findStudiedSystemsForPerson(authenticatedPerson.getPersonId(), galaxyId)
+                .stream()
+                .map(s -> mapper.map(s, SystemWithProgress.class))
+                .collect(Collectors.toList());
+        if (openedSystems.isEmpty() && studiedSystems.isEmpty()) {
+            return builder
+                    .openedSystems(
+                            openFirstOrbitSystems(authenticatedPerson.getPersonId(), galaxyId)
+                    )
+                    .studiedSystems(
+                            studiedSystems
+                    )
+                    .closedSystems(
+                            systemProgressRepository
+                                    .findClosedSystemsForPerson(authenticatedPerson.getPersonId(), galaxyId)
+                    )
+                    .build();
+        }
+        return builder
+                .openedSystems(openedSystems)
+                .studiedSystems(studiedSystems)
+                .closedSystems(systemProgressRepository
+                        .findClosedSystemsForPerson(authenticatedPerson.getPersonId(), galaxyId))
+                .build();
+    }
+
+    @Transactional
+    private List<Integer> openFirstOrbitSystems(Integer personId, Integer galaxyId) {
+        List<StarSystem> firstOrbitSystems = starSystemRepository.getStarSystemsByGalaxyIdAndOrbitLevel(galaxyId, 1);
+        firstOrbitSystems
+                .forEach(
+                        s -> systemProgressRepository.save(
+                                new SystemProgress(personId, s.getSystemId(), 0))
+                );
+        return firstOrbitSystems
+                .stream()
+                .mapToInt(StarSystem::getSystemId)
+                .boxed()
+                .collect(Collectors.toList());
     }
 
     public StarSystem createSystem(StarSystemDTO starSystem, Integer galaxyId) {
