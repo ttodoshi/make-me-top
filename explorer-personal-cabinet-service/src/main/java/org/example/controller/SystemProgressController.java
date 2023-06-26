@@ -12,13 +12,13 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/galaxy-app/")
+@RequestMapping("/explorer/")
 @RequiredArgsConstructor
 public class SystemProgressController {
     private final SystemProgressService systemProgressService;
 
     @GetMapping("galaxy/{galaxyId}/system")
-    @Secured({"ROLE_EXPLORER", "ROLE_KEEPER", "ROLE_BIG_BROTHER"})
+    @Secured({"ROLE_EXPLORER"})
     @Operation(summary = "Get systems progress for current user", tags = "system progress")
     @ApiResponses(value = {
             @ApiResponse(
@@ -35,7 +35,7 @@ public class SystemProgressController {
 
 
     @PatchMapping("/system/{systemId}")
-    @Secured({"ROLE_EXPLORER", "ROLE_KEEPER", "ROLE_BIG_BROTHER"})
+    @Secured({"ROLE_EXPLORER"})
     @Operation(summary = "Update system progress for current user", tags = "system progress")
     @ApiResponses(value = {
             @ApiResponse(

@@ -72,9 +72,9 @@ services:
     networks:
       postgres:
         ipv4_address: 10.10.0.6
-  app_lk_explorer:
-    container_name: app_lk_explorer_container
-    build: ./lk-explorer-service
+  app_explorer_personal_cabinet:
+    container_name: app_explorer_personal_cabinet_container
+    build: ./explorer-personal-cabinet-service
     ports:
       - "8104:8104"
     depends_on:
@@ -82,6 +82,16 @@ services:
     networks:
       postgres:
         ipv4_address: 10.10.0.5
+  app_keeper_personal_cabinet:
+    container_name: app_keeper_personal_cabinet_container
+    build: ./keeper-personal-cabinet-service
+    ports:
+      - "8105:8105"
+    depends_on:
+      - postgres
+    networks:
+      postgres:
+        ipv4_address: 10.10.0.4
 
   nginx:
     image: nginx
@@ -92,7 +102,6 @@ services:
     networks:
       postgres:
         ipv4_address: 10.10.0.3
-
 
 networks:
   postgres:
