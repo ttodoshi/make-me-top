@@ -9,9 +9,6 @@ import org.example.exception.classes.orbitEX.OrbitAlreadyExistsException;
 import org.example.exception.classes.orbitEX.OrbitCoordinatesException;
 import org.example.exception.classes.orbitEX.OrbitDeleteException;
 import org.example.exception.classes.orbitEX.OrbitNotFoundException;
-import org.example.exception.classes.progressEX.ProgressDecreaseException;
-import org.example.exception.classes.progressEX.SystemParentsNotCompletedException;
-import org.example.exception.classes.progressEX.UpdateProgressException;
 import org.example.exception.classes.systemEX.SystemAlreadyExistsException;
 import org.example.exception.classes.systemEX.SystemNotFoundException;
 import org.example.exception.responses.ErrorResponse;
@@ -24,9 +21,6 @@ import org.example.exception.responses.orbit.OrbitAlreadyExistsExceptionResponse
 import org.example.exception.responses.orbit.OrbitCoordinatesExceptionResponse;
 import org.example.exception.responses.orbit.OrbitDeleteExceptionResponse;
 import org.example.exception.responses.orbit.OrbitNotFoundExceptionResponse;
-import org.example.exception.responses.progress.ProgressDecreaseExceptionResponse;
-import org.example.exception.responses.progress.SystemParentsNotCompletedExceptionResponse;
-import org.example.exception.responses.progress.UpdateProgressExceptionResponse;
 import org.example.exception.responses.system.SystemAlreadyExistsExceptionResponse;
 import org.example.exception.responses.system.SystemNotFoundExceptionResponse;
 import org.springframework.http.ResponseEntity;
@@ -52,21 +46,6 @@ public class ErrorHandler {
     @ExceptionHandler(SignatureException.class)
     public ResponseEntity<ErrorResponse> handleSignatureException(SignatureException e) {
         return ResponseEntity.ok(new AccessExceptionResponse(e));
-    }
-
-    @ExceptionHandler(ProgressDecreaseException.class)
-    public ResponseEntity<ErrorResponse> handleProgressDecreaseException(ProgressDecreaseException e) {
-        return ResponseEntity.ok(new ProgressDecreaseExceptionResponse(e));
-    }
-
-    @ExceptionHandler(SystemParentsNotCompletedException.class)
-    public ResponseEntity<ErrorResponse> handleSystemParentsNotCompletedException(SystemParentsNotCompletedException e) {
-        return ResponseEntity.ok(new SystemParentsNotCompletedExceptionResponse(e));
-    }
-
-    @ExceptionHandler(UpdateProgressException.class)
-    public ResponseEntity<ErrorResponse> handleUpdateProgressException(UpdateProgressException e) {
-        return ResponseEntity.ok(new UpdateProgressExceptionResponse(e));
     }
 
     @ExceptionHandler(GalaxyNotFoundException.class)

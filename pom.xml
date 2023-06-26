@@ -12,6 +12,7 @@
         <module>auth-service</module>
         <module>galaxy-service</module>
         <module>planet-service</module>
+        <module>lk-explorer-service</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

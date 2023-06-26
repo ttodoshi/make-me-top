@@ -35,7 +35,7 @@ public class SystemProgressService {
 
     private final ModelMapper mapper;
 
-    private final Logger logger = Logger.getLogger(GalaxyService.class.getName());
+    private final Logger logger = Logger.getLogger(SystemProgressService.class.getName());
 
     public StarSystemsForUser getSystemsProgressForCurrentUser(Integer galaxyId) {
         Person authenticatedPerson = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
