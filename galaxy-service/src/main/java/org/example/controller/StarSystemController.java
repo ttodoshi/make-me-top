@@ -38,22 +38,6 @@ public class StarSystemController {
             return ResponseEntity.ok(starSystemService.getStarSystemById(systemId));
     }
 
-    @GetMapping("galaxy/{galaxyId}/system")
-    @Secured({"ROLE_EXPLORER", "ROLE_KEEPER", "ROLE_BIG_BROTHER"})
-    @Operation(summary = "Get systems progress for current user", tags = "system")
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Systems progress",
-                    content = {
-                            @Content(
-                                    mediaType = "application/json")
-                    })
-    })
-    public ResponseEntity<?> getSystemsProgress(@PathVariable("galaxyId") Integer galaxyId) {
-        return ResponseEntity.ok(starSystemService.getSystemsProgressForCurrentUser(galaxyId));
-    }
-
     @PostMapping("galaxy/{galaxyId}/system")
     @Secured("ROLE_BIG_BROTHER")
     @Operation(summary = "Create system", tags = "system")
