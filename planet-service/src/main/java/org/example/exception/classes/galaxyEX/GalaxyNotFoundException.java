@@ -4,7 +4,7 @@ import javax.persistence.EntityNotFoundException;
 
 public class GalaxyNotFoundException extends EntityNotFoundException {
     public GalaxyNotFoundException() {
-        super("Галактика не найдена");
+        super("Не удалось найти информацию о данной галактике в памяти бортового компьютера");
     }
 }
 

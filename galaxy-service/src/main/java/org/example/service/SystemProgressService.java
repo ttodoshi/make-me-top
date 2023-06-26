@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.dto.systemprogress.ProgressUpdateRequest;
 import org.example.exception.classes.progressEX.ProgressDecreaseException;
 import org.example.exception.classes.progressEX.SystemParentsNotCompletedException;
+import org.example.exception.classes.progressEX.UpdateProgressException;
 import org.example.model.Person;
 import org.example.model.SystemDependency;
 import org.example.model.SystemProgress;
@@ -29,18 +30,23 @@ public class SystemProgressService {
 
     @Transactional
     public Map<String, Object> updateSystemProgress(Integer systemId, ProgressUpdateRequest updateRequest) {
-        final Integer personId = getAuthenticatedPersonId();
-        saveProgress(personId, systemId, updateRequest);
-        Map<String, Object> response = new HashMap<>();
-        if (updateRequest.getProgress() >= 100) {
-            List<Integer> newOpenedSystems = openSystems(
-                    personId, getPreviouslyBlockedSystems(personId, systemId));
-            if (!newOpenedSystems.isEmpty())
-                response.put("Открыты системы", newOpenedSystems);
+        try {
+            final Integer personId = getAuthenticatedPersonId();
+            saveProgress(personId, systemId, updateRequest);
+            Map<String, Object> response = new HashMap<>();
+            if (updateRequest.getProgress() >= 100) {
+                List<Integer> newOpenedSystems = openSystems(
+                        personId, getPreviouslyBlockedSystems(personId, systemId));
+                if (!newOpenedSystems.isEmpty())
+                    response.put("Открыты системы", newOpenedSystems);
+            }
+            response.put("message", "Прогресс системы " + systemId +
+                    " обновлён на " + updateRequest.getProgress());
+            return response;
+        } catch (Exception e) {
+            logger.severe(e.getMessage());
+            throw new UpdateProgressException();
         }
-        response.put("message", "Прогресс системы" + systemId +
-                " обновлён на " + updateRequest.getProgress());
-        return response;
     }
 
     private Integer getAuthenticatedPersonId() {
