@@ -138,7 +138,7 @@ public class SystemProgressService {
         boolean parentsUncompleted = false;
         for (SystemDependency parent : dependencyRepository
                 .getListSystemDependencyChild(systemId)) {
-            if (parent.getParentId() == null)
+            if (parent.getParentId() == null || parent.getIsAlternative())
                 return false;
             SystemProgress parentProgress = systemProgressRepository
                     .getSystemProgressForPerson(
