@@ -15,11 +15,11 @@ public class ErrorHandler {
 
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleUserNotFoundException(UserNotFoundException e) {
-        return ResponseEntity.ok(new UserNotFoundExceptionResponse(e));
+        return new ResponseEntity<>(new UserNotFoundExceptionResponse(e), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(RoleNotAvailableException.class)
     public ResponseEntity<ErrorResponse> handleRoleNotAvailableException(RoleNotAvailableException e) {
-        return ResponseEntity.ok(new RoleNotAvailableExceptionResponse(e));
+        return new ResponseEntity<>(new RoleNotAvailableExceptionResponse(e), HttpStatus.BAD_REQUEST);
     }
 }
