@@ -2,9 +2,6 @@ package org.example.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import lombok.SneakyThrows;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
 import org.example.dto.PlanetDTO;
 import org.example.exception.classes.connectEX.ConnectException;
 import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
@@ -12,12 +9,19 @@ import org.example.exception.classes.planetEX.PlanetAlreadyExistsException;
 import org.example.exception.classes.planetEX.PlanetNotFoundException;
 import org.example.exception.classes.systemEX.SystemNotFoundException;
 import org.example.model.Planet;
+import org.example.model.StarSystem;
 import org.example.repository.PlanetRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.RestTemplate;
 
 import javax.transaction.Transactional;
 import java.util.*;
@@ -27,22 +31,24 @@ import java.util.logging.Logger;
 @RequiredArgsConstructor
 @PropertySource(value = {"classpath:config.properties"})
 public class PlanetService {
-    @Setter
-    private String token;
-
     private final PlanetRepository planetRepository;
 
     private final ModelMapper mapper;
 
+    private final RestTemplate restTemplate;
+
+    @Setter
+    private String token;
+
     private final Logger logger = Logger.getLogger(PlanetService.class.getName());
 
-    @Value("${app_galaxy_url}")
-    private String APP_GALAXY_URL;
+    @Value("${galaxy_app_url}")
+    private String GALAXY_APP_URL;
     @Value("${get_system_by_id}")
     private String GET_SYSTEM_BY_ID_URL;
 
     public List<Planet> getPlanetsListBySystemId(Integer systemId) {
-        if (checkSystemExists(systemId))
+        if (checkSystemExistence(systemId))
             return planetRepository.getListPlanetBySystemId(systemId);
         throw new SystemNotFoundException();
     }
@@ -60,7 +66,7 @@ public class PlanetService {
         for (PlanetDTO planet : planets) {
             if (planetsByGalaxyId.stream().noneMatch(
                     x -> Objects.equals(x.getPlanetName(), planet.getPlanetName()))) {
-                if (checkSystemExists(planet.getSystemId()))
+                if (checkSystemExistence(planet.getSystemId()))
                     savedPlanets.add(planetRepository.save(mapper.map(planet, Planet.class)));
                 else
                     throw new SystemNotFoundException();
@@ -85,7 +91,7 @@ public class PlanetService {
     public Planet updatePlanet(Integer planetId,
                                Integer galaxyId,
                                PlanetDTO planet) {
-        if (!checkSystemExists(planet.getSystemId()))
+        if (!checkSystemExistence(planet.getSystemId()))
             throw new SystemNotFoundException();
         Optional<Planet> updatedPlanetOptional = planetRepository.findById(planetId);
         Planet updatedPlanet;
@@ -100,7 +106,7 @@ public class PlanetService {
             logger.severe(e.getMessage());
             throw new GalaxyNotFoundException();
         }
-        for (Planet currentPlanet: planets) {
+        for (Planet currentPlanet : planets) {
             if (currentPlanet.getPlanetName().equals(updatedPlanet.getPlanetName()) && !currentPlanet.getPlanetId().equals(updatedPlanet.getPlanetId()))
                 throw new PlanetAlreadyExistsException();
         }
@@ -110,20 +116,16 @@ public class PlanetService {
         return planetRepository.save(updatedPlanet);
     }
 
-    @SneakyThrows
-    private boolean checkSystemExists(Integer systemId) {
-        var getSystemById = new Request.Builder()
-                .get()
-                .header("Authorization", token)
-                .url(APP_GALAXY_URL + GET_SYSTEM_BY_ID_URL + systemId + "?withDependency=true")
-                .build();
-        try (var response = new OkHttpClient().newCall(getSystemById).execute()) {
-            if (response.code() != HttpStatus.OK.value())
-                return false;
-        } catch (Exception e) {
-            logger.severe(e.getMessage());
+    private boolean checkSystemExistence(Integer systemId) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", token);
+            HttpEntity<?> requestEntity = new HttpEntity<>(headers);
+            return restTemplate.exchange(GALAXY_APP_URL + GET_SYSTEM_BY_ID_URL + systemId, HttpMethod.GET, requestEntity, StarSystem.class).getStatusCode().equals(HttpStatus.OK);
+        } catch (ResourceAccessException e) {
             throw new ConnectException();
+        } catch (HttpClientErrorException e) {
+            return false;
         }
-        return true;
     }
 }

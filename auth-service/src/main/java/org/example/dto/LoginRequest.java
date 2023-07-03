@@ -1,10 +1,9 @@
 package org.example.dto;
 
 import lombok.Data;
-import lombok.Getter;
 
 @Data
-public class UserRequest {
+public class LoginRequest {
     private String login;
     private String password;
     private String role;

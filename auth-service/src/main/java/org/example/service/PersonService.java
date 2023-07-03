@@ -10,8 +10,8 @@ import okhttp3.Request;
 import org.example.config.mapper.PersonMapper;
 import org.example.config.security.JwtServiceInterface;
 import org.example.dto.AddKeeperRequest;
-import org.example.dto.UserAuthResponse;
-import org.example.dto.UserRequest;
+import org.example.dto.AuthResponseUser;
+import org.example.dto.LoginRequest;
 import org.example.exception.classes.user.UserNotFoundException;
 import org.example.model.Keeper;
 import org.example.model.Person;
@@ -44,7 +44,7 @@ public class PersonService {
 
     private final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
-    public Object login(UserRequest request, HttpServletResponse response) {
+    public Object login(LoginRequest request, HttpServletResponse response) {
         Person person;
         try {
             person = authenticatePerson(request);
@@ -58,8 +58,8 @@ public class PersonService {
         return token;
     }
 
-    private Person authenticatePerson(UserRequest request) {
-        UserAuthResponse authResponse = sendAuthRequest(request)
+    private Person authenticatePerson(LoginRequest request) {
+        AuthResponseUser authResponse = sendAuthRequest(request)
                 .orElseThrow(UserNotFoundException::new);
         Person person = personRepository.getPersonById(authResponse.getEmployeeId());
         if (person == null)
@@ -75,20 +75,20 @@ public class PersonService {
     }
 
     @SneakyThrows
-    public Optional<UserAuthResponse> sendAuthRequest(UserRequest userRequest) {
+    public Optional<AuthResponseUser> sendAuthRequest(LoginRequest userRequest) {
         Request authRequest = createAuthRequest(userRequest);
-        Optional<UserAuthResponse> authResponseOptional = Optional.empty();
+        Optional<AuthResponseUser> employeeOptional = Optional.empty();
         try (var response = new OkHttpClient().newCall(authRequest).execute()) {
             String responseBody = response.body().string();
             if (response.code() == HttpStatus.OK.value() && isResponseSuccess(responseBody))
-                authResponseOptional = getUserInformation(responseBody);
+                employeeOptional = getUserInformation(responseBody);
         } catch (Exception e) {
             logger.severe(e.getMessage());
         }
-        return authResponseOptional;
+        return employeeOptional;
     }
 
-    private Request createAuthRequest(UserRequest userRequest) {
+    private Request createAuthRequest(LoginRequest userRequest) {
         okhttp3.RequestBody requestBody = okhttp3.RequestBody
                 .create(JSON, userRequest.toString());
         return new Request.Builder()
@@ -105,13 +105,13 @@ public class PersonService {
                 .getAsBoolean();
     }
 
-    private Optional<UserAuthResponse> getUserInformation(String responseBody) {
+    private Optional<AuthResponseUser> getUserInformation(String responseBody) {
         return Optional.of(
                 new Gson().fromJson(
                         JsonParser.parseString(responseBody)
                                 .getAsJsonObject()
                                 .getAsJsonObject("object"),
-                        UserAuthResponse.class
+                        AuthResponseUser.class
                 )
         );
     }

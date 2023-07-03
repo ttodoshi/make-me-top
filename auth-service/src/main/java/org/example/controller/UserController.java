@@ -9,10 +9,9 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.AddKeeperRequest;
-import org.example.dto.UserRequest;
+import org.example.dto.LoginRequest;
 import org.example.service.PersonService;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -43,8 +42,8 @@ public class UserController {
                                     mediaType = "*")
                     })
     })
-    public ResponseEntity<?> loginUser(@RequestBody UserRequest userRequest, HttpServletResponse response) {
-        return ResponseEntity.ok(personService.login(userRequest, response));
+    public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
+        return ResponseEntity.ok(personService.login(loginRequest, response));
     }
 
     @PostMapping("course/{courseId}/keeper")
