@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.dto.starsystem.StarSystemDTO;
 import org.example.service.StarSystemService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -19,7 +19,7 @@ public class StarSystemController {
     private final StarSystemService starSystemService;
 
     @GetMapping("system/{systemId}")
-    @Secured({"ROLE_EXPLORER", "ROLE_KEEPER", "ROLE_BIG_BROTHER"})
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get system by systemId", tags = "system")
     @ApiResponses(value = {
             @ApiResponse(
@@ -38,8 +38,24 @@ public class StarSystemController {
             return ResponseEntity.ok(starSystemService.getStarSystemById(systemId));
     }
 
+    @GetMapping("galaxy/{galaxyId}/system")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Get systems by galaxy id", tags = "system")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Systems by galaxy id",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json")
+                    })
+    })
+    public ResponseEntity<?> getSystemsByGalaxyId(@PathVariable("galaxyId") Integer galaxyId) {
+        return ResponseEntity.ok(starSystemService.getStarSystemsByGalaxyId(galaxyId));
+    }
+
     @PostMapping("galaxy/{galaxyId}/system")
-    @Secured("ROLE_BIG_BROTHER")
+    @PreAuthorize("@RoleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Create system", tags = "system")
     @ApiResponses(value = {
             @ApiResponse(
@@ -56,7 +72,7 @@ public class StarSystemController {
 
 
     @PutMapping("galaxy/{galaxyId}/system/{systemId}")
-    @Secured("ROLE_BIG_BROTHER")
+    @PreAuthorize("@RoleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Update system by id", tags = "system")
     @ApiResponses(value = {
             @ApiResponse(
@@ -74,7 +90,7 @@ public class StarSystemController {
     }
 
     @DeleteMapping("system/{systemId}")
-    @Secured("ROLE_BIG_BROTHER")
+    @PreAuthorize("@RoleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Delete system by id", tags = "system")
     @ApiResponses(value = {
             @ApiResponse(

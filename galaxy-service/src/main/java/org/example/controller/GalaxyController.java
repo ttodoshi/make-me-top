@@ -11,6 +11,7 @@ import org.example.model.Galaxy;
 import org.example.service.GalaxyService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,7 +21,7 @@ public class GalaxyController {
     private final GalaxyService galaxyService;
 
     @GetMapping
-    @Secured({"ROLE_EXPLORER", "ROLE_KEEPER", "ROLE_BIG_BROTHER"})
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get all Galaxies", tags = "galaxy")
     @ApiResponses(value = {
             @ApiResponse(
@@ -36,6 +37,7 @@ public class GalaxyController {
     }
 
     @GetMapping("{galaxyId}")
+    @PreAuthorize("isAuthenticated()")
     @Secured({"ROLE_EXPLORER", "ROLE_KEEPER", "ROLE_BIG_BROTHER"})
     @Operation(summary = "Get galaxy by Id", tags = "galaxy")
     @ApiResponses(value = {
@@ -52,7 +54,7 @@ public class GalaxyController {
     }
 
     @PostMapping
-    @Secured("ROLE_BIG_BROTHER")
+    @PreAuthorize("@RoleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Create Galaxy", tags = "galaxy")
     @ApiResponses(value = {
             @ApiResponse(
@@ -69,7 +71,7 @@ public class GalaxyController {
 
 
     @PutMapping("{galaxyId}")
-    @Secured("ROLE_BIG_BROTHER")
+    @PreAuthorize("@RoleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Update Galaxy", tags = "galaxy")
     @ApiResponses(value = {
             @ApiResponse(
@@ -86,7 +88,7 @@ public class GalaxyController {
     }
 
     @DeleteMapping("{galaxyId}")
-    @Secured("ROLE_BIG_BROTHER")
+    @PreAuthorize("@RoleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Delete Galaxy", tags = "galaxy")
     @ApiResponses(value = {
             @ApiResponse(

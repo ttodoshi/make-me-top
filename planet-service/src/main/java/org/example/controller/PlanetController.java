@@ -11,6 +11,7 @@ import org.example.service.PlanetService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,7 +23,7 @@ public class PlanetController {
     private final PlanetService planetService;
 
     @GetMapping("system/{systemId}/planet")
-    @Secured({"ROLE_EXPLORER", "ROLE_KEEPER", "ROLE_BIG_BROTHER"})
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get planets by system id", tags = "planet")
     @ApiResponses(value = {
             @ApiResponse(
@@ -41,7 +42,7 @@ public class PlanetController {
     }
 
     @PostMapping("galaxy/{galaxyId}/planet")
-    @Secured("ROLE_BIG_BROTHER")
+    @PreAuthorize("@RoleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Create planet", tags = "planet")
     @ApiResponses(value = {
             @ApiResponse(
@@ -60,7 +61,7 @@ public class PlanetController {
     }
 
     @DeleteMapping("planet/{planetId}")
-    @Secured("ROLE_BIG_BROTHER")
+    @PreAuthorize("@RoleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Delete planet", tags = "planet")
     @ApiResponses(value = {
             @ApiResponse(
@@ -76,7 +77,7 @@ public class PlanetController {
     }
 
     @PutMapping("galaxy/{galaxyId}/planet/{planetId}")
-    @Secured("ROLE_BIG_BROTHER")
+    @PreAuthorize("@RoleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Update planet", tags = "planet")
     @ApiResponses(value = {
             @ApiResponse(

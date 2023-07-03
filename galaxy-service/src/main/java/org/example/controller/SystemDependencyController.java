@@ -11,6 +11,7 @@ import org.example.dto.dependency.DependencyDTO;
 import org.example.service.DependencyService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,7 +24,7 @@ public class SystemDependencyController {
     private final DependencyService dependencyService;
 
     @PostMapping
-    @Secured("ROLE_BIG_BROTHER")
+    @PreAuthorize("@RoleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Add dependency", tags = "dependency")
     @ApiResponses(value = {
             @ApiResponse(
@@ -39,7 +40,7 @@ public class SystemDependencyController {
     }
 
     @DeleteMapping
-    @Secured("ROLE_BIG_BROTHER")
+    @PreAuthorize("@RoleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Delete dependency", tags = "dependency")
     @ApiResponses(value = {
             @ApiResponse(

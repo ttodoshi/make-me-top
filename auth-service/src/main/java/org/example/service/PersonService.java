@@ -7,23 +7,23 @@ import lombok.SneakyThrows;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import org.example.config.JwtServiceInterface;
+import org.example.config.mapper.PersonMapper;
+import org.example.config.security.JwtServiceInterface;
+import org.example.dto.AddKeeperRequest;
 import org.example.dto.UserAuthResponse;
 import org.example.dto.UserRequest;
 import org.example.exception.classes.user.UserNotFoundException;
+import org.example.model.Keeper;
 import org.example.model.Person;
-import org.example.model.Role;
+import org.example.repository.KeeperRepository;
 import org.example.repository.PersonRepository;
-import org.example.utils.PersonMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityNotFoundException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Date;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -31,6 +31,7 @@ import java.util.logging.Logger;
 @RequiredArgsConstructor
 public class PersonService {
     private final PersonRepository personRepository;
+    private final KeeperRepository keeperRepository;
 
     private final JwtServiceInterface jwtGenerator;
 
@@ -39,30 +40,31 @@ public class PersonService {
     private final Logger logger = Logger.getLogger(PersonService.class.getName());
 
     @Value("${url_auth_mmtr}")
-    String mmtrAuthUrl;
+    private String mmtrAuthUrl;
 
     private final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
-    public String login(UserRequest request, HttpServletResponse response) {
+    public Object login(UserRequest request, HttpServletResponse response) {
+        Person person;
         try {
-            Person person = authenticatePerson(request);
-            String token = jwtGenerator.generateToken(person);
-            Cookie tokenCookie = generateCookie(token);
-            response.addCookie(tokenCookie);
-            return token;
+            person = authenticatePerson(request);
         } catch (Exception e) {
             logger.severe(e.getMessage());
             throw new UserNotFoundException();
         }
+        String token = jwtGenerator.generateToken(person, request.getRole());
+        Cookie tokenCookie = generateCookie(token);
+        response.addCookie(tokenCookie);
+        return token;
     }
 
     private Person authenticatePerson(UserRequest request) {
-        return getPerson(
-                personMapper.UserAuthResponseToPerson(
-                        sendAuthRequest(request)
-                                .orElseThrow(UserNotFoundException::new)
-                )
-        );
+        UserAuthResponse authResponse = sendAuthRequest(request)
+                .orElseThrow(UserNotFoundException::new);
+        Person person = personRepository.getPersonById(authResponse.getEmployeeId());
+        if (person == null)
+            return personRepository.save(personMapper.UserAuthResponseToPerson(authResponse));
+        return person;
     }
 
     private Cookie generateCookie(String token) {
@@ -114,30 +116,11 @@ public class PersonService {
         );
     }
 
-
-    private Person getPerson(Person person) {
-        Person reseivedPerson = personRepository.getPersonById(person.getPersonId());
-        if (reseivedPerson == null)
-            createNewPerson(person);
-        return person;
-    }
-
-    private void createNewPerson(Person person) {
-        person.setRole(Role.EXPLORER);
-        personRepository.save(person);
-    }
-
-    public Map<String, String> updatePersonRoleToKeeper(Integer personId) {
-        try {
-            Person person = personRepository.getReferenceById(personId);
-            person.setRole(Role.KEEPER);
-            personRepository.save(person);
-            Map<String, String> response = new HashMap<>();
-            response.put("message", "Теперь " + person.getFirstName() + " является хранителем");
-            return response;
-        } catch (EntityNotFoundException e) {
-            logger.severe(e.getMessage());
-            throw new UserNotFoundException();
-        }
+    public Keeper setKeeperToCourse(Integer courseId, AddKeeperRequest addKeeperRequest) {
+        Keeper keeper = new Keeper();
+        keeper.setCourseId(courseId);
+        keeper.setPersonId(addKeeperRequest.getPersonId());
+        keeper.setStartDate(new Date());
+        return keeperRepository.save(keeper);
     }
 }

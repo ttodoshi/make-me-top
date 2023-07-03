@@ -4,7 +4,7 @@ import org.example.exception.responses.ErrorResponse;
 import org.springframework.http.HttpStatus;
 
 public class AccessExceptionResponse extends ErrorResponse {
-    public AccessExceptionResponse(Exception e) {
-        super(HttpStatus.FORBIDDEN, e.getMessage());
+    public AccessExceptionResponse() {
+        super(HttpStatus.FORBIDDEN, "Вам закрыт доступ к данной функциональности бортового компьютера");
     }
 }

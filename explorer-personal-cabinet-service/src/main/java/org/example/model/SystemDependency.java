@@ -7,6 +7,7 @@ import lombok.ToString;
 import javax.persistence.*;
 
 @Entity
+@Table(name = "system_dependency", schema = "galaxy")
 @Data
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @ToString

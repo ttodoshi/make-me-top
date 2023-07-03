@@ -11,7 +11,10 @@ import org.example.exception.classes.orbitEX.OrbitNotFoundException;
 import org.example.exception.classes.systemEX.SystemAlreadyExistsException;
 import org.example.exception.classes.systemEX.SystemNotFoundException;
 import org.example.model.StarSystem;
-import org.example.repository.*;
+import org.example.repository.DependencyRepository;
+import org.example.repository.GalaxyRepository;
+import org.example.repository.OrbitRepository;
+import org.example.repository.StarSystemRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
@@ -59,12 +62,16 @@ public class StarSystemService {
     }
 
     public GetStarSystemWithoutDependency getStarSystemById(Integer systemId) {
-        try {
-            return mapper.map(starSystemRepository.getReferenceById(systemId), GetStarSystemWithoutDependency.class);
-        } catch (Exception e) {
-            logger.severe(e.getMessage());
-            throw new SystemNotFoundException();
-        }
+        StarSystem system = starSystemRepository
+                .findById(systemId).orElseThrow(SystemNotFoundException::new);
+        return mapper.map(system, GetStarSystemWithoutDependency.class);
+    }
+
+    public List<StarSystem> getStarSystemsByGalaxyId(Integer galaxyId) {
+        List<StarSystem> systems = starSystemRepository.getStarSystemsByGalaxyId(galaxyId);
+        if (systems == null)
+            throw new GalaxyNotFoundException();
+        return systems;
     }
 
     public StarSystem createSystem(StarSystemDTO starSystem, Integer galaxyId) {

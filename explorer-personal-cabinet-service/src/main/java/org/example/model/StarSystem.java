@@ -8,7 +8,7 @@ import org.hibernate.annotations.Cascade;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "star_system")
+@Table(name = "star_system", schema = "galaxy")
 @Data
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @ToString

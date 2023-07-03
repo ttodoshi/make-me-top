@@ -8,12 +8,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import lombok.RequiredArgsConstructor;
+import org.example.dto.AddKeeperRequest;
 import org.example.dto.UserRequest;
 import org.example.service.PersonService;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
@@ -39,30 +40,30 @@ public class UserController {
                     description = "Log in by username and password successful",
                     content = {
                             @Content(
-                                    mediaType = "text/plain")
+                                    mediaType = "*")
                     })
     })
     public ResponseEntity<?> loginUser(@RequestBody UserRequest userRequest, HttpServletResponse response) {
-        return new ResponseEntity<>(personService.login(userRequest, response), HttpStatus.OK);
+        return ResponseEntity.ok(personService.login(userRequest, response));
     }
 
-    @PatchMapping("toKeeper/{personId}")
-    @Secured("ROLE_BIG_BROTHER")
+    @PostMapping("course/{courseId}/keeper")
+    @PreAuthorize("@RoleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
     @Operation(
-            summary = "Update person role to keeper",
-            tags = "For admin",
+            summary = "Set keeper on course",
+            tags = "Course keepers",
             security = @SecurityRequirement(name = "bearerAuth")
     )
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Successfully changed person role to keeper",
+                    description = "Successfully added keeper",
                     content = {
                             @Content(
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> updatePersonRoleToKeeper(@PathVariable("personId") Integer personId) {
-        return new ResponseEntity<>(personService.updatePersonRoleToKeeper(personId), HttpStatus.OK);
+    public ResponseEntity<?> setKeeperToCourse(@PathVariable("courseId") Integer courseId, @RequestBody AddKeeperRequest addKeeperRequest) {
+        return ResponseEntity.ok(personService.setKeeperToCourse(courseId, addKeeperRequest));
     }
 }

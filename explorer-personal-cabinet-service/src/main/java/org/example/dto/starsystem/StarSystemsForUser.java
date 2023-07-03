@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Set;
 
 @Builder
 @Data
@@ -11,7 +12,7 @@ public class StarSystemsForUser {
     private String firstName;
     private String lastName;
     private String patronymic;
-    private List<Integer> openedSystems;
-    private List<SystemWithProgress> studiedSystems;
-    private List<Integer> closedSystems;
+    private Set<Integer> openedSystems;
+    private Set<SystemWithProgress> studiedSystems;
+    private Set<Integer> closedSystems;
 }
