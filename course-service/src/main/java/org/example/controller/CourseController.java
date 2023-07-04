@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.AddKeeperRequest;
 import org.example.dto.CourseUpdateRequest;
@@ -68,22 +67,6 @@ public class CourseController {
     public ResponseEntity<?> updateCourse(@RequestBody CourseUpdateRequest course,
                                           @PathVariable Integer courseId) {
         return ResponseEntity.ok(courseService.updateCourse(course, courseId));
-    }
-
-    @DeleteMapping("course/{courseId}")
-    @PreAuthorize("@RoleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
-    @Operation(summary = "Delete course by id", tags = "course", hidden = true)
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Course deleted",
-                    content = {
-                            @Content(
-                                    mediaType = "application/json")
-                    })
-    })
-    public ResponseEntity<?> deleteCourse(@PathVariable("courseId") Integer courseId) {
-        return ResponseEntity.ok(courseService.deleteCourse(courseId));
     }
 
     @PostMapping("course/{courseId}/keeper")

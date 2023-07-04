@@ -1,12 +1,14 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import org.example.dto.course.CourseDTO;
 import org.example.dto.galaxy.CreateGalaxyRequest;
 import org.example.dto.galaxy.GalaxyDTO;
 import org.example.dto.galaxy.GetGalaxyRequest;
 import org.example.dto.orbit.OrbitWithStarSystemsAndDependencies;
 import org.example.dto.orbit.OrbitWithStarSystemsWithoutGalaxyId;
-import org.example.dto.starsystem.StarSystemDTO;
+import org.example.dto.starsystem.StarSystemRequest;
 import org.example.exception.classes.galaxyEX.GalaxyAlreadyExistsException;
 import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
 import org.example.model.Galaxy;
@@ -16,13 +18,14 @@ import org.example.repository.GalaxyRepository;
 import org.example.repository.OrbitRepository;
 import org.example.repository.StarSystemRepository;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import javax.transaction.Transactional;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -36,6 +39,12 @@ public class GalaxyService {
     private final OrbitService orbitService;
 
     private final ModelMapper mapper;
+
+    @Setter
+    private String token;
+    @Value("${course_app_url}")
+    private String COURSE_APP_URL;
+    private final RestTemplate restTemplate;
 
     private final Logger logger = Logger.getLogger(GalaxyService.class.getName());
 
@@ -67,14 +76,28 @@ public class GalaxyService {
                 orbit.setGalaxyId(savedGalaxyId);
                 Integer savedOrbitId = orbitRepository.save(mapper.map(orbit, Orbit.class)).getOrbitId();
                 if (orbit.getSystemsList() != null) {
-                    for (StarSystemDTO system : orbit.getSystemsList()) {
+                    for (StarSystemRequest system : orbit.getSystemsList()) {
                         system.setOrbitId(savedOrbitId);
-                        starSystemRepository.save(mapper.map(system, StarSystem.class));
+                        Integer savedSystemId = starSystemRepository.save(mapper.map(system, StarSystem.class)).getSystemId();
+                        createCourse(savedSystemId, system);
                     }
                 }
             }
         }
         return getGalaxyById(savedGalaxyId);
+    }
+
+    private void createCourse(Integer courseId, StarSystemRequest starSystem) {
+        HttpEntity<CourseDTO> entity = new HttpEntity<>(new CourseDTO(courseId,
+                starSystem.getSystemName(), new Date(), new Date(), starSystem.getDescription()),
+                createHeaders());
+        restTemplate.postForEntity(COURSE_APP_URL + "/course/", entity, CourseDTO.class);
+    }
+
+    private HttpHeaders createHeaders() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", token);
+        return headers;
     }
 
     public Galaxy updateGalaxy(Integer id, GalaxyDTO galaxy) {

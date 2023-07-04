@@ -104,7 +104,6 @@ public class PlanetService {
     public Map<String, String> deletePlanetById(Integer planetId) {
         try {
             planetRepository.deleteById(planetId);
-            deleteCourseTheme(planetId);
             Map<String, String> response = new HashMap<>();
             response.put("message", "Планета " + planetId + " подлежит уничтожению для создания межгалактической трассы");
             return response;
@@ -112,11 +111,6 @@ public class PlanetService {
             logger.severe(e.getMessage());
             throw new PlanetNotFoundException();
         }
-    }
-
-    private void deleteCourseTheme(Integer courseThemeId) {
-        HttpEntity<?> entity = new HttpEntity<>(createHeaders());
-        restTemplate.exchange(COURSE_APP_URL + "/theme/" + courseThemeId, HttpMethod.DELETE, entity, Map.class);
     }
 
     private boolean doesSystemExist(Integer systemId) {

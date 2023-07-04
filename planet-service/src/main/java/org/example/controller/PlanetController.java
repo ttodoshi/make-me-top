@@ -73,9 +73,7 @@ public class PlanetController {
     })
     public ResponseEntity<?> updatePlanetById(
             @PathVariable("planetId") Integer planetId,
-            @RequestBody PlanetUpdateRequest planet,
-            @RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token) {
-        planetService.setToken(token);
+            @RequestBody PlanetUpdateRequest planet) {
         return ResponseEntity.ok(planetService.updatePlanet(planet, planetId));
     }
 

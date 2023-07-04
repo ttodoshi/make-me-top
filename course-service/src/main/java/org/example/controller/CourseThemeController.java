@@ -2,7 +2,6 @@ package org.example.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
@@ -68,21 +67,5 @@ public class CourseThemeController {
     public ResponseEntity<?> updateCourseTheme(@RequestBody CourseThemeUpdateRequest theme,
                                                @PathVariable Integer themeId) {
         return ResponseEntity.ok(courseThemeService.updateCourseTheme(theme, themeId));
-    }
-
-    @DeleteMapping("theme/{themeId}")
-    @PreAuthorize("@RoleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
-    @Operation(summary = "Delete theme by id", tags = "theme", hidden = true)
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Theme deleted",
-                    content = {
-                            @Content(
-                                    mediaType = "application/json")
-                    })
-    })
-    public ResponseEntity<?> deleteCourseTheme(@PathVariable("themeId") Integer themeId) {
-        return ResponseEntity.ok(courseThemeService.deleteCourseTheme(themeId));
     }
 }

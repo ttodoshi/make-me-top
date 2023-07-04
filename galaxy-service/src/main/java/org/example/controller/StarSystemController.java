@@ -91,9 +91,7 @@ public class StarSystemController {
     })
     public ResponseEntity<?> updateSystem(@RequestBody StarSystemDTO starSystem,
                                           @PathVariable("galaxyId") Integer galaxyId,
-                                          @PathVariable("systemId") Integer systemId,
-                                          @RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token) {
-        starSystemService.setToken(token);
+                                          @PathVariable("systemId") Integer systemId) {
         return ResponseEntity.ok(starSystemService.updateSystem(starSystem, galaxyId, systemId));
     }
 

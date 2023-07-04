@@ -7,6 +7,6 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @JsonIgnoreProperties("orbitId")
-public class StarSystemWithoutOrbitId extends StarSystemDTO {
+public class StarSystemWithoutOrbitId extends StarSystemRequest {
 
 }

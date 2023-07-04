@@ -22,7 +22,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -111,6 +110,12 @@ public class StarSystemService {
         restTemplate.postForEntity(COURSE_APP_URL + "/course/", entity, CourseDTO.class);
     }
 
+    private HttpHeaders createHeaders() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", token);
+        return headers;
+    }
+
     @Transactional
     public StarSystem updateSystem(StarSystemDTO starSystem, Integer galaxyId, Integer systemId) {
         if (!starSystemRepository.existsById(systemId))
@@ -137,7 +142,6 @@ public class StarSystemService {
     public Map<String, String> deleteSystem(Integer systemId) {
         try {
             starSystemRepository.deleteById(systemId);
-            deleteCourse(systemId);
             Map<String, String> response = new HashMap<>();
             response.put("message", "Система " + systemId + " была уничжтожена чёрной дырой");
             return response;
@@ -145,16 +149,5 @@ public class StarSystemService {
             logger.severe(e.getMessage());
             throw new SystemNotFoundException();
         }
-    }
-
-    private void deleteCourse(Integer courseId) {
-        HttpEntity<?> entity = new HttpEntity<>(createHeaders());
-        restTemplate.exchange(COURSE_APP_URL + "/course/" + courseId, HttpMethod.DELETE, entity, Map.class);
-    }
-
-    private HttpHeaders createHeaders() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", token);
-        return headers;
     }
 }
