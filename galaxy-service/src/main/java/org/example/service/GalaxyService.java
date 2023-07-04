@@ -1,20 +1,17 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.config.mapper.DependencyMapper;
 import org.example.dto.galaxy.CreateGalaxyRequest;
 import org.example.dto.galaxy.GalaxyDTO;
 import org.example.dto.galaxy.GetGalaxyRequest;
 import org.example.dto.orbit.OrbitWithStarSystemsAndDependencies;
 import org.example.dto.orbit.OrbitWithStarSystemsWithoutGalaxyId;
-import org.example.dto.starsystem.GetStarSystemWithDependencies;
 import org.example.dto.starsystem.StarSystemDTO;
 import org.example.exception.classes.galaxyEX.GalaxyAlreadyExistsException;
 import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
 import org.example.model.Galaxy;
 import org.example.model.Orbit;
 import org.example.model.StarSystem;
-import org.example.repository.DependencyRepository;
 import org.example.repository.GalaxyRepository;
 import org.example.repository.OrbitRepository;
 import org.example.repository.StarSystemRepository;
@@ -50,7 +47,7 @@ public class GalaxyService {
                     .map(orbit -> mapper.map(orbit, OrbitWithStarSystemsWithoutGalaxyId.class))
                     .collect(Collectors.toList()));
             List<OrbitWithStarSystemsWithoutGalaxyId> orbitWithStarSystemsList = new LinkedList<>();
-            for (OrbitWithStarSystemsWithoutGalaxyId orbitWithStarSystems: galaxy.getOrbitsList())
+            for (OrbitWithStarSystemsWithoutGalaxyId orbitWithStarSystems : galaxy.getOrbitsList())
                 orbitWithStarSystemsList.add(mapper.map(orbitService.getOrbitWithSystemList(orbitWithStarSystems.getOrbitId()), OrbitWithStarSystemsWithoutGalaxyId.class));
             galaxy.setOrbitsList(orbitWithStarSystemsList);
             return galaxy;
@@ -94,11 +91,11 @@ public class GalaxyService {
         }
     }
 
-    public Map<String, String> deleteGalaxy(Integer id) {
+    public Map<String, String> deleteGalaxy(Integer galaxyId) {
         try {
-            galaxyRepository.deleteById(id);
+            galaxyRepository.deleteById(galaxyId);
             Map<String, String> response = new HashMap<>();
-            response.put("message", "Галактика была уничтожена квазаром");
+            response.put("message", "Галактика " + galaxyId + " была уничтожена квазаром");
             return response;
         } catch (Exception e) {
             logger.severe(e.getMessage());

@@ -9,13 +9,10 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import org.example.config.mapper.PersonMapper;
 import org.example.config.security.JwtServiceInterface;
-import org.example.dto.AddKeeperRequest;
 import org.example.dto.AuthResponseUser;
 import org.example.dto.LoginRequest;
 import org.example.exception.classes.user.UserNotFoundException;
-import org.example.model.Keeper;
 import org.example.model.Person;
-import org.example.repository.KeeperRepository;
 import org.example.repository.PersonRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -23,7 +20,6 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Date;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -31,7 +27,6 @@ import java.util.logging.Logger;
 @RequiredArgsConstructor
 public class PersonService {
     private final PersonRepository personRepository;
-    private final KeeperRepository keeperRepository;
 
     private final JwtServiceInterface jwtGenerator;
 
@@ -114,13 +109,5 @@ public class PersonService {
                         AuthResponseUser.class
                 )
         );
-    }
-
-    public Keeper setKeeperToCourse(Integer courseId, AddKeeperRequest addKeeperRequest) {
-        Keeper keeper = new Keeper();
-        keeper.setCourseId(courseId);
-        keeper.setPersonId(addKeeperRequest.getPersonId());
-        keeper.setStartDate(new Date());
-        return keeperRepository.save(keeper);
     }
 }

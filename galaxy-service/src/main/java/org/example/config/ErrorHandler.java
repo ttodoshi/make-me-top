@@ -33,7 +33,6 @@ import java.security.SignatureException;
 
 @RestControllerAdvice
 public class ErrorHandler {
-
     @ExceptionHandler(AccessException.class)
     public ResponseEntity<ErrorResponse> handleAccessException(AccessException e) {
         return new ResponseEntity<>(new AccessExceptionResponse(), HttpStatus.FORBIDDEN);

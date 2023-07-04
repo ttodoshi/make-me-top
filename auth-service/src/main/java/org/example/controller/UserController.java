@@ -8,7 +8,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import lombok.RequiredArgsConstructor;
-import org.example.dto.AddKeeperRequest;
 import org.example.dto.LoginRequest;
 import org.example.service.PersonService;
 import org.springframework.context.annotation.PropertySource;
@@ -22,12 +21,6 @@ import javax.servlet.http.HttpServletResponse;
 @RequestMapping("/auth/")
 @PropertySource(value = {"classpath:config.properties"})
 @RequiredArgsConstructor
-@SecurityScheme(
-        name = "bearerAuth",
-        type = SecuritySchemeType.HTTP,
-        scheme = "bearer",
-        bearerFormat = "JWT"
-)
 public class UserController {
     private final PersonService personService;
 
@@ -44,25 +37,5 @@ public class UserController {
     })
     public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
         return ResponseEntity.ok(personService.login(loginRequest, response));
-    }
-
-    @PostMapping("course/{courseId}/keeper")
-    @PreAuthorize("@RoleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
-    @Operation(
-            summary = "Set keeper on course",
-            tags = "Course keepers",
-            security = @SecurityRequirement(name = "bearerAuth")
-    )
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Successfully added keeper",
-                    content = {
-                            @Content(
-                                    mediaType = "application/json")
-                    })
-    })
-    public ResponseEntity<?> setKeeperToCourse(@PathVariable("courseId") Integer courseId, @RequestBody AddKeeperRequest addKeeperRequest) {
-        return ResponseEntity.ok(personService.setKeeperToCourse(courseId, addKeeperRequest));
     }
 }

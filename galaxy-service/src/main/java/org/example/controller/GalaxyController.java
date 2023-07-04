@@ -99,7 +99,7 @@ public class GalaxyController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> deleteGalaxy(@PathVariable("galaxyId") Integer id) {
-        return ResponseEntity.ok(galaxyService.deleteGalaxy(id));
+    public ResponseEntity<?> deleteGalaxy(@PathVariable("galaxyId") Integer galaxyId) {
+        return ResponseEntity.ok(galaxyService.deleteGalaxy(galaxyId));
     }
 }

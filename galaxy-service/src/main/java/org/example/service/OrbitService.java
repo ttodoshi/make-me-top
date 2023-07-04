@@ -1,7 +1,6 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.config.mapper.DependencyMapper;
 import org.example.dto.orbit.OrbitDTO;
 import org.example.dto.orbit.OrbitWithStarSystems;
 import org.example.dto.starsystem.GetStarSystemWithDependencies;
@@ -11,7 +10,6 @@ import org.example.exception.classes.orbitEX.OrbitCoordinatesException;
 import org.example.exception.classes.orbitEX.OrbitDeleteException;
 import org.example.exception.classes.orbitEX.OrbitNotFoundException;
 import org.example.model.Orbit;
-import org.example.repository.DependencyRepository;
 import org.example.repository.OrbitRepository;
 import org.example.repository.StarSystemRepository;
 import org.modelmapper.ModelMapper;
@@ -98,12 +96,11 @@ public class OrbitService {
         }
     }
 
-    public Map<String, String> deleteOrbit(Integer id) {
-        getOrbitById(id);
+    public Map<String, String> deleteOrbit(Integer orbitId) {
         try {
-            orbitRepository.deleteById(id);
+            orbitRepository.deleteById(orbitId);
             Map<String, String> response = new HashMap<>();
-            response.put("message", "Орбита была уничтожена неизвестным оружием инопланетной цивилизации");
+            response.put("message", "Орбита " + orbitId + " была уничтожена неизвестным оружием инопланетной цивилизации");
             return response;
         } catch (Exception e) {
             logger.severe(e.getMessage());

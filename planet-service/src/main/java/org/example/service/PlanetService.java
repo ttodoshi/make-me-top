@@ -2,9 +2,11 @@ package org.example.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.example.dto.PlanetDTO;
+import org.example.dto.coursetheme.CourseThemeCreateRequest;
+import org.example.dto.coursetheme.CourseThemeDTO;
+import org.example.dto.planet.PlanetDTO;
+import org.example.dto.planet.PlanetUpdateRequest;
 import org.example.exception.classes.connectEX.ConnectException;
-import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
 import org.example.exception.classes.planetEX.PlanetAlreadyExistsException;
 import org.example.exception.classes.planetEX.PlanetNotFoundException;
 import org.example.exception.classes.systemEX.SystemNotFoundException;
@@ -44,54 +46,43 @@ public class PlanetService {
 
     @Value("${galaxy_app_url}")
     private String GALAXY_APP_URL;
-    @Value("${get_system_by_id}")
-    private String GET_SYSTEM_BY_ID_URL;
+    @Value("${course_app_url}")
+    private String COURSE_APP_URL;
 
     public List<Planet> getPlanetsListBySystemId(Integer systemId) {
-        if (checkSystemExistence(systemId))
-            return planetRepository.getListPlanetBySystemId(systemId);
+        if (doesSystemExist(systemId))
+            return planetRepository.getPlanetsBySystemId(systemId);
         throw new SystemNotFoundException();
     }
 
     @Transactional
-    public List<Planet> addPlanet(List<PlanetDTO> planets, Integer galaxyId) {
+    public List<Planet> addPlanet(List<PlanetDTO> planets) {
         List<Planet> savedPlanets = new LinkedList<>();
-        List<Planet> planetsByGalaxyId;
-        try {
-            planetsByGalaxyId = planetRepository.getAllPlanetsByGalaxyId(galaxyId);
-        } catch (Exception e) {
-            logger.severe(e.getMessage());
-            throw new GalaxyNotFoundException();
-        }
         for (PlanetDTO planet : planets) {
-            if (planetsByGalaxyId.stream().noneMatch(
-                    x -> Objects.equals(x.getPlanetName(), planet.getPlanetName()))) {
-                if (checkSystemExistence(planet.getSystemId()))
-                    savedPlanets.add(planetRepository.save(mapper.map(planet, Planet.class)));
-                else
-                    throw new SystemNotFoundException();
+            if (!doesSystemExist(planet.getSystemId()))
+                throw new SystemNotFoundException();
+            else if (planetRepository.getPlanetsBySystemId(planet.getSystemId())
+                    .stream().noneMatch(
+                            x -> Objects.equals(x.getPlanetName(), planet.getPlanetName()))) {
+                Planet savedPlanet = planetRepository.save(mapper.map(planet, Planet.class));
+                addCourseTheme(savedPlanet.getPlanetId(), planet);
+                savedPlanets.add(savedPlanet);
             } else
                 throw new PlanetAlreadyExistsException();
         }
         return savedPlanets;
     }
 
-    public Map<String, String> deletePlanetById(Integer planetId) {
-        try {
-            planetRepository.deleteById(planetId);
-            Map<String, String> response = new HashMap<>();
-            response.put("message", "Планета подлежит уничтожению для создания межгалактической трассы");
-            return response;
-        } catch (Exception e) {
-            logger.severe(e.getMessage());
-            throw new PlanetNotFoundException();
-        }
+    private void addCourseTheme(Integer courseThemeId, PlanetDTO planet) {
+        HttpEntity<CourseThemeCreateRequest> entity = new HttpEntity<>(new CourseThemeCreateRequest(courseThemeId,
+                planet.getPlanetName(), planet.getDescription(), planet.getContent()),
+                createHeaders());
+        restTemplate.postForEntity(COURSE_APP_URL + "/course/" + planet.getSystemId() + "/theme", entity, CourseThemeDTO.class);
     }
 
-    public Planet updatePlanet(Integer planetId,
-                               Integer galaxyId,
-                               PlanetDTO planet) {
-        if (!checkSystemExistence(planet.getSystemId()))
+    @Transactional
+    public Planet updatePlanet(PlanetUpdateRequest planet, Integer planetId) {
+        if (!doesSystemExist(planet.getSystemId()))
             throw new SystemNotFoundException();
         Optional<Planet> updatedPlanetOptional = planetRepository.findById(planetId);
         Planet updatedPlanet;
@@ -99,14 +90,7 @@ public class PlanetService {
             throw new PlanetNotFoundException();
         else
             updatedPlanet = updatedPlanetOptional.get();
-        List<Planet> planets;
-        try {
-            planets = planetRepository.getAllPlanetsByGalaxyId(galaxyId);
-        } catch (Exception e) {
-            logger.severe(e.getMessage());
-            throw new GalaxyNotFoundException();
-        }
-        for (Planet currentPlanet : planets) {
+        for (Planet currentPlanet : planetRepository.getPlanetsBySystemId(planet.getSystemId())) {
             if (currentPlanet.getPlanetName().equals(updatedPlanet.getPlanetName()) && !currentPlanet.getPlanetId().equals(updatedPlanet.getPlanetId()))
                 throw new PlanetAlreadyExistsException();
         }
@@ -116,16 +100,43 @@ public class PlanetService {
         return planetRepository.save(updatedPlanet);
     }
 
-    private boolean checkSystemExistence(Integer systemId) {
+    @Transactional
+    public Map<String, String> deletePlanetById(Integer planetId) {
         try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("Authorization", token);
-            HttpEntity<?> requestEntity = new HttpEntity<>(headers);
-            return restTemplate.exchange(GALAXY_APP_URL + GET_SYSTEM_BY_ID_URL + systemId, HttpMethod.GET, requestEntity, StarSystem.class).getStatusCode().equals(HttpStatus.OK);
+            planetRepository.deleteById(planetId);
+            deleteCourseTheme(planetId);
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Планета " + planetId + " подлежит уничтожению для создания межгалактической трассы");
+            return response;
+        } catch (Exception e) {
+            logger.severe(e.getMessage());
+            throw new PlanetNotFoundException();
+        }
+    }
+
+    private void deleteCourseTheme(Integer courseThemeId) {
+        HttpEntity<?> entity = new HttpEntity<>(createHeaders());
+        restTemplate.exchange(COURSE_APP_URL + "/theme/" + courseThemeId, HttpMethod.DELETE, entity, Map.class);
+    }
+
+    private boolean doesSystemExist(Integer systemId) {
+        try {
+            return restTemplate.exchange(
+                            GALAXY_APP_URL + "/system/" + systemId,
+                            HttpMethod.GET,
+                            new HttpEntity<>(createHeaders()),
+                            StarSystem.class)
+                    .getStatusCode().equals(HttpStatus.OK);
         } catch (ResourceAccessException e) {
             throw new ConnectException();
         } catch (HttpClientErrorException e) {
             return false;
         }
+    }
+
+    private HttpHeaders createHeaders() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", token);
+        return headers;
     }
 }

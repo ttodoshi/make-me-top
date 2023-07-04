@@ -6,11 +6,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.example.dto.PlanetDTO;
+import org.example.dto.planet.PlanetDTO;
+import org.example.dto.planet.PlanetUpdateRequest;
 import org.example.service.PlanetService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,7 +41,7 @@ public class PlanetController {
         return ResponseEntity.ok(planetService.getPlanetsListBySystemId(id));
     }
 
-    @PostMapping("galaxy/{galaxyId}/planet")
+    @PostMapping("planet")
     @PreAuthorize("@RoleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Create planet", tags = "planet")
     @ApiResponses(value = {
@@ -53,11 +53,30 @@ public class PlanetController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> addPlanet(@PathVariable("galaxyId") Integer galaxyId,
-                                       @RequestBody List<PlanetDTO> planetList,
+    public ResponseEntity<?> addPlanet(@RequestBody List<PlanetDTO> planetList,
                                        @RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token) {
         planetService.setToken(token);
-        return ResponseEntity.ok(planetService.addPlanet(planetList, galaxyId));
+        return ResponseEntity.ok(planetService.addPlanet(planetList));
+    }
+
+    @PutMapping("planet/{planetId}")
+    @PreAuthorize("@RoleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
+    @Operation(summary = "Update planet", tags = "planet")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Update planet",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json")
+                    })
+    })
+    public ResponseEntity<?> updatePlanetById(
+            @PathVariable("planetId") Integer planetId,
+            @RequestBody PlanetUpdateRequest planet,
+            @RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token) {
+        planetService.setToken(token);
+        return ResponseEntity.ok(planetService.updatePlanet(planet, planetId));
     }
 
     @DeleteMapping("planet/{planetId}")
@@ -72,28 +91,9 @@ public class PlanetController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> deletePlanetById(@PathVariable("planetId") Integer id) {
-        return ResponseEntity.ok(planetService.deletePlanetById(id));
-    }
-
-    @PutMapping("galaxy/{galaxyId}/planet/{planetId}")
-    @PreAuthorize("@RoleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
-    @Operation(summary = "Update planet", tags = "planet")
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Update planet",
-                    content = {
-                            @Content(
-                                    mediaType = "application/json")
-                    })
-    })
-    public ResponseEntity<?> updatePlanetById(
-            @PathVariable("planetId") Integer planetId,
-            @PathVariable("galaxyId") Integer galaxyId,
-            @RequestBody PlanetDTO planet,
-            @RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token) {
+    public ResponseEntity<?> deletePlanetById(@PathVariable("planetId") Integer id,
+                                              @RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token) {
         planetService.setToken(token);
-        return ResponseEntity.ok(planetService.updatePlanet(planetId, galaxyId, planet));
+        return ResponseEntity.ok(planetService.deletePlanetById(id));
     }
 }

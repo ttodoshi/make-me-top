@@ -83,7 +83,7 @@ public class OrbitController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> deleteOrbit(@PathVariable("orbitId") Integer id) throws OrbitNotFoundException {
-        return ResponseEntity.ok(orbitService.deleteOrbit(id));
+    public ResponseEntity<?> deleteOrbit(@PathVariable("orbitId") Integer orbitId) throws OrbitNotFoundException {
+        return ResponseEntity.ok(orbitService.deleteOrbit(orbitId));
     }
 }
