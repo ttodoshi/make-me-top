@@ -19,8 +19,6 @@ import org.springframework.web.bind.annotation.*;
 public class SystemProgressController {
     private final SystemProgressService systemProgressService;
 
-    // TODO
-
     @GetMapping("galaxy/{galaxyId}")
     @PreAuthorize("@RoleService.hasAnyAuthenticationRole(T(org.example.model.AuthenticationRoleType).EXPLORER)")
     @Operation(summary = "Get systems progress for current user", tags = "system progress")

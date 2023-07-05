@@ -1,22 +1,24 @@
 package org.example.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.Table;
+import java.util.Date;
 
-@Data
 @Entity
-@Table(name = "course_progress", schema = "course")
-@AllArgsConstructor
-@NoArgsConstructor
-public class CourseProgress {
+@Table(name = "course_mark", schema = "course")
+@Data
+public class CourseMark {
     @Id
     @JoinColumn(table = "explorer", name = "explorer_id")
     private Integer explorerId;
-    private Integer progress;
+    @CreatedDate
+    private Date endDate;
+    private Integer value;
 }

@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 @Service("RoleService")
 @RequiredArgsConstructor
 public class RoleService {
-
     public boolean hasAnyGeneralRole(GeneralRoleType role) {
         for (GrantedAuthority authority : SecurityContextHolder.getContext().getAuthentication().getAuthorities()) {
             if (authority.getAuthority().equals(role.name()))

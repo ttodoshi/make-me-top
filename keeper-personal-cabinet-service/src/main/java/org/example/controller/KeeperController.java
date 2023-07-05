@@ -5,8 +5,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.example.service.KeeperInformationService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/keeper/")
 @RequiredArgsConstructor
 public class KeeperController {
+    private final KeeperInformationService keeperInformationService;
 
     @GetMapping
     @PreAuthorize("@RoleService.hasAnyAuthenticationRole(T(org.example.model.AuthenticationRoleType).KEEPER)")
@@ -30,6 +31,6 @@ public class KeeperController {
                     })
     })
     public ResponseEntity<?> getKeeperInformation() {
-        return ResponseEntity.ok("");
+        return ResponseEntity.ok(keeperInformationService.getKeeperInformation());
     }
 }
