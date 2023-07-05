@@ -1,5 +1,6 @@
 package org.example.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 
@@ -18,5 +19,6 @@ public class Keeper {
     @JoinColumn(table = "person", name = "person_id")
     private Integer personId;
     @CreatedDate
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
     private Date startDate;
 }

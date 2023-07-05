@@ -11,7 +11,7 @@ import java.util.Map;
 
 public interface HomeworkRequestRepository extends JpaRepository<HomeworkRequest, Integer> {
     @Query(value = "SELECT new org.example.dto.HomeworkRequestDTO(\n" +
-            "\tp.personId, p.firstName, p.lastName, p.patronymic, c.courseId, c.title as courseTitle, e.explorerId, ct.courseThemeId, ct.title as courseThemeTitle\n" +
+            "\thr.requestId, p.personId, p.firstName, p.lastName, p.patronymic, c.courseId, c.title as courseTitle, e.explorerId, ct.courseThemeId, ct.title as courseThemeTitle\n" +
             ")\n" +
             "FROM HomeworkRequest hr\n" +
             "JOIN Keeper k ON k.keeperId = hr.keeperId\n" +

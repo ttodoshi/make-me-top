@@ -1,5 +1,6 @@
 package org.example.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ public class CourseMark {
     @JoinColumn(table = "explorer", name = "explorer_id")
     private Integer explorerId;
     @CreatedDate
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
     private Date endDate;
     private Integer value;
 }

@@ -1,5 +1,6 @@
 package org.example.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -27,6 +28,7 @@ public class HomeworkRequest {
     @JoinColumn(table = "explorer", name = "explorer_id")
     private Integer explorerId;
     @CreatedDate
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
     private Date requestDate;
     @JoinColumn(table = "homework_request_status", name = "status_id")
     private Integer statusId;

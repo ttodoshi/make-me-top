@@ -12,13 +12,13 @@ import java.util.Date;
 public class ErrorResponse {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
     private Date timestamp;
-    private HttpStatus code;
-    private String message;
+    private HttpStatus errorCode;
+    private String errorMessage;
 
 
     public ErrorResponse(HttpStatus statusCode, String errorMessage) {
         timestamp = new Date();
-        code = statusCode;
-        message = errorMessage;
+        errorCode = statusCode;
+        this.errorMessage = errorMessage;
     }
 }

@@ -1,8 +1,10 @@
 package org.example.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -20,5 +22,7 @@ public class Person {
     private String firstName;
     private String lastName;
     private String patronymic;
+    @CreatedDate
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
     private Date registrationDate;
 }
