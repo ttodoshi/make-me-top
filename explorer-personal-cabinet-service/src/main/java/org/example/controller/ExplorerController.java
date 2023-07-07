@@ -13,14 +13,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/explorer/")
+@RequestMapping("/explorer-cabinet/")
 @RequiredArgsConstructor
 public class ExplorerController {
     private final ExplorerInformationService explorerInformationService;
 
-    @GetMapping
+    @GetMapping("info")
     @PreAuthorize("@RoleService.hasAnyAuthenticationRole(T(org.example.model.AuthenticationRoleType).EXPLORER)")
-    @Operation(summary = "Get explorer information", tags = "personal cabinet")
+    @Operation(summary = "Get explorer information", tags = "personal cabinet", hidden = true)
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",

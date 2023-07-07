@@ -7,8 +7,9 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CourseWithRatingDTO {
+public class CourseWithMark {
     private Integer courseId;
     private String title;
-    private Double rating;
+    private Integer value;
+    private Integer keeperId;
 }

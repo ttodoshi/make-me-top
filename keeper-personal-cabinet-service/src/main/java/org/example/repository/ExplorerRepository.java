@@ -41,7 +41,7 @@ public interface ExplorerRepository extends JpaRepository<Explorer, Integer> {
             "AND k.personId = :personId")
     Set<ExplorerNeededFinalAssessmentDTO> getExplorersNeededFinalAssessmentByKeeperPersonId(@Param("personId") Integer personId);
 
-    @Query(value = "SELECT new org.example.dto.explorer.ExplorerDTO(p.personId, p.firstName, p.lastName, p.patronymic, e.explorerId)\n" +
+    @Query(value = "SELECT new org.example.dto.explorer.ExplorerDTO(p.personId, p.firstName, p.lastName, p.patronymic, e.explorerId, c.courseId)\n" +
             "FROM Explorer e\n" +
             "JOIN Person p ON e.personId = p.personId\n" +
             "JOIN Course c ON c.courseId = e.courseId\n" +

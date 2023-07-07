@@ -14,7 +14,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/explorer/")
+@RequestMapping("/explorer-cabinet/")
 @RequiredArgsConstructor
 public class SystemProgressController {
     private final SystemProgressService systemProgressService;

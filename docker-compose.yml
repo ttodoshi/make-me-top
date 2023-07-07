@@ -86,6 +86,17 @@ services:
     networks:
       postgres:
         ipv4_address: 10.10.0.9
+
+  app_personal_cabinet_balancer:
+    container_name: app_personal_cabinet_balancer_container
+    build: ./personal-cabinet-balancer-service
+    ports:
+      - "8107:8107"
+    depends_on:
+      - postgres
+    networks:
+      postgres:
+        ipv4_address: 10.10.0.10
   app_explorer_personal_cabinet:
     container_name: app_explorer_personal_cabinet_container
     build: ./explorer-personal-cabinet-service

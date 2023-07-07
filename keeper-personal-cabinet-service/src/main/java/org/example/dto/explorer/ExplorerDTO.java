@@ -13,4 +13,5 @@ public class ExplorerDTO {
     private String lastName;
     private String patronymic;
     private Integer explorerId;
+    private Integer courseId;
 }
