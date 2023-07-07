@@ -1,4 +1,4 @@
-package org.example.dto;
+package org.example.dto.explorer;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;

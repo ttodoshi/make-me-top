@@ -1,16 +1,15 @@
 package org.example.repository;
 
-import org.example.dto.HomeworkRequestDTO;
+import org.example.dto.request.HomeworkRequestDTO;
 import org.example.model.HomeworkRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
-import java.util.Map;
 
 public interface HomeworkRequestRepository extends JpaRepository<HomeworkRequest, Integer> {
-    @Query(value = "SELECT new org.example.dto.HomeworkRequestDTO(\n" +
+    @Query(value = "SELECT new org.example.dto.request.HomeworkRequestDTO(\n" +
             "\thr.requestId, p.personId, p.firstName, p.lastName, p.patronymic, c.courseId, c.title as courseTitle, e.explorerId, ct.courseThemeId, ct.title as courseThemeTitle\n" +
             ")\n" +
             "FROM HomeworkRequest hr\n" +

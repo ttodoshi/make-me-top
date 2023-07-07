@@ -15,5 +15,6 @@ public class CourseThemeDTO {
     private Date lastModified;
     private String description;
     private String content;
+    private Integer courseThemeNumber;
     private Integer courseId;
 }

@@ -23,5 +23,6 @@ public class CourseTheme {
     private String description;
     private String content;
     @JoinColumn(table = "course", name = "course_id")
+    private Integer courseThemeNumber;
     private Integer courseId;
 }

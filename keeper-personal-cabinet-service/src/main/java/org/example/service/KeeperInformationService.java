@@ -24,9 +24,9 @@ public class KeeperInformationService {
         Person authenticatedPerson = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Integer authenticatedPersonId = authenticatedPerson.getPersonId();
         Map<String, Object> response = new LinkedHashMap<>();
-        response.put("keeper", authenticatedPerson);
+        response.put("person", authenticatedPerson);
         response.put("rating", getKeeperRating(authenticatedPersonId));
-        response.put("totalSystems", keeperRepository.getKeeperSystems(authenticatedPersonId));
+        response.put("totalSystems", keeperRepository.getKeeperSystemsCount(authenticatedPersonId));
         response.put("totalExplorers", explorerRepository.getExplorersCountForKeeper(authenticatedPersonId));
         response.put("studyingExplorers", explorerRepository.getStudyingPeopleByKeeperPersonId(authenticatedPersonId));
         response.put("studyRequests", courseRegistrationRequestRepository.getStudyRequestsByKeeperPersonId(authenticatedPersonId));
@@ -36,7 +36,7 @@ public class KeeperInformationService {
     }
 
     // TODO
-    private Integer getKeeperRating(Integer personId) {
+    private Double getKeeperRating(Integer personId) {
         return null;
     }
 }

@@ -22,7 +22,7 @@ public class CourseTheme {
     private Date lastModified;
     private String description;
     private String content;
-    @JoinColumn(table = "course", name = "course_id")
     private Integer courseThemeNumber;
+    @JoinColumn(table = "course", name = "course_id")
     private Integer courseId;
 }

@@ -75,7 +75,7 @@ public class PlanetService {
 
     private void addCourseTheme(Integer courseThemeId, PlanetDTO planet) {
         HttpEntity<CourseThemeCreateRequest> entity = new HttpEntity<>(new CourseThemeCreateRequest(courseThemeId,
-                planet.getPlanetName(), planet.getDescription(), planet.getContent()),
+                planet.getPlanetName(), planet.getDescription(), planet.getContent(), planet.getPlanetNumber()),
                 createHeaders());
         restTemplate.postForEntity(COURSE_APP_URL + "/course/" + planet.getSystemId() + "/theme", entity, CourseThemeDTO.class);
     }

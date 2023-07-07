@@ -6,6 +6,8 @@ services:
     image: rodolpheche/wiremock
     ports:
       - "8083:8080"
+    volumes:
+      - ./.wiremock/wwe-server:/home/wiremock
     networks:
       postgres:
         ipv4_address: 10.10.0.15

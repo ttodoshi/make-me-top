@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.Query;
 public interface KeeperRepository extends JpaRepository<Keeper, Integer> {
     @Query(value = "SELECT COUNT(*) FROM course.keeper\n" +
             "WHERE person_id = ?1", nativeQuery = true)
-    Integer getKeeperSystems(Integer authenticatedPersonId);
+    Integer getKeeperSystemsCount(Integer authenticatedPersonId);
 }

@@ -43,6 +43,7 @@ public class CourseThemeService {
         updatedTheme.setLastModified(new Date());
         updatedTheme.setDescription(courseTheme.getDescription());
         updatedTheme.setContent(courseTheme.getContent());
+        updatedTheme.setCourseThemeNumber(courseTheme.getCourseThemeNumber());
         return courseThemeRepository.save(updatedTheme);
     }
 

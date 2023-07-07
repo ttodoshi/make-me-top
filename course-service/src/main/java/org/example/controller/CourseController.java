@@ -71,6 +71,7 @@ public class CourseController {
 
     @PostMapping("course/{courseId}/keeper")
     @PreAuthorize("@RoleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
+    @Operation(summary = "Add keeper on course", tags = "course")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",

@@ -1,9 +1,9 @@
-package org.example.dto;
+package org.example.dto.request;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.example.dto.explorer.ExplorerRequest;
 
 @Data
 @EqualsAndHashCode(callSuper = true)

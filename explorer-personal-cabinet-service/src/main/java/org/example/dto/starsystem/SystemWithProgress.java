@@ -9,5 +9,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class SystemWithProgress {
     private Integer systemId;
-    private Integer progress;
+    private Double progress;
 }

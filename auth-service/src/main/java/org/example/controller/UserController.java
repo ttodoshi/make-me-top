@@ -24,7 +24,7 @@ public class UserController {
     private final PersonService personService;
 
     @PostMapping("login")
-    @Operation(summary = "Log in", tags = "Authentication")
+    @Operation(summary = "Log in", tags = "authentication")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",

@@ -3,15 +3,18 @@ package org.example.service;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.starsystem.StarSystemsForUser;
 import org.example.dto.starsystem.SystemWithProgress;
+import org.example.dto.systemprogress.CourseThemeProgressDTO;
 import org.example.dto.systemprogress.ProgressUpdateRequest;
 import org.example.exception.classes.connectEX.ConnectException;
 import org.example.exception.classes.progressEX.ProgressDecreaseException;
 import org.example.exception.classes.progressEX.SystemParentsNotCompletedException;
 import org.example.exception.classes.progressEX.UpdateProgressException;
 import org.example.model.*;
+import org.example.repository.CourseRepository;
 import org.example.repository.DependencyRepository;
 import org.example.repository.ExplorerRepository;
-import org.example.repository.SystemProgressRepository;
+import org.example.repository.PlanetProgressRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -28,12 +31,13 @@ import java.util.logging.Logger;
 @Service
 @RequiredArgsConstructor
 public class SystemProgressService {
-    private final SystemProgressRepository systemProgressRepository;
+    private final PlanetProgressRepository planetProgressRepository;
     private final DependencyRepository dependencyRepository;
     private final ExplorerRepository explorerRepository;
+    private final CourseRepository courseRepository;
 
     private final RestTemplate restTemplate;
-
+    private final ModelMapper mapper;
     private final Logger logger = Logger.getLogger(SystemProgressService.class.getName());
     @Value("${app_galaxy_url}")
     private String GALAXY_APP_URL;
@@ -50,8 +54,8 @@ public class SystemProgressService {
                     authenticatedPerson.getPersonId(), system.getSystemId());
             if (explorer != null) {
                 studiedSystems.add(new SystemWithProgress(explorer.getCourseId(),
-                        systemProgressRepository.getSystemProgress(
-                                explorer.getExplorerId()).getProgress()));
+                        planetProgressRepository.getSystemProgress(
+                                explorer.getExplorerId(), explorer.getCourseId())));
             } else {
                 if (hasUncompletedParents(authenticatedPerson.getPersonId(), system.getSystemId()))
                     closedSystems.add(system.getSystemId());
@@ -81,10 +85,10 @@ public class SystemProgressService {
     }
 
     @Transactional
-    public Map<String, Object> updateCourseProgress(Integer systemId, ProgressUpdateRequest updateRequest) {
+    public Map<String, Object> updateCourseThemeProgress(Integer planetId, ProgressUpdateRequest updateRequest) {
         final Integer personId = getAuthenticatedPersonId();
-        Explorer explorer = explorerRepository.findExplorerByPersonIdAndCourseId(personId, systemId);
-        saveProgress(explorer, updateRequest);
+        Explorer explorer = explorerRepository.findExplorerByPersonIdAndCourseId(personId, courseRepository.getCourseIdByThemeId(planetId));
+        saveProgress(explorer, planetId, updateRequest);
         try {
             Map<String, Object> response = new HashMap<>();
             if (updateRequest.getProgress() >= 100) {
@@ -92,7 +96,7 @@ public class SystemProgressService {
                 if (!newOpenedSystems.isEmpty())
                     response.put("Открыты системы", newOpenedSystems);
             }
-            response.put("message", "Прогресс системы " + systemId +
+            response.put("message", "Прогресс планеты " + planetId +
                     " обновлён на " + updateRequest.getProgress());
             return response;
         } catch (Exception e) {
@@ -106,16 +110,25 @@ public class SystemProgressService {
         return authenticatedPerson.getPersonId();
     }
 
-    private void saveProgress(Explorer explorer, ProgressUpdateRequest updateRequest) {
-        CourseProgress updatedCourseProgress = systemProgressRepository
-                .getSystemProgress(explorer.getExplorerId());
-        if (updatedCourseProgress == null || hasUncompletedParents(
-                explorer.getPersonId(), explorer.getCourseId()))
+    private void saveProgress(Explorer explorer, Integer themeId, ProgressUpdateRequest updateRequest) {
+        if (explorer == null)
             throw new SystemParentsNotCompletedException();
-        if (updatedCourseProgress.getProgress() > updateRequest.getProgress())
+        CourseThemeProgress updatedCourseProgress = planetProgressRepository
+                .getPlanetProgressByExplorerIdAndPlanetId(explorer.getExplorerId(), themeId);
+        if (hasUncompletedParents(explorer.getPersonId(), explorer.getCourseId()))
+            throw new SystemParentsNotCompletedException();
+        if (updatedCourseProgress == null)
+            planetProgressRepository.save(
+                    mapper.map(
+                            new CourseThemeProgressDTO(
+                                    explorer.getExplorerId(), themeId, updateRequest.getProgress()),
+                            CourseThemeProgress.class));
+        else if (updatedCourseProgress.getProgress() > updateRequest.getProgress())
             throw new ProgressDecreaseException();
-        updatedCourseProgress.setProgress(updateRequest.getProgress());
-        systemProgressRepository.save(updatedCourseProgress);
+        else {
+            updatedCourseProgress.setProgress(updateRequest.getProgress());
+            planetProgressRepository.save(updatedCourseProgress);
+        }
     }
 
     private List<Integer> getPreviouslyBlockedSystems(Explorer explorer) {
@@ -135,8 +148,8 @@ public class SystemProgressService {
             if (parent.getParentId() == null)
                 return false;
             Explorer explorer = explorerRepository.findExplorerByPersonIdAndCourseId(personId, parent.getParentId().getSystemId());
-            if (explorer == null || systemProgressRepository.getSystemProgress(
-                    explorer.getExplorerId()).getProgress() < 100) {
+            if (explorer == null || planetProgressRepository.getSystemProgress(
+                    explorer.getExplorerId(), explorer.getCourseId()) < 100) {
                 parentsUncompleted = true;
             } else if (parent.getIsAlternative())
                 return false;
