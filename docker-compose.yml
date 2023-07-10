@@ -6,6 +6,8 @@ services:
     image: rodolpheche/wiremock
     ports:
       - "8083:8080"
+    volumes:
+      - ./.wiremock/wwe-server:/home/wiremock
     networks:
       postgres:
         ipv4_address: 10.10.0.15
@@ -27,7 +29,6 @@ services:
       postgres:
         ipv4_address: 10.10.0.14
     restart: unless-stopped
-  
   pgadmin:
     container_name: pgadmin_container
     image: dpage/pgadmin4
@@ -42,6 +43,7 @@ services:
       postgres:
         ipv4_address: 10.10.0.13
     restart: unless-stopped
+
   app_galaxy:
     container_name: app_galaxy_container
     build: ./galaxy-service
@@ -62,6 +64,7 @@ services:
     networks:
       postgres:
         ipv4_address: 10.10.0.7
+
   app_auth:
     container_name: app_auth_container
     build: ./auth-service
@@ -72,6 +75,49 @@ services:
     networks:
       postgres:
         ipv4_address: 10.10.0.6
+
+  app_course:
+    container_name: app_course_container
+    build: ./course-service
+    ports:
+      - "8106:8106"
+    depends_on:
+      - postgres
+    networks:
+      postgres:
+        ipv4_address: 10.10.0.9
+
+  app_personal_cabinet_balancer:
+    container_name: app_personal_cabinet_balancer_container
+    build: ./personal-cabinet-balancer-service
+    ports:
+      - "8107:8107"
+    depends_on:
+      - postgres
+    networks:
+      postgres:
+        ipv4_address: 10.10.0.10
+  app_explorer_personal_cabinet:
+    container_name: app_explorer_personal_cabinet_container
+    build: ./explorer-personal-cabinet-service
+    ports:
+      - "8104:8104"
+    depends_on:
+      - postgres
+    networks:
+      postgres:
+        ipv4_address: 10.10.0.5
+  app_keeper_personal_cabinet:
+    container_name: app_keeper_personal_cabinet_container
+    build: ./keeper-personal-cabinet-service
+    ports:
+      - "8105:8105"
+    depends_on:
+      - postgres
+    networks:
+      postgres:
+        ipv4_address: 10.10.0.4
+
   nginx:
     image: nginx
     ports:
@@ -81,7 +127,6 @@ services:
     networks:
       postgres:
         ipv4_address: 10.10.0.3
-
 
 networks:
   postgres:

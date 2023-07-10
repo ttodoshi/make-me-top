@@ -2,22 +2,28 @@ package org.example.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import lombok.SneakyThrows;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import org.example.dto.PlanetDTO;
+import org.example.dto.coursetheme.CourseThemeCreateRequest;
+import org.example.dto.coursetheme.CourseThemeDTO;
+import org.example.dto.planet.PlanetDTO;
+import org.example.dto.planet.PlanetUpdateRequest;
 import org.example.exception.classes.connectEX.ConnectException;
-import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
 import org.example.exception.classes.planetEX.PlanetAlreadyExistsException;
 import org.example.exception.classes.planetEX.PlanetNotFoundException;
 import org.example.exception.classes.systemEX.SystemNotFoundException;
 import org.example.model.Planet;
+import org.example.model.StarSystem;
 import org.example.repository.PlanetRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.RestTemplate;
 
 import javax.transaction.Transactional;
 import java.util.*;
@@ -27,65 +33,56 @@ import java.util.logging.Logger;
 @RequiredArgsConstructor
 @PropertySource(value = {"classpath:config.properties"})
 public class PlanetService {
-    @Setter
-    private String token;
-
     private final PlanetRepository planetRepository;
 
     private final ModelMapper mapper;
 
+    private final RestTemplate restTemplate;
+
+    @Setter
+    private String token;
+
     private final Logger logger = Logger.getLogger(PlanetService.class.getName());
 
-    @Value("${app_galaxy_url}")
-    private String APP_GALAXY_URL;
-    @Value("${get_system_by_id}")
-    private String GET_SYSTEM_BY_ID_URL;
+    @Value("${galaxy_app_url}")
+    private String GALAXY_APP_URL;
+    @Value("${course_app_url}")
+    private String COURSE_APP_URL;
 
     public List<Planet> getPlanetsListBySystemId(Integer systemId) {
-        if (checkSystemExists(systemId))
-            return planetRepository.getListPlanetBySystemId(systemId);
+        if (doesSystemExist(systemId))
+            return planetRepository.getPlanetsBySystemId(systemId);
         throw new SystemNotFoundException();
     }
 
     @Transactional
-    public List<Planet> addPlanet(List<PlanetDTO> planets, Integer galaxyId) {
+    public List<Planet> addPlanet(List<PlanetDTO> planets) {
         List<Planet> savedPlanets = new LinkedList<>();
-        List<Planet> planetsByGalaxyId;
-        try {
-            planetsByGalaxyId = planetRepository.getAllPlanetsByGalaxyId(galaxyId);
-        } catch (Exception e) {
-            logger.severe(e.getMessage());
-            throw new GalaxyNotFoundException();
-        }
         for (PlanetDTO planet : planets) {
-            if (planetsByGalaxyId.stream().noneMatch(
-                    x -> Objects.equals(x.getPlanetName(), planet.getPlanetName()))) {
-                if (checkSystemExists(planet.getSystemId()))
-                    savedPlanets.add(planetRepository.save(mapper.map(planet, Planet.class)));
-                else
-                    throw new SystemNotFoundException();
+            if (!doesSystemExist(planet.getSystemId()))
+                throw new SystemNotFoundException();
+            else if (planetRepository.getPlanetsBySystemId(planet.getSystemId())
+                    .stream().noneMatch(
+                            x -> Objects.equals(x.getPlanetName(), planet.getPlanetName()))) {
+                Planet savedPlanet = planetRepository.save(mapper.map(planet, Planet.class));
+                addCourseTheme(savedPlanet.getPlanetId(), planet);
+                savedPlanets.add(savedPlanet);
             } else
                 throw new PlanetAlreadyExistsException();
         }
         return savedPlanets;
     }
 
-    public Map<String, String> deletePlanetById(Integer planetId) {
-        try {
-            planetRepository.deleteById(planetId);
-            Map<String, String> response = new HashMap<>();
-            response.put("message", "Планета успешно удалена");
-            return response;
-        } catch (Exception e) {
-            logger.severe(e.getMessage());
-            throw new PlanetNotFoundException();
-        }
+    private void addCourseTheme(Integer courseThemeId, PlanetDTO planet) {
+        HttpEntity<CourseThemeCreateRequest> entity = new HttpEntity<>(new CourseThemeCreateRequest(courseThemeId,
+                planet.getPlanetName(), planet.getDescription(), planet.getContent(), planet.getPlanetNumber()),
+                createHeaders());
+        restTemplate.postForEntity(COURSE_APP_URL + "/course/" + planet.getSystemId() + "/theme", entity, CourseThemeDTO.class);
     }
 
-    public Planet updatePlanet(Integer planetId,
-                               Integer galaxyId,
-                               PlanetDTO planet) {
-        if (!checkSystemExists(planet.getSystemId()))
+    @Transactional
+    public Planet updatePlanet(PlanetUpdateRequest planet, Integer planetId) {
+        if (!doesSystemExist(planet.getSystemId()))
             throw new SystemNotFoundException();
         Optional<Planet> updatedPlanetOptional = planetRepository.findById(planetId);
         Planet updatedPlanet;
@@ -93,14 +90,7 @@ public class PlanetService {
             throw new PlanetNotFoundException();
         else
             updatedPlanet = updatedPlanetOptional.get();
-        List<Planet> planets;
-        try {
-            planets = planetRepository.getAllPlanetsByGalaxyId(galaxyId);
-        } catch (Exception e) {
-            logger.severe(e.getMessage());
-            throw new GalaxyNotFoundException();
-        }
-        for (Planet currentPlanet: planets) {
+        for (Planet currentPlanet : planetRepository.getPlanetsBySystemId(planet.getSystemId())) {
             if (currentPlanet.getPlanetName().equals(updatedPlanet.getPlanetName()) && !currentPlanet.getPlanetId().equals(updatedPlanet.getPlanetId()))
                 throw new PlanetAlreadyExistsException();
         }
@@ -110,20 +100,37 @@ public class PlanetService {
         return planetRepository.save(updatedPlanet);
     }
 
-    @SneakyThrows
-    private boolean checkSystemExists(Integer systemId) {
-        var getSystemById = new Request.Builder()
-                .get()
-                .header("Authorization", token)
-                .url(APP_GALAXY_URL + GET_SYSTEM_BY_ID_URL + systemId + "?withDependency=true")
-                .build();
-        try (var response = new OkHttpClient().newCall(getSystemById).execute()) {
-            if (response.code() != HttpStatus.OK.value())
-                return false;
+    @Transactional
+    public Map<String, String> deletePlanetById(Integer planetId) {
+        try {
+            planetRepository.deleteById(planetId);
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Планета " + planetId + " подлежит уничтожению для создания межгалактической трассы");
+            return response;
         } catch (Exception e) {
             logger.severe(e.getMessage());
-            throw new ConnectException();
+            throw new PlanetNotFoundException();
         }
-        return true;
+    }
+
+    private boolean doesSystemExist(Integer systemId) {
+        try {
+            return restTemplate.exchange(
+                            GALAXY_APP_URL + "/system/" + systemId,
+                            HttpMethod.GET,
+                            new HttpEntity<>(createHeaders()),
+                            StarSystem.class)
+                    .getStatusCode().equals(HttpStatus.OK);
+        } catch (ResourceAccessException e) {
+            throw new ConnectException();
+        } catch (HttpClientErrorException e) {
+            return false;
+        }
+    }
+
+    private HttpHeaders createHeaders() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", token);
+        return headers;
     }
 }

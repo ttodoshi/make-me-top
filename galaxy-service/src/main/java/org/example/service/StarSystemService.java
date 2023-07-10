@@ -1,11 +1,14 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.example.config.mapper.DependencyMapper;
+import org.example.dto.course.CourseDTO;
 import org.example.dto.dependency.DependencyGetInfoModel;
 import org.example.dto.starsystem.GetStarSystemWithDependencies;
 import org.example.dto.starsystem.GetStarSystemWithoutDependency;
 import org.example.dto.starsystem.StarSystemDTO;
+import org.example.dto.starsystem.StarSystemRequest;
 import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
 import org.example.exception.classes.orbitEX.OrbitNotFoundException;
 import org.example.exception.classes.systemEX.SystemAlreadyExistsException;
@@ -16,12 +19,14 @@ import org.example.repository.GalaxyRepository;
 import org.example.repository.OrbitRepository;
 import org.example.repository.StarSystemRepository;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import javax.transaction.Transactional;
+import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -35,6 +40,13 @@ public class StarSystemService {
 
     private final ModelMapper mapper;
     private final DependencyMapper dependencyMapper;
+
+    @Setter
+    private String token;
+    @Value("${course_app_url}")
+    private String COURSE_APP_URL;
+
+    private final RestTemplate restTemplate;
 
     private final Logger logger = Logger.getLogger(GalaxyService.class.getName());
 
@@ -62,15 +74,20 @@ public class StarSystemService {
     }
 
     public GetStarSystemWithoutDependency getStarSystemById(Integer systemId) {
-        try {
-            return mapper.map(starSystemRepository.getReferenceById(systemId), GetStarSystemWithoutDependency.class);
-        } catch (Exception e) {
-            logger.severe(e.getMessage());
-            throw new SystemNotFoundException();
-        }
+        StarSystem system = starSystemRepository
+                .findById(systemId).orElseThrow(SystemNotFoundException::new);
+        return mapper.map(system, GetStarSystemWithoutDependency.class);
     }
 
-    public StarSystem createSystem(StarSystemDTO starSystem, Integer galaxyId) {
+    public List<StarSystem> getStarSystemsByGalaxyId(Integer galaxyId) {
+        List<StarSystem> systems = starSystemRepository.getStarSystemsByGalaxyId(galaxyId);
+        if (systems == null)
+            throw new GalaxyNotFoundException();
+        return systems;
+    }
+
+    @Transactional
+    public StarSystem createSystem(StarSystemRequest starSystem, Integer galaxyId) {
         if (!galaxyRepository.existsById(galaxyId))
             throw new GalaxyNotFoundException();
         if (!orbitRepository.existsById(starSystem.getOrbitId()))
@@ -78,12 +95,28 @@ public class StarSystemService {
 
         if (starSystemRepository.getStarSystemsByGalaxyId(galaxyId).stream()
                 .noneMatch(
-                        x -> Objects.equals(x.getSystemName(), starSystem.getSystemName())))
-            return starSystemRepository.save(mapper.map(starSystem, StarSystem.class));
-        else
+                        x -> Objects.equals(x.getSystemName(), starSystem.getSystemName()))) {
+            StarSystem createdSystem = starSystemRepository.save(mapper.map(starSystem, StarSystem.class));
+            createCourse(createdSystem.getSystemId(), starSystem);
+            return createdSystem;
+        } else
             throw new SystemAlreadyExistsException();
     }
 
+    private void createCourse(Integer courseId, StarSystemRequest starSystem) {
+        HttpEntity<CourseDTO> entity = new HttpEntity<>(new CourseDTO(courseId,
+                starSystem.getSystemName(), new Date(), new Date(), starSystem.getDescription()),
+                createHeaders());
+        restTemplate.postForEntity(COURSE_APP_URL + "/course/", entity, CourseDTO.class);
+    }
+
+    private HttpHeaders createHeaders() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", token);
+        return headers;
+    }
+
+    @Transactional
     public StarSystem updateSystem(StarSystemDTO starSystem, Integer galaxyId, Integer systemId) {
         if (!starSystemRepository.existsById(systemId))
             throw new SystemNotFoundException();
@@ -105,11 +138,12 @@ public class StarSystemService {
         }
     }
 
-    public Map<String, String> deleteSystem(Integer id) {
+    @Transactional
+    public Map<String, String> deleteSystem(Integer systemId) {
         try {
-            starSystemRepository.deleteById(id);
+            starSystemRepository.deleteById(systemId);
             Map<String, String> response = new HashMap<>();
-            response.put("message", "Система успешно удалена");
+            response.put("message", "Система " + systemId + " была уничжтожена чёрной дырой");
             return response;
         } catch (Exception e) {
             logger.severe(e.getMessage());

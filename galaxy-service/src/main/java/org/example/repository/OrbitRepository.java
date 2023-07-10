@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface OrbitRepository extends JpaRepository<Orbit, Integer> {
 
-    @Query(value = "SELECT * FROM orbit WHERE galaxy_id = ?1", nativeQuery = true)
+    @Query(value = "SELECT * FROM galaxy.orbit WHERE galaxy_id = ?1", nativeQuery = true)
     List<Orbit> getOrbitsByGalaxyId(Integer id);
 
 

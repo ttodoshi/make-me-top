@@ -6,7 +6,7 @@ import lombok.Data;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "planet")
+@Table(name = "planet", schema = "galaxy")
 @Data
 public class Planet {
     @Id

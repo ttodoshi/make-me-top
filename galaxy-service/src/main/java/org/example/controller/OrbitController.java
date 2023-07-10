@@ -10,6 +10,7 @@ import org.example.exception.classes.orbitEX.OrbitNotFoundException;
 import org.example.service.OrbitService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,7 +20,7 @@ public class OrbitController {
     private final OrbitService orbitService;
 
     @GetMapping("{orbitId}")
-    @Secured({"ROLE_EXPLORER", "ROLE_KEEPER", "ROLE_BIG_BROTHER"})
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get Orbit", tags = "orbit")
     @ApiResponses(value = {
             @ApiResponse(
@@ -39,7 +40,7 @@ public class OrbitController {
     }
 
     @PostMapping
-    @Secured("ROLE_BIG_BROTHER")
+    @PreAuthorize("@RoleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Create Orbit", tags = "orbit")
     @ApiResponses(value = {
             @ApiResponse(
@@ -55,7 +56,7 @@ public class OrbitController {
     }
 
     @PutMapping("{orbitId}")
-    @Secured("ROLE_BIG_BROTHER")
+    @PreAuthorize("@RoleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Update Orbit", tags = "orbit")
     @ApiResponses(value = {
             @ApiResponse(
@@ -71,7 +72,7 @@ public class OrbitController {
     }
 
     @DeleteMapping("{orbitId}")
-    @Secured("ROLE_BIG_BROTHER")
+    @PreAuthorize("@RoleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Delete Orbit", tags = "orbit")
     @ApiResponses(value = {
             @ApiResponse(
@@ -82,7 +83,7 @@ public class OrbitController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> deleteOrbit(@PathVariable("orbitId") Integer id) throws OrbitNotFoundException {
-        return ResponseEntity.ok(orbitService.deleteOrbit(id));
+    public ResponseEntity<?> deleteOrbit(@PathVariable("orbitId") Integer orbitId) throws OrbitNotFoundException {
+        return ResponseEntity.ok(orbitService.deleteOrbit(orbitId));
     }
 }

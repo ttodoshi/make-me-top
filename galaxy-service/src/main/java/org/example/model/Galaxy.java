@@ -1,15 +1,13 @@
 package org.example.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.*;
+import lombok.Data;
 import org.hibernate.annotations.Cascade;
 
 import javax.persistence.*;
 
-;
-
 @Entity
-@Table(name = "galaxy")
+@Table(name = "galaxy", schema = "galaxy")
 @Data
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Galaxy {
