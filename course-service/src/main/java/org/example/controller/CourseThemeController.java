@@ -5,8 +5,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.example.dto.CourseThemeCreateRequest;
-import org.example.dto.CourseThemeUpdateRequest;
+import org.example.dto.theme.CourseThemeCreateRequest;
+import org.example.dto.theme.CourseThemeUpdateRequest;
 import org.example.service.CourseThemeService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,7 +24,7 @@ public class CourseThemeController {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Theme by themeId",
+                    description = "Theme by theme id",
                     content = {
                             @Content(
                                     mediaType = "application/json")
@@ -32,6 +32,22 @@ public class CourseThemeController {
     })
     public ResponseEntity<?> getCourseThemeById(@PathVariable("themeId") Integer themeId) {
         return ResponseEntity.ok(courseThemeService.getCourseTheme(themeId));
+    }
+
+    @GetMapping("course/{courseId}/theme")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Get themes by course id", tags = "theme")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Themes by course id",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json")
+                    })
+    })
+    public ResponseEntity<?> getCourseThemesByCourseId(@PathVariable("courseId") Integer courseId) {
+        return ResponseEntity.ok(courseThemeService.getCourseThemesByCourseId(courseId));
     }
 
     @PostMapping("course/{courseId}/theme")

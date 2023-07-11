@@ -1,8 +1,8 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.CourseThemeCreateRequest;
-import org.example.dto.CourseThemeUpdateRequest;
+import org.example.dto.theme.CourseThemeCreateRequest;
+import org.example.dto.theme.CourseThemeUpdateRequest;
 import org.example.exception.classes.coursethemeEX.CourseThemeNotFoundException;
 import org.example.model.CourseTheme;
 import org.example.repository.CourseThemeRepository;
@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -25,6 +26,10 @@ public class CourseThemeService {
 
     public CourseTheme getCourseTheme(Integer courseThemeId) {
         return courseThemeRepository.findById(courseThemeId).orElseThrow(CourseThemeNotFoundException::new);
+    }
+
+    public List<CourseTheme> getCourseThemesByCourseId(Integer courseId) {
+        return courseThemeRepository.findCourseThemesByCourseId(courseId);
     }
 
     public CourseTheme createCourseTheme(CourseThemeCreateRequest courseThemeRequest,

@@ -4,10 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Data
 @Entity
@@ -16,6 +13,7 @@ import javax.persistence.Table;
 @NoArgsConstructor
 public class CourseThemeProgress {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer courseThemeProgressId;
     @JoinColumn(table = "explorer", name = "explorer_id")
     private Integer explorerId;

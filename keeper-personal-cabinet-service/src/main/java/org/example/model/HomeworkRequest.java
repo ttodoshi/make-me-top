@@ -6,10 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.Date;
 
 @Entity
@@ -19,6 +16,7 @@ import java.util.Date;
 @NoArgsConstructor
 public class HomeworkRequest {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer requestId;
     @JoinColumn(table = "homework", name = "homework_id")
     private Integer homeworkId;

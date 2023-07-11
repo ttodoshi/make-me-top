@@ -5,8 +5,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.example.dto.AddKeeperRequest;
-import org.example.dto.CourseUpdateRequest;
+import org.example.dto.keeper.AddKeeperRequest;
+import org.example.dto.course.CourseUpdateRequest;
 import org.example.model.Course;
 import org.example.service.CourseService;
 import org.springframework.http.ResponseEntity;
@@ -21,11 +21,11 @@ public class CourseController {
 
     @GetMapping("course/{courseId}")
     @PreAuthorize("isAuthenticated()")
-    @Operation(summary = "Get course by course id", tags = "course")
+    @Operation(summary = "Get course by course id with keepers", tags = "course")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Course by courseId",
+                    description = "Course by course id",
                     content = {
                             @Content(
                                     mediaType = "application/json")
@@ -33,6 +33,22 @@ public class CourseController {
     })
     public ResponseEntity<?> getCourseById(@PathVariable("courseId") Integer courseId) {
         return ResponseEntity.ok(courseService.getCourse(courseId));
+    }
+
+    @GetMapping("course")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Get all courses", tags = "course")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Courses",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json")
+                    })
+    })
+    public ResponseEntity<?> getAllCourses() {
+        return ResponseEntity.ok(courseService.getCourses());
     }
 
     @PostMapping("course")

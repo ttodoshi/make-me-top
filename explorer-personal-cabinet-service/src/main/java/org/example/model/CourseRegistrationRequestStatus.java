@@ -1,13 +1,16 @@
 package org.example.model;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import lombok.Data;
+
+import javax.persistence.*;
 
 @Entity
 @Table(name = "course_registration_request_status", schema = "course")
+@Data
 public class CourseRegistrationRequestStatus {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer statusId;
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private CourseRegistrationRequestStatusType status;
 }

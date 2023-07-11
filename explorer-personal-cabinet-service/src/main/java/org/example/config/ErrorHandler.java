@@ -2,15 +2,23 @@ package org.example.config;
 
 import org.example.exception.classes.accessEX.AccessException;
 import org.example.exception.classes.connectEX.ConnectException;
+import org.example.exception.classes.courseEX.CourseNotFoundException;
+import org.example.exception.classes.keeperEX.KeeperNotFoundException;
+import org.example.exception.classes.personEX.PersonNotFoundException;
 import org.example.exception.classes.progressEX.ProgressDecreaseException;
 import org.example.exception.classes.progressEX.SystemParentsNotCompletedException;
 import org.example.exception.classes.progressEX.UpdateProgressException;
+import org.example.exception.classes.requestEX.StatusNotFoundException;
 import org.example.exception.responses.ErrorResponse;
 import org.example.exception.responses.access.AccessExceptionResponse;
 import org.example.exception.responses.connect.ConnectExceptionResponse;
+import org.example.exception.responses.course.CourseNotFoundExceptionResponse;
+import org.example.exception.responses.keeper.KeeperNotFoundExceptionResponse;
+import org.example.exception.responses.person.PersonNotFoundExceptionResponse;
 import org.example.exception.responses.progress.ProgressDecreaseExceptionResponse;
 import org.example.exception.responses.progress.SystemParentsNotCompletedExceptionResponse;
 import org.example.exception.responses.progress.UpdateProgressExceptionResponse;
+import org.example.exception.responses.request.StatusNotFoundExceptionResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -54,5 +62,25 @@ public class ErrorHandler {
     @ExceptionHandler(ConnectException.class)
     public ResponseEntity<ErrorResponse> handleConnectException(ConnectException e) {
         return new ResponseEntity<>(new ConnectExceptionResponse(e), HttpStatus.BAD_GATEWAY);
+    }
+
+    @ExceptionHandler(PersonNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handlePersonNotFoundException(PersonNotFoundException e) {
+        return new ResponseEntity<>(new PersonNotFoundExceptionResponse(e), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(KeeperNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleKeeperNotFoundException(KeeperNotFoundException e) {
+        return new ResponseEntity<>(new KeeperNotFoundExceptionResponse(e), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(CourseNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleCourseNotFoundException(CourseNotFoundException e) {
+        return new ResponseEntity<>(new CourseNotFoundExceptionResponse(e), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(StatusNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleStatusNotFoundException(StatusNotFoundException e) {
+        return new ResponseEntity<>(new StatusNotFoundExceptionResponse(e), HttpStatus.NOT_FOUND);
     }
 }

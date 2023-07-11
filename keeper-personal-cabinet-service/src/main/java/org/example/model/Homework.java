@@ -2,16 +2,14 @@ package org.example.model;
 
 import lombok.Data;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
 @Table(name = "homework", schema = "course")
 @Data
 public class Homework {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer homeworkId;
     @JoinColumn(table = "course_theme", name = "course_theme_id")
     private Integer courseThemeId;

@@ -1,4 +1,4 @@
-package org.example.dto.request;
+package org.example.dto.courseregistration;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
