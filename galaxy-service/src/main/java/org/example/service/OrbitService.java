@@ -5,11 +5,11 @@ import org.example.dto.orbit.OrbitDTO;
 import org.example.dto.orbit.OrbitWithStarSystems;
 import org.example.dto.starsystem.GetStarSystemWithDependencies;
 import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
-import org.example.exception.classes.orbitEX.OrbitAlreadyExistsException;
 import org.example.exception.classes.orbitEX.OrbitCoordinatesException;
 import org.example.exception.classes.orbitEX.OrbitDeleteException;
 import org.example.exception.classes.orbitEX.OrbitNotFoundException;
 import org.example.model.Orbit;
+import org.example.repository.GalaxyRepository;
 import org.example.repository.OrbitRepository;
 import org.example.repository.StarSystemRepository;
 import org.modelmapper.ModelMapper;
@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class OrbitService {
+    private final GalaxyRepository galaxyRepository;
     private final OrbitRepository orbitRepository;
     private final StarSystemRepository starSystemRepository;
 
@@ -31,12 +32,12 @@ public class OrbitService {
 
     private final Logger logger = Logger.getLogger(GalaxyService.class.getName());
 
-    public OrbitWithStarSystems getOrbitWithSystemList(Integer id) {
+    public OrbitWithStarSystems getOrbitWithSystemList(Integer orbitId) {
         try {
             OrbitWithStarSystems orbit = mapper.map(
-                    orbitRepository.getReferenceById(id), OrbitWithStarSystems.class);
+                    orbitRepository.getReferenceById(orbitId), OrbitWithStarSystems.class);
             orbit.setSystemWithDependenciesList(
-                    starSystemRepository.getStarSystemsByOrbitId(id)
+                    starSystemRepository.getStarSystemsByOrbitId(orbitId)
                             .stream()
                             .map(system -> mapper.map(system, GetStarSystemWithDependencies.class))
                             .collect(Collectors.toList()));
@@ -51,49 +52,28 @@ public class OrbitService {
         }
     }
 
-    public Orbit getOrbitById(Integer id) {
-        try {
-            return orbitRepository.getReferenceById(id);
-        } catch (Exception e) {
-            logger.severe(e.getMessage());
-            throw new OrbitNotFoundException();
-        }
+    public Orbit getOrbitById(Integer orbitId) {
+        return orbitRepository.findById(orbitId).orElseThrow(OrbitNotFoundException::new);
     }
 
     public Orbit createOrbit(OrbitDTO orbitRequest) {
-        List<Orbit> orbitList;
-        try {
-            orbitList = orbitRepository.getOrbitsByGalaxyId(orbitRequest.getGalaxyId());
-        } catch (Exception e) {
-            logger.severe(e.getMessage());
+        if (!galaxyRepository.existsById(orbitRequest.getGalaxyId()))
             throw new GalaxyNotFoundException();
-        }
-        try {
-            for (Orbit orbit : orbitList) {
-                if (Objects.equals(orbit.getOrbitLevel(), orbitRequest.getOrbitLevel())) {
-                    throw new OrbitCoordinatesException();
-                }
+        List<Orbit> orbitList = orbitRepository.findOrbitsByGalaxyId(orbitRequest.getGalaxyId());
+        for (Orbit orbit : orbitList) {
+            if (Objects.equals(orbit.getOrbitLevel(), orbitRequest.getOrbitLevel())) {
+                throw new OrbitCoordinatesException();
             }
-            return orbitRepository.save(mapper.map(orbitRequest, Orbit.class));
-        } catch (Exception e) {
-            logger.severe(e.getMessage());
-            throw new OrbitCoordinatesException();
         }
+        return orbitRepository.save(mapper.map(orbitRequest, Orbit.class));
     }
 
-    public Orbit updateOrbit(Integer id, OrbitDTO orbit) {
-        try {
-            Orbit updatedOrbit = orbitRepository.getReferenceById(id);
-            updatedOrbit.setOrbitLevel(orbit.getOrbitLevel());
-            updatedOrbit.setSystemCount(orbit.getSystemCount());
-            return orbitRepository.save(updatedOrbit);
-        } catch (RuntimeException e) {
-            logger.severe(e.getMessage());
-            throw new OrbitAlreadyExistsException();
-        } catch (Exception e) {
-            logger.severe(e.getMessage());
-            throw new OrbitNotFoundException();
-        }
+    public Orbit updateOrbit(Integer orbitId, OrbitDTO orbit) {
+        Orbit updatedOrbit = orbitRepository.findById(orbitId).orElseThrow(OrbitNotFoundException::new);
+        updatedOrbit.setOrbitLevel(orbit.getOrbitLevel());
+        updatedOrbit.setSystemCount(orbit.getSystemCount());
+        updatedOrbit.setGalaxyId(orbit.getGalaxyId());
+        return orbitRepository.save(updatedOrbit);
     }
 
     public Map<String, String> deleteOrbit(Integer orbitId) {

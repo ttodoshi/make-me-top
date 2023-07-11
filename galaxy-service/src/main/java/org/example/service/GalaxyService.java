@@ -51,7 +51,7 @@ public class GalaxyService {
     public GetGalaxyRequest getGalaxyById(Integer id) {
         try {
             GetGalaxyRequest galaxy = mapper.map(galaxyRepository.getReferenceById(id), GetGalaxyRequest.class);
-            galaxy.setOrbitsList(orbitRepository.getOrbitsByGalaxyId(id)
+            galaxy.setOrbitsList(orbitRepository.findOrbitsByGalaxyId(id)
                     .stream()
                     .map(orbit -> mapper.map(orbit, OrbitWithStarSystemsWithoutGalaxyId.class))
                     .collect(Collectors.toList()));
