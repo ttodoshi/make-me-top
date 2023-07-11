@@ -32,10 +32,9 @@ public class DependencyService {
         List<SystemDependency> dependencies = new LinkedList<>();
         try {
             for (DependencyDTO dependency : systemDependency) {
-                if (starSystemRepository.checkExistsSystem(dependency.getChildId()) == null ||
-                        (dependency.getParentId() != null && starSystemRepository.checkExistsSystem(dependency.getParentId()) == null)) {
+                if (starSystemRepository.existsById(dependency.getChildId()) ||
+                        (dependency.getParentId() != null && starSystemRepository.existsById(dependency.getParentId())))
                     throw new SystemNotFoundException();
-                }
                 if (dependency.getParentId() == null) {
                     if (dependencyRepository.getSystemDependencyByChildIdAndParentNull(dependency.getChildId()) != null) {
                         throw new DependencyAlreadyExistsException();

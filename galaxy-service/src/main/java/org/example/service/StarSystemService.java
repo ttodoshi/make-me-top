@@ -40,15 +40,12 @@ public class StarSystemService {
 
     private final ModelMapper mapper;
     private final DependencyMapper dependencyMapper;
-
+    private final RestTemplate restTemplate;
+    private final Logger logger = Logger.getLogger(GalaxyService.class.getName());
     @Setter
     private String token;
     @Value("${course_app_url}")
     private String COURSE_APP_URL;
-
-    private final RestTemplate restTemplate;
-
-    private final Logger logger = Logger.getLogger(GalaxyService.class.getName());
 
     public GetStarSystemWithDependencies getStarSystemByIdWithDependencies(Integer id) {
         try {
@@ -80,10 +77,9 @@ public class StarSystemService {
     }
 
     public List<StarSystem> getStarSystemsByGalaxyId(Integer galaxyId) {
-        List<StarSystem> systems = starSystemRepository.getStarSystemsByGalaxyId(galaxyId);
-        if (systems == null)
+        if (!galaxyRepository.existsById(galaxyId))
             throw new GalaxyNotFoundException();
-        return systems;
+        return starSystemRepository.getStarSystemsByGalaxyId(galaxyId);
     }
 
     @Transactional
@@ -143,7 +139,7 @@ public class StarSystemService {
         try {
             starSystemRepository.deleteById(systemId);
             Map<String, String> response = new HashMap<>();
-            response.put("message", "Система " + systemId + " была уничжтожена чёрной дырой");
+            response.put("message", "Система " + systemId + " была уничтожена чёрной дырой");
             return response;
         } catch (Exception e) {
             logger.severe(e.getMessage());

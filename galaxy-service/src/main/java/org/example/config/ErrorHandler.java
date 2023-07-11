@@ -4,9 +4,7 @@ import org.example.exception.classes.dependencyEX.DependencyAlreadyExistsExcepti
 import org.example.exception.classes.dependencyEX.DependencyNotFoundException;
 import org.example.exception.classes.galaxyEX.GalaxyAlreadyExistsException;
 import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
-import org.example.exception.classes.orbitEX.OrbitAlreadyExistsException;
 import org.example.exception.classes.orbitEX.OrbitCoordinatesException;
-import org.example.exception.classes.orbitEX.OrbitDeleteException;
 import org.example.exception.classes.orbitEX.OrbitNotFoundException;
 import org.example.exception.classes.systemEX.SystemAlreadyExistsException;
 import org.example.exception.classes.systemEX.SystemNotFoundException;
@@ -16,9 +14,7 @@ import org.example.exception.responses.dependency.DependencyAlreadyExistsExcepti
 import org.example.exception.responses.dependency.DependencyNotFoundExceptionResponse;
 import org.example.exception.responses.galaxy.GalaxyAlreadyExistsExceptionResponse;
 import org.example.exception.responses.galaxy.GalaxyNotFoundExceptionResponse;
-import org.example.exception.responses.orbit.OrbitAlreadyExistsExceptionResponse;
 import org.example.exception.responses.orbit.OrbitCoordinatesExceptionResponse;
-import org.example.exception.responses.orbit.OrbitDeleteExceptionResponse;
 import org.example.exception.responses.orbit.OrbitNotFoundExceptionResponse;
 import org.example.exception.responses.system.SystemAlreadyExistsExceptionResponse;
 import org.example.exception.responses.system.SystemNotFoundExceptionResponse;
@@ -50,19 +46,9 @@ public class ErrorHandler {
         return new ResponseEntity<>(new OrbitNotFoundExceptionResponse(e), HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(OrbitAlreadyExistsException.class)
-    public ResponseEntity<ErrorResponse> handleOrbitAlreadyExistsException(OrbitAlreadyExistsException e) {
-        return new ResponseEntity<>(new OrbitAlreadyExistsExceptionResponse(e), HttpStatus.FORBIDDEN);
-    }
-
-    @ExceptionHandler(OrbitDeleteException.class)
-    public ResponseEntity<ErrorResponse> handleOrbitDeleteException(OrbitDeleteException e) {
-        return new ResponseEntity<>(new OrbitDeleteExceptionResponse(e), HttpStatus.FORBIDDEN);
-    }
-
     @ExceptionHandler(OrbitCoordinatesException.class)
     public ResponseEntity<ErrorResponse> handleOrbitCoordinatesException(OrbitCoordinatesException e) {
-        return new ResponseEntity<>(new OrbitCoordinatesExceptionResponse(e), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new OrbitCoordinatesExceptionResponse(e), HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(SystemNotFoundException.class)

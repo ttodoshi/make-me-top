@@ -38,12 +38,9 @@ public class PlanetService {
     private final ModelMapper mapper;
 
     private final RestTemplate restTemplate;
-
+    private final Logger logger = Logger.getLogger(PlanetService.class.getName());
     @Setter
     private String token;
-
-    private final Logger logger = Logger.getLogger(PlanetService.class.getName());
-
     @Value("${galaxy_app_url}")
     private String GALAXY_APP_URL;
     @Value("${course_app_url}")
@@ -102,15 +99,12 @@ public class PlanetService {
 
     @Transactional
     public Map<String, String> deletePlanetById(Integer planetId) {
-        try {
-            planetRepository.deleteById(planetId);
-            Map<String, String> response = new HashMap<>();
-            response.put("message", "Планета " + planetId + " подлежит уничтожению для создания межгалактической трассы");
-            return response;
-        } catch (Exception e) {
-            logger.severe(e.getMessage());
+        if (!planetRepository.existsById(planetId))
             throw new PlanetNotFoundException();
-        }
+        planetRepository.deleteById(planetId);
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Планета " + planetId + " подлежит уничтожению для создания межгалактической трассы");
+        return response;
     }
 
     private boolean doesSystemExist(Integer systemId) {

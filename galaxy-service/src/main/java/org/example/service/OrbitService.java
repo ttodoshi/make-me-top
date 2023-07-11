@@ -6,7 +6,6 @@ import org.example.dto.orbit.OrbitWithStarSystems;
 import org.example.dto.starsystem.GetStarSystemWithDependencies;
 import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
 import org.example.exception.classes.orbitEX.OrbitCoordinatesException;
-import org.example.exception.classes.orbitEX.OrbitDeleteException;
 import org.example.exception.classes.orbitEX.OrbitNotFoundException;
 import org.example.model.Orbit;
 import org.example.repository.GalaxyRepository;
@@ -37,7 +36,7 @@ public class OrbitService {
             OrbitWithStarSystems orbit = mapper.map(
                     orbitRepository.getReferenceById(orbitId), OrbitWithStarSystems.class);
             orbit.setSystemWithDependenciesList(
-                    starSystemRepository.getStarSystemsByOrbitId(orbitId)
+                    starSystemRepository.findStarSystemsByOrbitId(orbitId)
                             .stream()
                             .map(system -> mapper.map(system, GetStarSystemWithDependencies.class))
                             .collect(Collectors.toList()));
@@ -69,6 +68,8 @@ public class OrbitService {
     }
 
     public Orbit updateOrbit(Integer orbitId, OrbitDTO orbit) {
+        if (!galaxyRepository.existsById(orbit.getGalaxyId()))
+            throw new GalaxyNotFoundException();
         Orbit updatedOrbit = orbitRepository.findById(orbitId).orElseThrow(OrbitNotFoundException::new);
         updatedOrbit.setOrbitLevel(orbit.getOrbitLevel());
         updatedOrbit.setSystemCount(orbit.getSystemCount());
@@ -77,14 +78,11 @@ public class OrbitService {
     }
 
     public Map<String, String> deleteOrbit(Integer orbitId) {
-        try {
-            orbitRepository.deleteById(orbitId);
-            Map<String, String> response = new HashMap<>();
-            response.put("message", "Орбита " + orbitId + " была уничтожена неизвестным оружием инопланетной цивилизации");
-            return response;
-        } catch (Exception e) {
-            logger.severe(e.getMessage());
-            throw new OrbitDeleteException();
-        }
+        if (!orbitRepository.existsById(orbitId))
+            throw new OrbitNotFoundException();
+        orbitRepository.deleteById(orbitId);
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Орбита " + orbitId + " была уничтожена неизвестным оружием инопланетной цивилизации");
+        return response;
     }
 }

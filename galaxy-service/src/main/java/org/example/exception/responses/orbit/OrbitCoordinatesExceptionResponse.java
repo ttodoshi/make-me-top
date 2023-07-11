@@ -5,6 +5,6 @@ import org.springframework.http.HttpStatus;
 
 public class OrbitCoordinatesExceptionResponse extends ErrorResponse {
     public OrbitCoordinatesExceptionResponse(Exception e) {
-        super(HttpStatus.BAD_REQUEST, e.getMessage());
+        super(HttpStatus.FORBIDDEN, e.getMessage());
     }
 }
