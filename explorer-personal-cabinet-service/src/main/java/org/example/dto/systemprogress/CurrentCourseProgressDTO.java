@@ -9,6 +9,7 @@ import org.example.dto.keeper.KeeperDTO;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CurrentCourseProgressDTO {
+    private Integer explorerId;
     private Integer courseThemeId;
     private String courseThemeTitle;
     private Integer courseId;

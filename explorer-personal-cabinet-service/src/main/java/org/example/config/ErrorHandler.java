@@ -4,9 +4,12 @@ import org.example.exception.classes.connectEX.ConnectException;
 import org.example.exception.classes.courseEX.CourseNotFoundException;
 import org.example.exception.classes.keeperEX.KeeperNotFoundException;
 import org.example.exception.classes.personEX.PersonNotFoundException;
-import org.example.exception.classes.progressEX.ProgressDecreaseException;
+import org.example.exception.classes.progressEX.PlanetAlreadyCompletedException;
 import org.example.exception.classes.progressEX.SystemParentsNotCompletedException;
+import org.example.exception.classes.progressEX.UnexpectedProgressValueException;
 import org.example.exception.classes.progressEX.UpdateProgressException;
+import org.example.exception.classes.requestEX.PersonIsKeeperException;
+import org.example.exception.classes.requestEX.PersonIsStudyingException;
 import org.example.exception.classes.requestEX.StatusNotFoundException;
 import org.example.exception.responses.ErrorResponse;
 import org.example.exception.responses.access.AccessExceptionResponse;
@@ -14,9 +17,12 @@ import org.example.exception.responses.connect.ConnectExceptionResponse;
 import org.example.exception.responses.course.CourseNotFoundExceptionResponse;
 import org.example.exception.responses.keeper.KeeperNotFoundExceptionResponse;
 import org.example.exception.responses.person.PersonNotFoundExceptionResponse;
-import org.example.exception.responses.progress.ProgressDecreaseExceptionResponse;
+import org.example.exception.responses.progress.PlanetAlreadyCompletedExceptionResponse;
 import org.example.exception.responses.progress.SystemParentsNotCompletedExceptionResponse;
+import org.example.exception.responses.progress.UnexpectedProgressValueExceptionResponse;
 import org.example.exception.responses.progress.UpdateProgressExceptionResponse;
+import org.example.exception.responses.request.PersonIsKeeperExceptionResponse;
+import org.example.exception.responses.request.PersonIsStudyingExceptionResponse;
 import org.example.exception.responses.request.StatusNotFoundExceptionResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,9 +37,14 @@ public class ErrorHandler {
         return new ResponseEntity<>(new AccessExceptionResponse(), HttpStatus.FORBIDDEN);
     }
 
-    @ExceptionHandler(ProgressDecreaseException.class)
-    public ResponseEntity<ErrorResponse> handleProgressDecreaseException(ProgressDecreaseException e) {
-        return new ResponseEntity<>(new ProgressDecreaseExceptionResponse(e), HttpStatus.NOT_ACCEPTABLE);
+    @ExceptionHandler(UnexpectedProgressValueException.class)
+    public ResponseEntity<ErrorResponse> handleUnexpectedProgressValueException(UnexpectedProgressValueException e) {
+        return new ResponseEntity<>(new UnexpectedProgressValueExceptionResponse(e), HttpStatus.NOT_ACCEPTABLE);
+    }
+
+    @ExceptionHandler(PlanetAlreadyCompletedException.class)
+    public ResponseEntity<ErrorResponse> handlePlanetAlreadyCompletedException(PlanetAlreadyCompletedException e) {
+        return new ResponseEntity<>(new PlanetAlreadyCompletedExceptionResponse(e), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(SystemParentsNotCompletedException.class)
@@ -69,5 +80,15 @@ public class ErrorHandler {
     @ExceptionHandler(StatusNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleStatusNotFoundException(StatusNotFoundException e) {
         return new ResponseEntity<>(new StatusNotFoundExceptionResponse(e), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(PersonIsKeeperException.class)
+    public ResponseEntity<ErrorResponse> handlePersonIsKeeperException(PersonIsKeeperException e) {
+        return new ResponseEntity<>(new PersonIsKeeperExceptionResponse(e), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(PersonIsStudyingException.class)
+    public ResponseEntity<ErrorResponse> handlePersonIsStudyingException(PersonIsStudyingException e) {
+        return new ResponseEntity<>(new PersonIsStudyingExceptionResponse(e), HttpStatus.FORBIDDEN);
     }
 }

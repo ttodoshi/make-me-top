@@ -31,9 +31,7 @@ public class CourseRegistrationRequestController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> sendRequest(@RequestBody CreateCourseRegistrationRequest request,
-                                         @RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token) {
-        courseRegistrationRequestService.setToken(token);
+    public ResponseEntity<?> sendRequest(@RequestBody CreateCourseRegistrationRequest request) {
         return ResponseEntity.ok(courseRegistrationRequestService.sendRequest(request));
     }
 }

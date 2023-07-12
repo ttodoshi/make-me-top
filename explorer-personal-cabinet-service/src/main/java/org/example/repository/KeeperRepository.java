@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Optional;
+
 public interface KeeperRepository extends JpaRepository<Keeper, Integer> {
     @Query(value = "SELECT new org.example.dto.keeper.KeeperDTO(\n" +
             "\tp.personId, p.firstName, p.lastName, p.patronymic, k.keeperId\n" +
@@ -16,4 +18,5 @@ public interface KeeperRepository extends JpaRepository<Keeper, Integer> {
             "WHERE crr.personId = :personId AND crrs.status = 'APPROVED' AND crr.courseId = :courseId")
     KeeperDTO getKeeperForPersonOnCourse(@Param("personId") Integer personId,
                                          @Param("courseId") Integer courseId);
+    Optional<Keeper> findKeeperByPersonIdAndCourseId(Integer personId, Integer courseId);
 }

@@ -6,8 +6,9 @@ import org.example.dto.starsystem.SystemWithProgress;
 import org.example.dto.systemprogress.CourseThemeProgressDTO;
 import org.example.dto.systemprogress.ProgressUpdateRequest;
 import org.example.exception.classes.connectEX.ConnectException;
-import org.example.exception.classes.progressEX.ProgressDecreaseException;
+import org.example.exception.classes.progressEX.PlanetAlreadyCompletedException;
 import org.example.exception.classes.progressEX.SystemParentsNotCompletedException;
+import org.example.exception.classes.progressEX.UnexpectedProgressValueException;
 import org.example.exception.classes.progressEX.UpdateProgressException;
 import org.example.model.*;
 import org.example.repository.CourseRepository;
@@ -41,8 +42,6 @@ public class SystemProgressService {
     private final Logger logger = Logger.getLogger(SystemProgressService.class.getName());
     @Value("${app_galaxy_url}")
     private String GALAXY_APP_URL;
-    @Value("${get_systems_by_galaxy_id}")
-    private String GET_SYSTEMS_BY_GALAXY_ID_URL;
 
     public StarSystemsForUser getSystemsProgressForCurrentUser(Integer galaxyId, String token) {
         Person authenticatedPerson = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -78,7 +77,7 @@ public class SystemProgressService {
             HttpHeaders headers = new HttpHeaders();
             headers.set("Authorization", token);
             HttpEntity<?> requestEntity = new HttpEntity<>(headers);
-            return restTemplate.exchange(GALAXY_APP_URL + GET_SYSTEMS_BY_GALAXY_ID_URL + galaxyId + "/system/", HttpMethod.GET, requestEntity, StarSystem[].class).getBody();
+            return restTemplate.exchange(GALAXY_APP_URL + "/galaxy/" + galaxyId + "/system/", HttpMethod.GET, requestEntity, StarSystem[].class).getBody();
         } catch (ResourceAccessException e) {
             throw new ConnectException();
         }
@@ -113,6 +112,8 @@ public class SystemProgressService {
     private void saveProgress(Explorer explorer, Integer themeId, ProgressUpdateRequest updateRequest) {
         if (explorer == null)
             throw new SystemParentsNotCompletedException();
+        if (updateRequest.getProgress() > 100 || updateRequest.getProgress() < 0)
+            throw new UnexpectedProgressValueException();
         CourseThemeProgress updatedCourseProgress = planetProgressRepository
                 .getPlanetProgressByExplorerIdAndPlanetId(explorer.getExplorerId(), themeId);
         if (hasUncompletedParents(explorer.getPersonId(), explorer.getCourseId()))
@@ -123,8 +124,10 @@ public class SystemProgressService {
                             new CourseThemeProgressDTO(
                                     explorer.getExplorerId(), themeId, updateRequest.getProgress()),
                             CourseThemeProgress.class));
+        else if (updatedCourseProgress.getProgress().equals(100))
+            throw new PlanetAlreadyCompletedException();
         else if (updatedCourseProgress.getProgress() > updateRequest.getProgress())
-            throw new ProgressDecreaseException();
+            throw new UnexpectedProgressValueException();
         else {
             updatedCourseProgress.setProgress(updateRequest.getProgress());
             planetProgressRepository.save(updatedCourseProgress);
@@ -141,7 +144,7 @@ public class SystemProgressService {
         return openedSystems;
     }
 
-    private boolean hasUncompletedParents(Integer personId, Integer systemId) {
+    public boolean hasUncompletedParents(Integer personId, Integer systemId) {
         boolean parentsUncompleted = false;
         for (SystemDependency parent : dependencyRepository
                 .getListSystemDependencyChild(systemId)) {

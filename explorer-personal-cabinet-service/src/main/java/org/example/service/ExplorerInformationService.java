@@ -42,12 +42,14 @@ public class ExplorerInformationService {
 
     private CurrentCourseProgressDTO getCurrentSystemProgress(Integer personId) {
         Integer currentSystemId = planetProgressRepository.getCurrentInvestigatedSystemId(personId);
+        if (currentSystemId == null)
+            return null;
         Explorer explorer = explorerRepository.findExplorerByPersonIdAndCourseId(personId, currentSystemId);
         Double progress = planetProgressRepository.getSystemProgress(explorer.getExplorerId(), currentSystemId);
         CourseTheme nextTheme = courseThemeRepository.getCurrentCourseTheme(explorer.getExplorerId());
         Course currentCourse = courseRepository.getReferenceById(currentSystemId);
         KeeperDTO keeper = keeperRepository.getKeeperForPersonOnCourse(personId, currentSystemId);
-        return new CurrentCourseProgressDTO(nextTheme.getCourseThemeId(), nextTheme.getTitle(), currentCourse.getCourseId(), currentCourse.getTitle(), keeper, progress);
+        return new CurrentCourseProgressDTO(explorer.getExplorerId(), nextTheme.getCourseThemeId(), nextTheme.getTitle(), currentCourse.getCourseId(), currentCourse.getTitle(), keeper, progress);
     }
 
     // TODO
