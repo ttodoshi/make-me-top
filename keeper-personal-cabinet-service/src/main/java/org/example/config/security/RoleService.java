@@ -1,20 +1,24 @@
 package org.example.config.security;
 
 import lombok.RequiredArgsConstructor;
+import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
+import org.example.exception.classes.requestEX.RequestNotFoundException;
 import org.example.model.Person;
 import org.example.model.role.AuthenticationRoleType;
 import org.example.model.role.CourseRoleType;
+import org.example.repository.CourseRegistrationRequestRepository;
 import org.example.repository.ExplorerRepository;
 import org.example.repository.KeeperRepository;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-@Service("RoleService")
+@Service
 @RequiredArgsConstructor
 public class RoleService {
     private final KeeperRepository keeperRepository;
     private final ExplorerRepository explorerRepository;
+    private final CourseRegistrationRequestRepository courseRegistrationRequestRepository;
 
     public boolean hasAnyAuthenticationRole(AuthenticationRoleType role) {
         for (GrantedAuthority authority : SecurityContextHolder.getContext().getAuthentication().getAuthorities()) {
@@ -30,5 +34,21 @@ public class RoleService {
             return explorerRepository.findExplorerByPersonIdAndCourseId(person.getPersonId(), courseId).isPresent();
         else
             return keeperRepository.findKeeperByPersonIdAndCourseId(person.getPersonId(), courseId).isPresent();
+    }
+
+    public boolean hasAnyCourseRoleByRequestId(Integer requestId, CourseRoleType role) {
+        return hasAnyCourseRole(
+                courseRegistrationRequestRepository.findById(requestId)
+                        .orElseThrow(RequestNotFoundException::new).getCourseId(),
+                role
+        );
+    }
+
+    public boolean hasAnyCourseRoleByExplorerId(Integer explorerId, CourseRoleType role) {
+        return hasAnyCourseRole(
+                explorerRepository.findById(explorerId)
+                        .orElseThrow(ExplorerNotFoundException::new).getCourseId(),
+                role
+        );
     }
 }

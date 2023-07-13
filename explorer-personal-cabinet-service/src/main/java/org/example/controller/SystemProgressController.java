@@ -55,8 +55,9 @@ public class SystemProgressController {
                 systemProgressService.getPlanetsProgressBySystemId(courseId));
     }
 
-    @PatchMapping("course/{courseId}/theme/{themeId}")
-    @PreAuthorize("@RoleService.hasAnyCourseRole(#courseId, T(org.example.model.role.CourseRoleType).EXPLORER)")
+    @PatchMapping("/theme/{themeId}")
+    @PreAuthorize("@RoleService.hasAnyCourseRoleByThemeId(#themeId," +
+            "T(org.example.model.role.CourseRoleType).EXPLORER)")
     @Operation(summary = "Update course theme progress for current user", tags = "system progress")
     @ApiResponses(value = {
             @ApiResponse(
@@ -67,8 +68,7 @@ public class SystemProgressController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> updateCourseProgress(@PathVariable("courseId") Integer courseId,
-                                                  @PathVariable("themeId") Integer themeId,
+    public ResponseEntity<?> updateCourseProgress(@PathVariable("themeId") Integer themeId,
                                                   @RequestBody ProgressUpdateRequest updateRequest) {
         return ResponseEntity.ok(
                 systemProgressService.updatePlanetProgress(themeId, updateRequest));

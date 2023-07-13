@@ -1,6 +1,7 @@
 package org.example.model.progress;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,8 @@ import java.util.Date;
 @Entity
 @Table(name = "course_mark", schema = "course")
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class CourseMark {
     @Id
     @JoinColumn(table = "explorer", name = "explorer_id")

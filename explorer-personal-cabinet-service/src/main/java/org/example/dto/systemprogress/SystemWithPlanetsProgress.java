@@ -1,14 +1,14 @@
 package org.example.dto.systemprogress;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Data
-@NoArgsConstructor
 public class SystemWithPlanetsProgress {
     private Integer courseId;
     private String title;
+    @JsonProperty("planets")
     private List<PlanetWithProgress> planetsWithProgress;
 }

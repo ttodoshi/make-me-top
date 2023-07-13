@@ -5,32 +5,35 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.example.service.KeeperInformationService;
+import org.example.dto.coursemark.CourseMarkDTO;
+import org.example.service.CourseMarkService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/keeper-cabinet/")
+@RequestMapping("/explorer-cabinet/mark")
 @RequiredArgsConstructor
-public class KeeperController {
-    private final KeeperInformationService keeperInformationService;
+public class CourseMarkController {
+    private final CourseMarkService courseMarkService;
 
-    @GetMapping("info")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).KEEPER)")
-    @Operation(summary = "Get keeper information", tags = "personal cabinet", hidden = true)
+    @PostMapping
+    @PreAuthorize("@roleService.hasAnyCourseRoleByExplorerId(#courseMark.explorerId," +
+            "T(org.example.model.role.CourseRoleType).KEEPER)")
+    @Operation(summary = "Set course mark from 1 to 5 to explorer", tags = "course mark")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Keeper information",
+                    description = "Set course mark",
                     content = {
                             @Content(
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> getKeeperInformation() {
-        return ResponseEntity.ok(keeperInformationService.getKeeperInformation());
+    public ResponseEntity<?> sendRequest(@RequestBody CourseMarkDTO courseMark) {
+        return ResponseEntity.ok(courseMarkService.setCourseMark(courseMark));
     }
 }

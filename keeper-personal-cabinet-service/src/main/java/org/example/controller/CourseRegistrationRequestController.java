@@ -19,8 +19,7 @@ public class CourseRegistrationRequestController {
     private final CourseRegistrationRequestService courseRegistrationRequestService;
 
     @PatchMapping("/{requestId}")
-    @PreAuthorize("@RoleService.hasAnyCourseRole(" +
-            "@courseRegistrationRequestRepository.findById(#requestId).orElseThrow().getCourseId()," +
+    @PreAuthorize("@roleService.hasAnyCourseRoleByRequestId(#requestId," +
             "T(org.example.model.role.CourseRoleType).KEEPER)")
     @Operation(summary = "Reply to course registration request", tags = "course request")
     @ApiResponses(value = {
@@ -38,8 +37,7 @@ public class CourseRegistrationRequestController {
     }
 
     @PostMapping("/{requestId}/rejection")
-    @PreAuthorize("@RoleService.hasAnyCourseRole(" +
-            "@courseRegistrationRequestRepository.findById(#requestId).orElseThrow().getCourseId()," +
+    @PreAuthorize("@roleService.hasAnyCourseRoleByRequestId(#requestId," +
             "T(org.example.model.role.CourseRoleType).KEEPER)")
     @Operation(summary = "Send keeper rejection", tags = "course request")
     @ApiResponses(value = {
@@ -58,7 +56,7 @@ public class CourseRegistrationRequestController {
     }
 
     @GetMapping("/rejection")
-    @PreAuthorize("@RoleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).KEEPER)")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).KEEPER)")
     @Operation(summary = "Get keeper rejection reasons", tags = "course request")
     @ApiResponses(value = {
             @ApiResponse(

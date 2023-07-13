@@ -1,15 +1,16 @@
 package org.example.config;
 
 import org.example.exception.ErrorResponse;
+import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
 import org.example.exception.classes.keeperEX.DifferentKeeperException;
+import org.example.exception.classes.markEX.ExplorerDoesNotNeedMarkException;
+import org.example.exception.classes.markEX.UnexpectedMarkValueException;
 import org.example.exception.classes.requestEX.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
-import java.util.NoSuchElementException;
 
 @RestControllerAdvice
 public class ErrorHandler {
@@ -33,11 +34,6 @@ public class ErrorHandler {
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(NoSuchElementException.class)
-    public ResponseEntity<ErrorResponse> handleNoSuchElementException(Exception e) {
-        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), "Бортовой компьютер не смог найти информацию о данном запросе"), HttpStatus.NOT_FOUND);
-    }
-
     @ExceptionHandler(KeeperRejectionAlreadyExistsException.class)
     public ResponseEntity<ErrorResponse> handleKeeperRejectionAlreadyExistsException(Exception e) {
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
@@ -51,5 +47,20 @@ public class ErrorHandler {
     @ExceptionHandler(RequestNotDeniedException.class)
     public ResponseEntity<ErrorResponse> handleRequestNotDeniedException(Exception e) {
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(ExplorerNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleExplorerNotFoundException(Exception e) {
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(UnexpectedMarkValueException.class)
+    public ResponseEntity<ErrorResponse> handleUnexpectedMarkValueException(Exception e) {
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), e.getMessage()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ExplorerDoesNotNeedMarkException.class)
+    public ResponseEntity<ErrorResponse> handleExplorerDoesNotNeedMarkException(Exception e) {
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), e.getMessage()), HttpStatus.BAD_REQUEST);
     }
 }
