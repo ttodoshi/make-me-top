@@ -2,7 +2,8 @@ package org.example.config.security;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.example.exception.responses.access.AccessExceptionResponse;
+import org.example.exception.ErrorResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 
@@ -17,7 +18,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        AccessExceptionResponse accessExceptionResponse = new AccessExceptionResponse();
+        ErrorResponse accessExceptionResponse = new ErrorResponse(HttpStatus.UNAUTHORIZED.getReasonPhrase(), "Вам закрыт доступ к данной функциональности бортового компьютера");
         response.getWriter().write(convertObjectToJson(accessExceptionResponse));
     }
 

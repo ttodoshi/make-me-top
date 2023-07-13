@@ -5,7 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.SignatureException;
-import org.example.exception.responses.access.AccessExceptionResponse;
+import org.example.exception.ErrorResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -24,7 +25,7 @@ public class JwtErrorHandlerFilter extends OncePerRequestFilter {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");
-            AccessExceptionResponse accessExceptionResponse = new AccessExceptionResponse();
+            ErrorResponse accessExceptionResponse = new ErrorResponse(HttpStatus.UNAUTHORIZED.getReasonPhrase(), "Вам закрыт доступ к данной функциональности бортового компьютера");
             response.getWriter().flush();
             response.getWriter().write(convertObjectToJson(accessExceptionResponse));
         }

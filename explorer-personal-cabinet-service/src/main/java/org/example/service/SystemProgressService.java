@@ -9,6 +9,7 @@ import org.example.dto.systemprogress.ProgressUpdateRequest;
 import org.example.dto.systemprogress.SystemWithPlanetsProgress;
 import org.example.exception.classes.connectEX.ConnectException;
 import org.example.exception.classes.courseEX.CourseNotFoundException;
+import org.example.exception.classes.coursethemeEX.CourseThemeNotFoundException;
 import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
 import org.example.exception.classes.progressEX.*;
 import org.example.model.*;
@@ -110,14 +111,19 @@ public class SystemProgressService {
     @Transactional
     public Map<String, Object> updatePlanetProgress(Integer planetId, ProgressUpdateRequest updateRequest) {
         final Integer personId = getAuthenticatedPersonId();
-        Explorer explorer = explorerRepository.findExplorerByPersonIdAndCourseId(personId, courseRepository.getCourseIdByThemeId(planetId)).orElseThrow(SystemParentsNotCompletedException::new);
+        Integer courseId = courseRepository.getCourseIdByThemeId(planetId);
+        if (courseId == null)
+            throw new CourseThemeNotFoundException();
+        Explorer explorer = explorerRepository.findExplorerByPersonIdAndCourseId(
+                        personId, courseId)
+                .orElseThrow(SystemParentsNotCompletedException::new);
         saveProgress(explorer, planetId, updateRequest);
         try {
             Map<String, Object> response = new HashMap<>();
             if (updateRequest.getProgress() >= 100) {
                 List<Integer> newOpenedSystems = getPreviouslyBlockedSystems(explorer);
                 if (!newOpenedSystems.isEmpty())
-                    response.put("Открыты системы", newOpenedSystems);
+                    response.put("После выставление итоговой оценки ", newOpenedSystems);
             }
             response.put("message", "Прогресс планеты " + planetId +
                     " обновлён на " + updateRequest.getProgress());

@@ -1,17 +1,11 @@
 package org.example.config;
 
+import org.example.exception.ErrorResponse;
 import org.example.exception.classes.connectEX.ConnectException;
 import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
 import org.example.exception.classes.planetEX.PlanetAlreadyExistsException;
 import org.example.exception.classes.planetEX.PlanetNotFoundException;
 import org.example.exception.classes.systemEX.SystemNotFoundException;
-import org.example.exception.responses.ErrorResponse;
-import org.example.exception.responses.access.AccessExceptionResponse;
-import org.example.exception.responses.connect.ConnectExceptionResponse;
-import org.example.exception.responses.galaxy.GalaxyNotFoundExceptionResponse;
-import org.example.exception.responses.planet.PlanetAlreadyExistsExceptionResponse;
-import org.example.exception.responses.planet.PlanetNotFoundExceptionResponse;
-import org.example.exception.responses.system.SystemNotFoundExceptionResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -21,32 +15,32 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class ErrorHandler {
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException e) {
-        return new ResponseEntity<>(new AccessExceptionResponse(), HttpStatus.FORBIDDEN);
+    public ResponseEntity<ErrorResponse> handleAccessDeniedException(Exception e) {
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), "Вам закрыт доступ к данной функциональности бортового компьютера"), HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(SystemNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleSystemNotFoundException(SystemNotFoundException e) {
-        return new ResponseEntity<>(new SystemNotFoundExceptionResponse(e), HttpStatus.NOT_FOUND);
+    public ResponseEntity<ErrorResponse> handleSystemNotFoundException(Exception e) {
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(GalaxyNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleGalaxyNotFoundException(GalaxyNotFoundException e) {
-        return new ResponseEntity<>(new GalaxyNotFoundExceptionResponse(e), HttpStatus.NOT_FOUND);
+    public ResponseEntity<ErrorResponse> handleGalaxyNotFoundException(Exception e) {
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(PlanetNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handlePlanetNotFoundException(PlanetNotFoundException e) {
-        return new ResponseEntity<>(new PlanetNotFoundExceptionResponse(e), HttpStatus.NOT_FOUND);
+    public ResponseEntity<ErrorResponse> handlePlanetNotFoundException(Exception e) {
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(PlanetAlreadyExistsException.class)
-    public ResponseEntity<ErrorResponse> handlePlanetAlreadyExistsException(PlanetAlreadyExistsException e) {
-        return new ResponseEntity<>(new PlanetAlreadyExistsExceptionResponse(e), HttpStatus.FORBIDDEN);
+    public ResponseEntity<ErrorResponse> handlePlanetAlreadyExistsException(Exception e) {
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(ConnectException.class)
-    public ResponseEntity<ErrorResponse> handleConnectException(ConnectException e) {
-        return new ResponseEntity<>(new ConnectExceptionResponse(e), HttpStatus.BAD_GATEWAY);
+    public ResponseEntity<ErrorResponse> handleConnectException(Exception e) {
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_GATEWAY.getReasonPhrase(), e.getMessage()), HttpStatus.BAD_GATEWAY);
     }
 }
