@@ -4,6 +4,8 @@ import org.example.model.CourseThemeProgress;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.Optional;
+
 public interface PlanetProgressRepository extends JpaRepository<CourseThemeProgress, Integer> {
     @Query(value = "SELECT (\n" +
             "\tSELECT COUNT(*) as count FROM course.course_theme_progress\n" +
@@ -21,7 +23,5 @@ public interface PlanetProgressRepository extends JpaRepository<CourseThemeProgr
             ") LIMIT 1", nativeQuery = true)
     Integer getCurrentInvestigatedSystemId(Integer personId);
 
-
-    @Query(value = "SELECT * FROM course.course_theme_progress WHERE course_theme_progress.explorer_id = ?1 AND course_theme_progress.course_theme_id = ?2", nativeQuery = true)
-    CourseThemeProgress getPlanetProgressByExplorerIdAndPlanetId(Integer explorerId, Integer planetId);
+    Optional<CourseThemeProgress> findCourseThemeProgressByExplorerIdAndCourseThemeId(Integer explorerId, Integer courseThemeId);
 }

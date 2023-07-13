@@ -12,10 +12,7 @@ import org.example.repository.*;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +23,8 @@ public class ExplorerInformationService {
     private final CourseThemeRepository courseThemeRepository;
     private final CourseRepository courseRepository;
     private final KeeperRepository keeperRepository;
+
+    private final SystemProgressService systemProgressService;
 
     public Map<String, Object> getExplorerInformation() {
         Person authenticatedPerson = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -44,12 +43,18 @@ public class ExplorerInformationService {
         Integer currentSystemId = planetProgressRepository.getCurrentInvestigatedSystemId(personId);
         if (currentSystemId == null)
             return null;
-        Explorer explorer = explorerRepository.findExplorerByPersonIdAndCourseId(personId, currentSystemId);
+        Optional<Explorer> explorerOptional = explorerRepository.findExplorerByPersonIdAndCourseId(personId, currentSystemId);
+        Explorer explorer;
+        if (explorerOptional.isEmpty())
+            return null;
+        else
+            explorer = explorerOptional.get();
         Double progress = planetProgressRepository.getSystemProgress(explorer.getExplorerId(), currentSystemId);
-        CourseTheme nextTheme = courseThemeRepository.getCurrentCourseTheme(explorer.getExplorerId());
+        CourseTheme currentTheme = courseThemeRepository.findById(
+                systemProgressService.getCurrentCourseThemeId(currentSystemId)).orElseThrow(); // ThemeNotFoundException
         Course currentCourse = courseRepository.getReferenceById(currentSystemId);
         KeeperDTO keeper = keeperRepository.getKeeperForPersonOnCourse(personId, currentSystemId);
-        return new CurrentCourseProgressDTO(explorer.getExplorerId(), nextTheme.getCourseThemeId(), nextTheme.getTitle(), currentCourse.getCourseId(), currentCourse.getTitle(), keeper, progress);
+        return new CurrentCourseProgressDTO(explorer.getExplorerId(), currentTheme.getCourseThemeId(), currentTheme.getTitle(), currentCourse.getCourseId(), currentCourse.getTitle(), keeper, progress);
     }
 
     // TODO

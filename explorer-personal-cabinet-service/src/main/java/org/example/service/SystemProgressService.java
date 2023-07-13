@@ -4,17 +4,15 @@ import lombok.RequiredArgsConstructor;
 import org.example.dto.starsystem.StarSystemsForUser;
 import org.example.dto.starsystem.SystemWithProgress;
 import org.example.dto.systemprogress.CourseThemeProgressDTO;
+import org.example.dto.systemprogress.PlanetWithProgress;
 import org.example.dto.systemprogress.ProgressUpdateRequest;
+import org.example.dto.systemprogress.SystemWithPlanetsProgress;
 import org.example.exception.classes.connectEX.ConnectException;
-import org.example.exception.classes.progressEX.PlanetAlreadyCompletedException;
-import org.example.exception.classes.progressEX.SystemParentsNotCompletedException;
-import org.example.exception.classes.progressEX.UnexpectedProgressValueException;
-import org.example.exception.classes.progressEX.UpdateProgressException;
+import org.example.exception.classes.courseEX.CourseNotFoundException;
+import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
+import org.example.exception.classes.progressEX.*;
 import org.example.model.*;
-import org.example.repository.CourseRepository;
-import org.example.repository.DependencyRepository;
-import org.example.repository.ExplorerRepository;
-import org.example.repository.PlanetProgressRepository;
+import org.example.repository.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -36,6 +34,7 @@ public class SystemProgressService {
     private final DependencyRepository dependencyRepository;
     private final ExplorerRepository explorerRepository;
     private final CourseRepository courseRepository;
+    private final CourseThemeRepository courseThemeRepository;
 
     private final RestTemplate restTemplate;
     private final ModelMapper mapper;
@@ -49,9 +48,10 @@ public class SystemProgressService {
         Set<SystemWithProgress> studiedSystems = new HashSet<>();
         Set<Integer> closedSystems = new HashSet<>();
         for (StarSystem system : getSystemsByGalaxyId(galaxyId, token)) {
-            Explorer explorer = explorerRepository.findExplorerByPersonIdAndCourseId(
+            Optional<Explorer> explorerOptional = explorerRepository.findExplorerByPersonIdAndCourseId(
                     authenticatedPerson.getPersonId(), system.getSystemId());
-            if (explorer != null) {
+            if (explorerOptional.isPresent()) {
+                Explorer explorer = explorerOptional.get();
                 studiedSystems.add(new SystemWithProgress(explorer.getCourseId(),
                         planetProgressRepository.getSystemProgress(
                                 explorer.getExplorerId(), explorer.getCourseId())));
@@ -83,10 +83,34 @@ public class SystemProgressService {
         }
     }
 
+    public SystemWithPlanetsProgress getPlanetsProgressBySystemId(Integer systemId) {
+        Person authenticatedPerson = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Course course = courseRepository.findById(systemId).orElseThrow(CourseNotFoundException::new);
+        Explorer explorer = explorerRepository.findExplorerByPersonIdAndCourseId(authenticatedPerson.getPersonId(), systemId).orElseThrow(ExplorerNotFoundException::new);
+        SystemWithPlanetsProgress systemWithPlanetsProgress = new SystemWithPlanetsProgress();
+        systemWithPlanetsProgress.setCourseId(course.getCourseId());
+        systemWithPlanetsProgress.setTitle(course.getTitle());
+        List<PlanetWithProgress> planetWithProgresses = new LinkedList<>();
+        for (CourseTheme ct : courseThemeRepository.findCourseThemesByCourseIdOrderByCourseThemeNumberAsc(systemId)) {
+            Optional<CourseThemeProgress> planetProgress = planetProgressRepository.findCourseThemeProgressByExplorerIdAndCourseThemeId(explorer.getExplorerId(), ct.getCourseThemeId());
+            if (planetProgress.isPresent())
+                planetWithProgresses.add(
+                        new PlanetWithProgress(ct.getCourseThemeId(), ct.getTitle(), planetProgress.get().getProgress())
+                );
+            else {
+                planetWithProgresses.add(
+                        new PlanetWithProgress(ct.getCourseThemeId(), ct.getTitle(), 0)
+                );
+            }
+        }
+        systemWithPlanetsProgress.setPlanetsWithProgress(planetWithProgresses);
+        return systemWithPlanetsProgress;
+    }
+
     @Transactional
-    public Map<String, Object> updateCourseThemeProgress(Integer planetId, ProgressUpdateRequest updateRequest) {
+    public Map<String, Object> updatePlanetProgress(Integer planetId, ProgressUpdateRequest updateRequest) {
         final Integer personId = getAuthenticatedPersonId();
-        Explorer explorer = explorerRepository.findExplorerByPersonIdAndCourseId(personId, courseRepository.getCourseIdByThemeId(planetId));
+        Explorer explorer = explorerRepository.findExplorerByPersonIdAndCourseId(personId, courseRepository.getCourseIdByThemeId(planetId)).orElseThrow(SystemParentsNotCompletedException::new);
         saveProgress(explorer, planetId, updateRequest);
         try {
             Map<String, Object> response = new HashMap<>();
@@ -110,28 +134,43 @@ public class SystemProgressService {
     }
 
     private void saveProgress(Explorer explorer, Integer themeId, ProgressUpdateRequest updateRequest) {
-        if (explorer == null)
-            throw new SystemParentsNotCompletedException();
         if (updateRequest.getProgress() > 100 || updateRequest.getProgress() < 0)
             throw new UnexpectedProgressValueException();
-        CourseThemeProgress updatedCourseProgress = planetProgressRepository
-                .getPlanetProgressByExplorerIdAndPlanetId(explorer.getExplorerId(), themeId);
         if (hasUncompletedParents(explorer.getPersonId(), explorer.getCourseId()))
             throw new SystemParentsNotCompletedException();
-        if (updatedCourseProgress == null)
+        Integer currentThemeId = getCurrentCourseThemeId(explorer.getCourseId());
+        if (!currentThemeId.equals(themeId))
+            throw new UnexpectedCourseThemeException(themeId, currentThemeId);
+        Optional<CourseThemeProgress> courseThemeProgressOptional = planetProgressRepository
+                .findCourseThemeProgressByExplorerIdAndCourseThemeId(explorer.getExplorerId(), themeId);
+        CourseThemeProgress courseThemeProgress;
+        if (courseThemeProgressOptional.isEmpty()) {
             planetProgressRepository.save(
                     mapper.map(
                             new CourseThemeProgressDTO(
                                     explorer.getExplorerId(), themeId, updateRequest.getProgress()),
                             CourseThemeProgress.class));
-        else if (updatedCourseProgress.getProgress().equals(100))
+            return;
+        } else {
+            courseThemeProgress = courseThemeProgressOptional.get();
+        }
+        if (courseThemeProgress.getProgress().equals(100))
             throw new PlanetAlreadyCompletedException();
-        else if (updatedCourseProgress.getProgress() > updateRequest.getProgress())
+        else if (courseThemeProgress.getProgress() > updateRequest.getProgress())
             throw new UnexpectedProgressValueException();
         else {
-            updatedCourseProgress.setProgress(updateRequest.getProgress());
-            planetProgressRepository.save(updatedCourseProgress);
+            courseThemeProgress.setProgress(updateRequest.getProgress());
+            planetProgressRepository.save(courseThemeProgress);
         }
+    }
+
+    public Integer getCurrentCourseThemeId(Integer systemId) {
+        List<PlanetWithProgress> planetsProgress = getPlanetsProgressBySystemId(systemId).getPlanetsWithProgress();
+        for (PlanetWithProgress planet : planetsProgress) {
+            if (!planet.getProgress().equals(100))
+                return planet.getCourseThemeId();
+        }
+        return planetsProgress.get(planetsProgress.size() - 1).getCourseThemeId();
     }
 
     private List<Integer> getPreviouslyBlockedSystems(Explorer explorer) {
@@ -150,9 +189,9 @@ public class SystemProgressService {
                 .getListSystemDependencyChild(systemId)) {
             if (parent.getParentId() == null)
                 return false;
-            Explorer explorer = explorerRepository.findExplorerByPersonIdAndCourseId(personId, parent.getParentId().getSystemId());
-            if (explorer == null || planetProgressRepository.getSystemProgress(
-                    explorer.getExplorerId(), explorer.getCourseId()) < 100) {
+            Optional<Explorer> explorer = explorerRepository.findExplorerByPersonIdAndCourseId(personId, parent.getParentId().getSystemId());
+            if (explorer.isEmpty() || planetProgressRepository.getSystemProgress(
+                    explorer.get().getExplorerId(), explorer.get().getCourseId()) < 100) {
                 parentsUncompleted = true;
             } else if (parent.getIsAlternative())
                 return false;

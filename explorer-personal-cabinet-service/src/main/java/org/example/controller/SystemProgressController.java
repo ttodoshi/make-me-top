@@ -37,6 +37,23 @@ public class SystemProgressController {
                 systemProgressService.getSystemsProgressForCurrentUser(galaxyId, token));
     }
 
+    @GetMapping("course/{courseId}")
+    @PreAuthorize("@RoleService.hasAnyAuthenticationRole(T(org.example.model.AuthenticationRoleType).EXPLORER)")
+    @Operation(summary = "Get course planets progress for current user", tags = "system progress")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Systems progress",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json")
+                    })
+    })
+    public ResponseEntity<?> getSystemPlanetsProgress(@PathVariable("courseId") Integer courseId) {
+        return ResponseEntity.ok(
+                systemProgressService.getPlanetsProgressBySystemId(courseId));
+    }
+
     @PatchMapping("/theme/{themeId}")
     @PreAuthorize("@RoleService.hasAnyAuthenticationRole(T(org.example.model.AuthenticationRoleType).EXPLORER)")
     @Operation(summary = "Update course theme progress for current user", tags = "system progress")
@@ -52,6 +69,6 @@ public class SystemProgressController {
     public ResponseEntity<?> updateCourseProgress(@PathVariable("themeId") Integer themeId,
                                                   @RequestBody ProgressUpdateRequest updateRequest) {
         return ResponseEntity.ok(
-                systemProgressService.updateCourseThemeProgress(themeId, updateRequest));
+                systemProgressService.updatePlanetProgress(themeId, updateRequest));
     }
 }

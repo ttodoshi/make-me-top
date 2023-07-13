@@ -2,12 +2,10 @@ package org.example.config;
 
 import org.example.exception.classes.connectEX.ConnectException;
 import org.example.exception.classes.courseEX.CourseNotFoundException;
+import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
 import org.example.exception.classes.keeperEX.KeeperNotFoundException;
 import org.example.exception.classes.personEX.PersonNotFoundException;
-import org.example.exception.classes.progressEX.PlanetAlreadyCompletedException;
-import org.example.exception.classes.progressEX.SystemParentsNotCompletedException;
-import org.example.exception.classes.progressEX.UnexpectedProgressValueException;
-import org.example.exception.classes.progressEX.UpdateProgressException;
+import org.example.exception.classes.progressEX.*;
 import org.example.exception.classes.requestEX.PersonIsKeeperException;
 import org.example.exception.classes.requestEX.PersonIsStudyingException;
 import org.example.exception.classes.requestEX.StatusNotFoundException;
@@ -15,12 +13,10 @@ import org.example.exception.responses.ErrorResponse;
 import org.example.exception.responses.access.AccessExceptionResponse;
 import org.example.exception.responses.connect.ConnectExceptionResponse;
 import org.example.exception.responses.course.CourseNotFoundExceptionResponse;
+import org.example.exception.responses.explorer.ExplorerNotFoundExceptionResponse;
 import org.example.exception.responses.keeper.KeeperNotFoundExceptionResponse;
 import org.example.exception.responses.person.PersonNotFoundExceptionResponse;
-import org.example.exception.responses.progress.PlanetAlreadyCompletedExceptionResponse;
-import org.example.exception.responses.progress.SystemParentsNotCompletedExceptionResponse;
-import org.example.exception.responses.progress.UnexpectedProgressValueExceptionResponse;
-import org.example.exception.responses.progress.UpdateProgressExceptionResponse;
+import org.example.exception.responses.progress.*;
 import org.example.exception.responses.request.PersonIsKeeperExceptionResponse;
 import org.example.exception.responses.request.PersonIsStudyingExceptionResponse;
 import org.example.exception.responses.request.StatusNotFoundExceptionResponse;
@@ -90,5 +86,15 @@ public class ErrorHandler {
     @ExceptionHandler(PersonIsStudyingException.class)
     public ResponseEntity<ErrorResponse> handlePersonIsStudyingException(PersonIsStudyingException e) {
         return new ResponseEntity<>(new PersonIsStudyingExceptionResponse(e), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(ExplorerNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleExplorerNotFoundException(ExplorerNotFoundException e) {
+        return new ResponseEntity<>(new ExplorerNotFoundExceptionResponse(e), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(UnexpectedCourseThemeException.class)
+    public ResponseEntity<ErrorResponse> handleUnexpectedCourseThemeException(UnexpectedCourseThemeException e) {
+        return new ResponseEntity<>(new UnexpectedCourseThemeExceptionResponse(e), HttpStatus.BAD_REQUEST);
     }
 }
