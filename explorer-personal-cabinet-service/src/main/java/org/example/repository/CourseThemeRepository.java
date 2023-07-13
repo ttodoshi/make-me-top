@@ -1,8 +1,7 @@
 package org.example.repository;
 
-import org.example.model.CourseTheme;
+import org.example.model.course.CourseTheme;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 

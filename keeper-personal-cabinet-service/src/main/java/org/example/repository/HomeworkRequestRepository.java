@@ -1,7 +1,7 @@
 package org.example.repository;
 
 import org.example.dto.homework.HomeworkRequestDTO;
-import org.example.model.HomeworkRequest;
+import org.example.model.homework.HomeworkRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

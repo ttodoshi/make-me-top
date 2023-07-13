@@ -1,4 +1,4 @@
-package org.example.model;
+package org.example.model.galaxy;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;

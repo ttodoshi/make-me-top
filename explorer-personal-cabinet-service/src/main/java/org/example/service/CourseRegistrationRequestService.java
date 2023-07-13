@@ -8,8 +8,8 @@ import org.example.exception.classes.progressEX.SystemParentsNotCompletedExcepti
 import org.example.exception.classes.requestEX.PersonIsKeeperException;
 import org.example.exception.classes.requestEX.PersonIsStudyingException;
 import org.example.exception.classes.requestEX.StatusNotFoundException;
-import org.example.model.CourseRegistrationRequest;
-import org.example.model.CourseRegistrationRequestStatusType;
+import org.example.model.courserequest.CourseRegistrationRequest;
+import org.example.model.courserequest.CourseRegistrationRequestStatusType;
 import org.example.model.Keeper;
 import org.example.model.Person;
 import org.example.repository.*;

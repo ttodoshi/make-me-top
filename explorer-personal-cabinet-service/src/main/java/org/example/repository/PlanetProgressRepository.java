@@ -1,6 +1,6 @@
 package org.example.repository;
 
-import org.example.model.CourseThemeProgress;
+import org.example.model.progress.CourseThemeProgress;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

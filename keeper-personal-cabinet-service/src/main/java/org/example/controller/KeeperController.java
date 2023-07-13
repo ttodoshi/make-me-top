@@ -19,7 +19,7 @@ public class KeeperController {
     private final KeeperInformationService keeperInformationService;
 
     @GetMapping("info")
-    @PreAuthorize("@RoleService.hasAnyAuthenticationRole(T(org.example.model.AuthenticationRoleType).KEEPER)")
+    @PreAuthorize("@RoleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).KEEPER)")
     @Operation(summary = "Get keeper information", tags = "personal cabinet", hidden = true)
     @ApiResponses(value = {
             @ApiResponse(

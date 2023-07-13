@@ -11,8 +11,17 @@ import org.example.exception.classes.connectEX.ConnectException;
 import org.example.exception.classes.courseEX.CourseNotFoundException;
 import org.example.exception.classes.coursethemeEX.CourseThemeNotFoundException;
 import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
-import org.example.exception.classes.progressEX.*;
-import org.example.model.*;
+import org.example.exception.classes.progressEX.PlanetAlreadyCompletedException;
+import org.example.exception.classes.progressEX.SystemParentsNotCompletedException;
+import org.example.exception.classes.progressEX.UnexpectedCourseThemeException;
+import org.example.exception.classes.progressEX.UnexpectedProgressValueException;
+import org.example.model.Explorer;
+import org.example.model.Person;
+import org.example.model.course.Course;
+import org.example.model.course.CourseTheme;
+import org.example.model.galaxy.StarSystem;
+import org.example.model.galaxy.SystemDependency;
+import org.example.model.progress.CourseThemeProgress;
 import org.example.repository.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
@@ -111,32 +120,24 @@ public class SystemProgressService {
     @Transactional
     public Map<String, Object> updatePlanetProgress(Integer planetId, ProgressUpdateRequest updateRequest) {
         final Integer personId = getAuthenticatedPersonId();
-        Integer courseId = courseRepository.getCourseIdByThemeId(planetId);
-        if (courseId == null)
-            throw new CourseThemeNotFoundException();
-        Explorer explorer = explorerRepository.findExplorerByPersonIdAndCourseId(
-                        personId, courseId)
-                .orElseThrow(SystemParentsNotCompletedException::new);
+        Explorer explorer = findExplorer(personId, planetId);
         saveProgress(explorer, planetId, updateRequest);
-        try {
-            Map<String, Object> response = new HashMap<>();
-            if (updateRequest.getProgress() >= 100) {
-                List<Integer> newOpenedSystems = getPreviouslyBlockedSystems(explorer);
-                if (!newOpenedSystems.isEmpty())
-                    response.put("После выставление итоговой оценки ", newOpenedSystems);
-            }
-            response.put("message", "Прогресс планеты " + planetId +
-                    " обновлён на " + updateRequest.getProgress());
-            return response;
-        } catch (Exception e) {
-            logger.severe(e.getMessage());
-            throw new UpdateProgressException();
-        }
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Прогресс планеты " + planetId +
+                " обновлён на " + updateRequest.getProgress());
+        return response;
     }
 
     private Integer getAuthenticatedPersonId() {
         final Person authenticatedPerson = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return authenticatedPerson.getPersonId();
+    }
+
+    private Explorer findExplorer(Integer personId, Integer planetId) {
+        Integer courseId = courseRepository.getCourseIdByThemeId(planetId)
+                .orElseThrow(CourseThemeNotFoundException::new);
+        return explorerRepository.findExplorerByPersonIdAndCourseId(personId, courseId)
+                .orElseThrow(ExplorerNotFoundException::new);
     }
 
     private void saveProgress(Explorer explorer, Integer themeId, ProgressUpdateRequest updateRequest) {
@@ -177,16 +178,6 @@ public class SystemProgressService {
                 return planet.getCourseThemeId();
         }
         return planetsProgress.get(planetsProgress.size() - 1).getCourseThemeId();
-    }
-
-    private List<Integer> getPreviouslyBlockedSystems(Explorer explorer) {
-        List<Integer> openedSystems = new LinkedList<>();
-        for (SystemDependency child : dependencyRepository.getListSystemDependencyParent(explorer.getCourseId())) {
-            if (!hasUncompletedParents(explorer.getPersonId(), child.getChildId().getSystemId())) {
-                openedSystems.add(child.getChildId().getSystemId());
-            }
-        }
-        return openedSystems;
     }
 
     public boolean hasUncompletedParents(Integer personId, Integer systemId) {

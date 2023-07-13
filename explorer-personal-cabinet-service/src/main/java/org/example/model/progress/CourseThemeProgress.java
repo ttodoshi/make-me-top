@@ -1,10 +1,11 @@
-package org.example.model;
+package org.example.model.progress;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.swing.*;
 
 @Data
 @Entity

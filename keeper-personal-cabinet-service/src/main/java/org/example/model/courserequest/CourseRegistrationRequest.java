@@ -1,4 +1,4 @@
-package org.example.model;
+package org.example.model.courserequest;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;

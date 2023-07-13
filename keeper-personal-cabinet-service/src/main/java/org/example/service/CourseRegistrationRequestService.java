@@ -6,6 +6,7 @@ import org.example.dto.courseregistration.KeeperRejectionDTO;
 import org.example.exception.classes.keeperEX.DifferentKeeperException;
 import org.example.exception.classes.requestEX.*;
 import org.example.model.*;
+import org.example.model.courserequest.*;
 import org.example.repository.*;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;

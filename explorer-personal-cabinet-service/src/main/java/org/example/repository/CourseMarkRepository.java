@@ -1,7 +1,7 @@
 package org.example.repository;
 
 import org.example.dto.course.CourseWithMark;
-import org.example.model.CourseMark;
+import org.example.model.progress.CourseMark;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

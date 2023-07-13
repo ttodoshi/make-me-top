@@ -19,7 +19,7 @@ public class ExplorerController {
     private final ExplorerInformationService explorerInformationService;
 
     @GetMapping("info")
-    @PreAuthorize("@RoleService.hasAnyAuthenticationRole(T(org.example.model.AuthenticationRoleType).EXPLORER)")
+    @PreAuthorize("@RoleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).EXPLORER)")
     @Operation(summary = "Get explorer information", tags = "personal cabinet", hidden = true)
     @ApiResponses(value = {
             @ApiResponse(

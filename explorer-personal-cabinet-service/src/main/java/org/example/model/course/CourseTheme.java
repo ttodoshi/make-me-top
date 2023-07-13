@@ -1,4 +1,4 @@
-package org.example.model;
+package org.example.model.course;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
@@ -22,7 +22,7 @@ public class CourseTheme {
     private Date lastModified;
     private String description;
     private String content;
-    @JoinColumn(table = "course", name = "course_id")
     private Integer courseThemeNumber;
+    @JoinColumn(table = "course", name = "course_id")
     private Integer courseId;
 }

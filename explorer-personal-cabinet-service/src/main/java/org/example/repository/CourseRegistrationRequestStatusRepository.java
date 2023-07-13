@@ -1,7 +1,7 @@
 package org.example.repository;
 
-import org.example.model.CourseRegistrationRequestStatus;
-import org.example.model.CourseRegistrationRequestStatusType;
+import org.example.model.courserequest.CourseRegistrationRequestStatus;
+import org.example.model.courserequest.CourseRegistrationRequestStatusType;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

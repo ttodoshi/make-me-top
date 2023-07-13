@@ -1,10 +1,9 @@
 package org.example.config.security;
 
 import lombok.RequiredArgsConstructor;
-import org.example.model.AuthenticationRoleType;
-import org.example.model.CourseRoleType;
-import org.example.model.GeneralRoleType;
 import org.example.model.Person;
+import org.example.model.role.AuthenticationRoleType;
+import org.example.model.role.CourseRoleType;
 import org.example.repository.ExplorerRepository;
 import org.example.repository.KeeperRepository;
 import org.springframework.security.core.GrantedAuthority;
@@ -18,14 +17,6 @@ public class RoleService {
     private final ExplorerRepository explorerRepository;
 
     public boolean hasAnyAuthenticationRole(AuthenticationRoleType role) {
-        for (GrantedAuthority authority : SecurityContextHolder.getContext().getAuthentication().getAuthorities()) {
-            if (authority.getAuthority().equals(role.name()))
-                return true;
-        }
-        return false;
-    }
-
-    public boolean hasAnyGeneralRole(GeneralRoleType role) {
         for (GrantedAuthority authority : SecurityContextHolder.getContext().getAuthentication().getAuthorities()) {
             if (authority.getAuthority().equals(role.name()))
                 return true;
