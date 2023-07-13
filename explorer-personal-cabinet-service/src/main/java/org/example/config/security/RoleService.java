@@ -12,7 +12,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-@Service("RoleService")
+@Service
 @RequiredArgsConstructor
 public class RoleService {
     private final KeeperRepository keeperRepository;

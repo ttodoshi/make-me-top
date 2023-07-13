@@ -20,7 +20,7 @@ public class SystemProgressController {
     private final SystemProgressService systemProgressService;
 
     @GetMapping("galaxy/{galaxyId}")
-    @PreAuthorize("@RoleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).EXPLORER)")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).EXPLORER)")
     @Operation(summary = "Get systems progress for current user", tags = "system progress")
     @ApiResponses(value = {
             @ApiResponse(
@@ -38,7 +38,7 @@ public class SystemProgressController {
     }
 
     @GetMapping("course/{courseId}")
-    @PreAuthorize("@RoleService.hasAnyCourseRole(#courseId, " +
+    @PreAuthorize("@roleService.hasAnyCourseRole(#courseId, " +
             "T(org.example.model.role.CourseRoleType).EXPLORER)")
     @Operation(summary = "Get course planets progress for current user", tags = "system progress")
     @ApiResponses(value = {
@@ -56,7 +56,7 @@ public class SystemProgressController {
     }
 
     @PatchMapping("/theme/{themeId}")
-    @PreAuthorize("@RoleService.hasAnyCourseRoleByThemeId(#themeId," +
+    @PreAuthorize("@roleService.hasAnyCourseRoleByThemeId(#themeId," +
             "T(org.example.model.role.CourseRoleType).EXPLORER)")
     @Operation(summary = "Update course theme progress for current user", tags = "system progress")
     @ApiResponses(value = {

@@ -31,7 +31,7 @@ public class ErrorHandler {
 
     @ExceptionHandler(StatusNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleStatusNotFoundException(Exception e) {
-        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(KeeperRejectionAlreadyExistsException.class)

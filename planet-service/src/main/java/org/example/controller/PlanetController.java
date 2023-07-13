@@ -42,7 +42,7 @@ public class PlanetController {
     }
 
     @PostMapping("planet")
-    @PreAuthorize("@RoleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
+    @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Create planet", tags = "planet")
     @ApiResponses(value = {
             @ApiResponse(
@@ -60,7 +60,7 @@ public class PlanetController {
     }
 
     @PutMapping("planet/{planetId}")
-    @PreAuthorize("@RoleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
+    @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Update planet", tags = "planet")
     @ApiResponses(value = {
             @ApiResponse(
@@ -78,7 +78,7 @@ public class PlanetController {
     }
 
     @DeleteMapping("planet/{planetId}")
-    @PreAuthorize("@RoleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
+    @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Delete planet", tags = "planet")
     @ApiResponses(value = {
             @ApiResponse(

@@ -13,7 +13,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/explorer-cabinet/course-request")
+@RequestMapping("/keeper-cabinet/course-request")
 @RequiredArgsConstructor
 public class CourseRegistrationRequestController {
     private final CourseRegistrationRequestService courseRegistrationRequestService;

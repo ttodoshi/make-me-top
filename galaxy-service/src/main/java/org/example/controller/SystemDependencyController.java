@@ -24,7 +24,7 @@ public class SystemDependencyController {
     private final DependencyService dependencyService;
 
     @PostMapping
-    @PreAuthorize("@RoleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
+    @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Add dependency", tags = "dependency")
     @ApiResponses(value = {
             @ApiResponse(
@@ -40,7 +40,7 @@ public class SystemDependencyController {
     }
 
     @DeleteMapping
-    @PreAuthorize("@RoleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
+    @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Delete dependency", tags = "dependency")
     @ApiResponses(value = {
             @ApiResponse(

@@ -40,7 +40,7 @@ public class OrbitController {
     }
 
     @PostMapping
-    @PreAuthorize("@RoleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
+    @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Create Orbit", tags = "orbit")
     @ApiResponses(value = {
             @ApiResponse(
@@ -56,7 +56,7 @@ public class OrbitController {
     }
 
     @PutMapping("{orbitId}")
-    @PreAuthorize("@RoleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
+    @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Update Orbit", tags = "orbit")
     @ApiResponses(value = {
             @ApiResponse(
@@ -72,7 +72,7 @@ public class OrbitController {
     }
 
     @DeleteMapping("{orbitId}")
-    @PreAuthorize("@RoleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
+    @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Delete Orbit", tags = "orbit")
     @ApiResponses(value = {
             @ApiResponse(

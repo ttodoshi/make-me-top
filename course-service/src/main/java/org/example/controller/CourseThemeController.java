@@ -51,7 +51,7 @@ public class CourseThemeController {
     }
 
     @PostMapping("course/{courseId}/theme")
-    @PreAuthorize("@RoleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
+    @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Create theme", tags = "theme", hidden = true)
     @ApiResponses(value = {
             @ApiResponse(
@@ -69,7 +69,7 @@ public class CourseThemeController {
 
 
     @PutMapping("theme/{themeId}")
-    @PreAuthorize("@RoleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
+    @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Update theme by id", tags = "theme")
     @ApiResponses(value = {
             @ApiResponse(

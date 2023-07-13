@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/explorer-cabinet/mark")
+@RequestMapping("/keeper-cabinet/mark")
 @RequiredArgsConstructor
 public class CourseMarkController {
     private final CourseMarkService courseMarkService;

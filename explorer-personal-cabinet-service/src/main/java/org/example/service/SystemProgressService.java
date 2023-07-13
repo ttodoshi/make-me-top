@@ -11,6 +11,7 @@ import org.example.exception.classes.connectEX.ConnectException;
 import org.example.exception.classes.courseEX.CourseNotFoundException;
 import org.example.exception.classes.coursethemeEX.CourseThemeNotFoundException;
 import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
+import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
 import org.example.exception.classes.progressEX.PlanetAlreadyCompletedException;
 import org.example.exception.classes.progressEX.SystemParentsNotCompletedException;
 import org.example.exception.classes.progressEX.UnexpectedCourseThemeException;
@@ -28,8 +29,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
@@ -88,6 +91,8 @@ public class SystemProgressService {
             headers.set("Authorization", token);
             HttpEntity<?> requestEntity = new HttpEntity<>(headers);
             return restTemplate.exchange(GALAXY_APP_URL + "/galaxy/" + galaxyId + "/system/", HttpMethod.GET, requestEntity, StarSystem[].class).getBody();
+        } catch (HttpClientErrorException e) {
+            throw new GalaxyNotFoundException();
         } catch (ResourceAccessException e) {
             throw new ConnectException();
         }

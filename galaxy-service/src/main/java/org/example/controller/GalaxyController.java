@@ -55,7 +55,7 @@ public class GalaxyController {
     }
 
     @PostMapping
-    @PreAuthorize("@RoleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
+    @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Create Galaxy", tags = "galaxy")
     @ApiResponses(value = {
             @ApiResponse(
@@ -74,7 +74,7 @@ public class GalaxyController {
 
 
     @PutMapping("{galaxyId}")
-    @PreAuthorize("@RoleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
+    @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Update Galaxy", tags = "galaxy")
     @ApiResponses(value = {
             @ApiResponse(
@@ -91,7 +91,7 @@ public class GalaxyController {
     }
 
     @DeleteMapping("{galaxyId}")
-    @PreAuthorize("@RoleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
+    @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Delete Galaxy", tags = "galaxy")
     @ApiResponses(value = {
             @ApiResponse(

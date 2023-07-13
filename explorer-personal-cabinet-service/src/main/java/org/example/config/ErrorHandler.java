@@ -5,9 +5,13 @@ import org.example.exception.classes.connectEX.ConnectException;
 import org.example.exception.classes.courseEX.CourseNotFoundException;
 import org.example.exception.classes.coursethemeEX.CourseThemeNotFoundException;
 import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
+import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
 import org.example.exception.classes.keeperEX.KeeperNotFoundException;
 import org.example.exception.classes.personEX.PersonNotFoundException;
-import org.example.exception.classes.progressEX.*;
+import org.example.exception.classes.progressEX.PlanetAlreadyCompletedException;
+import org.example.exception.classes.progressEX.SystemParentsNotCompletedException;
+import org.example.exception.classes.progressEX.UnexpectedCourseThemeException;
+import org.example.exception.classes.progressEX.UnexpectedProgressValueException;
 import org.example.exception.classes.requestEX.PersonIsKeeperException;
 import org.example.exception.classes.requestEX.PersonIsStudyingException;
 import org.example.exception.classes.requestEX.StatusNotFoundException;
@@ -86,6 +90,11 @@ public class ErrorHandler {
 
     @ExceptionHandler(CourseThemeNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleCourseThemeNotFoundException(Exception e) {
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(GalaxyNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleGalaxyNotFoundException(Exception e) {
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
     }
 }

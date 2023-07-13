@@ -3,33 +3,34 @@ package org.example.service;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.theme.CourseThemeCreateRequest;
 import org.example.dto.theme.CourseThemeUpdateRequest;
+import org.example.exception.classes.courseEX.CourseNotFoundException;
+import org.example.exception.classes.coursethemeEX.CourseThemeAlreadyExistsException;
 import org.example.exception.classes.coursethemeEX.CourseThemeNotFoundException;
 import org.example.model.CourseTheme;
+import org.example.repository.CourseRepository;
 import org.example.repository.CourseThemeRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.logging.Logger;
 
 @Service
 @RequiredArgsConstructor
 public class CourseThemeService {
+    private final CourseRepository courseRepository;
     private final CourseThemeRepository courseThemeRepository;
 
     private final ModelMapper mapper;
-
-    private final Logger logger = Logger.getLogger(CourseThemeService.class.getName());
 
     public CourseTheme getCourseTheme(Integer courseThemeId) {
         return courseThemeRepository.findById(courseThemeId).orElseThrow(CourseThemeNotFoundException::new);
     }
 
     public List<CourseTheme> getCourseThemesByCourseId(Integer courseId) {
-        return courseThemeRepository.findCourseThemesByCourseId(courseId);
+        if (courseRepository.existsById(courseId))
+            return courseThemeRepository.findCourseThemesByCourseId(courseId);
+        throw new CourseNotFoundException();
     }
 
     public CourseTheme createCourseTheme(CourseThemeCreateRequest courseThemeRequest,
@@ -43,6 +44,11 @@ public class CourseThemeService {
     public CourseTheme updateCourseTheme(CourseThemeUpdateRequest courseTheme,
                                          Integer courseThemeId) {
         CourseTheme updatedTheme = courseThemeRepository.findById(courseThemeId).orElseThrow(CourseThemeNotFoundException::new);
+        boolean themeExists = courseThemeRepository.findCourseThemesByCourseId(updatedTheme.getCourseId()).stream().anyMatch(
+                t -> t.getTitle().equals(updatedTheme.getTitle())
+        );
+        if (themeExists)
+            throw new CourseThemeAlreadyExistsException();
         updatedTheme.setCourseId(courseTheme.getCourseId());
         updatedTheme.setTitle(courseTheme.getTitle());
         updatedTheme.setLastModified(new Date());
@@ -50,17 +56,5 @@ public class CourseThemeService {
         updatedTheme.setContent(courseTheme.getContent());
         updatedTheme.setCourseThemeNumber(courseTheme.getCourseThemeNumber());
         return courseThemeRepository.save(updatedTheme);
-    }
-
-    public Map<String, String> deleteCourseTheme(Integer courseThemeId) {
-        try {
-            courseThemeRepository.deleteById(courseThemeId);
-            Map<String, String> response = new HashMap<>();
-            response.put("message", "Тема курса " + courseThemeId + " была удалёна");
-            return response;
-        } catch (Exception e) {
-            logger.severe(e.getMessage());
-            throw new CourseThemeNotFoundException();
-        }
     }
 }
