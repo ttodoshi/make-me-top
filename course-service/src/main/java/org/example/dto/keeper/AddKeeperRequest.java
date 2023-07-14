@@ -1,10 +1,11 @@
 package org.example.dto.keeper;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
+import javax.validation.constraints.NotNull;
+
+@Data
+@NotNull
 public class AddKeeperRequest {
     private Integer personId;
 }

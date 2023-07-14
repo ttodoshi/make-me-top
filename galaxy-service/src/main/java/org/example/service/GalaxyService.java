@@ -6,9 +6,9 @@ import org.example.dto.course.CourseDTO;
 import org.example.dto.galaxy.CreateGalaxyRequest;
 import org.example.dto.galaxy.GalaxyDTO;
 import org.example.dto.galaxy.GetGalaxyRequest;
-import org.example.dto.orbit.OrbitWithStarSystemsAndDependencies;
-import org.example.dto.orbit.OrbitWithStarSystemsWithoutGalaxyId;
-import org.example.dto.starsystem.StarSystemRequest;
+import org.example.dto.orbit.CreateOrbitWithStarSystems;
+import org.example.dto.orbit.GetOrbitWithStarSystemsWithoutGalaxyId;
+import org.example.dto.starsystem.CreateStarSystemWithoutOrbitId;
 import org.example.exception.classes.galaxyEX.GalaxyAlreadyExistsException;
 import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
 import org.example.model.Galaxy;
@@ -39,25 +39,23 @@ public class GalaxyService {
     private final OrbitService orbitService;
 
     private final ModelMapper mapper;
-
+    private final RestTemplate restTemplate;
+    private final Logger logger = Logger.getLogger(GalaxyService.class.getName());
     @Setter
     private String token;
     @Value("${course_app_url}")
     private String COURSE_APP_URL;
-    private final RestTemplate restTemplate;
-
-    private final Logger logger = Logger.getLogger(GalaxyService.class.getName());
 
     public GetGalaxyRequest getGalaxyById(Integer id) {
         try {
             GetGalaxyRequest galaxy = mapper.map(galaxyRepository.getReferenceById(id), GetGalaxyRequest.class);
             galaxy.setOrbitsList(orbitRepository.findOrbitsByGalaxyId(id)
                     .stream()
-                    .map(orbit -> mapper.map(orbit, OrbitWithStarSystemsWithoutGalaxyId.class))
+                    .map(orbit -> mapper.map(orbit, GetOrbitWithStarSystemsWithoutGalaxyId.class))
                     .collect(Collectors.toList()));
-            List<OrbitWithStarSystemsWithoutGalaxyId> orbitWithStarSystemsList = new LinkedList<>();
-            for (OrbitWithStarSystemsWithoutGalaxyId orbitWithStarSystems : galaxy.getOrbitsList())
-                orbitWithStarSystemsList.add(mapper.map(orbitService.getOrbitWithSystemList(orbitWithStarSystems.getOrbitId()), OrbitWithStarSystemsWithoutGalaxyId.class));
+            List<GetOrbitWithStarSystemsWithoutGalaxyId> orbitWithStarSystemsList = new LinkedList<>();
+            for (GetOrbitWithStarSystemsWithoutGalaxyId orbitWithStarSystems : galaxy.getOrbitsList())
+                orbitWithStarSystemsList.add(mapper.map(orbitService.getOrbitWithSystemList(orbitWithStarSystems.getOrbitId()), GetOrbitWithStarSystemsWithoutGalaxyId.class));
             galaxy.setOrbitsList(orbitWithStarSystemsList);
             return galaxy;
         } catch (Exception e) {
@@ -72,13 +70,15 @@ public class GalaxyService {
         galaxy.setGalaxyName(createGalaxyRequest.getGalaxyName());
         Integer savedGalaxyId = galaxyRepository.save(galaxy).getGalaxyId();
         if (createGalaxyRequest.getOrbitsList() != null) {
-            for (OrbitWithStarSystemsAndDependencies orbit : createGalaxyRequest.getOrbitsList()) {
-                orbit.setGalaxyId(savedGalaxyId);
-                Integer savedOrbitId = orbitRepository.save(mapper.map(orbit, Orbit.class)).getOrbitId();
+            for (CreateOrbitWithStarSystems orbit : createGalaxyRequest.getOrbitsList()) {
+                Orbit savedOrbit = mapper.map(orbit, Orbit.class);
+                savedOrbit.setGalaxyId(savedGalaxyId);
+                Integer savedOrbitId = orbitRepository.save(savedOrbit).getOrbitId();
                 if (orbit.getSystemsList() != null) {
-                    for (StarSystemRequest system : orbit.getSystemsList()) {
-                        system.setOrbitId(savedOrbitId);
-                        Integer savedSystemId = starSystemRepository.save(mapper.map(system, StarSystem.class)).getSystemId();
+                    for (CreateStarSystemWithoutOrbitId system : orbit.getSystemsList()) {
+                        StarSystem savedSystem = mapper.map(system, StarSystem.class);
+                        savedSystem.setOrbitId(savedOrbitId);
+                        Integer savedSystemId = starSystemRepository.save(savedSystem).getSystemId();
                         createCourse(savedSystemId, system);
                     }
                 }
@@ -87,7 +87,7 @@ public class GalaxyService {
         return getGalaxyById(savedGalaxyId);
     }
 
-    private void createCourse(Integer courseId, StarSystemRequest starSystem) {
+    private void createCourse(Integer courseId, CreateStarSystemWithoutOrbitId starSystem) {
         HttpEntity<CourseDTO> entity = new HttpEntity<>(new CourseDTO(courseId,
                 starSystem.getSystemName(), new Date(), new Date(), starSystem.getDescription()),
                 createHeaders());

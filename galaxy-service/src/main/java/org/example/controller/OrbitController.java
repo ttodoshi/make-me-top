@@ -13,6 +13,8 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("/galaxy-app/orbit/")
 @RequiredArgsConstructor
@@ -51,7 +53,7 @@ public class OrbitController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> createOrbit(@RequestBody OrbitDTO orbit) {
+    public ResponseEntity<?> createOrbit(@Valid @RequestBody OrbitDTO orbit) {
         return ResponseEntity.ok(orbitService.createOrbit(orbit));
     }
 
@@ -67,7 +69,8 @@ public class OrbitController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> updateOrbit(@PathVariable("orbitId") Integer id, @RequestBody OrbitDTO orbit) {
+    public ResponseEntity<?> updateOrbit(@PathVariable("orbitId") Integer id,
+                                         @Valid @RequestBody OrbitDTO orbit) {
         return ResponseEntity.ok(orbitService.updateOrbit(id, orbit));
     }
 

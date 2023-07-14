@@ -11,7 +11,8 @@ import org.example.config.mapper.PersonMapper;
 import org.example.config.security.JwtServiceInterface;
 import org.example.dto.AuthResponseUser;
 import org.example.dto.LoginRequest;
-import org.example.exception.classes.user.UserNotFoundException;
+import org.example.exception.classes.connectEX.ConnectException;
+import org.example.exception.classes.userEX.UserNotFoundException;
 import org.example.model.Person;
 import org.example.repository.PersonRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -79,6 +80,7 @@ public class PersonService {
                 employeeOptional = getUserInformation(responseBody);
         } catch (Exception e) {
             logger.severe(e.getMessage());
+            throw new ConnectException();
         }
         return employeeOptional;
     }

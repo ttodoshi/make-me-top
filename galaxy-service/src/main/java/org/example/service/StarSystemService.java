@@ -4,11 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.example.config.mapper.DependencyMapper;
 import org.example.dto.course.CourseDTO;
-import org.example.dto.dependency.DependencyGetInfoModel;
-import org.example.dto.starsystem.GetStarSystemWithDependencies;
-import org.example.dto.starsystem.GetStarSystemWithoutDependency;
-import org.example.dto.starsystem.StarSystemDTO;
-import org.example.dto.starsystem.StarSystemRequest;
+import org.example.dto.starsystem.*;
 import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
 import org.example.exception.classes.orbitEX.OrbitNotFoundException;
 import org.example.exception.classes.systemEX.SystemAlreadyExistsException;
@@ -47,33 +43,30 @@ public class StarSystemService {
     @Value("${course_app_url}")
     private String COURSE_APP_URL;
 
-    public GetStarSystemWithDependencies getStarSystemByIdWithDependencies(Integer id) {
-        try {
-            GetStarSystemWithDependencies system = mapper.map(
-                    starSystemRepository.getReferenceById(id), GetStarSystemWithDependencies.class);
-            system.setDependencyList(dependencyRepository.getListSystemDependencyParent(id)
-                    .stream()
-                    .map(dependencyMapper::dependencyToDependencyParentModel)
-                    .collect(Collectors.toList()));
-            List<DependencyGetInfoModel> dependencies = dependencyRepository.getListSystemDependencyChild(id)
-                    .stream()
-                    .filter(x -> x.getParentId() != null)
-                    .map(dependencyMapper::dependencyToDependencyChildModel)
-                    .collect(Collectors.toList());
-            for (DependencyGetInfoModel dependency : dependencies) {
-                system.getDependencyList().add(dependency);
-            }
-            return system;
-        } catch (Exception e) {
-            logger.severe(e.getMessage());
+    public GetStarSystemWithDependencies getStarSystemByIdWithDependencies(Integer systemId) {
+        if (!starSystemRepository.existsById(systemId))
             throw new SystemNotFoundException();
+        GetStarSystemWithDependencies system = mapper.map(
+                starSystemRepository.getReferenceById(systemId), GetStarSystemWithDependencies.class);
+        system.setDependencyList(dependencyRepository.getListSystemDependencyParent(systemId)
+                .stream()
+                .map(dependencyMapper::dependencyToDependencyParentModel)
+                .collect(Collectors.toList()));
+        List<SystemDependencyModel> dependencies = dependencyRepository.getListSystemDependencyChild(systemId)
+                .stream()
+                .filter(x -> x.getParent() != null)
+                .map(dependencyMapper::dependencyToDependencyChildModel)
+                .collect(Collectors.toList());
+        for (SystemDependencyModel dependency : dependencies) {
+            system.getDependencyList().add(dependency);
         }
+        return system;
     }
 
-    public GetStarSystemWithoutDependency getStarSystemById(Integer systemId) {
+    public GetStarSystem getStarSystemById(Integer systemId) {
         StarSystem system = starSystemRepository
                 .findById(systemId).orElseThrow(SystemNotFoundException::new);
-        return mapper.map(system, GetStarSystemWithoutDependency.class);
+        return mapper.map(system, GetStarSystem.class);
     }
 
     public List<StarSystem> getStarSystemsByGalaxyId(Integer galaxyId) {
@@ -83,7 +76,7 @@ public class StarSystemService {
     }
 
     @Transactional
-    public StarSystem createSystem(StarSystemRequest starSystem, Integer galaxyId) {
+    public StarSystem createSystem(CreateStarSystem starSystem, Integer galaxyId) {
         if (!galaxyRepository.existsById(galaxyId))
             throw new GalaxyNotFoundException();
         if (!orbitRepository.existsById(starSystem.getOrbitId()))
@@ -99,7 +92,7 @@ public class StarSystemService {
             throw new SystemAlreadyExistsException();
     }
 
-    private void createCourse(Integer courseId, StarSystemRequest starSystem) {
+    private void createCourse(Integer courseId, CreateStarSystem starSystem) {
         HttpEntity<CourseDTO> entity = new HttpEntity<>(new CourseDTO(courseId,
                 starSystem.getSystemName(), new Date(), new Date(), starSystem.getDescription()),
                 createHeaders());

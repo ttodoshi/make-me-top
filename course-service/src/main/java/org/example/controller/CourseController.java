@@ -15,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/course-app/")
@@ -67,7 +69,7 @@ public class CourseController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> createCourse(@RequestBody Course course) {
+    public ResponseEntity<?> createCourse(@Valid @RequestBody Course course) {
         return ResponseEntity.ok(courseService.createCourse(course));
     }
 
@@ -87,7 +89,7 @@ public class CourseController {
     public ResponseEntity<?> updateCourse(@PathVariable("galaxyId") Integer galaxyId,
                                           @PathVariable Integer courseId,
                                           @RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token,
-                                          @RequestBody CourseUpdateRequest course) {
+                                          @Valid @RequestBody CourseUpdateRequest course) {
         courseService.setToken(token);
         return ResponseEntity.ok(courseService.updateCourse(galaxyId, courseId, course));
     }
@@ -104,7 +106,8 @@ public class CourseController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> setKeeperToCourse(@PathVariable("courseId") Integer courseId, @RequestBody AddKeeperRequest addKeeperRequest) {
+    public ResponseEntity<?> setKeeperToCourse(@Valid @PathVariable("courseId") Integer courseId,
+                                               @RequestBody AddKeeperRequest addKeeperRequest) {
         return ResponseEntity.ok(courseService.setKeeperToCourse(courseId, addKeeperRequest));
     }
 }

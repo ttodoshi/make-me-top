@@ -2,9 +2,11 @@ package org.example.dto.dependency;
 
 import lombok.Data;
 
+import javax.validation.constraints.NotNull;
+
 @Data
-public class DependencyDTO {
+public class DependencyRequest {
+    @NotNull
     private Integer childId;
     private Integer parentId;
-    private Boolean isAlternative;
 }

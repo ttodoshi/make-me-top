@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/auth/")
@@ -34,7 +35,8 @@ public class UserController {
                                     mediaType = "*")
                     })
     })
-    public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
+    public ResponseEntity<?> loginUser(@Valid @RequestBody LoginRequest loginRequest,
+                                       HttpServletResponse response) {
         return ResponseEntity.ok(personService.login(loginRequest, response));
     }
 }

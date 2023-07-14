@@ -1,9 +1,9 @@
-package org.example.dto.dependency;
+package org.example.dto.starsystem;
 
 import lombok.Data;
 
 @Data
-public class DependencyGetInfoModel {
+public class SystemDependencyModel {
     private Integer systemId;
     private String type;
     private Boolean isAlternative;

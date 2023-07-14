@@ -1,9 +1,11 @@
 package org.example.dto.orbit;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
+import javax.validation.constraints.NotNull;
+
 @Data
+@NotNull
 public class OrbitDTO {
     private Integer orbitLevel;
     private Integer systemCount;

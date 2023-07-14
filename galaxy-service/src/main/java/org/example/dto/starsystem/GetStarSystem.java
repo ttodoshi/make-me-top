@@ -5,6 +5,6 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class GetStarSystemWithoutDependency extends StarSystemDTO {
+public class GetStarSystem extends StarSystemDTO {
     private Integer systemId;
 }

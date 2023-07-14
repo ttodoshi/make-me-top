@@ -7,12 +7,15 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.starsystem.StarSystemDTO;
-import org.example.dto.starsystem.StarSystemRequest;
+import org.example.dto.starsystem.CreateStarSystem;
 import org.example.service.StarSystemService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 
 @RestController
@@ -69,7 +72,7 @@ public class StarSystemController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> createSystem(@RequestBody StarSystemRequest starSystem,
+    public ResponseEntity<?> createSystem(@RequestBody @Valid CreateStarSystem starSystem,
                                           @PathVariable("galaxyId") Integer galaxyId,
                                           @RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token) {
         starSystemService.setToken(token);
@@ -89,7 +92,7 @@ public class StarSystemController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> updateSystem(@RequestBody StarSystemDTO starSystem,
+    public ResponseEntity<?> updateSystem(@Valid @RequestBody StarSystemDTO starSystem,
                                           @PathVariable("galaxyId") Integer galaxyId,
                                           @PathVariable("systemId") Integer systemId) {
         return ResponseEntity.ok(starSystemService.updateSystem(starSystem, galaxyId, systemId));

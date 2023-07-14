@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("/keeper-cabinet/course-request")
 @RequiredArgsConstructor
@@ -32,7 +34,7 @@ public class CourseRegistrationRequestController {
                     })
     })
     public ResponseEntity<?> sendRequest(@PathVariable("requestId") Integer requestId,
-                                         @RequestBody CourseRegistrationRequestReply reply) {
+                                         @Valid @RequestBody CourseRegistrationRequestReply reply) {
         return ResponseEntity.ok(courseRegistrationRequestService.replyToRequest(requestId, reply));
     }
 
@@ -50,7 +52,7 @@ public class CourseRegistrationRequestController {
                     })
     })
     public ResponseEntity<?> sendKeeperRejection(@PathVariable("requestId") Integer requestId,
-                                                 @RequestBody KeeperRejectionDTO rejection) {
+                                                 @Valid @RequestBody KeeperRejectionDTO rejection) {
         return ResponseEntity.ok(
                 courseRegistrationRequestService.sendRejection(requestId, rejection));
     }

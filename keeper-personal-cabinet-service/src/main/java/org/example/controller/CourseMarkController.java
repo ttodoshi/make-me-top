@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("/keeper-cabinet/mark")
 @RequiredArgsConstructor
@@ -33,7 +35,7 @@ public class CourseMarkController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> sendRequest(@RequestBody CourseMarkDTO courseMark) {
+    public ResponseEntity<?> sendRequest(@Valid @RequestBody CourseMarkDTO courseMark) {
         return ResponseEntity.ok(courseMarkService.setCourseMark(courseMark));
     }
 }

@@ -27,7 +27,6 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.transaction.Transactional;
 import java.util.*;
-import java.util.logging.Logger;
 
 @Service
 @RequiredArgsConstructor
@@ -38,7 +37,6 @@ public class PlanetService {
     private final ModelMapper mapper;
 
     private final RestTemplate restTemplate;
-    private final Logger logger = Logger.getLogger(PlanetService.class.getName());
     @Setter
     private String token;
     @Value("${galaxy_app_url}")

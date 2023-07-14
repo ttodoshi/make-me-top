@@ -5,7 +5,7 @@ import lombok.Setter;
 import org.example.dto.course.CourseUpdateRequest;
 import org.example.dto.course.CourseWithKeepers;
 import org.example.dto.keeper.AddKeeperRequest;
-import org.example.dto.starsystem.StarSystemWithId;
+import org.example.dto.starsystem.StarSystemDTO;
 import org.example.exception.classes.courseEX.CourseAlreadyExistsException;
 import org.example.exception.classes.courseEX.CourseNotFoundException;
 import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 @Service
@@ -46,6 +47,8 @@ public class CourseService {
     @Value("${galaxy_app_url}")
     private String GALAXY_APP_URL;
 
+    private final Logger logger = Logger.getLogger(CourseService.class.getName());
+
     public CourseWithKeepers getCourse(Integer courseId) {
         CourseWithKeepers courseWithKeepers = mapper.map(
                 courseRepository.findById(courseId)
@@ -58,7 +61,7 @@ public class CourseService {
     public List<Course> getCoursesByGalaxyId(Integer galaxyId) {
         List<Integer> systems = getSystemsIdByGalaxyId(galaxyId)
                 .stream()
-                .mapToInt(StarSystemWithId::getSystemId)
+                .mapToInt(StarSystemDTO::getSystemId)
                 .boxed().collect(Collectors.toList());
         return courseRepository.findAll().stream().filter(
                 c -> systems.contains(c.getCourseId())
@@ -82,17 +85,18 @@ public class CourseService {
         return courseRepository.save(updatedCourse);
     }
 
-    private List<StarSystemWithId> getSystemsIdByGalaxyId(Integer galaxyId) {
+    private List<StarSystemDTO> getSystemsIdByGalaxyId(Integer galaxyId) {
         try {
             return Arrays.stream(
                     Objects.requireNonNull(restTemplate.exchange(
                             GALAXY_APP_URL + "/galaxy/" + galaxyId + "/system/",
                             HttpMethod.GET,
                             new HttpEntity<>(createHeaders()),
-                            StarSystemWithId[].class).getBody()
+                            StarSystemDTO[].class).getBody()
                     )
             ).collect(Collectors.toList());
         } catch (HttpClientErrorException e) {
+            logger.severe(e.getMessage());
             throw new GalaxyNotFoundException();
         }
     }

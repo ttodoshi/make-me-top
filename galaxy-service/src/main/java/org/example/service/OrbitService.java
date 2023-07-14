@@ -2,7 +2,7 @@ package org.example.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.dto.orbit.OrbitDTO;
-import org.example.dto.orbit.OrbitWithStarSystems;
+import org.example.dto.orbit.GetOrbitWithStarSystems;
 import org.example.dto.starsystem.GetStarSystemWithDependencies;
 import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
 import org.example.exception.classes.orbitEX.OrbitCoordinatesException;
@@ -31,10 +31,10 @@ public class OrbitService {
 
     private final Logger logger = Logger.getLogger(GalaxyService.class.getName());
 
-    public OrbitWithStarSystems getOrbitWithSystemList(Integer orbitId) {
+    public GetOrbitWithStarSystems getOrbitWithSystemList(Integer orbitId) {
         try {
-            OrbitWithStarSystems orbit = mapper.map(
-                    orbitRepository.getReferenceById(orbitId), OrbitWithStarSystems.class);
+            GetOrbitWithStarSystems orbit = mapper.map(
+                    orbitRepository.getReferenceById(orbitId), GetOrbitWithStarSystems.class);
             orbit.setSystemWithDependenciesList(
                     starSystemRepository.findStarSystemsByOrbitId(orbitId)
                             .stream()

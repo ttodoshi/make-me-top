@@ -17,9 +17,9 @@ public class SystemDependency {
     private Integer dependencyId;
     @ManyToOne
     @JoinColumn(name = "child_id")
-    private StarSystem childId;
+    private StarSystem child;
     @ManyToOne
     @JoinColumn(name = "parent_id")
-    private StarSystem parentId;
+    private StarSystem parent;
     private Boolean isAlternative;
 }

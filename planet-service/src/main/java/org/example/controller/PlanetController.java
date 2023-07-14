@@ -12,13 +12,16 @@ import org.example.service.PlanetService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
 @RequestMapping("/planet-app/")
 @RequiredArgsConstructor
+@Validated
 public class PlanetController {
     private final PlanetService planetService;
 
@@ -34,9 +37,8 @@ public class PlanetController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> getPlanetsBySystemId(
-            @PathVariable("systemId") Integer id,
-            @RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token) {
+    public ResponseEntity<?> getPlanetsBySystemId(@PathVariable("systemId") Integer id,
+                                                  @RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token) {
         planetService.setToken(token);
         return ResponseEntity.ok(planetService.getPlanetsListBySystemId(id));
     }
@@ -53,7 +55,7 @@ public class PlanetController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> addPlanet(@RequestBody List<PlanetDTO> planetList,
+    public ResponseEntity<?> addPlanet(@RequestBody List<@Valid PlanetDTO> planetList,
                                        @RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token) {
         planetService.setToken(token);
         return ResponseEntity.ok(planetService.addPlanet(planetList));
@@ -71,9 +73,8 @@ public class PlanetController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> updatePlanetById(
-            @PathVariable("planetId") Integer planetId,
-            @RequestBody PlanetUpdateRequest planet) {
+    public ResponseEntity<?> updatePlanetById(@PathVariable("planetId") Integer planetId,
+                                              @Valid @RequestBody PlanetUpdateRequest planet) {
         return ResponseEntity.ok(planetService.updatePlanet(planet, planetId));
     }
 

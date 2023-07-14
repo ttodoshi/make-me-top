@@ -15,6 +15,8 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("/galaxy-app/galaxy/")
 @RequiredArgsConstructor
@@ -66,7 +68,7 @@ public class GalaxyController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> createGalaxy(@RequestBody CreateGalaxyRequest model,
+    public ResponseEntity<?> createGalaxy(@Valid @RequestBody CreateGalaxyRequest model,
                                           @RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token) {
         galaxyService.setToken(token);
         return ResponseEntity.ok(galaxyService.createGalaxy(model));
@@ -85,7 +87,7 @@ public class GalaxyController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> updateGalaxy(@RequestBody GalaxyDTO galaxy,
+    public ResponseEntity<?> updateGalaxy(@Valid @RequestBody GalaxyDTO galaxy,
                                           @PathVariable("galaxyId") Integer id) {
         return ResponseEntity.ok(galaxyService.updateGalaxy(id, galaxy));
     }

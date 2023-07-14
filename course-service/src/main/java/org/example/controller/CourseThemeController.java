@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/course-app/")
@@ -62,7 +64,7 @@ public class CourseThemeController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> createTheme(@RequestBody CourseThemeCreateRequest theme,
+    public ResponseEntity<?> createTheme(@Valid @RequestBody CourseThemeCreateRequest theme,
                                          @PathVariable("courseId") Integer courseId) {
         return ResponseEntity.ok(courseThemeService.createCourseTheme(theme, courseId));
     }
@@ -80,7 +82,7 @@ public class CourseThemeController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> updateCourseTheme(@RequestBody CourseThemeUpdateRequest theme,
+    public ResponseEntity<?> updateCourseTheme(@Valid @RequestBody CourseThemeUpdateRequest theme,
                                                @PathVariable Integer themeId) {
         return ResponseEntity.ok(courseThemeService.updateCourseTheme(theme, themeId));
     }

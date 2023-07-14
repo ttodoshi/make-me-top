@@ -8,11 +8,13 @@ import org.springframework.data.annotation.LastModifiedDate;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 @Entity
 @Table(name = "course", schema = "course")
 @Data
+@NotNull
 public class Course {
     @Id
     private Integer courseId;

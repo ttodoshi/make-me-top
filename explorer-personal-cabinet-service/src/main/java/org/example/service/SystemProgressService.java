@@ -29,7 +29,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
@@ -38,7 +37,6 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.transaction.Transactional;
 import java.util.*;
-import java.util.logging.Logger;
 
 @Service
 @RequiredArgsConstructor
@@ -51,7 +49,6 @@ public class SystemProgressService {
 
     private final RestTemplate restTemplate;
     private final ModelMapper mapper;
-    private final Logger logger = Logger.getLogger(SystemProgressService.class.getName());
     @Value("${app_galaxy_url}")
     private String GALAXY_APP_URL;
 
@@ -189,9 +186,9 @@ public class SystemProgressService {
         boolean parentsUncompleted = false;
         for (SystemDependency parent : dependencyRepository
                 .getListSystemDependencyChild(systemId)) {
-            if (parent.getParentId() == null)
+            if (parent.getParent() == null)
                 return false;
-            Optional<Explorer> explorer = explorerRepository.findExplorerByPersonIdAndCourseId(personId, parent.getParentId().getSystemId());
+            Optional<Explorer> explorer = explorerRepository.findExplorerByPersonIdAndCourseId(personId, parent.getParent().getSystemId());
             if (explorer.isEmpty() || planetProgressRepository.getSystemProgress(
                     explorer.get().getExplorerId(), explorer.get().getCourseId()) < 100) {
                 parentsUncompleted = true;
