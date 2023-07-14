@@ -1,7 +1,7 @@
 package org.example.dto.orbit;
 
 import lombok.Data;
-import org.example.dto.starsystem.CreateStarSystemWithoutOrbitId;
+import org.example.dto.starsystem.CreateStarSystem;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
@@ -14,5 +14,5 @@ import java.util.List;
 public class CreateOrbitWithStarSystems {
     private Integer orbitLevel;
     private Integer systemCount;
-    private List<@Valid CreateStarSystemWithoutOrbitId> systemsList;
+    private List<@Valid CreateStarSystem> systemsList;
 }

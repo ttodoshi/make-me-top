@@ -1,8 +1,11 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import org.example.dto.orbit.CreateOrbitWithStarSystems;
 import org.example.dto.orbit.GetOrbitWithStarSystems;
 import org.example.dto.orbit.OrbitDTO;
+import org.example.dto.starsystem.CreateStarSystem;
 import org.example.dto.starsystem.GetStarSystemWithDependencies;
 import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
 import org.example.exception.classes.orbitEX.OrbitCoordinatesException;
@@ -14,6 +17,7 @@ import org.example.repository.StarSystemRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -29,6 +33,9 @@ public class OrbitService {
     private final StarSystemService systemService;
 
     private final ModelMapper mapper;
+
+    @Setter
+    private String token;
 
     public GetOrbitWithStarSystems getOrbitWithSystemList(Integer orbitId) {
         if (!orbitRepository.existsById(orbitId))
@@ -49,14 +56,21 @@ public class OrbitService {
         return orbitRepository.findById(orbitId).orElseThrow(OrbitNotFoundException::new);
     }
 
-    public Orbit createOrbit(OrbitDTO orbitRequest) {
-        if (!galaxyRepository.existsById(orbitRequest.getGalaxyId()))
+    @Transactional
+    public GetOrbitWithStarSystems createOrbit(Integer galaxyId, CreateOrbitWithStarSystems orbitRequest) {
+        if (!galaxyRepository.existsById(galaxyId))
             throw new GalaxyNotFoundException();
-        boolean orbitExists = orbitRepository.findOrbitsByGalaxyId(orbitRequest.getGalaxyId())
-                .stream().anyMatch(o -> o.getOrbitLevel().equals(orbitRequest.getOrbitLevel()));
-        if (orbitExists)
+        if (orbitRepository.findOrbitsByGalaxyId(galaxyId)
+                .stream().anyMatch(o -> o.getOrbitLevel().equals(orbitRequest.getOrbitLevel())))
             throw new OrbitCoordinatesException();
-        return orbitRepository.save(mapper.map(orbitRequest, Orbit.class));
+        Orbit orbit = mapper.map(orbitRequest, Orbit.class);
+        orbit.setGalaxyId(galaxyId);
+        Orbit savedOrbit = orbitRepository.save(orbit);
+        systemService.setToken(token);
+        for (CreateStarSystem system : orbitRequest.getSystemsList()) {
+            systemService.createSystem(savedOrbit.getOrbitId(), system);
+        }
+        return getOrbitWithSystemList(savedOrbit.getOrbitId());
     }
 
     public Orbit updateOrbit(Integer orbitId, OrbitDTO orbit) {

@@ -6,13 +6,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.example.dto.starsystem.StarSystemDTO;
 import org.example.dto.starsystem.CreateStarSystem;
+import org.example.dto.starsystem.StarSystemDTO;
 import org.example.service.StarSystemService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -60,7 +59,7 @@ public class StarSystemController {
         return ResponseEntity.ok(starSystemService.getStarSystemsByGalaxyId(galaxyId));
     }
 
-    @PostMapping("galaxy/{galaxyId}/system")
+    @PostMapping("orbit/{orbitId}/system")
     @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Create system", tags = "system")
     @ApiResponses(value = {
@@ -73,10 +72,10 @@ public class StarSystemController {
                     })
     })
     public ResponseEntity<?> createSystem(@RequestBody @Valid CreateStarSystem starSystem,
-                                          @PathVariable("galaxyId") Integer galaxyId,
+                                          @PathVariable("orbitId") Integer orbitId,
                                           @RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token) {
         starSystemService.setToken(token);
-        return ResponseEntity.ok(starSystemService.createSystem(starSystem, galaxyId));
+        return ResponseEntity.ok(starSystemService.createSystem(orbitId, starSystem));
     }
 
 

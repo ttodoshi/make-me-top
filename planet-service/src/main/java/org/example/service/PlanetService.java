@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.example.dto.coursetheme.CourseThemeCreateRequest;
 import org.example.dto.coursetheme.CourseThemeDTO;
-import org.example.dto.planet.PlanetDTO;
+import org.example.dto.planet.CreatePlanet;
 import org.example.dto.planet.PlanetUpdateRequest;
 import org.example.exception.classes.connectEX.ConnectException;
 import org.example.exception.classes.planetEX.PlanetAlreadyExistsException;
@@ -54,9 +54,9 @@ public class PlanetService {
     }
 
     @Transactional
-    public List<Planet> addPlanet(List<PlanetDTO> planets) {
+    public List<Planet> addPlanets(List<CreatePlanet> planets) {
         List<Planet> savedPlanets = new LinkedList<>();
-        for (PlanetDTO planet : planets) {
+        for (CreatePlanet planet : planets) {
             if (!doesSystemExist(planet.getSystemId()))
                 throw new SystemNotFoundException();
             else if (planetRepository.getPlanetsBySystemId(planet.getSystemId()).stream()
@@ -70,7 +70,7 @@ public class PlanetService {
         return savedPlanets;
     }
 
-    private void addCourseTheme(Integer courseThemeId, PlanetDTO planet) {
+    private void addCourseTheme(Integer courseThemeId, CreatePlanet planet) {
         HttpEntity<CourseThemeCreateRequest> entity = new HttpEntity<>(new CourseThemeCreateRequest(courseThemeId,
                 planet.getPlanetName(), planet.getDescription(), planet.getContent(), planet.getPlanetNumber()),
                 createHeaders());

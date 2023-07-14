@@ -75,20 +75,18 @@ public class StarSystemService {
     }
 
     @Transactional
-    public StarSystem createSystem(CreateStarSystem starSystem, Integer galaxyId) {
-        if (!galaxyRepository.existsById(galaxyId))
-            throw new GalaxyNotFoundException();
-        if (!orbitRepository.existsById(starSystem.getOrbitId()))
+    public StarSystem createSystem(Integer orbitId, CreateStarSystem systemRequest) {
+        if (!orbitRepository.existsById(orbitId))
             throw new OrbitNotFoundException();
-
-        if (starSystemRepository.getStarSystemsByGalaxyId(galaxyId).stream()
-                .noneMatch(
-                        x -> Objects.equals(x.getSystemName(), starSystem.getSystemName()))) {
-            StarSystem createdSystem = starSystemRepository.save(mapper.map(starSystem, StarSystem.class));
-            createCourse(createdSystem.getSystemId(), starSystem);
-            return createdSystem;
-        } else
+        if (starSystemRepository.getStarSystemsByGalaxyId(orbitRepository.getReferenceById(orbitId).getGalaxyId())
+                .stream().anyMatch(s -> Objects.equals(s.getSystemName(), systemRequest.getSystemName()))) {
             throw new SystemAlreadyExistsException();
+        }
+        StarSystem system = mapper.map(systemRequest, StarSystem.class);
+        system.setOrbitId(orbitId);
+        StarSystem savedSystem = starSystemRepository.save(system);
+        createCourse(savedSystem.getSystemId(), systemRequest);
+        return savedSystem;
     }
 
     private void createCourse(Integer courseId, CreateStarSystem starSystem) {

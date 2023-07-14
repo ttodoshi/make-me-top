@@ -6,7 +6,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @Data
-public class PlanetDTO {
+public class CreatePlanet {
     @NotBlank
     private String planetName;
     @NotNull

@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.example.dto.planet.PlanetDTO;
+import org.example.dto.planet.CreatePlanet;
 import org.example.dto.planet.PlanetUpdateRequest;
 import org.example.service.PlanetService;
 import org.springframework.http.HttpHeaders;
@@ -37,28 +37,28 @@ public class PlanetController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> getPlanetsBySystemId(@PathVariable("systemId") Integer id,
+    public ResponseEntity<?> getPlanetsBySystemId(@PathVariable("systemId") Integer systemId,
                                                   @RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token) {
         planetService.setToken(token);
-        return ResponseEntity.ok(planetService.getPlanetsListBySystemId(id));
+        return ResponseEntity.ok(planetService.getPlanetsListBySystemId(systemId));
     }
 
     @PostMapping("planet")
     @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
-    @Operation(summary = "Create planet", tags = "planet")
+    @Operation(summary = "Create planets", tags = "planet")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Create planet",
+                    description = "Create planets",
                     content = {
                             @Content(
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> addPlanet(@RequestBody List<@Valid PlanetDTO> planetList,
-                                       @RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token) {
+    public ResponseEntity<?> addPlanets(@RequestBody List<@Valid CreatePlanet> planetList,
+                                        @RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token) {
         planetService.setToken(token);
-        return ResponseEntity.ok(planetService.addPlanet(planetList));
+        return ResponseEntity.ok(planetService.addPlanets(planetList));
     }
 
     @PutMapping("planet/{planetId}")
