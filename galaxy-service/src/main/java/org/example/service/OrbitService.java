@@ -1,8 +1,8 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.orbit.OrbitDTO;
 import org.example.dto.orbit.GetOrbitWithStarSystems;
+import org.example.dto.orbit.OrbitDTO;
 import org.example.dto.starsystem.GetStarSystemWithDependencies;
 import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
 import org.example.exception.classes.orbitEX.OrbitCoordinatesException;
@@ -14,9 +14,10 @@ import org.example.repository.StarSystemRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -29,26 +30,19 @@ public class OrbitService {
 
     private final ModelMapper mapper;
 
-    private final Logger logger = Logger.getLogger(GalaxyService.class.getName());
-
     public GetOrbitWithStarSystems getOrbitWithSystemList(Integer orbitId) {
-        try {
-            GetOrbitWithStarSystems orbit = mapper.map(
-                    orbitRepository.getReferenceById(orbitId), GetOrbitWithStarSystems.class);
-            orbit.setSystemWithDependenciesList(
-                    starSystemRepository.findStarSystemsByOrbitId(orbitId)
-                            .stream()
-                            .map(system -> mapper.map(system, GetStarSystemWithDependencies.class))
-                            .collect(Collectors.toList()));
-            List<GetStarSystemWithDependencies> systemWithDependenciesList = new LinkedList<>();
-            for (GetStarSystemWithDependencies system : orbit.getSystemWithDependenciesList())
-                systemWithDependenciesList.add(systemService.getStarSystemByIdWithDependencies(system.getSystemId()));
-            orbit.setSystemWithDependenciesList(systemWithDependenciesList);
-            return orbit;
-        } catch (Exception e) {
-            logger.severe(e.getMessage());
+        if (!orbitRepository.existsById(orbitId))
             throw new OrbitNotFoundException();
-        }
+        GetOrbitWithStarSystems orbit = mapper.map(
+                orbitRepository.getReferenceById(orbitId), GetOrbitWithStarSystems.class);
+        List<GetStarSystemWithDependencies> systemWithDependenciesList = new LinkedList<>();
+        starSystemRepository.findStarSystemsByOrbitId(orbitId).forEach(
+                s -> systemWithDependenciesList.add(
+                        systemService.getStarSystemByIdWithDependencies(s.getSystemId())
+                )
+        );
+        orbit.setSystemWithDependenciesList(systemWithDependenciesList);
+        return orbit;
     }
 
     public Orbit getOrbitById(Integer orbitId) {
@@ -58,18 +52,20 @@ public class OrbitService {
     public Orbit createOrbit(OrbitDTO orbitRequest) {
         if (!galaxyRepository.existsById(orbitRequest.getGalaxyId()))
             throw new GalaxyNotFoundException();
-        List<Orbit> orbitList = orbitRepository.findOrbitsByGalaxyId(orbitRequest.getGalaxyId());
-        for (Orbit orbit : orbitList) {
-            if (Objects.equals(orbit.getOrbitLevel(), orbitRequest.getOrbitLevel())) {
-                throw new OrbitCoordinatesException();
-            }
-        }
+        boolean orbitExists = orbitRepository.findOrbitsByGalaxyId(orbitRequest.getGalaxyId())
+                .stream().anyMatch(o -> o.getOrbitLevel().equals(orbitRequest.getOrbitLevel()));
+        if (orbitExists)
+            throw new OrbitCoordinatesException();
         return orbitRepository.save(mapper.map(orbitRequest, Orbit.class));
     }
 
     public Orbit updateOrbit(Integer orbitId, OrbitDTO orbit) {
         if (!galaxyRepository.existsById(orbit.getGalaxyId()))
             throw new GalaxyNotFoundException();
+        boolean orbitExists = orbitRepository.findOrbitsByGalaxyId(orbit.getGalaxyId())
+                .stream().anyMatch(o -> o.getOrbitLevel().equals(orbit.getOrbitLevel()));
+        if (orbitExists)
+            throw new OrbitCoordinatesException();
         Orbit updatedOrbit = orbitRepository.findById(orbitId).orElseThrow(OrbitNotFoundException::new);
         updatedOrbit.setOrbitLevel(orbit.getOrbitLevel());
         updatedOrbit.setSystemCount(orbit.getSystemCount());

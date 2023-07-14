@@ -41,13 +41,7 @@ public class PersonService {
     private final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
     public Object login(LoginRequest request, HttpServletResponse response) {
-        Person person;
-        try {
-            person = authenticatePerson(request);
-        } catch (Exception e) {
-            logger.severe(e.getMessage());
-            throw new UserNotFoundException();
-        }
+        Person person = authenticatePerson(request);
         String token = jwtGenerator.generateToken(person, request.getRole());
         Cookie tokenCookie = generateCookie(token);
         response.addCookie(tokenCookie);
@@ -79,7 +73,7 @@ public class PersonService {
             if (response.code() == HttpStatus.OK.value() && isResponseSuccess(responseBody))
                 employeeOptional = getUserInformation(responseBody);
         } catch (Exception e) {
-            logger.severe(e.getMessage());
+            logger.severe(e.toString());
             throw new ConnectException();
         }
         return employeeOptional;

@@ -23,7 +23,6 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.transaction.Transactional;
 import java.util.*;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,7 +36,7 @@ public class StarSystemService {
     private final ModelMapper mapper;
     private final DependencyMapper dependencyMapper;
     private final RestTemplate restTemplate;
-    private final Logger logger = Logger.getLogger(GalaxyService.class.getName());
+
     @Setter
     private String token;
     @Value("${course_app_url}")
@@ -129,14 +128,11 @@ public class StarSystemService {
 
     @Transactional
     public Map<String, String> deleteSystem(Integer systemId) {
-        try {
-            starSystemRepository.deleteById(systemId);
-            Map<String, String> response = new HashMap<>();
-            response.put("message", "Система " + systemId + " была уничтожена чёрной дырой");
-            return response;
-        } catch (Exception e) {
-            logger.severe(e.getMessage());
+        if (!starSystemRepository.existsById(systemId))
             throw new SystemNotFoundException();
-        }
+        starSystemRepository.deleteById(systemId);
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Система " + systemId + " была уничтожена чёрной дырой");
+        return response;
     }
 }

@@ -16,15 +16,12 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 @Service
 @RequiredArgsConstructor
 public class DependencyService {
     private final DependencyRepository dependencyRepository;
     private final StarSystemRepository starSystemRepository;
-
-    private final Logger logger = Logger.getLogger(DependencyService.class.getName());
 
     public List<SystemDependency> addDependency(List<DependencyCreateRequest> systemDependency) {
         List<SystemDependency> dependencies = new LinkedList<>();
@@ -61,7 +58,6 @@ public class DependencyService {
                 dependencyId = dependencyRepository.getSystemDependencyByChildIDAndParentId(dependency.getChildId(), dependency.getParentId()).getDependencyId();
             dependencyRepository.deleteById(dependencyId);
         } catch (Exception e) {
-            logger.severe(e.getMessage());
             throw new DependencyNotFoundException();
         }
         Map<String, String> response = new HashMap<>();

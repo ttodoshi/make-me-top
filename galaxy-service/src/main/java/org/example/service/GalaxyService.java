@@ -26,8 +26,6 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.transaction.Transactional;
 import java.util.*;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -40,48 +38,44 @@ public class GalaxyService {
 
     private final ModelMapper mapper;
     private final RestTemplate restTemplate;
-    private final Logger logger = Logger.getLogger(GalaxyService.class.getName());
     @Setter
     private String token;
     @Value("${course_app_url}")
     private String COURSE_APP_URL;
 
-    public GetGalaxyRequest getGalaxyById(Integer id) {
-        try {
-            GetGalaxyRequest galaxy = mapper.map(galaxyRepository.getReferenceById(id), GetGalaxyRequest.class);
-            galaxy.setOrbitsList(orbitRepository.findOrbitsByGalaxyId(id)
-                    .stream()
-                    .map(orbit -> mapper.map(orbit, GetOrbitWithStarSystemsWithoutGalaxyId.class))
-                    .collect(Collectors.toList()));
-            List<GetOrbitWithStarSystemsWithoutGalaxyId> orbitWithStarSystemsList = new LinkedList<>();
-            for (GetOrbitWithStarSystemsWithoutGalaxyId orbitWithStarSystems : galaxy.getOrbitsList())
-                orbitWithStarSystemsList.add(mapper.map(orbitService.getOrbitWithSystemList(orbitWithStarSystems.getOrbitId()), GetOrbitWithStarSystemsWithoutGalaxyId.class));
-            galaxy.setOrbitsList(orbitWithStarSystemsList);
-            return galaxy;
-        } catch (Exception e) {
-            logger.severe(e.getMessage());
+    public List<Galaxy> getAllGalaxies() {
+        return galaxyRepository.findAll();
+    }
+
+    public GetGalaxyRequest getGalaxyById(Integer galaxyId) {
+        if (!galaxyRepository.existsById(galaxyId))
             throw new GalaxyNotFoundException();
-        }
+        GetGalaxyRequest galaxy = mapper.map(galaxyRepository.getReferenceById(galaxyId), GetGalaxyRequest.class);
+        List<GetOrbitWithStarSystemsWithoutGalaxyId> orbitWithStarSystemsList = new LinkedList<>();
+        orbitRepository.findOrbitsByGalaxyId(galaxyId).forEach(
+                o -> orbitWithStarSystemsList.add(
+                        mapper.map(
+                                orbitService.getOrbitWithSystemList(o.getOrbitId()),
+                                GetOrbitWithStarSystemsWithoutGalaxyId.class)
+                )
+        );
+        galaxy.setOrbitsList(orbitWithStarSystemsList);
+        return galaxy;
     }
 
     @Transactional
     public GetGalaxyRequest createGalaxy(CreateGalaxyRequest createGalaxyRequest) {
-        Galaxy galaxy = new Galaxy();
-        galaxy.setGalaxyName(createGalaxyRequest.getGalaxyName());
+        Galaxy galaxy = mapper.map(createGalaxyRequest, Galaxy.class);
         Integer savedGalaxyId = galaxyRepository.save(galaxy).getGalaxyId();
-        if (createGalaxyRequest.getOrbitsList() != null) {
-            for (CreateOrbitWithStarSystems orbit : createGalaxyRequest.getOrbitsList()) {
-                Orbit savedOrbit = mapper.map(orbit, Orbit.class);
-                savedOrbit.setGalaxyId(savedGalaxyId);
-                Integer savedOrbitId = orbitRepository.save(savedOrbit).getOrbitId();
-                if (orbit.getSystemsList() != null) {
-                    for (CreateStarSystemWithoutOrbitId system : orbit.getSystemsList()) {
-                        StarSystem savedSystem = mapper.map(system, StarSystem.class);
-                        savedSystem.setOrbitId(savedOrbitId);
-                        Integer savedSystemId = starSystemRepository.save(savedSystem).getSystemId();
-                        createCourse(savedSystemId, system);
-                    }
-                }
+        for (CreateOrbitWithStarSystems orbit : createGalaxyRequest.getOrbitsList()) {
+            Orbit savedOrbit = mapper.map(orbit, Orbit.class);
+            savedOrbit.setGalaxyId(savedGalaxyId);
+            Integer savedOrbitId = orbitRepository.save(savedOrbit).getOrbitId();
+            for (CreateStarSystemWithoutOrbitId system : orbit.getSystemsList()) {
+                StarSystem savedSystem = mapper.map(system, StarSystem.class);
+                savedSystem.setOrbitId(savedOrbitId);
+                Integer savedSystemId = starSystemRepository.save(savedSystem).getSystemId();
+                createCourse(savedSystemId, system);
             }
         }
         return getGalaxyById(savedGalaxyId);
@@ -100,33 +94,24 @@ public class GalaxyService {
         return headers;
     }
 
-    public Galaxy updateGalaxy(Integer id, GalaxyDTO galaxy) {
-        try {
-            Galaxy updatedGalaxy = galaxyRepository.getReferenceById(id);
-            updatedGalaxy.setGalaxyName(galaxy.getGalaxyName());
-            return galaxyRepository.save(updatedGalaxy);
-        } catch (RuntimeException e) {
-            logger.severe(e.getMessage());
-            throw new GalaxyAlreadyExistsException();
-        } catch (Exception e) {
-            logger.severe(e.getMessage());
+    public Galaxy updateGalaxy(Integer galaxyId, GalaxyDTO galaxy) {
+        if (!galaxyRepository.existsById(galaxyId))
             throw new GalaxyNotFoundException();
+        if (galaxyRepository.findAll().stream()
+                .anyMatch(g -> g.getGalaxyName().equals(galaxy.getGalaxyName()))) {
+            throw new GalaxyAlreadyExistsException();
         }
+        Galaxy updatedGalaxy = galaxyRepository.getReferenceById(galaxyId);
+        updatedGalaxy.setGalaxyName(galaxy.getGalaxyName());
+        return galaxyRepository.save(updatedGalaxy);
     }
 
     public Map<String, String> deleteGalaxy(Integer galaxyId) {
-        try {
-            galaxyRepository.deleteById(galaxyId);
-            Map<String, String> response = new HashMap<>();
-            response.put("message", "Галактика " + galaxyId + " была уничтожена квазаром");
-            return response;
-        } catch (Exception e) {
-            logger.severe(e.getMessage());
+        if (!galaxyRepository.existsById(galaxyId))
             throw new GalaxyNotFoundException();
-        }
-    }
-
-    public List<Galaxy> getAllGalaxies() {
-        return galaxyRepository.getAllGalaxy();
+        galaxyRepository.deleteById(galaxyId);
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Галактика " + galaxyId + " была уничтожена квазаром");
+        return response;
     }
 }

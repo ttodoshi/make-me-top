@@ -26,7 +26,10 @@ import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.transaction.Transactional;
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -56,9 +59,8 @@ public class PlanetService {
         for (PlanetDTO planet : planets) {
             if (!doesSystemExist(planet.getSystemId()))
                 throw new SystemNotFoundException();
-            else if (planetRepository.getPlanetsBySystemId(planet.getSystemId())
-                    .stream().noneMatch(
-                            x -> Objects.equals(x.getPlanetName(), planet.getPlanetName()))) {
+            else if (planetRepository.getPlanetsBySystemId(planet.getSystemId()).stream()
+                    .noneMatch(p -> p.getPlanetName().equals(planet.getPlanetName()))) {
                 Planet savedPlanet = planetRepository.save(mapper.map(planet, Planet.class));
                 addCourseTheme(savedPlanet.getPlanetId(), planet);
                 savedPlanets.add(savedPlanet);
@@ -79,23 +81,19 @@ public class PlanetService {
     public Planet updatePlanet(PlanetUpdateRequest planet, Integer planetId) {
         if (!doesSystemExist(planet.getSystemId()))
             throw new SystemNotFoundException();
-        Optional<Planet> updatedPlanetOptional = planetRepository.findById(planetId);
-        Planet updatedPlanet;
-        if (updatedPlanetOptional.isEmpty())
-            throw new PlanetNotFoundException();
-        else
-            updatedPlanet = updatedPlanetOptional.get();
-        for (Planet currentPlanet : planetRepository.getPlanetsBySystemId(planet.getSystemId())) {
-            if (currentPlanet.getPlanetName().equals(updatedPlanet.getPlanetName()) && !currentPlanet.getPlanetId().equals(updatedPlanet.getPlanetId()))
-                throw new PlanetAlreadyExistsException();
-        }
+        Planet updatedPlanet = planetRepository.findById(planetId).orElseThrow(PlanetNotFoundException::new);
+        boolean planetExists = planetRepository.getPlanetsBySystemId(planet.getSystemId()).stream()
+                .anyMatch(
+                        p -> p.getPlanetName().equals(updatedPlanet.getPlanetName())
+                );
+        if (planetExists)
+            throw new PlanetAlreadyExistsException();
         updatedPlanet.setPlanetName(planet.getPlanetName());
         updatedPlanet.setSystemId(planet.getSystemId());
         updatedPlanet.setPlanetNumber(planet.getPlanetNumber());
         return planetRepository.save(updatedPlanet);
     }
 
-    @Transactional
     public Map<String, String> deletePlanetById(Integer planetId) {
         if (!planetRepository.existsById(planetId))
             throw new PlanetNotFoundException();
@@ -113,10 +111,10 @@ public class PlanetService {
                             new HttpEntity<>(createHeaders()),
                             StarSystem.class)
                     .getStatusCode().equals(HttpStatus.OK);
-        } catch (ResourceAccessException e) {
-            throw new ConnectException();
         } catch (HttpClientErrorException e) {
             return false;
+        } catch (ResourceAccessException e) {
+            throw new ConnectException();
         }
     }
 
