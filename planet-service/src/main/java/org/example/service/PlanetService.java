@@ -49,7 +49,7 @@ public class PlanetService {
 
     public List<Planet> getPlanetsListBySystemId(Integer systemId) {
         if (doesSystemExist(systemId))
-            return planetRepository.getPlanetsBySystemId(systemId);
+            return planetRepository.findPlanetsBySystemId(systemId);
         throw new SystemNotFoundException();
     }
 
@@ -59,7 +59,7 @@ public class PlanetService {
         for (CreatePlanet planet : planets) {
             if (!doesSystemExist(planet.getSystemId()))
                 throw new SystemNotFoundException();
-            else if (planetRepository.getPlanetsBySystemId(planet.getSystemId()).stream()
+            else if (planetRepository.findPlanetsBySystemId(planet.getSystemId()).stream()
                     .noneMatch(p -> p.getPlanetName().equals(planet.getPlanetName()))) {
                 Planet savedPlanet = planetRepository.save(mapper.map(planet, Planet.class));
                 addCourseTheme(savedPlanet.getPlanetId(), planet);
@@ -82,7 +82,7 @@ public class PlanetService {
         if (!doesSystemExist(planet.getSystemId()))
             throw new SystemNotFoundException();
         Planet updatedPlanet = planetRepository.findById(planetId).orElseThrow(PlanetNotFoundException::new);
-        boolean planetExists = planetRepository.getPlanetsBySystemId(planet.getSystemId()).stream()
+        boolean planetExists = planetRepository.findPlanetsBySystemId(planet.getSystemId()).stream()
                 .anyMatch(
                         p -> p.getPlanetName().equals(updatedPlanet.getPlanetName())
                 );

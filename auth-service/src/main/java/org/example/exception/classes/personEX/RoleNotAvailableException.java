@@ -1,4 +1,4 @@
-package org.example.exception.classes.userEX;
+package org.example.exception.classes.personEX;
 
 public class RoleNotAvailableException extends RuntimeException {
     public RoleNotAvailableException() {

@@ -12,7 +12,7 @@ import org.example.config.security.JwtServiceInterface;
 import org.example.dto.AuthResponseUser;
 import org.example.dto.LoginRequest;
 import org.example.exception.classes.connectEX.ConnectException;
-import org.example.exception.classes.userEX.UserNotFoundException;
+import org.example.exception.classes.personEX.PersonNotFoundException;
 import org.example.model.Person;
 import org.example.repository.PersonRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -50,11 +50,11 @@ public class PersonService {
 
     private Person authenticatePerson(LoginRequest request) {
         AuthResponseUser authResponse = sendAuthRequest(request)
-                .orElseThrow(UserNotFoundException::new);
-        Person person = personRepository.getPersonById(authResponse.getEmployeeId());
-        if (person == null)
-            return personRepository.save(personMapper.UserAuthResponseToPerson(authResponse));
-        return person;
+                .orElseThrow(PersonNotFoundException::new);
+        Optional<Person> personOptional = personRepository.findById(authResponse.getEmployeeId());
+        return personOptional.orElseGet(
+                () -> personRepository.save(personMapper.UserAuthResponseToPerson(authResponse))
+        );
     }
 
     private Cookie generateCookie(String token) {

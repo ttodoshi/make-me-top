@@ -2,8 +2,8 @@ package org.example.config;
 
 import org.example.exception.ErrorResponse;
 import org.example.exception.classes.connectEX.ConnectException;
-import org.example.exception.classes.userEX.RoleNotAvailableException;
-import org.example.exception.classes.userEX.UserNotFoundException;
+import org.example.exception.classes.personEX.RoleNotAvailableException;
+import org.example.exception.classes.personEX.PersonNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -49,8 +49,8 @@ public class ErrorHandler {
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), "Ошибка в поступивших данных"), HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleUserNotFoundException(Exception e) {
+    @ExceptionHandler(PersonNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handlePersonNotFoundException(Exception e) {
         logger.warning(e.toString());
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
     }
