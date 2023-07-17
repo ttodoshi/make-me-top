@@ -56,10 +56,8 @@ public class GalaxyService {
 
     @Transactional
     public GetGalaxyRequest createGalaxy(CreateGalaxyRequest createGalaxyRequest) {
-        if (galaxyRepository.findAll().stream()
-                .anyMatch(g -> g.getGalaxyName().equals(createGalaxyRequest.getGalaxyName()))) {
+        if (galaxyExists(createGalaxyRequest.getGalaxyName()))
             throw new GalaxyAlreadyExistsException();
-        }
         Galaxy galaxy = mapper.map(createGalaxyRequest, Galaxy.class);
         Integer savedGalaxyId = galaxyRepository.save(galaxy).getGalaxyId();
         orbitService.setToken(token);
@@ -72,13 +70,16 @@ public class GalaxyService {
     public Galaxy updateGalaxy(Integer galaxyId, GalaxyDTO galaxy) {
         if (!galaxyRepository.existsById(galaxyId))
             throw new GalaxyNotFoundException();
-        if (galaxyRepository.findAll().stream()
-                .anyMatch(g -> g.getGalaxyName().equals(galaxy.getGalaxyName()))) {
+        if (galaxyExists(galaxy.getGalaxyName()))
             throw new GalaxyAlreadyExistsException();
-        }
         Galaxy updatedGalaxy = galaxyRepository.getReferenceById(galaxyId);
         updatedGalaxy.setGalaxyName(galaxy.getGalaxyName());
         return galaxyRepository.save(updatedGalaxy);
+    }
+
+    private boolean galaxyExists(String galaxyName) {
+        return galaxyRepository.findAll().stream()
+                .anyMatch(g -> g.getGalaxyName().equals(galaxyName));
     }
 
     public Map<String, String> deleteGalaxy(Integer galaxyId) {

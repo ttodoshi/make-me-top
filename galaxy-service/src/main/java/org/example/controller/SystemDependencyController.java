@@ -7,7 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.dependency.DependencyRequest;
-import org.example.dto.dependency.DependencyCreateRequest;
+import org.example.dto.dependency.CreateDependencyRequest;
 import org.example.service.DependencyService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -37,7 +37,7 @@ public class SystemDependencyController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> addDependency(@RequestBody List<@Valid DependencyCreateRequest> dependency) {
+    public ResponseEntity<?> addDependency(@RequestBody List<@Valid CreateDependencyRequest> dependency) {
         return ResponseEntity.ok(dependencyService.addDependency(dependency));
     }
 

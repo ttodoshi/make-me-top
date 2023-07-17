@@ -79,7 +79,7 @@ public class StarSystemController {
     }
 
 
-    @PutMapping("galaxy/{galaxyId}/system/{systemId}")
+    @PutMapping("system/{systemId}")
     @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Update system by id", tags = "system")
     @ApiResponses(value = {
@@ -92,9 +92,8 @@ public class StarSystemController {
                     })
     })
     public ResponseEntity<?> updateSystem(@Valid @RequestBody StarSystemDTO starSystem,
-                                          @PathVariable("galaxyId") Integer galaxyId,
                                           @PathVariable("systemId") Integer systemId) {
-        return ResponseEntity.ok(starSystemService.updateSystem(starSystem, galaxyId, systemId));
+        return ResponseEntity.ok(starSystemService.updateSystem(starSystem, systemId));
     }
 
     @DeleteMapping("system/{systemId}")

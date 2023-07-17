@@ -22,7 +22,7 @@ public interface DependencyRepository extends JpaRepository<SystemDependency, In
             "\n" +
             "SELECT * FROM r\n" +
             "WHERE parent_id = ?1", nativeQuery = true)
-    List<SystemDependency> getListSystemDependencyParent(Integer id);
+    List<SystemDependency> getSystemChildren(Integer id);
 
 
     @Query(value = "WITH RECURSIVE r AS (\n" +
@@ -40,11 +40,11 @@ public interface DependencyRepository extends JpaRepository<SystemDependency, In
             "\n" +
             "SELECT * FROM r\n" +
             "WHERE child_id = ?1", nativeQuery = true)
-    List<SystemDependency> getListSystemDependencyChild(Integer id);
+    List<SystemDependency> getSystemParents(Integer id);
 
-    @Query(value = "SELECT * FROM galaxy.system_dependency WHERE child_id=?1 and  parent_id = ?2", nativeQuery = true)
+    @Query(value = "SELECT * FROM galaxy.system_dependency WHERE child_id=?1 and parent_id = ?2", nativeQuery = true)
     SystemDependency getSystemDependencyByChildIDAndParentId(Integer childId, Integer parentId);
 
-    @Query(value = "SELECT * FROM galaxy.system_dependency WHERE child_id=?1 and  parent_id  ISNULL", nativeQuery = true)
+    @Query(value = "SELECT * FROM galaxy.system_dependency WHERE child_id=?1 and parent_id ISNULL", nativeQuery = true)
     SystemDependency getSystemDependencyByChildIdAndParentNull(Integer childId);
 }

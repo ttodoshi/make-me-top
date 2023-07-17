@@ -28,7 +28,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 @Service
@@ -46,8 +45,6 @@ public class CourseService {
     private String token;
     @Value("${galaxy_app_url}")
     private String GALAXY_APP_URL;
-
-    private final Logger logger = Logger.getLogger(CourseService.class.getName());
 
     public CourseWithKeepers getCourse(Integer courseId) {
         CourseWithKeepers courseWithKeepers = mapper.map(
@@ -96,7 +93,6 @@ public class CourseService {
                     )
             ).collect(Collectors.toList());
         } catch (HttpClientErrorException e) {
-            logger.severe(e.getMessage());
             throw new GalaxyNotFoundException();
         }
     }

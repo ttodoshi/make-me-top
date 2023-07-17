@@ -5,7 +5,9 @@ import org.example.dto.courseregistration.CourseRegistrationRequestReply;
 import org.example.dto.courseregistration.KeeperRejectionDTO;
 import org.example.exception.classes.keeperEX.DifferentKeeperException;
 import org.example.exception.classes.requestEX.*;
-import org.example.model.*;
+import org.example.model.Explorer;
+import org.example.model.Keeper;
+import org.example.model.Person;
 import org.example.model.courserequest.*;
 import org.example.repository.*;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,8 +30,7 @@ public class CourseRegistrationRequestService {
 
     @Transactional
     public CourseRegistrationRequest replyToRequest(Integer requestId, CourseRegistrationRequestReply requestReply) {
-        Person authenticatedPerson = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Integer authenticatedPersonId = authenticatedPerson.getPersonId();
+        final Integer authenticatedPersonId = getAuthenticatedPersonId();
         CourseRegistrationRequest request = courseRegistrationRequestRepository
                 .findById(requestId).orElseThrow(RequestNotFoundException::new);
         CourseRegistrationRequestStatus currentStatus = courseRegistrationRequestStatusRepository
@@ -50,6 +51,11 @@ public class CourseRegistrationRequestService {
                 .orElseThrow(StatusNotFoundException::new).getStatusId();
         request.setStatusId(statusId);
         return courseRegistrationRequestRepository.save(request);
+    }
+
+    private Integer getAuthenticatedPersonId() {
+        final Person authenticatedPerson = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return authenticatedPerson.getPersonId();
     }
 
     private void addExplorer(Integer personId, Integer courseId) {

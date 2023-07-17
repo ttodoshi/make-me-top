@@ -1,7 +1,7 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.dependency.DependencyCreateRequest;
+import org.example.dto.dependency.CreateDependencyRequest;
 import org.example.dto.dependency.DependencyRequest;
 import org.example.exception.classes.dependencyEX.DependencyAlreadyExistsException;
 import org.example.exception.classes.dependencyEX.DependencyCouldNotBeCreatedException;
@@ -12,6 +12,7 @@ import org.example.repository.DependencyRepository;
 import org.example.repository.StarSystemRepository;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -23,24 +24,21 @@ public class DependencyService {
     private final DependencyRepository dependencyRepository;
     private final StarSystemRepository starSystemRepository;
 
-    public List<SystemDependency> addDependency(List<DependencyCreateRequest> systemDependency) {
+    @Transactional
+    public List<SystemDependency> addDependency(List<CreateDependencyRequest> systemDependency) {
         List<SystemDependency> dependencies = new LinkedList<>();
-        for (DependencyCreateRequest dependency : systemDependency) {
+        for (CreateDependencyRequest dependency : systemDependency) {
             if (dependency.getChildId().equals(dependency.getParentId()))
                 throw new DependencyCouldNotBeCreatedException();
-            if (!starSystemRepository.existsById(dependency.getChildId()) ||
-                    (dependency.getParentId() != null && !starSystemRepository.existsById(dependency.getParentId())))
-                throw new SystemNotFoundException();
-            if (dependency.getParentId() == null && dependencyRepository.getSystemDependencyByChildIdAndParentNull(dependency.getChildId()) != null)
-                throw new DependencyAlreadyExistsException();
-            if (dependencyRepository.getSystemDependencyByChildIDAndParentId(dependency.getChildId(), dependency.getParentId()) != null)
+            if ((dependency.getParentId() == null && dependencyRepository.getSystemDependencyByChildIdAndParentNull(dependency.getChildId()) != null) ||
+                    (dependencyRepository.getSystemDependencyByChildIDAndParentId(dependency.getChildId(), dependency.getParentId()) != null))
                 throw new DependencyAlreadyExistsException();
             dependencies.add(
                     dependencyRepository.save(
                             new SystemDependency(
                                     null,
-                                    starSystemRepository.getReferenceById(dependency.getChildId()),
-                                    dependency.getParentId() == null ? null : starSystemRepository.getReferenceById(dependency.getParentId()),
+                                    starSystemRepository.findById(dependency.getChildId()).orElseThrow(SystemNotFoundException::new),
+                                    dependency.getParentId() == null ? null : starSystemRepository.findById(dependency.getParentId()).orElseThrow(SystemNotFoundException::new),
                                     dependency.getIsAlternative()
                             )
                     )
@@ -56,10 +54,10 @@ public class DependencyService {
                 dependencyId = dependencyRepository.getSystemDependencyByChildIdAndParentNull(dependency.getChildId()).getDependencyId();
             else
                 dependencyId = dependencyRepository.getSystemDependencyByChildIDAndParentId(dependency.getChildId(), dependency.getParentId()).getDependencyId();
-            dependencyRepository.deleteById(dependencyId);
-        } catch (Exception e) {
+        } catch (NullPointerException e) {
             throw new DependencyNotFoundException();
         }
+        dependencyRepository.deleteById(dependencyId);
         Map<String, String> response = new HashMap<>();
         response.put("message", "Зависимость " + dependencyId + " удалена");
         return response;

@@ -6,21 +6,19 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class DependencyMapper {
-    SystemDependencyModel systemDependencyModel;
-
-    public SystemDependencyModel dependencyToDependencyParentModel(SystemDependency systemDependency) {
-        systemDependencyModel = new SystemDependencyModel();
-        systemDependencyModel.setSystemId(systemDependency.getChild().getSystemId());
-        systemDependencyModel.setIsAlternative(systemDependency.getIsAlternative());
-        systemDependencyModel.setType("child");
-        return systemDependencyModel;
+    public SystemDependencyModel dependencyToDependencyChildModel(SystemDependency systemDependency) {
+        return new SystemDependencyModel(
+                systemDependency.getChild().getSystemId(),
+                "child",
+                systemDependency.getIsAlternative()
+        );
     }
 
-    public SystemDependencyModel dependencyToDependencyChildModel(SystemDependency systemDependency) {
-        systemDependencyModel = new SystemDependencyModel();
-        systemDependencyModel.setSystemId(systemDependency.getParent().getSystemId());
-        systemDependencyModel.setIsAlternative(systemDependency.getIsAlternative());
-        systemDependencyModel.setType("parent");
-        return systemDependencyModel;
+    public SystemDependencyModel dependencyToDependencyParentModel(SystemDependency systemDependency) {
+        return new SystemDependencyModel(
+                systemDependency.getParent().getSystemId(),
+                "parent",
+                systemDependency.getIsAlternative()
+        );
     }
 }

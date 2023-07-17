@@ -60,8 +60,7 @@ public class OrbitService {
     public GetOrbitWithStarSystems createOrbit(Integer galaxyId, CreateOrbitWithStarSystems orbitRequest) {
         if (!galaxyRepository.existsById(galaxyId))
             throw new GalaxyNotFoundException();
-        if (orbitRepository.findOrbitsByGalaxyId(galaxyId)
-                .stream().anyMatch(o -> o.getOrbitLevel().equals(orbitRequest.getOrbitLevel())))
+        if (orbitExists(galaxyId, orbitRequest.getOrbitLevel()))
             throw new OrbitCoordinatesException();
         Orbit orbit = mapper.map(orbitRequest, Orbit.class);
         orbit.setGalaxyId(galaxyId);
@@ -76,15 +75,18 @@ public class OrbitService {
     public Orbit updateOrbit(Integer orbitId, OrbitDTO orbit) {
         if (!galaxyRepository.existsById(orbit.getGalaxyId()))
             throw new GalaxyNotFoundException();
-        boolean orbitExists = orbitRepository.findOrbitsByGalaxyId(orbit.getGalaxyId())
-                .stream().anyMatch(o -> o.getOrbitLevel().equals(orbit.getOrbitLevel()));
-        if (orbitExists)
+        if (orbitExists(orbit.getGalaxyId(), orbit.getOrbitLevel()))
             throw new OrbitCoordinatesException();
         Orbit updatedOrbit = orbitRepository.findById(orbitId).orElseThrow(OrbitNotFoundException::new);
         updatedOrbit.setOrbitLevel(orbit.getOrbitLevel());
         updatedOrbit.setSystemCount(orbit.getSystemCount());
         updatedOrbit.setGalaxyId(orbit.getGalaxyId());
         return orbitRepository.save(updatedOrbit);
+    }
+
+    private boolean orbitExists(Integer galaxyId, Integer orbitLevel) {
+        return orbitRepository.findOrbitsByGalaxyId(galaxyId)
+                .stream().anyMatch(o -> o.getOrbitLevel().equals(orbitLevel));
     }
 
     public Map<String, String> deleteOrbit(Integer orbitId) {

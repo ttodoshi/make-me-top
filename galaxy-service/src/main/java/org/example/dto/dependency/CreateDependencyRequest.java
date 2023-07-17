@@ -7,7 +7,7 @@ import javax.validation.constraints.NotNull;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class DependencyCreateRequest extends DependencyRequest {
+public class CreateDependencyRequest extends DependencyRequest {
     @NotNull
     private Boolean isAlternative;
 }

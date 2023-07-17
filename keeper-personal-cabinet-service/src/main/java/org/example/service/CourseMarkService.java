@@ -25,8 +25,7 @@ public class CourseMarkService {
         Person person = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         boolean explorerNeedMark = explorerRepository.getExplorersNeededFinalAssessmentByKeeperPersonId(
                         person.getPersonId()).stream()
-                .anyMatch(
-                        e -> e.getExplorerId().equals(courseMark.getExplorerId()));
+                .anyMatch(e -> e.getExplorerId().equals(courseMark.getExplorerId()));
         if (explorerNeedMark)
             return courseMarkRepository.save(
                     new CourseMark(courseMark.getExplorerId(), new Date(), courseMark.getValue())
