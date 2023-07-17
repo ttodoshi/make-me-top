@@ -12,6 +12,7 @@ import org.example.repository.CourseThemeRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.Date;
 import java.util.List;
 
@@ -33,6 +34,7 @@ public class CourseThemeService {
         throw new CourseNotFoundException();
     }
 
+    @Transactional
     public CourseTheme createCourseTheme(CourseThemeCreateRequest courseThemeRequest,
                                          Integer courseId) {
         CourseTheme theme = mapper.map(courseThemeRequest, CourseTheme.class);

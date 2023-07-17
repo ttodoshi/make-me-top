@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import javax.transaction.Transactional;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -65,6 +66,7 @@ public class CourseService {
         ).collect(Collectors.toList());
     }
 
+    @Transactional
     public Course createCourse(Course course) {
         return courseRepository.save(course);
     }

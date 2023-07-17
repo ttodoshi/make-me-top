@@ -52,9 +52,10 @@ public class StarSystemService {
                 .map(dependencyMapper::dependencyToDependencyChildModel)
                 .forEach(dependencies::add);
         dependencyRepository.getSystemParents(systemId)
-                .stream()
-                .map(dependencyMapper::dependencyToDependencyParentModel)
-                .forEach(dependencies::add);
+                .forEach(s -> {
+                    if (s.getParent() != null)
+                        dependencies.add(dependencyMapper.dependencyToDependencyParentModel(s));
+                });
         system.setDependencyList(dependencies);
         return system;
     }

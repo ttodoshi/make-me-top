@@ -43,7 +43,7 @@ public class PlanetController {
         return ResponseEntity.ok(planetService.getPlanetsListBySystemId(systemId));
     }
 
-    @PostMapping("planet")
+    @PostMapping("system/{systemId}/planet")
     @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Create planets", tags = "planet")
     @ApiResponses(value = {
@@ -56,9 +56,10 @@ public class PlanetController {
                     })
     })
     public ResponseEntity<?> addPlanets(@RequestBody List<@Valid CreatePlanet> planetList,
+                                        @PathVariable Integer systemId,
                                         @RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token) {
         planetService.setToken(token);
-        return ResponseEntity.ok(planetService.addPlanets(planetList));
+        return ResponseEntity.ok(planetService.addPlanets(systemId, planetList));
     }
 
     @PutMapping("planet/{planetId}")

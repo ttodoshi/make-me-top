@@ -35,8 +35,9 @@ public class SystemProgressController {
     })
     public ResponseEntity<?> getSystemsProgress(@PathVariable("galaxyId") Integer galaxyId,
                                                 @RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token) {
+        systemProgressService.setToken(token);
         return ResponseEntity.ok(
-                systemProgressService.getSystemsProgressForCurrentUser(galaxyId, token));
+                systemProgressService.getSystemsProgressForCurrentUser(galaxyId));
     }
 
     @GetMapping("course/{courseId}")

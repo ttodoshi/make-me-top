@@ -15,6 +15,4 @@ public class CreatePlanet {
     private String description;
     @NotNull
     private String content;
-    @NotNull
-    private Integer systemId;
 }

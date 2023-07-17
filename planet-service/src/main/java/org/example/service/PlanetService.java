@@ -6,12 +6,12 @@ import org.example.dto.coursetheme.CourseThemeCreateRequest;
 import org.example.dto.coursetheme.CourseThemeDTO;
 import org.example.dto.planet.CreatePlanet;
 import org.example.dto.planet.PlanetUpdateRequest;
+import org.example.dto.starsystem.StarSystemDTO;
 import org.example.exception.classes.connectEX.ConnectException;
 import org.example.exception.classes.planetEX.PlanetAlreadyExistsException;
 import org.example.exception.classes.planetEX.PlanetNotFoundException;
 import org.example.exception.classes.systemEX.SystemNotFoundException;
 import org.example.model.Planet;
-import org.example.model.StarSystem;
 import org.example.repository.PlanetRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,10 +26,7 @@ import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.transaction.Transactional;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -54,25 +51,31 @@ public class PlanetService {
     }
 
     @Transactional
-    public List<Planet> addPlanets(List<CreatePlanet> planets) {
-        List<Planet> savedPlanets = new LinkedList<>();
+    public List<Planet> addPlanets(Integer systemId, List<CreatePlanet> planets) {
+        List<CreatePlanet> savingPlanetsList = new LinkedList<>();
         for (CreatePlanet planet : planets) {
-            if (!systemExists(planet.getSystemId()))
+            if (!systemExists(systemId))
                 throw new SystemNotFoundException();
-            if (planetExists(planet.getSystemId(), planet.getPlanetName()))
+            if (savingPlanetsList.contains(planet) || planetExists(systemId, planet.getPlanetName()))
                 throw new PlanetAlreadyExistsException();
-            Planet savedPlanet = planetRepository.save(mapper.map(planet, Planet.class));
-            addCourseTheme(savedPlanet.getPlanetId(), planet);
+            savingPlanetsList.add(planet);
+        }
+        List<Planet> savedPlanets = new ArrayList<>();
+        for (CreatePlanet currentPlanet : planets) {
+            Planet planet = mapper.map(currentPlanet, Planet.class);
+            planet.setSystemId(systemId);
+            Planet savedPlanet = planetRepository.save(planet);
             savedPlanets.add(savedPlanet);
+            addCourseTheme(systemId, savedPlanet.getPlanetId(), currentPlanet);
         }
         return savedPlanets;
     }
 
-    private void addCourseTheme(Integer courseThemeId, CreatePlanet planet) {
+    private void addCourseTheme(Integer systemId, Integer courseThemeId, CreatePlanet planet) {
         HttpEntity<CourseThemeCreateRequest> entity = new HttpEntity<>(new CourseThemeCreateRequest(courseThemeId,
                 planet.getPlanetName(), planet.getDescription(), planet.getContent(), planet.getPlanetNumber()),
                 createHeaders());
-        restTemplate.postForEntity(COURSE_APP_URL + "/course/" + planet.getSystemId() + "/theme", entity, CourseThemeDTO.class);
+        restTemplate.postForEntity(COURSE_APP_URL + "/course/" + systemId + "/theme", entity, CourseThemeDTO.class);
     }
 
     @Transactional
@@ -109,7 +112,7 @@ public class PlanetService {
                             GALAXY_APP_URL + "/system/" + systemId,
                             HttpMethod.GET,
                             new HttpEntity<>(createHeaders()),
-                            StarSystem.class)
+                            StarSystemDTO.class)
                     .getStatusCode().equals(HttpStatus.OK);
         } catch (HttpClientErrorException e) {
             return false;

@@ -1,8 +1,8 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.starsystem.StarSystemsForUser;
-import org.example.dto.starsystem.SystemWithProgress;
+import lombok.Setter;
+import org.example.dto.starsystem.*;
 import org.example.dto.systemprogress.CourseThemeProgressDTO;
 import org.example.dto.systemprogress.PlanetWithProgress;
 import org.example.dto.systemprogress.ProgressUpdateRequest;
@@ -20,10 +20,11 @@ import org.example.model.Explorer;
 import org.example.model.Person;
 import org.example.model.course.Course;
 import org.example.model.course.CourseTheme;
-import org.example.model.galaxy.StarSystem;
-import org.example.model.galaxy.SystemDependency;
 import org.example.model.progress.CourseThemeProgress;
-import org.example.repository.*;
+import org.example.repository.CourseRepository;
+import org.example.repository.CourseThemeRepository;
+import org.example.repository.ExplorerRepository;
+import org.example.repository.PlanetProgressRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -37,27 +38,29 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.transaction.Transactional;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class SystemProgressService {
     private final PlanetProgressRepository planetProgressRepository;
-    private final DependencyRepository dependencyRepository;
     private final ExplorerRepository explorerRepository;
     private final CourseRepository courseRepository;
     private final CourseThemeRepository courseThemeRepository;
 
     private final RestTemplate restTemplate;
     private final ModelMapper mapper;
+    @Setter
+    private String token;
     @Value("${app_galaxy_url}")
     private String GALAXY_APP_URL;
 
-    public StarSystemsForUser getSystemsProgressForCurrentUser(Integer galaxyId, String token) {
+    public StarSystemsForUser getSystemsProgressForCurrentUser(Integer galaxyId) {
         Person authenticatedPerson = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Set<Integer> openedSystems = new HashSet<>();
         Set<SystemWithProgress> studiedSystems = new HashSet<>();
         Set<Integer> closedSystems = new HashSet<>();
-        for (StarSystem system : getSystemsByGalaxyId(galaxyId, token)) {
+        for (StarSystemDTO system : getSystemsByGalaxyId(galaxyId)) {
             Optional<Explorer> explorerOptional = explorerRepository.findExplorerByPersonIdAndCourseId(
                     authenticatedPerson.getPersonId(), system.getSystemId());
             if (explorerOptional.isPresent()) {
@@ -82,12 +85,12 @@ public class SystemProgressService {
                 .build();
     }
 
-    private StarSystem[] getSystemsByGalaxyId(Integer galaxyId, String token) {
+    private StarSystemDTO[] getSystemsByGalaxyId(Integer galaxyId) {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.set("Authorization", token);
             HttpEntity<?> requestEntity = new HttpEntity<>(headers);
-            return restTemplate.exchange(GALAXY_APP_URL + "/galaxy/" + galaxyId + "/system/", HttpMethod.GET, requestEntity, StarSystem[].class).getBody();
+            return restTemplate.exchange(GALAXY_APP_URL + "/galaxy/" + galaxyId + "/system/", HttpMethod.GET, requestEntity, StarSystemDTO[].class).getBody();
         } catch (HttpClientErrorException e) {
             throw new GalaxyNotFoundException();
         } catch (ResourceAccessException e) {
@@ -184,17 +187,31 @@ public class SystemProgressService {
 
     public boolean hasUncompletedParents(Integer personId, Integer systemId) {
         boolean parentsUncompleted = false;
-        for (SystemDependency parent : dependencyRepository
-                .getListSystemDependencyChild(systemId)) {
-            if (parent.getParent() == null)
-                return false;
-            Optional<Explorer> explorer = explorerRepository.findExplorerByPersonIdAndCourseId(personId, parent.getParent().getSystemId());
+        GetStarSystemWithDependencies systemWithDependencies = getStarSystemWithDependencies(systemId);
+        if (systemWithDependencies == null)
+            return false;
+        for (SystemDependencyModel system : getParentDependencies(systemWithDependencies)) {
+            Optional<Explorer> explorer = explorerRepository.findExplorerByPersonIdAndCourseId(personId, system.getSystemId());
             if (explorer.isEmpty() || planetProgressRepository.getSystemProgress(
                     explorer.get().getExplorerId(), explorer.get().getCourseId()) < 100) {
                 parentsUncompleted = true;
-            } else if (parent.getIsAlternative())
+            } else if (system.getIsAlternative())
                 return false;
         }
         return parentsUncompleted;
+    }
+
+    private GetStarSystemWithDependencies getStarSystemWithDependencies(Integer systemId) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", token);
+        HttpEntity<?> requestEntity = new HttpEntity<>(headers);
+        return restTemplate.exchange(GALAXY_APP_URL + "/system/" + systemId + "?withDependencies=true", HttpMethod.GET, requestEntity, GetStarSystemWithDependencies.class).getBody();
+    }
+
+    private List<SystemDependencyModel> getParentDependencies(GetStarSystemWithDependencies systemWithDependencies) {
+        return systemWithDependencies.getDependencyList()
+                .stream()
+                .filter(s -> s.getType().equals("parent"))
+                .collect(Collectors.toList());
     }
 }
