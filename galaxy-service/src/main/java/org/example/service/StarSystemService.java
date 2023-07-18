@@ -43,7 +43,7 @@ public class StarSystemService {
 
     public GetStarSystemWithDependencies getStarSystemByIdWithDependencies(Integer systemId) {
         if (!starSystemRepository.existsById(systemId))
-            throw new SystemNotFoundException();
+            throw new SystemNotFoundException(systemId);
         GetStarSystemWithDependencies system = mapper.map(
                 starSystemRepository.getReferenceById(systemId), GetStarSystemWithDependencies.class);
         List<SystemDependencyModel> dependencies = new LinkedList<>();
@@ -62,22 +62,22 @@ public class StarSystemService {
 
     public GetStarSystem getStarSystemById(Integer systemId) {
         StarSystem system = starSystemRepository
-                .findById(systemId).orElseThrow(SystemNotFoundException::new);
+                .findById(systemId).orElseThrow(() -> new SystemNotFoundException(systemId));
         return mapper.map(system, GetStarSystem.class);
     }
 
     public List<StarSystem> getStarSystemsByGalaxyId(Integer galaxyId) {
         if (!galaxyRepository.existsById(galaxyId))
-            throw new GalaxyNotFoundException();
+            throw new GalaxyNotFoundException(galaxyId);
         return starSystemRepository.findSystemsByGalaxyId(galaxyId);
     }
 
     @Transactional
     public StarSystem createSystem(Integer orbitId, CreateStarSystem systemRequest) {
         if (!orbitRepository.existsById(orbitId))
-            throw new OrbitNotFoundException();
+            throw new OrbitNotFoundException(orbitId);
         if (systemExists(orbitRepository.getReferenceById(orbitId).getGalaxyId(), systemRequest.getSystemName()))
-            throw new SystemAlreadyExistsException();
+            throw new SystemAlreadyExistsException(systemRequest.getSystemName());
         StarSystem system = mapper.map(systemRequest, StarSystem.class);
         system.setOrbitId(orbitId);
         StarSystem savedSystem = starSystemRepository.save(system);
@@ -101,12 +101,12 @@ public class StarSystemService {
     @Transactional
     public StarSystem updateSystem(StarSystemDTO starSystem, Integer systemId) {
         if (!starSystemRepository.existsById(systemId))
-            throw new SystemNotFoundException();
+            throw new SystemNotFoundException(systemId);
         StarSystem updatedStarSystem = starSystemRepository.getReferenceById(systemId);
         if (!orbitRepository.existsById(starSystem.getOrbitId()))
-            throw new OrbitNotFoundException();
+            throw new OrbitNotFoundException(starSystem.getOrbitId());
         if (systemExists(orbitRepository.getReferenceById(starSystem.getOrbitId()).getGalaxyId(), starSystem.getSystemName()))
-            throw new SystemAlreadyExistsException();
+            throw new SystemAlreadyExistsException(starSystem.getSystemName());
         updatedStarSystem.setSystemName(starSystem.getSystemName());
         updatedStarSystem.setSystemPosition(starSystem.getSystemPosition());
         updatedStarSystem.setOrbitId(starSystem.getOrbitId());
@@ -122,7 +122,7 @@ public class StarSystemService {
     @Transactional
     public Map<String, String> deleteSystem(Integer systemId) {
         if (!starSystemRepository.existsById(systemId))
-            throw new SystemNotFoundException();
+            throw new SystemNotFoundException(systemId);
         starSystemRepository.deleteById(systemId);
         Map<String, String> response = new HashMap<>();
         response.put("message", "Система " + systemId + " была уничтожена чёрной дырой");

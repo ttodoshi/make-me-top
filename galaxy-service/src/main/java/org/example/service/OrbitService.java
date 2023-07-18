@@ -46,7 +46,7 @@ public class OrbitService {
 
     public GetOrbitWithStarSystems getOrbitWithSystemList(Integer orbitId) {
         if (!orbitRepository.existsById(orbitId))
-            throw new OrbitNotFoundException();
+            throw new OrbitNotFoundException(orbitId);
         GetOrbitWithStarSystems orbit = mapper.map(
                 orbitRepository.getReferenceById(orbitId), GetOrbitWithStarSystems.class);
         List<GetStarSystemWithDependencies> systemWithDependenciesList = new LinkedList<>();
@@ -60,13 +60,14 @@ public class OrbitService {
     }
 
     public Orbit getOrbitById(Integer orbitId) {
-        return orbitRepository.findById(orbitId).orElseThrow(OrbitNotFoundException::new);
+        return orbitRepository.findById(orbitId)
+                .orElseThrow(() -> new OrbitNotFoundException(orbitId));
     }
 
     @Transactional
     public GetOrbitWithStarSystems createOrbit(Integer galaxyId, CreateOrbitWithStarSystems orbitRequest) {
         if (!galaxyRepository.existsById(galaxyId))
-            throw new GalaxyNotFoundException();
+            throw new GalaxyNotFoundException(galaxyId);
         if (orbitExists(galaxyId, orbitRequest.getOrbitLevel()))
             throw new OrbitCoordinatesException();
         Orbit orbit = mapper.map(orbitRequest, Orbit.class);
@@ -75,9 +76,9 @@ public class OrbitService {
         List<CreateStarSystem> savingSystemsList = new LinkedList<>();
         for (CreateStarSystem system : orbitRequest.getSystemsList()) {
             if (!orbitRepository.existsById(savedOrbit.getOrbitId()))
-                throw new OrbitNotFoundException();
+                throw new OrbitNotFoundException(savedOrbit.getOrbitId());
             if (savingSystemsList.contains(system) || systemExists(orbitRepository.getReferenceById(savedOrbit.getOrbitId()).getGalaxyId(), system.getSystemName()))
-                throw new SystemAlreadyExistsException();
+                throw new SystemAlreadyExistsException(system.getSystemName());
             savingSystemsList.add(system);
         }
         for (CreateStarSystem currentSystem : orbitRequest.getSystemsList()) {
@@ -109,10 +110,10 @@ public class OrbitService {
 
     public Orbit updateOrbit(Integer orbitId, OrbitDTO orbit) {
         if (!galaxyRepository.existsById(orbit.getGalaxyId()))
-            throw new GalaxyNotFoundException();
+            throw new GalaxyNotFoundException(orbit.getGalaxyId());
         if (orbitExists(orbit.getGalaxyId(), orbit.getOrbitLevel()))
             throw new OrbitCoordinatesException();
-        Orbit updatedOrbit = orbitRepository.findById(orbitId).orElseThrow(OrbitNotFoundException::new);
+        Orbit updatedOrbit = orbitRepository.findById(orbitId).orElseThrow(() -> new OrbitNotFoundException(orbitId));
         updatedOrbit.setOrbitLevel(orbit.getOrbitLevel());
         updatedOrbit.setSystemCount(orbit.getSystemCount());
         updatedOrbit.setGalaxyId(orbit.getGalaxyId());
@@ -126,7 +127,7 @@ public class OrbitService {
 
     public Map<String, String> deleteOrbit(Integer orbitId) {
         if (!orbitRepository.existsById(orbitId))
-            throw new OrbitNotFoundException();
+            throw new OrbitNotFoundException(orbitId);
         orbitRepository.deleteById(orbitId);
         Map<String, String> response = new HashMap<>();
         response.put("message", "Орбита " + orbitId + " была уничтожена неизвестным оружием инопланетной цивилизации");

@@ -1,7 +1,7 @@
 package org.example.exception.classes.requestEX;
 
 public class RequestAlreadyClosedException extends RuntimeException {
-    public RequestAlreadyClosedException() {
-        super("Запрос уже был закрыт");
+    public RequestAlreadyClosedException(Integer requestId) {
+        super("Запрос " + requestId + " уже был закрыт");
     }
 }

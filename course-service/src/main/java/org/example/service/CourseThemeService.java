@@ -25,13 +25,13 @@ public class CourseThemeService {
     private final ModelMapper mapper;
 
     public CourseTheme getCourseTheme(Integer courseThemeId) {
-        return courseThemeRepository.findById(courseThemeId).orElseThrow(CourseThemeNotFoundException::new);
+        return courseThemeRepository.findById(courseThemeId).orElseThrow(() -> new CourseThemeNotFoundException(courseThemeId));
     }
 
     public List<CourseTheme> getCourseThemesByCourseId(Integer courseId) {
         if (courseRepository.existsById(courseId))
             return courseThemeRepository.findCourseThemesByCourseId(courseId);
-        throw new CourseNotFoundException();
+        throw new CourseNotFoundException(courseId);
     }
 
     @Transactional
@@ -45,12 +45,14 @@ public class CourseThemeService {
 
     public CourseTheme updateCourseTheme(CourseThemeUpdateRequest courseTheme,
                                          Integer courseThemeId) {
-        CourseTheme updatedTheme = courseThemeRepository.findById(courseThemeId).orElseThrow(CourseThemeNotFoundException::new);
+        CourseTheme updatedTheme = courseThemeRepository.findById(courseThemeId).orElseThrow(() -> new CourseThemeNotFoundException(courseThemeId));
+        if (!courseRepository.existsById(courseTheme.getCourseId()))
+            throw new CourseNotFoundException(courseTheme.getCourseId());
         boolean themeExists = courseThemeRepository.findCourseThemesByCourseId(updatedTheme.getCourseId()).stream().anyMatch(
                 t -> t.getTitle().equals(updatedTheme.getTitle())
         );
         if (themeExists)
-            throw new CourseThemeAlreadyExistsException();
+            throw new CourseThemeAlreadyExistsException(updatedTheme.getTitle());
         updatedTheme.setCourseId(courseTheme.getCourseId());
         updatedTheme.setTitle(courseTheme.getTitle());
         updatedTheme.setLastModified(new Date());

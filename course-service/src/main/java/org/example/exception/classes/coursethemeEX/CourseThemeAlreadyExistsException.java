@@ -1,7 +1,7 @@
 package org.example.exception.classes.coursethemeEX;
 
 public class CourseThemeAlreadyExistsException extends RuntimeException {
-    public CourseThemeAlreadyExistsException() {
-        super("По данным бортового компьютера данная тема уже существует");
+    public CourseThemeAlreadyExistsException(String title) {
+        super("По данным бортового компьютера тема '" + title + "' уже существует");
     }
 }

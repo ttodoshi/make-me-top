@@ -29,16 +29,16 @@ public class DependencyService {
         List<SystemDependency> dependencies = new LinkedList<>();
         for (CreateDependencyRequest dependency : systemDependency) {
             if (dependency.getChildId().equals(dependency.getParentId()))
-                throw new DependencyCouldNotBeCreatedException();
+                throw new DependencyCouldNotBeCreatedException(dependency.getChildId(), dependency.getParentId());
             if ((dependency.getParentId() == null && dependencyRepository.getSystemDependencyByChildIdAndParentNull(dependency.getChildId()) != null) ||
                     (dependencyRepository.getSystemDependencyByChildIDAndParentId(dependency.getChildId(), dependency.getParentId()) != null))
-                throw new DependencyAlreadyExistsException();
+                throw new DependencyAlreadyExistsException(dependency.getChildId(), dependency.getParentId());
             dependencies.add(
                     dependencyRepository.save(
                             new SystemDependency(
                                     null,
-                                    starSystemRepository.findById(dependency.getChildId()).orElseThrow(SystemNotFoundException::new),
-                                    dependency.getParentId() == null ? null : starSystemRepository.findById(dependency.getParentId()).orElseThrow(SystemNotFoundException::new),
+                                    starSystemRepository.findById(dependency.getChildId()).orElseThrow(() -> new SystemNotFoundException(dependency.getChildId())),
+                                    dependency.getParentId() == null ? null : starSystemRepository.findById(dependency.getParentId()).orElseThrow(() -> new SystemNotFoundException(dependency.getParentId())),
                                     dependency.getIsAlternative()
                             )
                     )

@@ -3,7 +3,7 @@ package org.example.service;
 import com.google.gson.Gson;
 import com.google.gson.JsonParser;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -22,18 +22,16 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Optional;
-import java.util.logging.Logger;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PersonService {
     private final PersonRepository personRepository;
 
     private final JwtServiceInterface jwtGenerator;
 
     private final PersonMapper personMapper;
-
-    private final Logger logger = Logger.getLogger(PersonService.class.getName());
 
     @Value("${url_auth_mmtr}")
     private String mmtrAuthUrl;
@@ -49,8 +47,10 @@ public class PersonService {
     }
 
     private Person authenticatePerson(LoginRequest request) {
-        AuthResponseUser authResponse = sendAuthRequest(request)
-                .orElseThrow(PersonNotFoundException::new);
+        Optional<AuthResponseUser> authResponseOptional = sendAuthRequest(request);
+        if (authResponseOptional.isEmpty())
+            throw new PersonNotFoundException();
+        AuthResponseUser authResponse = authResponseOptional.get();
         Optional<Person> personOptional = personRepository.findById(authResponse.getEmployeeId());
         return personOptional.orElseGet(
                 () -> personRepository.save(personMapper.UserAuthResponseToPerson(authResponse))
@@ -64,7 +64,6 @@ public class PersonService {
         return tokenCookie;
     }
 
-    @SneakyThrows
     public Optional<AuthResponseUser> sendAuthRequest(LoginRequest userRequest) {
         Request authRequest = createAuthRequest(userRequest);
         Optional<AuthResponseUser> employeeOptional = Optional.empty();
@@ -73,7 +72,7 @@ public class PersonService {
             if (response.code() == HttpStatus.OK.value() && isResponseSuccess(responseBody))
                 employeeOptional = getUserInformation(responseBody);
         } catch (Exception e) {
-            logger.severe(e.toString());
+            log.error(e.toString());
             throw new ConnectException();
         }
         return employeeOptional;

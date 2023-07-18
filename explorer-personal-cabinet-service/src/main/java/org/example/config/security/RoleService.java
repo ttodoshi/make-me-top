@@ -38,7 +38,7 @@ public class RoleService {
     public boolean hasAnyCourseRoleByThemeId(Integer themeId, CourseRoleType role) {
         return hasAnyCourseRole(
                 courseRepository.getCourseIdByThemeId(themeId)
-                        .orElseThrow(CourseThemeNotFoundException::new),
+                        .orElseThrow(() -> new CourseThemeNotFoundException(themeId)),
                 role
         );
     }

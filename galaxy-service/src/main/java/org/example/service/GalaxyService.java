@@ -40,7 +40,7 @@ public class GalaxyService {
 
     public GetGalaxyRequest getGalaxyById(Integer galaxyId) {
         if (!galaxyRepository.existsById(galaxyId))
-            throw new GalaxyNotFoundException();
+            throw new GalaxyNotFoundException(galaxyId);
         GetGalaxyRequest galaxy = mapper.map(galaxyRepository.getReferenceById(galaxyId), GetGalaxyRequest.class);
         List<GetOrbitWithStarSystemsWithoutGalaxyId> orbitWithStarSystemsList = new LinkedList<>();
         orbitRepository.findOrbitsByGalaxyId(galaxyId).forEach(
@@ -57,7 +57,7 @@ public class GalaxyService {
     @Transactional
     public GetGalaxyRequest createGalaxy(CreateGalaxyRequest createGalaxyRequest) {
         if (galaxyExists(createGalaxyRequest.getGalaxyName()))
-            throw new GalaxyAlreadyExistsException();
+            throw new GalaxyAlreadyExistsException(createGalaxyRequest.getGalaxyName());
         Galaxy galaxy = mapper.map(createGalaxyRequest, Galaxy.class);
         Integer savedGalaxyId = galaxyRepository.save(galaxy).getGalaxyId();
         orbitService.setToken(token);
@@ -69,9 +69,9 @@ public class GalaxyService {
 
     public Galaxy updateGalaxy(Integer galaxyId, GalaxyDTO galaxy) {
         if (!galaxyRepository.existsById(galaxyId))
-            throw new GalaxyNotFoundException();
+            throw new GalaxyNotFoundException(galaxyId);
         if (galaxyExists(galaxy.getGalaxyName()))
-            throw new GalaxyAlreadyExistsException();
+            throw new GalaxyAlreadyExistsException(galaxy.getGalaxyName());
         Galaxy updatedGalaxy = galaxyRepository.getReferenceById(galaxyId);
         updatedGalaxy.setGalaxyName(galaxy.getGalaxyName());
         return galaxyRepository.save(updatedGalaxy);
@@ -84,7 +84,7 @@ public class GalaxyService {
 
     public Map<String, String> deleteGalaxy(Integer galaxyId) {
         if (!galaxyRepository.existsById(galaxyId))
-            throw new GalaxyNotFoundException();
+            throw new GalaxyNotFoundException(galaxyId);
         galaxyRepository.deleteById(galaxyId);
         Map<String, String> response = new HashMap<>();
         response.put("message", "Галактика " + galaxyId + " была уничтожена квазаром");

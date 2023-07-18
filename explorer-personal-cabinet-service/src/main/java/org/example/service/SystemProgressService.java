@@ -92,16 +92,19 @@ public class SystemProgressService {
             HttpEntity<?> requestEntity = new HttpEntity<>(headers);
             return restTemplate.exchange(GALAXY_APP_URL + "/galaxy/" + galaxyId + "/system/", HttpMethod.GET, requestEntity, StarSystemDTO[].class).getBody();
         } catch (HttpClientErrorException e) {
-            throw new GalaxyNotFoundException();
+            throw new GalaxyNotFoundException(galaxyId);
         } catch (ResourceAccessException e) {
             throw new ConnectException();
         }
     }
 
     public SystemWithPlanetsProgress getPlanetsProgressBySystemId(Integer systemId) {
-        Person authenticatedPerson = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Course course = courseRepository.findById(systemId).orElseThrow(CourseNotFoundException::new);
-        Explorer explorer = explorerRepository.findExplorerByPersonIdAndCourseId(authenticatedPerson.getPersonId(), systemId).orElseThrow(ExplorerNotFoundException::new);
+        Integer authenticatedPersonId = getAuthenticatedPersonId();
+        Course course = courseRepository.findById(systemId).orElseThrow(() -> new CourseNotFoundException(systemId));
+        Optional<Explorer> explorerOptional = explorerRepository.findExplorerByPersonIdAndCourseId(authenticatedPersonId, systemId);
+        if (explorerOptional.isEmpty())
+            throw new ExplorerNotFoundException();
+        Explorer explorer = explorerOptional.get();
         SystemWithPlanetsProgress systemWithPlanetsProgress = new SystemWithPlanetsProgress();
         systemWithPlanetsProgress.setCourseId(course.getCourseId());
         systemWithPlanetsProgress.setTitle(course.getTitle());
@@ -125,7 +128,7 @@ public class SystemProgressService {
     @Transactional
     public Map<String, Object> updatePlanetProgress(Integer planetId, ProgressUpdateRequest updateRequest) {
         final Integer personId = getAuthenticatedPersonId();
-        Explorer explorer = findExplorer(personId, planetId);
+        Explorer explorer = findExplorerByPlanetId(personId, planetId);
         saveProgress(explorer, planetId, updateRequest);
         Map<String, Object> response = new HashMap<>();
         response.put("message", "Прогресс планеты " + planetId +
@@ -138,18 +141,20 @@ public class SystemProgressService {
         return authenticatedPerson.getPersonId();
     }
 
-    private Explorer findExplorer(Integer personId, Integer planetId) {
+    private Explorer findExplorerByPlanetId(Integer personId, Integer planetId) {
         Integer courseId = courseRepository.getCourseIdByThemeId(planetId)
-                .orElseThrow(CourseThemeNotFoundException::new);
-        return explorerRepository.findExplorerByPersonIdAndCourseId(personId, courseId)
-                .orElseThrow(ExplorerNotFoundException::new);
+                .orElseThrow(() -> new CourseThemeNotFoundException(planetId));
+        Optional<Explorer> explorerOptional = explorerRepository.findExplorerByPersonIdAndCourseId(personId, courseId);
+        if (explorerOptional.isEmpty())
+            throw new ExplorerNotFoundException();
+        return explorerOptional.get();
     }
 
     private void saveProgress(Explorer explorer, Integer themeId, ProgressUpdateRequest updateRequest) {
         if (updateRequest.getProgress() > 100 || updateRequest.getProgress() < 0)
             throw new UnexpectedProgressValueException();
         if (hasUncompletedParents(explorer.getPersonId(), explorer.getCourseId()))
-            throw new SystemParentsNotCompletedException();
+            throw new SystemParentsNotCompletedException(explorer.getCourseId());
         Integer currentThemeId = getCurrentCourseThemeId(explorer.getCourseId());
         if (!currentThemeId.equals(themeId))
             throw new UnexpectedCourseThemeException(themeId, currentThemeId);
@@ -167,7 +172,7 @@ public class SystemProgressService {
             courseThemeProgress = courseThemeProgressOptional.get();
         }
         if (courseThemeProgress.getProgress().equals(100))
-            throw new PlanetAlreadyCompletedException();
+            throw new PlanetAlreadyCompletedException(courseThemeProgress.getCourseThemeId());
         else if (courseThemeProgress.getProgress() > updateRequest.getProgress())
             throw new UnexpectedProgressValueException();
         else {

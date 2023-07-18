@@ -2,6 +2,7 @@ package org.example.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.dto.coursemark.CourseMarkDTO;
+import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
 import org.example.exception.classes.markEX.ExplorerDoesNotNeedMarkException;
 import org.example.exception.classes.markEX.UnexpectedMarkValueException;
 import org.example.model.Person;
@@ -22,6 +23,8 @@ public class CourseMarkService {
     public CourseMark setCourseMark(CourseMarkDTO courseMark) {
         if (courseMark.getValue() < 1 || courseMark.getValue() > 5)
             throw new UnexpectedMarkValueException();
+        if (!explorerRepository.existsById(courseMark.getExplorerId()))
+            throw new ExplorerNotFoundException();
         Person person = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         boolean explorerNeedMark = explorerRepository.getExplorersNeededFinalAssessmentByKeeperPersonId(
                         person.getPersonId()).stream()
@@ -30,6 +33,6 @@ public class CourseMarkService {
             return courseMarkRepository.save(
                     new CourseMark(courseMark.getExplorerId(), new Date(), courseMark.getValue())
             );
-        throw new ExplorerDoesNotNeedMarkException();
+        throw new ExplorerDoesNotNeedMarkException(courseMark.getExplorerId());
     }
 }

@@ -39,7 +39,7 @@ public class RoleService {
     public boolean hasAnyCourseRoleByRequestId(Integer requestId, CourseRoleType role) {
         return hasAnyCourseRole(
                 courseRegistrationRequestRepository.findById(requestId)
-                        .orElseThrow(RequestNotFoundException::new).getCourseId(),
+                        .orElseThrow(() -> new RequestNotFoundException(requestId)).getCourseId(),
                 role
         );
     }

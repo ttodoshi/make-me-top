@@ -47,7 +47,7 @@ public class PlanetService {
     public List<Planet> getPlanetsListBySystemId(Integer systemId) {
         if (systemExists(systemId))
             return planetRepository.findPlanetsBySystemId(systemId);
-        throw new SystemNotFoundException();
+        throw new SystemNotFoundException(systemId);
     }
 
     @Transactional
@@ -55,9 +55,9 @@ public class PlanetService {
         List<CreatePlanet> savingPlanetsList = new LinkedList<>();
         for (CreatePlanet planet : planets) {
             if (!systemExists(systemId))
-                throw new SystemNotFoundException();
+                throw new SystemNotFoundException(systemId);
             if (savingPlanetsList.contains(planet) || planetExists(systemId, planet.getPlanetName()))
-                throw new PlanetAlreadyExistsException();
+                throw new PlanetAlreadyExistsException(planet.getPlanetName());
             savingPlanetsList.add(planet);
         }
         List<Planet> savedPlanets = new ArrayList<>();
@@ -81,10 +81,11 @@ public class PlanetService {
     @Transactional
     public Planet updatePlanet(PlanetUpdateRequest planet, Integer planetId) {
         if (!systemExists(planet.getSystemId()))
-            throw new SystemNotFoundException();
-        Planet updatedPlanet = planetRepository.findById(planetId).orElseThrow(PlanetNotFoundException::new);
+            throw new SystemNotFoundException(planet.getSystemId());
+        Planet updatedPlanet = planetRepository.findById(planetId)
+                .orElseThrow(() -> new PlanetNotFoundException(planetId));
         if (planetExists(planet.getSystemId(), planet.getPlanetName()))
-            throw new PlanetAlreadyExistsException();
+            throw new PlanetAlreadyExistsException(planet.getPlanetName());
         updatedPlanet.setPlanetName(planet.getPlanetName());
         updatedPlanet.setSystemId(planet.getSystemId());
         updatedPlanet.setPlanetNumber(planet.getPlanetNumber());
@@ -99,7 +100,7 @@ public class PlanetService {
 
     public Map<String, String> deletePlanetById(Integer planetId) {
         if (!planetRepository.existsById(planetId))
-            throw new PlanetNotFoundException();
+            throw new PlanetNotFoundException(planetId);
         planetRepository.deleteById(planetId);
         Map<String, String> response = new HashMap<>();
         response.put("message", "Планета " + planetId + " подлежит уничтожению для создания межгалактической трассы");

@@ -8,10 +8,10 @@ import org.example.exception.classes.progressEX.SystemParentsNotCompletedExcepti
 import org.example.exception.classes.requestEX.PersonIsKeeperException;
 import org.example.exception.classes.requestEX.PersonIsStudyingException;
 import org.example.exception.classes.requestEX.StatusNotFoundException;
-import org.example.model.courserequest.CourseRegistrationRequest;
-import org.example.model.courserequest.CourseRegistrationRequestStatusType;
 import org.example.model.Keeper;
 import org.example.model.Person;
+import org.example.model.courserequest.CourseRegistrationRequest;
+import org.example.model.courserequest.CourseRegistrationRequestStatusType;
 import org.example.repository.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,9 +34,9 @@ public class CourseRegistrationRequestService {
 
     public CourseRegistrationRequest sendRequest(CreateCourseRegistrationRequest request) {
         if (!courseRepository.existsById(request.getCourseId()))
-            throw new CourseNotFoundException();
+            throw new CourseNotFoundException(request.getCourseId());
         if (!keeperExistsOnCourse(request.getKeeperId(), request.getCourseId()))
-            throw new KeeperNotFoundException();
+            throw new KeeperNotFoundException(request.getKeeperId());
         Person authenticatedPerson = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Integer authenticatedPersonId = authenticatedPerson.getPersonId();
         if (isCurrentlyStudying(authenticatedPersonId))
@@ -44,19 +44,19 @@ public class CourseRegistrationRequestService {
         if (isPersonKeeperOnCourse(authenticatedPersonId, request.getCourseId()))
             throw new PersonIsKeeperException();
         if (systemProgressService.hasUncompletedParents(authenticatedPersonId, request.getCourseId()))
-            throw new SystemParentsNotCompletedException();
+            throw new SystemParentsNotCompletedException(request.getCourseId());
         CourseRegistrationRequest courseRegistrationRequest = mapper.map(request, CourseRegistrationRequest.class);
         courseRegistrationRequest.setRequestDate(new Date());
         courseRegistrationRequest.setStatusId(
                 courseRegistrationRequestStatusRepository
                         .findCourseRegistrationRequestStatusByStatus(CourseRegistrationRequestStatusType.PROCESSING)
-                        .orElseThrow(StatusNotFoundException::new).getStatusId());
+                        .orElseThrow(() -> new StatusNotFoundException(CourseRegistrationRequestStatusType.PROCESSING)).getStatusId());
         courseRegistrationRequest.setPersonId(authenticatedPersonId);
         return courseRegistrationRequestRepository.save(courseRegistrationRequest);
     }
 
     private boolean keeperExistsOnCourse(Integer keeperId, Integer courseId) {
-        Keeper keeper = keeperRepository.findById(keeperId).orElseThrow(KeeperNotFoundException::new);
+        Keeper keeper = keeperRepository.findById(keeperId).orElseThrow(() -> new KeeperNotFoundException(keeperId));
         return keeper.getCourseId().equals(courseId);
     }
 

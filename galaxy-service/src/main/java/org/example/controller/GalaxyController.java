@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.dto.galaxy.CreateGalaxyRequest;
 import org.example.dto.galaxy.GalaxyDTO;
 import org.example.service.GalaxyService;
@@ -20,6 +21,7 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping("/galaxy-app/galaxy/")
 @RequiredArgsConstructor
+@Slf4j
 public class GalaxyController {
     private final GalaxyService galaxyService;
 
@@ -52,8 +54,8 @@ public class GalaxyController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> getGalaxyById(@PathVariable("galaxyId") Integer id) {
-        return ResponseEntity.ok(galaxyService.getGalaxyById(id));
+    public ResponseEntity<?> getGalaxyById(@PathVariable("galaxyId") Integer galaxyId) {
+        return ResponseEntity.ok(galaxyService.getGalaxyById(galaxyId));
     }
 
     @PostMapping

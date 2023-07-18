@@ -9,6 +9,7 @@ import org.example.repository.KeeperRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -20,6 +21,7 @@ public class KeeperInformationService {
     private final CourseRegistrationRequestRepository courseRegistrationRequestRepository;
     private final HomeworkRequestRepository homeworkRequestRepository;
 
+    @Transactional
     public Map<String, Object> getKeeperInformation() {
         Person authenticatedPerson = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Integer authenticatedPersonId = authenticatedPerson.getPersonId();

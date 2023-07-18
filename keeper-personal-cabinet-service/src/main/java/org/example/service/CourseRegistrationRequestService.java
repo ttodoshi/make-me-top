@@ -32,11 +32,10 @@ public class CourseRegistrationRequestService {
     public CourseRegistrationRequest replyToRequest(Integer requestId, CourseRegistrationRequestReply requestReply) {
         final Integer authenticatedPersonId = getAuthenticatedPersonId();
         CourseRegistrationRequest request = courseRegistrationRequestRepository
-                .findById(requestId).orElseThrow(RequestNotFoundException::new);
-        CourseRegistrationRequestStatus currentStatus = courseRegistrationRequestStatusRepository
-                .findById(request.getStatusId()).orElseThrow(StatusNotFoundException::new);
+                .findById(requestId).orElseThrow(() -> new RequestNotFoundException(requestId));
+        CourseRegistrationRequestStatus currentStatus = courseRegistrationRequestStatusRepository.getReferenceById(request.getStatusId());
         if (!currentStatus.getStatus().equals(CourseRegistrationRequestStatusType.PROCESSING))
-            throw new RequestAlreadyClosedException();
+            throw new RequestAlreadyClosedException(requestId);
         if (authenticatedKeeperIsNotKeeperInRequest(authenticatedPersonId, request))
             throw new DifferentKeeperException();
         CourseRegistrationRequestStatusType status;
@@ -48,7 +47,7 @@ public class CourseRegistrationRequestService {
         }
         Integer statusId = courseRegistrationRequestStatusRepository
                 .findCourseRegistrationRequestStatusByStatus(status)
-                .orElseThrow(StatusNotFoundException::new).getStatusId();
+                .orElseThrow(() -> new StatusNotFoundException(status)).getStatusId();
         request.setStatusId(statusId);
         return courseRegistrationRequestRepository.save(request);
     }
@@ -69,11 +68,10 @@ public class CourseRegistrationRequestService {
     public KeeperRejection sendRejection(Integer requestId, KeeperRejectionDTO rejection) {
         Person authenticatedPerson = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         CourseRegistrationRequest request = courseRegistrationRequestRepository
-                .findById(requestId).orElseThrow(RequestNotFoundException::new);
-        CourseRegistrationRequestStatus currentStatus = courseRegistrationRequestStatusRepository
-                .findById(request.getStatusId()).orElseThrow(StatusNotFoundException::new);
+                .findById(requestId).orElseThrow(() -> new RequestNotFoundException(requestId));
+        CourseRegistrationRequestStatus currentStatus = courseRegistrationRequestStatusRepository.getReferenceById(request.getStatusId());
         if (!currentStatus.getStatus().equals(CourseRegistrationRequestStatusType.DENIED))
-            throw new RequestNotDeniedException();
+            throw new RequestNotDeniedException(requestId);
         if (keeperRejectionRepository.findKeeperRejectionByRequestId(requestId).isPresent())
             throw new KeeperRejectionAlreadyExistsException();
         if (authenticatedKeeperIsNotKeeperInRequest(authenticatedPerson.getPersonId(), request))

@@ -50,7 +50,7 @@ public class CourseService {
     public CourseWithKeepers getCourse(Integer courseId) {
         CourseWithKeepers courseWithKeepers = mapper.map(
                 courseRepository.findById(courseId)
-                        .orElseThrow(CourseNotFoundException::new),
+                        .orElseThrow(() -> new CourseNotFoundException(courseId)),
                 CourseWithKeepers.class);
         courseWithKeepers.setKeepers(keeperRepository.getKeepersByCourseId(courseId));
         return courseWithKeepers;
@@ -72,12 +72,12 @@ public class CourseService {
     }
 
     public Course updateCourse(Integer galaxyId, Integer courseId, CourseUpdateRequest course) {
-        Course updatedCourse = courseRepository.findById(courseId).orElseThrow(CourseNotFoundException::new);
+        Course updatedCourse = courseRepository.findById(courseId).orElseThrow(() -> new CourseNotFoundException(courseId));
         boolean courseExists = getSystemsIdByGalaxyId(galaxyId).stream().anyMatch(
                 s -> s.getSystemName().equals(updatedCourse.getTitle())
         );
         if (courseExists)
-            throw new CourseAlreadyExistsException();
+            throw new CourseAlreadyExistsException(updatedCourse.getTitle());
         updatedCourse.setTitle(course.getTitle());
         updatedCourse.setDescription(course.getDescription());
         updatedCourse.setLastModified(new Date());
@@ -95,7 +95,7 @@ public class CourseService {
                     )
             ).collect(Collectors.toList());
         } catch (HttpClientErrorException e) {
-            throw new GalaxyNotFoundException();
+            throw new GalaxyNotFoundException(galaxyId);
         }
     }
 
@@ -108,7 +108,7 @@ public class CourseService {
     public Keeper setKeeperToCourse(Integer courseId, AddKeeperRequest addKeeperRequest) {
         Keeper keeper = new Keeper();
         if (!courseRepository.existsById(courseId))
-            throw new CourseNotFoundException();
+            throw new CourseNotFoundException(courseId);
         if (!personRepository.existsById(addKeeperRequest.getPersonId()))
             throw new PersonNotFoundException();
         keeper.setCourseId(courseId);
