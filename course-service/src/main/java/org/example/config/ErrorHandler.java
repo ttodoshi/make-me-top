@@ -32,22 +32,6 @@ public class ErrorHandler {
         } else log.warn(e.toString());
     }
 
-    private void logError(Exception e) {
-        StackTraceElement[] stackTrace = e.getStackTrace();
-        if (stackTrace.length > 0) {
-            StackTraceElement firstStackTraceElement = stackTrace[0];
-            String className = firstStackTraceElement.getClassName();
-            String methodName = firstStackTraceElement.getMethodName();
-            int lineNumber = firstStackTraceElement.getLineNumber();
-            log.error("Произошла ошибка в классе: {}, методе: {}, строка: {}\n\n" + e + "\n", className, methodName, lineNumber);
-        } else log.error(e.toString());
-    }
-
-    @ExceptionHandler(Exception.class)
-    public void handleException(Exception e) {
-        logError(e);
-    }
-
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorResponse> handleAccessDeniedException(Exception e) {
         logWarning(e);

@@ -181,7 +181,7 @@ public class SystemProgressService {
         }
     }
 
-    public Integer getCurrentCourseThemeId(Integer systemId) {
+    private Integer getCurrentCourseThemeId(Integer systemId) {
         List<PlanetWithProgress> planetsProgress = getPlanetsProgressBySystemId(systemId).getPlanetsWithProgress();
         for (PlanetWithProgress planet : planetsProgress) {
             if (!planet.getProgress().equals(100))

@@ -6,6 +6,7 @@ import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
 import org.example.exception.classes.keeperEX.DifferentKeeperException;
 import org.example.exception.classes.markEX.ExplorerDoesNotNeedMarkException;
 import org.example.exception.classes.markEX.UnexpectedMarkValueException;
+import org.example.exception.classes.personEX.PersonNotFoundException;
 import org.example.exception.classes.requestEX.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,11 +41,6 @@ public class ErrorHandler {
             int lineNumber = firstStackTraceElement.getLineNumber();
             log.error("Произошла ошибка в классе: {}, методе: {}, строка: {}\n\n" + e + "\n", className, methodName, lineNumber);
         } else log.error(e.toString());
-    }
-
-    @ExceptionHandler(Exception.class)
-    public void handleException(Exception e) {
-        logError(e);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
@@ -129,5 +125,11 @@ public class ErrorHandler {
     public ResponseEntity<ErrorResponse> handleExplorerDoesNotNeedMarkException(Exception e) {
         logWarning(e);
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), e.getMessage()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(PersonNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handlePersonNotFoundException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
     }
 }

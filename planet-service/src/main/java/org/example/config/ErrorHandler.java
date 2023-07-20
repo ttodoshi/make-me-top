@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.exception.ErrorResponse;
 import org.example.exception.classes.connectEX.ConnectException;
 import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
+import org.example.exception.classes.personEX.PersonNotFoundException;
 import org.example.exception.classes.planetEX.PlanetAlreadyExistsException;
 import org.example.exception.classes.planetEX.PlanetNotFoundException;
 import org.example.exception.classes.systemEX.SystemNotFoundException;
@@ -40,11 +41,6 @@ public class ErrorHandler {
             int lineNumber = firstStackTraceElement.getLineNumber();
             log.error("Произошла ошибка в классе: {}, методе: {}, строка: {}\n\n" + e + "\n", className, methodName, lineNumber);
         } else log.error(e.toString());
-    }
-
-    @ExceptionHandler(Exception.class)
-    public void handleException(Exception e) {
-        logError(e);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
@@ -105,5 +101,11 @@ public class ErrorHandler {
     public ResponseEntity<ErrorResponse> handleConnectException(Exception e) {
         logError(e);
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(PersonNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handlePersonNotFoundException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
     }
 }

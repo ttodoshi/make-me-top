@@ -40,12 +40,6 @@ public class ErrorHandler {
         } else log.error(e.toString());
     }
 
-    @ExceptionHandler(Exception.class)
-    public void handleException(Exception e) {
-        logError(e);
-    }
-
-
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorResponse> handleAccessDeniedException(Exception e) {
         logWarning(e);
