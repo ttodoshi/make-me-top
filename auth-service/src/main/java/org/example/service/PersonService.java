@@ -1,26 +1,26 @@
 package org.example.service;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonParser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
 import org.example.config.mapper.PersonMapper;
 import org.example.config.security.JwtServiceInterface;
 import org.example.dto.AuthResponseUser;
 import org.example.dto.LoginRequest;
+import org.example.dto.MmtrAuthResponse;
 import org.example.exception.classes.connectEX.ConnectException;
 import org.example.exception.classes.personEX.PersonNotFoundException;
 import org.example.model.Person;
 import org.example.repository.PersonRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 @Service
@@ -34,9 +34,7 @@ public class PersonService {
     private final PersonMapper personMapper;
 
     @Value("${url_auth_mmtr}")
-    private String mmtrAuthUrl;
-
-    private final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+    private String MMTR_AUTH_URL;
 
     public Object login(LoginRequest request, HttpServletResponse response) {
         Person person = authenticatePerson(request);
@@ -51,8 +49,7 @@ public class PersonService {
         if (authResponseOptional.isEmpty())
             throw new PersonNotFoundException();
         AuthResponseUser authResponse = authResponseOptional.get();
-        Optional<Person> personOptional = personRepository.findById(authResponse.getEmployeeId());
-        return personOptional.orElseGet(
+        return personRepository.findById(authResponse.getEmployeeId()).orElseGet(
                 () -> personRepository.save(personMapper.UserAuthResponseToPerson(authResponse))
         );
     }
@@ -65,44 +62,19 @@ public class PersonService {
     }
 
     public Optional<AuthResponseUser> sendAuthRequest(LoginRequest userRequest) {
-        Request authRequest = createAuthRequest(userRequest);
+        WebClient webClient = WebClient.create(MMTR_AUTH_URL);
+        MmtrAuthResponse response = webClient.post()
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(userRequest)
+                .acceptCharset(StandardCharsets.UTF_8)
+                .retrieve()
+                .onStatus(HttpStatus.NOT_FOUND::equals, e -> Mono.error(new PersonNotFoundException()))
+                .bodyToMono(MmtrAuthResponse.class)
+                .doOnError(ConnectException::new)
+                .block();
         Optional<AuthResponseUser> employeeOptional = Optional.empty();
-        try (var response = new OkHttpClient().newCall(authRequest).execute()) {
-            String responseBody = response.body().string();
-            if (response.code() == HttpStatus.OK.value() && isResponseSuccess(responseBody))
-                employeeOptional = getUserInformation(responseBody);
-        } catch (Exception e) {
-            log.error(e.toString());
-            throw new ConnectException();
-        }
+        if (response != null && response.getIsSuccess())
+            employeeOptional = Optional.of(response.getObject());
         return employeeOptional;
-    }
-
-    private Request createAuthRequest(LoginRequest userRequest) {
-        okhttp3.RequestBody requestBody = okhttp3.RequestBody
-                .create(JSON, userRequest.toString());
-        return new Request.Builder()
-                .url(mmtrAuthUrl)
-                .post(requestBody)
-                .addHeader("Content-Type", "application/json")
-                .build();
-    }
-
-    private boolean isResponseSuccess(String responseBody) {
-        return JsonParser.parseString(responseBody)
-                .getAsJsonObject()
-                .get("isSuccess")
-                .getAsBoolean();
-    }
-
-    private Optional<AuthResponseUser> getUserInformation(String responseBody) {
-        return Optional.of(
-                new Gson().fromJson(
-                        JsonParser.parseString(responseBody)
-                                .getAsJsonObject()
-                                .getAsJsonObject("object"),
-                        AuthResponseUser.class
-                )
-        );
     }
 }

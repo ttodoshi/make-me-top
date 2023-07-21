@@ -27,14 +27,11 @@ import org.example.repository.ExplorerRepository;
 import org.example.repository.PlanetProgressRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.ResourceAccessException;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import javax.transaction.Transactional;
 import java.util.*;
@@ -48,7 +45,6 @@ public class SystemProgressService {
     private final CourseRepository courseRepository;
     private final CourseThemeRepository courseThemeRepository;
 
-    private final RestTemplate restTemplate;
     private final ModelMapper mapper;
     @Setter
     private String token;
@@ -86,16 +82,15 @@ public class SystemProgressService {
     }
 
     private StarSystemDTO[] getSystemsByGalaxyId(Integer galaxyId) {
-        try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("Authorization", token);
-            HttpEntity<?> requestEntity = new HttpEntity<>(headers);
-            return restTemplate.exchange(GALAXY_APP_URL + "/galaxy/" + galaxyId + "/system/", HttpMethod.GET, requestEntity, StarSystemDTO[].class).getBody();
-        } catch (HttpClientErrorException e) {
-            throw new GalaxyNotFoundException(galaxyId);
-        } catch (ResourceAccessException e) {
-            throw new ConnectException();
-        }
+        WebClient webClient = WebClient.create(GALAXY_APP_URL);
+        return webClient.get()
+                .uri("/galaxy/" + galaxyId + "/system/")
+                .header("Authorization", token)
+                .retrieve()
+                .onStatus(HttpStatus.NOT_FOUND::equals, e -> Mono.error(new GalaxyNotFoundException(galaxyId)))
+                .bodyToMono(StarSystemDTO[].class)
+                .doOnError(ConnectException::new)
+                .block();
     }
 
     public SystemWithPlanetsProgress getPlanetsProgressBySystemId(Integer systemId) {
@@ -207,10 +202,15 @@ public class SystemProgressService {
     }
 
     private GetStarSystemWithDependencies getStarSystemWithDependencies(Integer systemId) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", token);
-        HttpEntity<?> requestEntity = new HttpEntity<>(headers);
-        return restTemplate.exchange(GALAXY_APP_URL + "/system/" + systemId + "?withDependencies=true", HttpMethod.GET, requestEntity, GetStarSystemWithDependencies.class).getBody();
+        WebClient webClient = WebClient.create(GALAXY_APP_URL);
+        return webClient.get()
+                .uri("/system/" + systemId + "?withDependencies=true")
+                .header("Authorization", token)
+                .retrieve()
+                .onStatus(HttpStatus.NOT_FOUND::equals, e -> Mono.error(new CourseNotFoundException(systemId)))
+                .bodyToMono(GetStarSystemWithDependencies.class)
+                .doOnError(ConnectException::new)
+                .block();
     }
 
     private List<SystemDependencyModel> getParentDependencies(GetStarSystemWithDependencies systemWithDependencies) {

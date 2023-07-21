@@ -19,10 +19,8 @@ import org.example.repository.OrbitRepository;
 import org.example.repository.StarSystemRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import javax.transaction.Transactional;
 import java.util.*;
@@ -37,7 +35,6 @@ public class OrbitService {
     private final StarSystemService systemService;
 
     private final ModelMapper mapper;
-    private final RestTemplate restTemplate;
 
     @Setter
     private String token;
@@ -96,16 +93,14 @@ public class OrbitService {
     }
 
     private void createCourse(Integer courseId, CreateStarSystem starSystem) {
-        HttpEntity<CourseDTO> entity = new HttpEntity<>(new CourseDTO(courseId,
-                starSystem.getSystemName(), new Date(), new Date(), starSystem.getDescription()),
-                createHeaders());
-        restTemplate.postForEntity(COURSE_APP_URL + "/course/", entity, CourseDTO.class);
-    }
-
-    private HttpHeaders createHeaders() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", token);
-        return headers;
+        WebClient webClient = WebClient.create(COURSE_APP_URL);
+        webClient.post()
+                .uri("/course/")
+                .bodyValue(new CourseDTO(courseId, starSystem.getSystemName(), new Date(), new Date(), starSystem.getDescription()))
+                .header("Authorization", token)
+                .retrieve()
+                .bodyToMono(Void.class)
+                .subscribe();
     }
 
     public Orbit updateOrbit(Integer orbitId, OrbitDTO orbit) {
