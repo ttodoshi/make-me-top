@@ -13,6 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("/explorer-cabinet/")
 @RequiredArgsConstructor
@@ -20,7 +22,7 @@ public class SystemProgressController {
     private final SystemProgressService systemProgressService;
 
     @GetMapping("galaxy/{galaxyId}")
-    @PreAuthorize("@RoleService.hasAnyAuthenticationRole(T(org.example.model.AuthenticationRoleType).EXPLORER)")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).EXPLORER)")
     @Operation(summary = "Get systems progress for current user", tags = "system progress")
     @ApiResponses(value = {
             @ApiResponse(
@@ -33,12 +35,32 @@ public class SystemProgressController {
     })
     public ResponseEntity<?> getSystemsProgress(@PathVariable("galaxyId") Integer galaxyId,
                                                 @RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token) {
+        systemProgressService.setToken(token);
         return ResponseEntity.ok(
-                systemProgressService.getSystemsProgressForCurrentUser(galaxyId, token));
+                systemProgressService.getSystemsProgressForCurrentUser(galaxyId));
+    }
+
+    @GetMapping("course/{courseId}")
+    @PreAuthorize("@roleService.hasAnyCourseRole(#courseId, " +
+            "T(org.example.model.role.CourseRoleType).EXPLORER)")
+    @Operation(summary = "Get course planets progress for current user", tags = "system progress")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Systems progress",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json")
+                    })
+    })
+    public ResponseEntity<?> getSystemPlanetsProgress(@PathVariable("courseId") Integer courseId) {
+        return ResponseEntity.ok(
+                systemProgressService.getPlanetsProgressBySystemId(courseId));
     }
 
     @PatchMapping("/theme/{themeId}")
-    @PreAuthorize("@RoleService.hasAnyAuthenticationRole(T(org.example.model.AuthenticationRoleType).EXPLORER)")
+    @PreAuthorize("@roleService.hasAnyCourseRoleByThemeId(#themeId," +
+            "T(org.example.model.role.CourseRoleType).EXPLORER)")
     @Operation(summary = "Update course theme progress for current user", tags = "system progress")
     @ApiResponses(value = {
             @ApiResponse(
@@ -50,8 +72,8 @@ public class SystemProgressController {
                     })
     })
     public ResponseEntity<?> updateCourseProgress(@PathVariable("themeId") Integer themeId,
-                                                  @RequestBody ProgressUpdateRequest updateRequest) {
+                                                  @Valid @RequestBody ProgressUpdateRequest updateRequest) {
         return ResponseEntity.ok(
-                systemProgressService.updateCourseThemeProgress(themeId, updateRequest));
+                systemProgressService.updatePlanetProgress(themeId, updateRequest));
     }
 }

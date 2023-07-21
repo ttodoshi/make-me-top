@@ -51,6 +51,8 @@ services:
       - "8101:8101"
     depends_on:
       - postgres
+    volumes:
+      - ./.logs/galaxy-service/:/app/logs/
     networks:
       postgres:
         ipv4_address: 10.10.0.8
@@ -61,6 +63,8 @@ services:
       - "8102:8102"
     depends_on:
       - postgres
+    volumes:
+      - ./.logs/planet-service/:/app/logs/
     networks:
       postgres:
         ipv4_address: 10.10.0.7
@@ -72,6 +76,8 @@ services:
       - "8103:8103"
     depends_on:
       - postgres
+    volumes:
+      - ./.logs/auth-service/:/app/logs/
     networks:
       postgres:
         ipv4_address: 10.10.0.6
@@ -83,17 +89,21 @@ services:
       - "8106:8106"
     depends_on:
       - postgres
+    volumes:
+      - ./.logs/course-service/:/app/logs/
     networks:
       postgres:
         ipv4_address: 10.10.0.9
 
-  app_personal_cabinet_balancer:
-    container_name: app_personal_cabinet_balancer_container
-    build: ./personal-cabinet-balancer-service
+  app_person_information:
+    container_name: app_person_information_container
+    build: ./person-information-service
     ports:
       - "8107:8107"
     depends_on:
       - postgres
+    volumes:
+      - ./.logs/person-information-service/:/app/logs/
     networks:
       postgres:
         ipv4_address: 10.10.0.10
@@ -104,6 +114,8 @@ services:
       - "8104:8104"
     depends_on:
       - postgres
+    volumes:
+      - ./.logs/explorer-cabinet-service/:/app/logs/
     networks:
       postgres:
         ipv4_address: 10.10.0.5
@@ -114,6 +126,8 @@ services:
       - "8105:8105"
     depends_on:
       - postgres
+    volumes:
+      - ./.logs/keeper-cabinet-service/:/app/logs/
     networks:
       postgres:
         ipv4_address: 10.10.0.4

@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.dto.galaxy.CreateGalaxyRequest;
 import org.example.dto.galaxy.GalaxyDTO;
 import org.example.service.GalaxyService;
@@ -15,9 +16,12 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("/galaxy-app/galaxy/")
 @RequiredArgsConstructor
+@Slf4j
 public class GalaxyController {
     private final GalaxyService galaxyService;
 
@@ -50,12 +54,12 @@ public class GalaxyController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> getGalaxyById(@PathVariable("galaxyId") Integer id) {
-        return ResponseEntity.ok(galaxyService.getGalaxyById(id));
+    public ResponseEntity<?> getGalaxyById(@PathVariable("galaxyId") Integer galaxyId) {
+        return ResponseEntity.ok(galaxyService.getGalaxyById(galaxyId));
     }
 
     @PostMapping
-    @PreAuthorize("@RoleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
+    @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Create Galaxy", tags = "galaxy")
     @ApiResponses(value = {
             @ApiResponse(
@@ -66,7 +70,7 @@ public class GalaxyController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> createGalaxy(@RequestBody CreateGalaxyRequest model,
+    public ResponseEntity<?> createGalaxy(@Valid @RequestBody CreateGalaxyRequest model,
                                           @RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token) {
         galaxyService.setToken(token);
         return ResponseEntity.ok(galaxyService.createGalaxy(model));
@@ -74,7 +78,7 @@ public class GalaxyController {
 
 
     @PutMapping("{galaxyId}")
-    @PreAuthorize("@RoleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
+    @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Update Galaxy", tags = "galaxy")
     @ApiResponses(value = {
             @ApiResponse(
@@ -85,13 +89,13 @@ public class GalaxyController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> updateGalaxy(@RequestBody GalaxyDTO galaxy,
+    public ResponseEntity<?> updateGalaxy(@Valid @RequestBody GalaxyDTO galaxy,
                                           @PathVariable("galaxyId") Integer id) {
         return ResponseEntity.ok(galaxyService.updateGalaxy(id, galaxy));
     }
 
     @DeleteMapping("{galaxyId}")
-    @PreAuthorize("@RoleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
+    @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Delete Galaxy", tags = "galaxy")
     @ApiResponses(value = {
             @ApiResponse(

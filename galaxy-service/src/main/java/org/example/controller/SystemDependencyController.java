@@ -6,25 +6,27 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.example.dto.dependency.DeleteDependencyRequest;
-import org.example.dto.dependency.DependencyDTO;
+import org.example.dto.dependency.DependencyRequest;
+import org.example.dto.dependency.CreateDependencyRequest;
 import org.example.service.DependencyService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
 @RequestMapping("/galaxy-app/dependency/")
 @RequiredArgsConstructor
 @JsonIgnoreProperties({"trace"})
+@Validated
 public class SystemDependencyController {
     private final DependencyService dependencyService;
 
     @PostMapping
-    @PreAuthorize("@RoleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
+    @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Add dependency", tags = "dependency")
     @ApiResponses(value = {
             @ApiResponse(
@@ -35,12 +37,12 @@ public class SystemDependencyController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> addDependency(@RequestBody List<DependencyDTO> dependency) {
+    public ResponseEntity<?> addDependency(@RequestBody List<@Valid CreateDependencyRequest> dependency) {
         return ResponseEntity.ok(dependencyService.addDependency(dependency));
     }
 
     @DeleteMapping
-    @PreAuthorize("@RoleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
+    @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Delete dependency", tags = "dependency")
     @ApiResponses(value = {
             @ApiResponse(
@@ -51,7 +53,7 @@ public class SystemDependencyController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> deleteDependency(@RequestBody DeleteDependencyRequest model) {
+    public ResponseEntity<?> deleteDependency(@Valid @RequestBody DependencyRequest model) {
         return ResponseEntity.ok(dependencyService.deleteDependency(model));
     }
 }

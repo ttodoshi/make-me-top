@@ -1,44 +1,100 @@
 package org.example.config;
 
-import org.example.exception.classes.accessEX.AccessException;
+import lombok.extern.slf4j.Slf4j;
+import org.example.exception.ErrorResponse;
+import org.example.exception.classes.courseEX.CourseAlreadyExistsException;
 import org.example.exception.classes.courseEX.CourseNotFoundException;
+import org.example.exception.classes.coursethemeEX.CourseThemeAlreadyExistsException;
 import org.example.exception.classes.coursethemeEX.CourseThemeNotFoundException;
-import org.example.exception.responses.ErrorResponse;
-import org.example.exception.responses.access.AccessExceptionResponse;
-import org.example.exception.responses.course.CourseNotFoundExceptionResponse;
-import org.example.exception.responses.coursetheme.CourseThemeNotFoundExceptionResponse;
+import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
+import org.example.exception.classes.personEX.PersonNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.security.SignatureException;
+import javax.validation.ConstraintViolationException;
 
 @RestControllerAdvice
+@Slf4j
 public class ErrorHandler {
-    @ExceptionHandler(AccessException.class)
-    public ResponseEntity<ErrorResponse> handleAccessException(AccessException e) {
-        return new ResponseEntity<>(new AccessExceptionResponse(), HttpStatus.FORBIDDEN);
+    private void logWarning(Exception e) {
+        StackTraceElement[] stackTrace = e.getStackTrace();
+        if (stackTrace.length > 0) {
+            StackTraceElement firstStackTraceElement = stackTrace[0];
+            String className = firstStackTraceElement.getClassName();
+            String methodName = firstStackTraceElement.getMethodName();
+            int lineNumber = firstStackTraceElement.getLineNumber();
+            log.warn("Произошла ошибка в классе: {}, методе: {}, строка: {}\n\n" + e + "\n", className, methodName, lineNumber);
+        } else log.warn(e.toString());
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException e) {
-        return new ResponseEntity<>(new AccessExceptionResponse(), HttpStatus.FORBIDDEN);
+    public ResponseEntity<ErrorResponse> handleAccessDeniedException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), "Вам закрыт доступ к данной функциональности бортового компьютера"), HttpStatus.FORBIDDEN);
     }
 
-    @ExceptionHandler(SignatureException.class)
-    public ResponseEntity<ErrorResponse> handleSignatureException(SignatureException e) {
-        return new ResponseEntity<>(new AccessExceptionResponse(), HttpStatus.FORBIDDEN);
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalArgumentException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), "Ошибка в поступивших данных"), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), "Ошибка в поступивших данных"), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), "Ошибка в поступивших данных"), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ErrorResponse> handleConstraintViolationException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), "Ошибка в поступивших данных"), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(GalaxyNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleGalaxyNotFoundException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(CourseThemeAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleCourseThemeAlreadyExistsException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(CourseAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleCourseAlreadyExistsException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(CourseNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleCourseNotFoundException(CourseNotFoundException e) {
-        return new ResponseEntity<>(new CourseNotFoundExceptionResponse(e), HttpStatus.NOT_FOUND);
+    public ResponseEntity<ErrorResponse> handleCourseNotFoundException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(CourseThemeNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleCourseThemeNotFoundException(CourseThemeNotFoundException e) {
-        return new ResponseEntity<>(new CourseThemeNotFoundExceptionResponse(e), HttpStatus.NOT_FOUND);
+    public ResponseEntity<ErrorResponse> handleCourseThemeNotFoundException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(PersonNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handlePersonNotFoundException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
     }
 }

@@ -1,64 +1,111 @@
 package org.example.config;
 
-import org.example.exception.classes.accessEX.AccessException;
+import lombok.extern.slf4j.Slf4j;
+import org.example.exception.ErrorResponse;
 import org.example.exception.classes.connectEX.ConnectException;
 import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
+import org.example.exception.classes.personEX.PersonNotFoundException;
 import org.example.exception.classes.planetEX.PlanetAlreadyExistsException;
 import org.example.exception.classes.planetEX.PlanetNotFoundException;
 import org.example.exception.classes.systemEX.SystemNotFoundException;
-import org.example.exception.responses.ErrorResponse;
-import org.example.exception.responses.access.AccessExceptionResponse;
-import org.example.exception.responses.connect.ConnectExceptionResponse;
-import org.example.exception.responses.galaxy.GalaxyNotFoundExceptionResponse;
-import org.example.exception.responses.planet.PlanetAlreadyExistsExceptionResponse;
-import org.example.exception.responses.planet.PlanetNotFoundExceptionResponse;
-import org.example.exception.responses.system.SystemNotFoundExceptionResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.security.SignatureException;
+import javax.validation.ConstraintViolationException;
 
 @RestControllerAdvice
+@Slf4j
 public class ErrorHandler {
-    @ExceptionHandler(AccessException.class)
-    public ResponseEntity<ErrorResponse> handleAccessException(AccessException e) {
-        return new ResponseEntity<>(new AccessExceptionResponse(), HttpStatus.FORBIDDEN);
+    private void logWarning(Exception e) {
+        StackTraceElement[] stackTrace = e.getStackTrace();
+        if (stackTrace.length > 0) {
+            StackTraceElement firstStackTraceElement = stackTrace[0];
+            String className = firstStackTraceElement.getClassName();
+            String methodName = firstStackTraceElement.getMethodName();
+            int lineNumber = firstStackTraceElement.getLineNumber();
+            log.warn("Произошла ошибка в классе: {}, методе: {}, строка: {}\n\n" + e + "\n", className, methodName, lineNumber);
+        } else log.warn(e.toString());
+    }
+
+    private void logError(Exception e) {
+        StackTraceElement[] stackTrace = e.getStackTrace();
+        if (stackTrace.length > 0) {
+            StackTraceElement firstStackTraceElement = stackTrace[0];
+            String className = firstStackTraceElement.getClassName();
+            String methodName = firstStackTraceElement.getMethodName();
+            int lineNumber = firstStackTraceElement.getLineNumber();
+            log.error("Произошла ошибка в классе: {}, методе: {}, строка: {}\n\n" + e + "\n", className, methodName, lineNumber);
+        } else log.error(e.toString());
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException e) {
-        return new ResponseEntity<>(new AccessExceptionResponse(), HttpStatus.FORBIDDEN);
+    public ResponseEntity<ErrorResponse> handleAccessDeniedException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), "Вам закрыт доступ к данной функциональности бортового компьютера"), HttpStatus.FORBIDDEN);
     }
 
-    @ExceptionHandler(SignatureException.class)
-    public ResponseEntity<ErrorResponse> handleSignatureException(SignatureException e) {
-        return new ResponseEntity<>(new AccessExceptionResponse(), HttpStatus.FORBIDDEN);
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalArgumentException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), "Ошибка в поступивших данных"), HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), "Ошибка в поступивших данных"), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), "Ошибка в поступивших данных"), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ErrorResponse> handleConstraintViolationException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), "Ошибка в поступивших данных"), HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(SystemNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleSystemNotFoundException(SystemNotFoundException e) {
-        return new ResponseEntity<>(new SystemNotFoundExceptionResponse(e), HttpStatus.NOT_FOUND);
+    public ResponseEntity<ErrorResponse> handleSystemNotFoundException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(GalaxyNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleGalaxyNotFoundException(GalaxyNotFoundException e) {
-        return new ResponseEntity<>(new GalaxyNotFoundExceptionResponse(e), HttpStatus.NOT_FOUND);
+    public ResponseEntity<ErrorResponse> handleGalaxyNotFoundException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(PlanetNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handlePlanetNotFoundException(PlanetNotFoundException e) {
-        return new ResponseEntity<>(new PlanetNotFoundExceptionResponse(e), HttpStatus.NOT_FOUND);
+    public ResponseEntity<ErrorResponse> handlePlanetNotFoundException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(PlanetAlreadyExistsException.class)
-    public ResponseEntity<ErrorResponse> handlePlanetAlreadyExistsException(PlanetAlreadyExistsException e) {
-        return new ResponseEntity<>(new PlanetAlreadyExistsExceptionResponse(e), HttpStatus.FORBIDDEN);
+    public ResponseEntity<ErrorResponse> handlePlanetAlreadyExistsException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(ConnectException.class)
-    public ResponseEntity<ErrorResponse> handleConnectException(ConnectException e) {
-        return new ResponseEntity<>(new ConnectExceptionResponse(e), HttpStatus.BAD_GATEWAY);
+    public ResponseEntity<ErrorResponse> handleConnectException(Exception e) {
+        logError(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(PersonNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handlePersonNotFoundException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
     }
 }

@@ -6,13 +6,15 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.example.dto.starsystem.CreateStarSystem;
 import org.example.dto.starsystem.StarSystemDTO;
-import org.example.dto.starsystem.StarSystemRequest;
 import org.example.service.StarSystemService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 
 @RestController
@@ -57,8 +59,8 @@ public class StarSystemController {
         return ResponseEntity.ok(starSystemService.getStarSystemsByGalaxyId(galaxyId));
     }
 
-    @PostMapping("galaxy/{galaxyId}/system")
-    @PreAuthorize("@RoleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
+    @PostMapping("orbit/{orbitId}/system")
+    @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Create system", tags = "system")
     @ApiResponses(value = {
             @ApiResponse(
@@ -69,16 +71,16 @@ public class StarSystemController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> createSystem(@RequestBody StarSystemRequest starSystem,
-                                          @PathVariable("galaxyId") Integer galaxyId,
+    public ResponseEntity<?> createSystem(@RequestBody @Valid CreateStarSystem starSystem,
+                                          @PathVariable("orbitId") Integer orbitId,
                                           @RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token) {
         starSystemService.setToken(token);
-        return ResponseEntity.ok(starSystemService.createSystem(starSystem, galaxyId));
+        return ResponseEntity.ok(starSystemService.createSystem(orbitId, starSystem));
     }
 
 
-    @PutMapping("galaxy/{galaxyId}/system/{systemId}")
-    @PreAuthorize("@RoleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
+    @PutMapping("system/{systemId}")
+    @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Update system by id", tags = "system")
     @ApiResponses(value = {
             @ApiResponse(
@@ -89,14 +91,13 @@ public class StarSystemController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> updateSystem(@RequestBody StarSystemDTO starSystem,
-                                          @PathVariable("galaxyId") Integer galaxyId,
+    public ResponseEntity<?> updateSystem(@Valid @RequestBody StarSystemDTO starSystem,
                                           @PathVariable("systemId") Integer systemId) {
-        return ResponseEntity.ok(starSystemService.updateSystem(starSystem, galaxyId, systemId));
+        return ResponseEntity.ok(starSystemService.updateSystem(starSystem, systemId));
     }
 
     @DeleteMapping("system/{systemId}")
-    @PreAuthorize("@RoleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
+    @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Delete system by id", tags = "system")
     @ApiResponses(value = {
             @ApiResponse(

@@ -6,7 +6,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
-import org.example.exception.classes.user.RoleNotAvailableException;
+import org.example.exception.classes.personEX.RoleNotAvailableException;
 import org.example.model.AuthenticationRoleType;
 import org.example.model.GeneralRole;
 import org.example.model.GeneralRoleType;

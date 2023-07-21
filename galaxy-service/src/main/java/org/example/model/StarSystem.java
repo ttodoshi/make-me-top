@@ -19,7 +19,7 @@ public class StarSystem {
     private String systemName;
     private Integer systemLevel;
     private Integer systemPosition;
-    @JoinColumn(name = "orbit_id")
+    @JoinColumn(table = "orbit", name = "orbit_id")
     @Cascade(org.hibernate.annotations.CascadeType.ALL)
     private Integer orbitId;
 

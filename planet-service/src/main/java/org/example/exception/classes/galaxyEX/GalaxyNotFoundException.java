@@ -1,10 +1,7 @@
 package org.example.exception.classes.galaxyEX;
 
-import javax.persistence.EntityNotFoundException;
-
-public class GalaxyNotFoundException extends EntityNotFoundException {
-    public GalaxyNotFoundException() {
-        super("Не удалось найти информацию о данной галактике в памяти бортового компьютера");
+public class GalaxyNotFoundException extends RuntimeException {
+    public GalaxyNotFoundException(Integer galaxyId) {
+        super("Не удалось найти информацию о галактике " + galaxyId + " в памяти бортового компьютера");
     }
 }
-

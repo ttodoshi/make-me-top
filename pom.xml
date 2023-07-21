@@ -15,7 +15,7 @@
         <module>explorer-personal-cabinet-service</module>
         <module>keeper-personal-cabinet-service</module>
         <module>course-service</module>
-        <module>personal-cabinet-balancer-service</module>
+        <module>person-information-service</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -59,6 +59,16 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>log4j-over-slf4j</artifactId>
+            <version>1.7.29</version>
         </dependency>
 
         <dependency>

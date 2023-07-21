@@ -2,24 +2,28 @@ package org.example.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.example.dto.orbit.CreateOrbitWithStarSystems;
 import org.example.dto.orbit.OrbitDTO;
 import org.example.exception.classes.orbitEX.OrbitNotFoundException;
 import org.example.service.OrbitService;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @RestController
-@RequestMapping("/galaxy-app/orbit/")
+@RequestMapping("/galaxy-app/")
 @RequiredArgsConstructor
 public class OrbitController {
     private final OrbitService orbitService;
 
-    @GetMapping("{orbitId}")
+    @GetMapping("orbit/{orbitId}")
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get Orbit", tags = "orbit")
     @ApiResponses(value = {
@@ -39,8 +43,8 @@ public class OrbitController {
             return ResponseEntity.ok(orbitService.getOrbitById(id));
     }
 
-    @PostMapping
-    @PreAuthorize("@RoleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
+    @PostMapping("galaxy/{galaxyId}/orbit")
+    @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Create Orbit", tags = "orbit")
     @ApiResponses(value = {
             @ApiResponse(
@@ -51,12 +55,15 @@ public class OrbitController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> createOrbit(@RequestBody OrbitDTO orbit) {
-        return ResponseEntity.ok(orbitService.createOrbit(orbit));
+    public ResponseEntity<?> createOrbit(@Valid @RequestBody CreateOrbitWithStarSystems orbit,
+                                         @PathVariable Integer galaxyId,
+                                         @RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token) {
+        orbitService.setToken(token);
+        return ResponseEntity.ok(orbitService.createOrbit(galaxyId, orbit));
     }
 
-    @PutMapping("{orbitId}")
-    @PreAuthorize("@RoleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
+    @PutMapping("orbit/{orbitId}")
+    @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Update Orbit", tags = "orbit")
     @ApiResponses(value = {
             @ApiResponse(
@@ -67,12 +74,13 @@ public class OrbitController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> updateOrbit(@PathVariable("orbitId") Integer id, @RequestBody OrbitDTO orbit) {
+    public ResponseEntity<?> updateOrbit(@PathVariable("orbitId") Integer id,
+                                         @Valid @RequestBody OrbitDTO orbit) {
         return ResponseEntity.ok(orbitService.updateOrbit(id, orbit));
     }
 
-    @DeleteMapping("{orbitId}")
-    @PreAuthorize("@RoleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
+    @DeleteMapping("orbit/{orbitId}")
+    @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Delete Orbit", tags = "orbit")
     @ApiResponses(value = {
             @ApiResponse(
