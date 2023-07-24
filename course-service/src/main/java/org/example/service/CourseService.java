@@ -23,7 +23,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -84,9 +85,14 @@ public class CourseService {
                 .uri("/galaxy/" + galaxyId + "/system/")
                 .header("Authorization", token)
                 .retrieve()
-                .onStatus(HttpStatus.NOT_FOUND::equals, e -> Mono.error(new GalaxyNotFoundException(galaxyId)))
+                .onStatus(HttpStatus.NOT_FOUND::equals, response -> {
+                    throw new GalaxyNotFoundException(galaxyId);
+                })
+                .onStatus(HttpStatus::isError, response -> {
+                    throw new ConnectException();
+                })
                 .bodyToMono(StarSystemDTO[].class)
-                .doOnError(ConnectException::new)
+                .timeout(Duration.ofSeconds(5))
                 .block();
     }
 

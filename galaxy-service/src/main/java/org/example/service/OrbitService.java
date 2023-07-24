@@ -8,6 +8,7 @@ import org.example.dto.orbit.GetOrbitWithStarSystems;
 import org.example.dto.orbit.OrbitDTO;
 import org.example.dto.starsystem.CreateStarSystem;
 import org.example.dto.starsystem.GetStarSystemWithDependencies;
+import org.example.exception.classes.connectEX.ConnectException;
 import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
 import org.example.exception.classes.orbitEX.OrbitCoordinatesException;
 import org.example.exception.classes.orbitEX.OrbitNotFoundException;
@@ -19,10 +20,11 @@ import org.example.repository.OrbitRepository;
 import org.example.repository.StarSystemRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import javax.transaction.Transactional;
 import java.util.*;
 
 @Service
@@ -82,7 +84,7 @@ public class OrbitService {
             StarSystem system = mapper.map(currentSystem, StarSystem.class);
             system.setOrbitId(savedOrbit.getOrbitId());
             StarSystem savedSystem = starSystemRepository.save(system);
-            createCourse(savedSystem.getSystemId(), currentSystem);
+            systemService.createCourse(savedSystem.getSystemId(), currentSystem);
         }
         return getOrbitWithSystemList(savedOrbit.getOrbitId());
     }
@@ -90,17 +92,6 @@ public class OrbitService {
     private boolean systemExists(Integer galaxyId, String systemName) {
         return starSystemRepository.findSystemsByGalaxyId(galaxyId)
                 .stream().anyMatch(s -> Objects.equals(s.getSystemName(), systemName));
-    }
-
-    private void createCourse(Integer courseId, CreateStarSystem starSystem) {
-        WebClient webClient = WebClient.create(COURSE_APP_URL);
-        webClient.post()
-                .uri("/course/")
-                .bodyValue(new CourseDTO(courseId, starSystem.getSystemName(), new Date(), new Date(), starSystem.getDescription()))
-                .header("Authorization", token)
-                .retrieve()
-                .bodyToMono(Void.class)
-                .subscribe();
     }
 
     public Orbit updateOrbit(Integer orbitId, OrbitDTO orbit) {

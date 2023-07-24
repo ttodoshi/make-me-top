@@ -1,15 +1,15 @@
 package org.example.model;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.*;
+import lombok.Data;
+import lombok.ToString;
+import org.hibernate.annotations.Cascade;
 
 import javax.persistence.*;
 
 @Entity
 @Table(name = "orbit", schema = "galaxy")
 @Data
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "galactic"})
 @ToString
 public class Orbit {
     @Id
@@ -17,7 +17,7 @@ public class Orbit {
     private Integer orbitId;
     private Integer orbitLevel;
     private Integer systemCount;
-    @JoinColumn(name = "galaxy_id")
-    @JoinTable(name = "galaxy")
+    @JoinColumn(table = "galaxy", name = "galaxy_id")
+    @Cascade(org.hibernate.annotations.CascadeType.ALL)
     private Integer galaxyId;
 }

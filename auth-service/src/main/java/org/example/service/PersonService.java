@@ -21,6 +21,7 @@ import reactor.core.publisher.Mono;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Optional;
 
 @Service
@@ -68,9 +69,11 @@ public class PersonService {
                 .bodyValue(userRequest)
                 .acceptCharset(StandardCharsets.UTF_8)
                 .retrieve()
-                .onStatus(HttpStatus.NOT_FOUND::equals, e -> Mono.error(new PersonNotFoundException()))
                 .bodyToMono(MmtrAuthResponse.class)
-                .doOnError(ConnectException::new)
+                .timeout(Duration.ofSeconds(5))
+                .onErrorResume(throwable -> {
+                    throw new ConnectException();
+                })
                 .block();
         Optional<AuthResponseUser> employeeOptional = Optional.empty();
         if (response != null && response.getIsSuccess())

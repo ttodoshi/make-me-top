@@ -5,6 +5,7 @@ import lombok.Setter;
 import org.example.config.mapper.DependencyMapper;
 import org.example.dto.course.CourseDTO;
 import org.example.dto.starsystem.*;
+import org.example.exception.classes.connectEX.ConnectException;
 import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
 import org.example.exception.classes.orbitEX.OrbitNotFoundException;
 import org.example.exception.classes.systemEX.SystemAlreadyExistsException;
@@ -16,10 +17,11 @@ import org.example.repository.OrbitRepository;
 import org.example.repository.StarSystemRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import javax.transaction.Transactional;
 import java.util.*;
 
 @Service
@@ -82,18 +84,20 @@ public class StarSystemService {
         return savedSystem;
     }
 
-    private void createCourse(Integer courseId, CreateStarSystem starSystem) {
+    public void createCourse(Integer courseId, CreateStarSystem starSystem) {
         WebClient webClient = WebClient.create(COURSE_APP_URL);
         webClient.post()
                 .uri("/course/")
                 .bodyValue(new CourseDTO(courseId, starSystem.getSystemName(), new Date(), new Date(), starSystem.getDescription()))
                 .header("Authorization", token)
                 .retrieve()
+                .onStatus(HttpStatus::isError, response -> {
+                    throw new ConnectException();
+                })
                 .bodyToMono(Void.class)
                 .subscribe();
     }
 
-    @Transactional
     public StarSystem updateSystem(StarSystemDTO starSystem, Integer systemId) {
         if (!starSystemRepository.existsById(systemId))
             throw new SystemNotFoundException(systemId);
@@ -114,7 +118,6 @@ public class StarSystemService {
                 .stream().anyMatch(s -> Objects.equals(s.getSystemName(), systemName));
     }
 
-    @Transactional
     public Map<String, String> deleteSystem(Integer systemId) {
         if (!starSystemRepository.existsById(systemId))
             throw new SystemNotFoundException(systemId);

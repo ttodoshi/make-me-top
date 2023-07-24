@@ -3,9 +3,11 @@ package org.example.service;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.example.dto.coursetheme.CourseThemeCreateRequest;
+import org.example.dto.coursetheme.CourseThemeDTO;
 import org.example.dto.planet.CreatePlanet;
 import org.example.dto.planet.PlanetUpdateRequest;
 import org.example.dto.starsystem.StarSystemDTO;
+import org.example.exception.classes.connectEX.ConnectException;
 import org.example.exception.classes.planetEX.PlanetAlreadyExistsException;
 import org.example.exception.classes.planetEX.PlanetNotFoundException;
 import org.example.exception.classes.systemEX.SystemNotFoundException;
@@ -16,10 +18,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
-import javax.transaction.Transactional;
+import java.time.Duration;
 import java.util.*;
 
 @Service
@@ -70,7 +72,11 @@ public class PlanetService {
                         planet.getDescription(), planet.getContent(), planet.getPlanetNumber()))
                 .header("Authorization", token)
                 .retrieve()
-                .bodyToMono(Void.class)
+                .bodyToMono(CourseThemeDTO.class)
+                .timeout(Duration.ofSeconds(5))
+                .onErrorResume(throwable -> {
+                    throw new ConnectException();
+                })
                 .subscribe();
     }
 
@@ -108,8 +114,14 @@ public class PlanetService {
                 .uri("/system/" + systemId)
                 .header("Authorization", token)
                 .retrieve()
-                .onStatus(HttpStatus.NOT_FOUND::equals, e -> Mono.error(new SystemNotFoundException(systemId)))
+                .onStatus(HttpStatus.NOT_FOUND::equals, response -> {
+                    throw new SystemNotFoundException(systemId);
+                })
+                .onStatus(HttpStatus::isError, response -> {
+                    throw new ConnectException();
+                })
                 .bodyToMono(StarSystemDTO.class)
+                .timeout(Duration.ofSeconds(5))
                 .block();
     }
 }

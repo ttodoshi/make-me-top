@@ -11,8 +11,8 @@ import org.example.model.SystemDependency;
 import org.example.repository.DependencyRepository;
 import org.example.repository.StarSystemRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;

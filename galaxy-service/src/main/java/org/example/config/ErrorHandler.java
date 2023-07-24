@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import javax.validation.ConstraintViolationException;
+import java.util.concurrent.TimeoutException;
 
 @RestControllerAdvice
 @Slf4j
@@ -84,6 +85,11 @@ public class ErrorHandler {
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @ExceptionHandler(TimeoutException.class)
+    public ResponseEntity<ErrorResponse> handleTimeoutException(Exception e) {
+        logError(e);
+        return handleConnectException(new ConnectException());
+    }
 
     @ExceptionHandler(GalaxyNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleGalaxyNotFoundException(Exception e) {

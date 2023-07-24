@@ -30,10 +30,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
-import javax.transaction.Transactional;
+import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -87,10 +87,14 @@ public class SystemProgressService {
                 .uri("/galaxy/" + galaxyId + "/system/")
                 .header("Authorization", token)
                 .retrieve()
-                .onStatus(HttpStatus.NOT_FOUND::equals, e -> Mono.error(new GalaxyNotFoundException(galaxyId)))
+                .onStatus(HttpStatus.NOT_FOUND::equals, response -> {
+                    throw new GalaxyNotFoundException(galaxyId);
+                })
+                .onStatus(HttpStatus::isError, response -> {
+                    throw new ConnectException();
+                })
                 .bodyToMono(StarSystemDTO[].class)
-                .doOnError(ConnectException::new)
-                .block();
+                .block(Duration.ofSeconds(5));
     }
 
     public SystemWithPlanetsProgress getPlanetsProgressBySystemId(Integer systemId) {
@@ -207,9 +211,14 @@ public class SystemProgressService {
                 .uri("/system/" + systemId + "?withDependencies=true")
                 .header("Authorization", token)
                 .retrieve()
-                .onStatus(HttpStatus.NOT_FOUND::equals, e -> Mono.error(new CourseNotFoundException(systemId)))
+                .onStatus(HttpStatus.NOT_FOUND::equals, response -> {
+                    throw new CourseNotFoundException(systemId);
+                })
+                .onStatus(HttpStatus::isError, response -> {
+                    throw new ConnectException();
+                })
                 .bodyToMono(GetStarSystemWithDependencies.class)
-                .doOnError(ConnectException::new)
+                .timeout(Duration.ofSeconds(5))
                 .block();
     }
 
