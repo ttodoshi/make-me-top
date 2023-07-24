@@ -8,6 +8,7 @@ import org.example.exception.classes.courseEX.CourseNotFoundException;
 import org.example.exception.classes.coursethemeEX.CourseThemeAlreadyExistsException;
 import org.example.exception.classes.coursethemeEX.CourseThemeNotFoundException;
 import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
+import org.example.exception.classes.homeworkEX.HomeworkNotFoundException;
 import org.example.exception.classes.personEX.PersonNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -121,5 +122,11 @@ public class ErrorHandler {
     public ResponseEntity<ErrorResponse> handleTimeoutException(Exception e) {
         logError(e);
         return handleConnectException(new ConnectException());
+    }
+
+    @ExceptionHandler(HomeworkNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleHomeworkNotFoundException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
     }
 }

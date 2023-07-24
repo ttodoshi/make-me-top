@@ -1,4 +1,4 @@
-package org.example.config.security;
+package org.example.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

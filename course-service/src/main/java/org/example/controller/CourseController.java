@@ -51,8 +51,8 @@ public class CourseController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> getAllCourses(@PathVariable("galaxyId") Integer galaxyId,
-                                           @RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token) {
+    public ResponseEntity<?> getCoursesByGalaxyId(@PathVariable("galaxyId") Integer galaxyId,
+                                                  @RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token) {
         courseService.setToken(token);
         return ResponseEntity.ok(courseService.getCoursesByGalaxyId(galaxyId));
     }
