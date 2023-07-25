@@ -6,14 +6,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.example.dto.systemprogress.ProgressUpdateRequest;
 import org.example.service.SystemProgressService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/explorer-cabinet/")
@@ -56,24 +53,5 @@ public class SystemProgressController {
     public ResponseEntity<?> getSystemPlanetsProgress(@PathVariable("courseId") Integer courseId) {
         return ResponseEntity.ok(
                 systemProgressService.getPlanetsProgressBySystemId(courseId));
-    }
-
-    @PatchMapping("/theme/{themeId}")
-    @PreAuthorize("@roleService.hasAnyCourseRoleByThemeId(#themeId," +
-            "T(org.example.model.role.CourseRoleType).EXPLORER)")
-    @Operation(summary = "Update course theme progress for current user", tags = "system progress")
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Course theme progress",
-                    content = {
-                            @Content(
-                                    mediaType = "application/json")
-                    })
-    })
-    public ResponseEntity<?> updateCourseProgress(@PathVariable("themeId") Integer themeId,
-                                                  @Valid @RequestBody ProgressUpdateRequest updateRequest) {
-        return ResponseEntity.ok(
-                systemProgressService.updatePlanetProgress(themeId, updateRequest));
     }
 }

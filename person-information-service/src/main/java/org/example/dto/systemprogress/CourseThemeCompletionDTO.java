@@ -1,16 +1,14 @@
-package org.example.dto.coursemark;
+package org.example.dto.systemprogress;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotNull;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@NotNull
-public class CourseMarkDTO {
+public class CourseThemeCompletionDTO {
     private Integer explorerId;
-    private Integer value;
+    private Integer courseThemeId;
+    private Boolean completed;
 }

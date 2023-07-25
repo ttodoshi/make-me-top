@@ -8,15 +8,16 @@ import javax.persistence.*;
 
 @Data
 @Entity
-@Table(name = "course_theme_progress", schema = "course")
+@Table(name = "course_theme_completion", schema = "course")
 @AllArgsConstructor
 @NoArgsConstructor
-public class CourseThemeProgress {
+public class CourseThemeCompletion {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer courseThemeProgressId;
+    private Integer courseThemeCompletionId;
     @JoinColumn(table = "explorer", name = "explorer_id")
     private Integer explorerId;
     private Integer courseThemeId;
-    private Integer progress;
+    private Boolean completed;
+    private Integer mark;
 }

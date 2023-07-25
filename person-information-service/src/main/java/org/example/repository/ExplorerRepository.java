@@ -26,7 +26,7 @@ public interface ExplorerRepository extends JpaRepository<Explorer, Integer> {
             "FROM Explorer e\n" +
             "JOIN Person p ON p.personId = e.personId\n" +
             "JOIN Course c ON c.courseId = e.courseId\n" +
-            "JOIN CourseThemeProgress ctp ON ctp.explorerId = e.explorerId\n" +
+            "JOIN CourseThemeCompletion ctc ON ctc.explorerId = e.explorerId\n" +
             "JOIN Keeper k ON k.courseId = c.courseId\n" +
             "WHERE (\n" +
             "\tSELECT COUNT(*) FROM CourseTheme ct\n" +
@@ -34,9 +34,9 @@ public interface ExplorerRepository extends JpaRepository<Explorer, Integer> {
             "\tJOIN Explorer e1 ON e1.courseId = c1.courseId\n" +
             "\tWHERE e1.explorerId = e.explorerId\n" +
             ") = (\n" +
-            "\tSELECT COUNT(*) FROM CourseThemeProgress ctp1\n" +
+            "\tSELECT COUNT(*) FROM CourseThemeCompletion ctp1\n" +
             "\tJOIN Explorer e1 ON e1.explorerId = ctp1.explorerId\n" +
-            "\tWHERE ctp1.progress = 100 AND e1.explorerId = e.explorerId\n" +
+            "\tWHERE ctp1.completed = TRUE AND e1.explorerId = e.explorerId\n" +
             ")\n" +
             "AND e.explorerId NOT IN (\n" +
             "\tSELECT cm.explorerId FROM CourseMark cm\n" +

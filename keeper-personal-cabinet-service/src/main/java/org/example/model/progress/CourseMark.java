@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.Entity;
@@ -24,6 +23,6 @@ public class CourseMark {
     private Integer explorerId;
     @CreatedDate
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
-    private Date endDate;
+    private Date courseEndDate;
     private Integer value;
 }

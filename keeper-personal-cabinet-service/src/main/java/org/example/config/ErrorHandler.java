@@ -2,11 +2,17 @@ package org.example.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.exception.ErrorResponse;
+import org.example.exception.classes.connectEX.ConnectException;
+import org.example.exception.classes.courseEX.CourseNotFoundException;
+import org.example.exception.classes.coursethemeEX.CourseThemeNotFoundException;
 import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
 import org.example.exception.classes.keeperEX.DifferentKeeperException;
 import org.example.exception.classes.markEX.ExplorerDoesNotNeedMarkException;
 import org.example.exception.classes.markEX.UnexpectedMarkValueException;
 import org.example.exception.classes.personEX.PersonNotFoundException;
+import org.example.exception.classes.progressEX.PlanetAlreadyCompletedException;
+import org.example.exception.classes.progressEX.SystemParentsNotCompletedException;
+import org.example.exception.classes.progressEX.UnexpectedCourseThemeException;
 import org.example.exception.classes.requestEX.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -131,5 +137,41 @@ public class ErrorHandler {
     public ResponseEntity<ErrorResponse> handlePersonNotFoundException(Exception e) {
         logWarning(e);
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(CourseThemeNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleCourseThemeNotFoundException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(CourseNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleCourseNotFoundException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(PlanetAlreadyCompletedException.class)
+    public ResponseEntity<ErrorResponse> handlePlanetAlreadyCompletedException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), e.getMessage()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(SystemParentsNotCompletedException.class)
+    public ResponseEntity<ErrorResponse> handleSystemParentsNotCompletedException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.METHOD_NOT_ALLOWED.getReasonPhrase(), e.getMessage()), HttpStatus.METHOD_NOT_ALLOWED);
+    }
+
+    @ExceptionHandler(UnexpectedCourseThemeException.class)
+    public ResponseEntity<ErrorResponse> handleUnexpectedCourseThemeException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), e.getMessage()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ConnectException.class)
+    public ResponseEntity<ErrorResponse> handleConnectException(Exception e) {
+        logError(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

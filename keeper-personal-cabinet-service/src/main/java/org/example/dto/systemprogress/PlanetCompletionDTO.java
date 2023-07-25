@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CourseThemeProgressDTO {
-    private Integer explorerId;
+public class PlanetCompletionDTO {
     private Integer courseThemeId;
-    private Integer progress;
+    private String title;
+    private Boolean completed;
 }

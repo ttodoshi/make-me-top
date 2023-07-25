@@ -8,7 +8,7 @@ import org.example.dto.feedback.PersonWithRating;
 import org.example.dto.homework.HomeworkRequestDTO;
 import org.example.dto.keeper.KeeperDTO;
 import org.example.dto.systemprogress.CurrentCourseProgressDTO;
-import org.example.dto.systemprogress.PlanetWithProgress;
+import org.example.dto.systemprogress.PlanetCompletionDTO;
 import org.example.dto.systemprogress.SystemWithPlanetsProgress;
 import org.example.exception.classes.courseEX.CourseNotFoundException;
 import org.example.exception.classes.coursethemeEX.CourseThemeNotFoundException;
@@ -18,7 +18,7 @@ import org.example.model.Explorer;
 import org.example.model.Person;
 import org.example.model.course.Course;
 import org.example.model.course.CourseTheme;
-import org.example.model.progress.CourseThemeProgress;
+import org.example.model.progress.CourseThemeCompletion;
 import org.example.model.role.AuthenticationRoleType;
 import org.example.repository.*;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -105,9 +105,9 @@ public class InformationService {
     }
 
     private Integer getCurrentCourseThemeId(Integer personId, Integer systemId) {
-        List<PlanetWithProgress> planetsProgress = getPlanetsProgressBySystemId(personId, systemId).getPlanetsWithProgress();
-        for (PlanetWithProgress planet : planetsProgress) {
-            if (!planet.getProgress().equals(100))
+        List<PlanetCompletionDTO> planetsProgress = getPlanetsProgressBySystemId(personId, systemId).getPlanetsWithProgress();
+        for (PlanetCompletionDTO planet : planetsProgress) {
+            if (!planet.getCompleted())
                 return planet.getCourseThemeId();
         }
         return planetsProgress.get(planetsProgress.size() - 1).getCourseThemeId();
@@ -122,20 +122,20 @@ public class InformationService {
         SystemWithPlanetsProgress systemWithPlanetsProgress = new SystemWithPlanetsProgress();
         systemWithPlanetsProgress.setCourseId(course.getCourseId());
         systemWithPlanetsProgress.setTitle(course.getTitle());
-        List<PlanetWithProgress> planetWithProgresses = new LinkedList<>();
+        List<PlanetCompletionDTO> planetCompletionDTOS = new LinkedList<>();
         for (CourseTheme ct : courseThemeRepository.findCourseThemesByCourseIdOrderByCourseThemeNumberAsc(systemId)) {
-            Optional<CourseThemeProgress> planetProgress = planetProgressRepository.findCourseThemeProgressByExplorerIdAndCourseThemeId(explorer.getExplorerId(), ct.getCourseThemeId());
-            if (planetProgress.isPresent())
-                planetWithProgresses.add(
-                        new PlanetWithProgress(ct.getCourseThemeId(), ct.getTitle(), planetProgress.get().getProgress())
+            Optional<CourseThemeCompletion> planetCompletion = planetProgressRepository.findCourseThemeProgressByExplorerIdAndCourseThemeId(explorer.getExplorerId(), ct.getCourseThemeId());
+            if (planetCompletion.isPresent())
+                planetCompletionDTOS.add(
+                        new PlanetCompletionDTO(ct.getCourseThemeId(), ct.getTitle(), planetCompletion.get().getCompleted())
                 );
             else {
-                planetWithProgresses.add(
-                        new PlanetWithProgress(ct.getCourseThemeId(), ct.getTitle(), 0)
+                planetCompletionDTOS.add(
+                        new PlanetCompletionDTO(ct.getCourseThemeId(), ct.getTitle(), false)
                 );
             }
         }
-        systemWithPlanetsProgress.setPlanetsWithProgress(planetWithProgresses);
+        systemWithPlanetsProgress.setPlanetsWithProgress(planetCompletionDTOS);
         return systemWithPlanetsProgress;
     }
 

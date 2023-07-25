@@ -10,5 +10,5 @@ public class SystemWithPlanetsProgress {
     private Integer courseId;
     private String title;
     @JsonProperty("planets")
-    private List<PlanetWithProgress> planetsWithProgress;
+    private List<PlanetCompletionDTO> planetsWithProgress;
 }
