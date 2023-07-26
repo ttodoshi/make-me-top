@@ -39,7 +39,7 @@ public class CourseRegistrationRequestService {
         if (authenticatedKeeperIsNotKeeperInRequest(authenticatedPersonId, request))
             throw new DifferentKeeperException();
         CourseRegistrationRequestStatusType status;
-        if (requestReply.isApproved()) {
+        if (requestReply.getApproved()) {
             status = CourseRegistrationRequestStatusType.APPROVED;
             addExplorer(request.getPersonId(), request.getCourseId());
         } else {

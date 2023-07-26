@@ -50,7 +50,7 @@ public class GalaxyService {
                                 GetOrbitWithStarSystemsWithoutGalaxyId.class)
                 )
         );
-        galaxy.setOrbitsList(orbitWithStarSystemsList);
+        galaxy.setOrbitList(orbitWithStarSystemsList);
         return galaxy;
     }
 
@@ -61,7 +61,7 @@ public class GalaxyService {
         Galaxy galaxy = mapper.map(createGalaxyRequest, Galaxy.class);
         Integer savedGalaxyId = galaxyRepository.save(galaxy).getGalaxyId();
         orbitService.setToken(token);
-        for (CreateOrbitWithStarSystems orbit : createGalaxyRequest.getOrbitsList()) {
+        for (CreateOrbitWithStarSystems orbit : createGalaxyRequest.getOrbitList()) {
             orbitService.createOrbit(savedGalaxyId, orbit);
         }
         return getGalaxyById(savedGalaxyId);

@@ -5,7 +5,7 @@ import lombok.Data;
 import javax.validation.constraints.NotNull;
 
 @Data
-@NotNull
 public class ProgressUpdateRequest {
+    @NotNull
     private Integer progress;
 }

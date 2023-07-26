@@ -2,13 +2,11 @@ package org.example.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.example.dto.course.CourseDTO;
 import org.example.dto.orbit.CreateOrbitWithStarSystems;
 import org.example.dto.orbit.GetOrbitWithStarSystems;
 import org.example.dto.orbit.OrbitDTO;
 import org.example.dto.starsystem.CreateStarSystem;
 import org.example.dto.starsystem.GetStarSystemWithDependencies;
-import org.example.exception.classes.connectEX.ConnectException;
 import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
 import org.example.exception.classes.orbitEX.OrbitCoordinatesException;
 import org.example.exception.classes.orbitEX.OrbitNotFoundException;
@@ -20,10 +18,8 @@ import org.example.repository.OrbitRepository;
 import org.example.repository.StarSystemRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.*;
 
@@ -73,14 +69,14 @@ public class OrbitService {
         orbit.setGalaxyId(galaxyId);
         Orbit savedOrbit = orbitRepository.save(orbit);
         List<CreateStarSystem> savingSystemsList = new LinkedList<>();
-        for (CreateStarSystem system : orbitRequest.getSystemsList()) {
+        for (CreateStarSystem system : orbitRequest.getSystemList()) {
             if (!orbitRepository.existsById(savedOrbit.getOrbitId()))
                 throw new OrbitNotFoundException(savedOrbit.getOrbitId());
             if (savingSystemsList.contains(system) || systemExists(orbitRepository.getReferenceById(savedOrbit.getOrbitId()).getGalaxyId(), system.getSystemName()))
                 throw new SystemAlreadyExistsException(system.getSystemName());
             savingSystemsList.add(system);
         }
-        for (CreateStarSystem currentSystem : orbitRequest.getSystemsList()) {
+        for (CreateStarSystem currentSystem : orbitRequest.getSystemList()) {
             StarSystem system = mapper.map(currentSystem, StarSystem.class);
             system.setOrbitId(savedOrbit.getOrbitId());
             StarSystem savedSystem = starSystemRepository.save(system);

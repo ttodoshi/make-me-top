@@ -9,7 +9,7 @@ import javax.validation.constraints.NotNull;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@NotNull
 public class CourseRegistrationRequestReply {
-    private boolean approved;
+    @NotNull
+    private Boolean approved;
 }

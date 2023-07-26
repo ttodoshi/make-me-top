@@ -9,8 +9,9 @@ import javax.validation.constraints.NotNull;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@NotNull
 public class MarkDTO {
+    @NotNull
     private Integer explorerId;
+    @NotNull
     private Integer value;
 }

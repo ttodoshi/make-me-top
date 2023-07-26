@@ -6,9 +6,9 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @Data
-@NotNull
 public class CourseUpdateRequest {
     @NotBlank
     private String title;
+    @NotNull
     private String description;
 }

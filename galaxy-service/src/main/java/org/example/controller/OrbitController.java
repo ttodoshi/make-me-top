@@ -35,12 +35,12 @@ public class OrbitController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> getOrbitById(@PathVariable("orbitId") Integer id,
+    public ResponseEntity<?> getOrbitById(@PathVariable("orbitId") Integer orbitId,
                                           @RequestParam(name = "withSystemsList", required = false) Boolean withSystemsList) throws OrbitNotFoundException {
         if (withSystemsList != null && withSystemsList)
-            return ResponseEntity.ok(orbitService.getOrbitWithSystemList(id));
+            return ResponseEntity.ok(orbitService.getOrbitWithSystemList(orbitId));
         else
-            return ResponseEntity.ok(orbitService.getOrbitById(id));
+            return ResponseEntity.ok(orbitService.getOrbitById(orbitId));
     }
 
     @PostMapping("galaxy/{galaxyId}/orbit")
@@ -74,9 +74,9 @@ public class OrbitController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> updateOrbit(@PathVariable("orbitId") Integer id,
+    public ResponseEntity<?> updateOrbit(@PathVariable("orbitId") Integer orbitId,
                                          @Valid @RequestBody OrbitDTO orbit) {
-        return ResponseEntity.ok(orbitService.updateOrbit(id, orbit));
+        return ResponseEntity.ok(orbitService.updateOrbit(orbitId, orbit));
     }
 
     @DeleteMapping("orbit/{orbitId}")

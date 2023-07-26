@@ -15,5 +15,5 @@ import java.util.List;
 public class GetGalaxyRequest extends GalaxyDTO {
     private Integer galaxyId;
     @JsonProperty("orbitList")
-    private List<GetOrbitWithStarSystemsWithoutGalaxyId> orbitsList;
+    private List<GetOrbitWithStarSystemsWithoutGalaxyId> orbitList;
 }

@@ -5,9 +5,11 @@ import lombok.Data;
 import javax.validation.constraints.NotNull;
 
 @Data
-@NotNull
 public class OrbitDTO {
+    @NotNull
     private Integer orbitLevel;
+    @NotNull
     private Integer systemCount;
+    @NotNull
     private Integer galaxyId;
 }

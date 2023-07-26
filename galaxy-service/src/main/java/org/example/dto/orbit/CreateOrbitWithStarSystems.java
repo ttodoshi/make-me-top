@@ -9,10 +9,12 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Data
-@NotNull
 @Validated
 public class CreateOrbitWithStarSystems {
+    @NotNull
     private Integer orbitLevel;
+    @NotNull
     private Integer systemCount;
-    private List<@Valid CreateStarSystem> systemsList;
+    @NotNull
+    private List<@Valid CreateStarSystem> systemList;
 }
