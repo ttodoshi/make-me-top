@@ -30,10 +30,9 @@ public class JwtServiceImpl implements JwtServiceInterface {
     @Override
     public String generateToken(Person person, String role) {
         Claims claims = Jwts.claims().setSubject(person.getPersonId().toString());
-        if (isRoleAvailable(person, role))
-            claims.put("role", role);
-        else
+        if (!isRoleAvailable(person, role))
             throw new RoleNotAvailableException();
+        claims.put("role", role);
         Date now = new Date();
         Date kill = new Date(now.getTime() + 43200 * 1000);
         return Jwts.builder()

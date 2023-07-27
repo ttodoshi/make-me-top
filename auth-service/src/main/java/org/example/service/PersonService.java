@@ -1,7 +1,6 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.example.config.mapper.PersonMapper;
 import org.example.config.security.JwtServiceInterface;
 import org.example.dto.AuthResponse;
@@ -23,7 +22,6 @@ import java.time.Duration;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class PersonService {
     private final PersonRepository personRepository;
 
