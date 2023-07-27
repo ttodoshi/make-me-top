@@ -21,7 +21,7 @@ public class ExplorerInformationController {
 
     @GetMapping("{personId}")
     @PreAuthorize("isAuthenticated()")
-    @Operation(summary = "Get information", tags = "personal cabinet")
+    @Operation(summary = "Get information", tags = "public info")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
@@ -33,5 +33,21 @@ public class ExplorerInformationController {
     })
     public ResponseEntity<?> getInformation(@PathVariable Integer personId) {
         return ResponseEntity.ok(informationService.getExplorerPublicInformation(personId));
+    }
+
+    @GetMapping("{personId}/rating")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Get explorer rating", tags = "public info")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Explorer rating",
+                    content = {
+                            @Content(
+                                    mediaType = "*")
+                    })
+    })
+    public ResponseEntity<?> getKeeperRating(@PathVariable("personId") Integer personId) {
+        return ResponseEntity.ok(informationService.getExplorerRating(personId));
     }
 }

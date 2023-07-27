@@ -4,19 +4,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.config.mapper.PersonMapper;
 import org.example.config.security.JwtServiceInterface;
-import org.example.dto.AuthResponseUser;
+import org.example.dto.AuthResponseEmployee;
 import org.example.dto.LoginRequest;
-import org.example.dto.MmtrAuthResponse;
+import org.example.dto.AuthResponse;
 import org.example.exception.classes.connectEX.ConnectException;
 import org.example.exception.classes.personEX.PersonNotFoundException;
 import org.example.model.Person;
 import org.example.repository.PersonRepository;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
@@ -46,10 +44,10 @@ public class PersonService {
     }
 
     private Person authenticatePerson(LoginRequest request) {
-        Optional<AuthResponseUser> authResponseOptional = sendAuthRequest(request);
+        Optional<AuthResponseEmployee> authResponseOptional = sendAuthRequest(request);
         if (authResponseOptional.isEmpty())
             throw new PersonNotFoundException();
-        AuthResponseUser authResponse = authResponseOptional.get();
+        AuthResponseEmployee authResponse = authResponseOptional.get();
         return personRepository.findById(authResponse.getEmployeeId()).orElseGet(
                 () -> personRepository.save(personMapper.UserAuthResponseToPerson(authResponse))
         );
@@ -62,20 +60,20 @@ public class PersonService {
         return tokenCookie;
     }
 
-    public Optional<AuthResponseUser> sendAuthRequest(LoginRequest userRequest) {
+    public Optional<AuthResponseEmployee> sendAuthRequest(LoginRequest userRequest) {
         WebClient webClient = WebClient.create(MMTR_AUTH_URL);
-        MmtrAuthResponse response = webClient.post()
+        AuthResponse response = webClient.post()
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(userRequest)
                 .acceptCharset(StandardCharsets.UTF_8)
                 .retrieve()
-                .bodyToMono(MmtrAuthResponse.class)
+                .bodyToMono(AuthResponse.class)
                 .timeout(Duration.ofSeconds(5))
                 .onErrorResume(throwable -> {
                     throw new ConnectException();
                 })
                 .block();
-        Optional<AuthResponseUser> employeeOptional = Optional.empty();
+        Optional<AuthResponseEmployee> employeeOptional = Optional.empty();
         if (response != null && response.getIsSuccess())
             employeeOptional = Optional.of(response.getObject());
         return employeeOptional;

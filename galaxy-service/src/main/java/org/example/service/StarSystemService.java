@@ -40,11 +40,11 @@ public class StarSystemService {
     @Value("${course_app_url}")
     private String COURSE_APP_URL;
 
-    public GetStarSystemWithDependencies getStarSystemByIdWithDependencies(Integer systemId) {
+    public StarSystemWithDependenciesGetResponse getStarSystemByIdWithDependencies(Integer systemId) {
         if (!starSystemRepository.existsById(systemId))
             throw new SystemNotFoundException(systemId);
-        GetStarSystemWithDependencies system = mapper.map(
-                starSystemRepository.getReferenceById(systemId), GetStarSystemWithDependencies.class);
+        StarSystemWithDependenciesGetResponse system = mapper.map(
+                starSystemRepository.getReferenceById(systemId), StarSystemWithDependenciesGetResponse.class);
         List<SystemDependencyModel> dependencies = new LinkedList<>();
         dependencyRepository.getSystemChildren(systemId)
                 .stream()
@@ -59,10 +59,10 @@ public class StarSystemService {
         return system;
     }
 
-    public GetStarSystem getStarSystemById(Integer systemId) {
+    public StarSystemGetResponse getStarSystemById(Integer systemId) {
         StarSystem system = starSystemRepository
                 .findById(systemId).orElseThrow(() -> new SystemNotFoundException(systemId));
-        return mapper.map(system, GetStarSystem.class);
+        return mapper.map(system, StarSystemGetResponse.class);
     }
 
     public List<StarSystem> getStarSystemsByGalaxyId(Integer galaxyId) {
@@ -72,7 +72,7 @@ public class StarSystemService {
     }
 
     @Transactional
-    public StarSystem createSystem(Integer orbitId, CreateStarSystem systemRequest) {
+    public StarSystem createSystem(Integer orbitId, StarSystemCreateRequest systemRequest) {
         if (!orbitRepository.existsById(orbitId))
             throw new OrbitNotFoundException(orbitId);
         if (systemExists(orbitRepository.getReferenceById(orbitId).getGalaxyId(), systemRequest.getSystemName()))
@@ -84,7 +84,7 @@ public class StarSystemService {
         return savedSystem;
     }
 
-    public void createCourse(Integer courseId, CreateStarSystem starSystem) {
+    public void createCourse(Integer courseId, StarSystemCreateRequest starSystem) {
         WebClient webClient = WebClient.create(COURSE_APP_URL);
         webClient.post()
                 .uri("/course/")

@@ -6,7 +6,7 @@ import org.example.dto.theme.CourseThemeUpdateRequest;
 import org.example.exception.classes.courseEX.CourseNotFoundException;
 import org.example.exception.classes.coursethemeEX.CourseThemeAlreadyExistsException;
 import org.example.exception.classes.coursethemeEX.CourseThemeNotFoundException;
-import org.example.model.CourseTheme;
+import org.example.model.course.CourseTheme;
 import org.example.repository.CourseRepository;
 import org.example.repository.CourseThemeRepository;
 import org.modelmapper.ModelMapper;

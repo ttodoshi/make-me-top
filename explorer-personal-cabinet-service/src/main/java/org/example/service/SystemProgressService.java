@@ -121,7 +121,7 @@ public class SystemProgressService {
 
     public boolean hasUncompletedParents(Integer personId, Integer systemId) {
         boolean parentsUncompleted = false;
-        GetStarSystemWithDependencies systemWithDependencies = getStarSystemWithDependencies(systemId);
+        StarSystemWithDependenciesGetResponse systemWithDependencies = getStarSystemWithDependencies(systemId);
         if (systemWithDependencies == null)
             return false;
         for (SystemDependencyModel system : getParentDependencies(systemWithDependencies)) {
@@ -135,7 +135,7 @@ public class SystemProgressService {
         return parentsUncompleted;
     }
 
-    private GetStarSystemWithDependencies getStarSystemWithDependencies(Integer systemId) {
+    private StarSystemWithDependenciesGetResponse getStarSystemWithDependencies(Integer systemId) {
         WebClient webClient = WebClient.create(GALAXY_APP_URL);
         return webClient.get()
                 .uri("/system/" + systemId + "?withDependencies=true")
@@ -147,12 +147,12 @@ public class SystemProgressService {
                 .onStatus(HttpStatus::isError, response -> {
                     throw new ConnectException();
                 })
-                .bodyToMono(GetStarSystemWithDependencies.class)
+                .bodyToMono(StarSystemWithDependenciesGetResponse.class)
                 .timeout(Duration.ofSeconds(5))
                 .block();
     }
 
-    private List<SystemDependencyModel> getParentDependencies(GetStarSystemWithDependencies systemWithDependencies) {
+    private List<SystemDependencyModel> getParentDependencies(StarSystemWithDependenciesGetResponse systemWithDependencies) {
         return systemWithDependencies.getDependencyList()
                 .stream()
                 .filter(s -> s.getType().equals("parent"))

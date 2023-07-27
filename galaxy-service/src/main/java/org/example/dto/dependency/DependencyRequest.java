@@ -8,6 +8,5 @@ import javax.validation.constraints.NotNull;
 public class DependencyRequest {
     @NotNull
     private Integer childId;
-    @NotNull
     private Integer parentId;
 }

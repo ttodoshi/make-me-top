@@ -1,7 +1,7 @@
 package org.example.repository;
 
 import org.example.dto.explorer.ExplorerDTO;
-import org.example.dto.explorer.ExplorerNeededFinalAssessmentDTO;
+import org.example.dto.explorer.ExplorerNeededFinalAssessment;
 import org.example.model.Explorer;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -22,7 +22,7 @@ public interface ExplorerRepository extends JpaRepository<Explorer, Integer> {
             nativeQuery = true)
     Integer getExplorersCountForKeeper(Integer personId);
 
-    @Query(value = "SELECT new org.example.dto.explorer.ExplorerNeededFinalAssessmentDTO(p.personId, p.firstName, p.lastName, p.patronymic, c.courseId, c.title, e.explorerId)\n" +
+    @Query(value = "SELECT new org.example.dto.explorer.ExplorerNeededFinalAssessment(p.personId, p.firstName, p.lastName, p.patronymic, c.courseId, c.title, e.explorerId)\n" +
             "FROM Explorer e\n" +
             "JOIN Person p ON p.personId = e.personId\n" +
             "JOIN Course c ON c.courseId = e.courseId\n" +
@@ -42,7 +42,7 @@ public interface ExplorerRepository extends JpaRepository<Explorer, Integer> {
             "\tSELECT cm.explorerId FROM CourseMark cm\n" +
             ")\n" +
             "AND k.personId = :personId")
-    Set<ExplorerNeededFinalAssessmentDTO> getExplorersNeededFinalAssessmentByKeeperPersonId(@Param("personId") Integer personId);
+    Set<ExplorerNeededFinalAssessment> getExplorersNeededFinalAssessmentByKeeperPersonId(@Param("personId") Integer personId);
 
     @Query(value = "SELECT new org.example.dto.explorer.ExplorerDTO(p.personId, p.firstName, p.lastName, p.patronymic, e.explorerId, c.courseId)\n" +
             "FROM Explorer e\n" +

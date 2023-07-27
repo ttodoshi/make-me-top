@@ -1,4 +1,5 @@
 {
+  "priority": 1,
   "request": {
     "url": "/login/",
     "method": "POST",

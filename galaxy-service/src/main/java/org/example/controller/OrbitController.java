@@ -2,15 +2,13 @@ package org.example.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.example.dto.orbit.CreateOrbitWithStarSystems;
+import org.example.dto.orbit.OrbitWithStarSystemsCreateRequest;
 import org.example.dto.orbit.OrbitDTO;
 import org.example.exception.classes.orbitEX.OrbitNotFoundException;
 import org.example.service.OrbitService;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -36,7 +34,7 @@ public class OrbitController {
                     })
     })
     public ResponseEntity<?> getOrbitById(@PathVariable("orbitId") Integer orbitId,
-                                          @RequestParam(name = "withSystemsList", required = false) Boolean withSystemsList) throws OrbitNotFoundException {
+                                          @RequestParam(name = "withSystemList", required = false) Boolean withSystemsList) {
         if (withSystemsList != null && withSystemsList)
             return ResponseEntity.ok(orbitService.getOrbitWithSystemList(orbitId));
         else
@@ -55,10 +53,8 @@ public class OrbitController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> createOrbit(@Valid @RequestBody CreateOrbitWithStarSystems orbit,
-                                         @PathVariable Integer galaxyId,
-                                         @RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token) {
-        orbitService.setToken(token);
+    public ResponseEntity<?> createOrbit(@Valid @RequestBody OrbitWithStarSystemsCreateRequest orbit,
+                                         @PathVariable Integer galaxyId) {
         return ResponseEntity.ok(orbitService.createOrbit(galaxyId, orbit));
     }
 

@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.example.dto.starsystem.CreateStarSystem;
+import org.example.dto.starsystem.StarSystemCreateRequest;
 import org.example.dto.starsystem.StarSystemDTO;
 import org.example.service.StarSystemService;
 import org.springframework.http.HttpHeaders;
@@ -71,7 +71,7 @@ public class StarSystemController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> createSystem(@RequestBody @Valid CreateStarSystem starSystem,
+    public ResponseEntity<?> createSystem(@Valid @RequestBody StarSystemCreateRequest starSystem,
                                           @PathVariable("orbitId") Integer orbitId,
                                           @RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token) {
         starSystemService.setToken(token);

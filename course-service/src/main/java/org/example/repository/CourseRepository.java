@@ -1,6 +1,6 @@
 package org.example.repository;
 
-import org.example.model.Course;
+import org.example.model.course.Course;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

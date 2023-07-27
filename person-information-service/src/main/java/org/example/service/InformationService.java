@@ -54,7 +54,7 @@ public class InformationService {
         }
     }
 
-    public Map<String, Object> getKeeperInformation() {
+    private Map<String, Object> getKeeperInformation() {
         Person authenticatedPerson = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Integer authenticatedPersonId = authenticatedPerson.getPersonId();
         Map<String, Object> response = new LinkedHashMap<>();
@@ -69,11 +69,11 @@ public class InformationService {
         return response;
     }
 
-    private Double getKeeperRating(Integer personId) {
+    public Double getKeeperRating(Integer personId) {
         return Math.ceil(explorerFeedbackRepository.getKeeperRating(personId).orElse(0.0) * 10) / 10;
     }
 
-    public Map<String, Object> getExplorerInformation() {
+    private Map<String, Object> getExplorerInformation() {
         Person authenticatedPerson = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Integer authenticatedPersonId = authenticatedPerson.getPersonId();
         Map<String, Object> response = new LinkedHashMap<>();
@@ -144,7 +144,7 @@ public class InformationService {
         return authenticatedPerson.getPersonId();
     }
 
-    private Double getExplorerRating(Integer personId) {
+    public Double getExplorerRating(Integer personId) {
         return Math.ceil(keeperFeedbackRepository.getExplorerRating(personId).orElse(0.0) * 10) / 10;
     }
 
@@ -184,8 +184,13 @@ public class InformationService {
         } else {
             if (roleService.hasAnyAuthenticationRole(AuthenticationRoleType.KEEPER)) {
                 List<HomeworkRequestDTO> homeworkRequests = homeworkRequestRepository.getReviewRequestsByKeeperPersonId(authenticatedPersonId).stream().filter(h -> h.getPersonId().equals(personId)).collect(Collectors.toList());
-                if (!homeworkRequests.isEmpty())
-                    response.put("reviewRequests", homeworkRequests);
+                if (!homeworkRequests.isEmpty()) {
+                    Optional<HomeworkRequestDTO> homeworkRequestOptional = homeworkRequests
+                            .stream()
+                            .filter(hr -> hr.getPersonId().equals(personId))
+                            .findFirst();
+                    homeworkRequestOptional.ifPresent(homeworkRequestDTO -> response.put("reviewRequest", homeworkRequestDTO));
+                }
             }
             response.put("currentSystem", currentCourse);
         }

@@ -1,12 +1,12 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.homework.CreateHomework;
+import org.example.dto.homework.HomeworkCreateRequest;
 import org.example.dto.homework.HomeworkDTO;
-import org.example.dto.homework.UpdateHomework;
+import org.example.dto.homework.HomeworkUpdateRequest;
 import org.example.exception.classes.coursethemeEX.CourseThemeNotFoundException;
 import org.example.exception.classes.homeworkEX.HomeworkNotFoundException;
-import org.example.model.Homework;
+import org.example.model.homework.Homework;
 import org.example.repository.CourseThemeRepository;
 import org.example.repository.HomeworkRepository;
 import org.modelmapper.ModelMapper;
@@ -32,7 +32,7 @@ public class HomeworkService {
                 .stream().map(h -> mapper.map(h, HomeworkDTO.class)).collect(Collectors.toList());
     }
 
-    public Homework addHomework(Integer themeId, CreateHomework homework) {
+    public Homework addHomework(Integer themeId, HomeworkCreateRequest homework) {
         if (!courseThemeRepository.existsById(themeId))
             throw new CourseThemeNotFoundException(themeId);
         Homework createdHomework = new Homework();
@@ -41,7 +41,7 @@ public class HomeworkService {
         return homeworkRepository.save(createdHomework);
     }
 
-    public Homework updateHomework(Integer homeworkId, UpdateHomework homework) {
+    public Homework updateHomework(Integer homeworkId, HomeworkUpdateRequest homework) {
         if (!courseThemeRepository.existsById(homework.getCourseThemeId()))
             throw new CourseThemeNotFoundException(homework.getCourseThemeId());
         Homework updatedHomework = homeworkRepository.findById(homeworkId).orElseThrow(() -> new HomeworkNotFoundException(homeworkId));

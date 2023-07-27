@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.example.dto.planet.CreatePlanet;
+import org.example.dto.planet.PlanetCreateRequest;
 import org.example.dto.planet.PlanetUpdateRequest;
 import org.example.service.PlanetService;
 import org.springframework.http.HttpHeaders;
@@ -55,7 +55,7 @@ public class PlanetController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> addPlanets(@RequestBody List<@Valid CreatePlanet> planetList,
+    public ResponseEntity<?> addPlanets(@RequestBody List<@Valid PlanetCreateRequest> planetList,
                                         @PathVariable Integer systemId,
                                         @RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token) {
         planetService.setToken(token);

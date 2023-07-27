@@ -1,6 +1,6 @@
 package org.example.repository;
 
-import org.example.model.Homework;
+import org.example.model.homework.Homework;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

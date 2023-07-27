@@ -1,0 +1,21 @@
+{
+  "priority": 2,
+  "request": {
+    "url": "/login/",
+    "method": "POST"
+  },
+  "response": {
+    "status": 200,
+    "jsonBody": {
+      "isSuccess": false,
+      "message": null,
+      "exception": null,
+      "object": null,
+      "list": null,
+      "map": null
+    },
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

@@ -65,6 +65,7 @@ public class CourseRegistrationRequestService {
         explorerRepository.save(explorer);
     }
 
+    @Transactional
     public KeeperRejection sendRejection(Integer requestId, KeeperRejectionDTO rejection) {
         Person authenticatedPerson = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         CourseRegistrationRequest request = courseRegistrationRequestRepository

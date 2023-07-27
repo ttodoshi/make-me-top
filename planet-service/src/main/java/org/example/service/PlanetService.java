@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.example.dto.coursetheme.CourseThemeCreateRequest;
 import org.example.dto.coursetheme.CourseThemeDTO;
-import org.example.dto.planet.CreatePlanet;
+import org.example.dto.planet.PlanetCreateRequest;
 import org.example.dto.planet.PlanetUpdateRequest;
 import org.example.dto.starsystem.StarSystemDTO;
 import org.example.exception.classes.connectEX.ConnectException;
@@ -45,16 +45,16 @@ public class PlanetService {
     }
 
     @Transactional
-    public List<Planet> addPlanets(Integer systemId, List<CreatePlanet> planets) {
+    public List<Planet> addPlanets(Integer systemId, List<PlanetCreateRequest> planets) {
         checkSystemExists(systemId);
-        List<CreatePlanet> savingPlanetsList = new LinkedList<>();
-        for (CreatePlanet planet : planets) {
+        List<PlanetCreateRequest> savingPlanetsList = new LinkedList<>();
+        for (PlanetCreateRequest planet : planets) {
             if (savingPlanetsList.contains(planet) || planetExists(systemId, planet.getPlanetName()))
                 throw new PlanetAlreadyExistsException(planet.getPlanetName());
             savingPlanetsList.add(planet);
         }
         List<Planet> savedPlanets = new ArrayList<>();
-        for (CreatePlanet currentPlanet : planets) {
+        for (PlanetCreateRequest currentPlanet : planets) {
             Planet planet = mapper.map(currentPlanet, Planet.class);
             planet.setSystemId(systemId);
             Planet savedPlanet = planetRepository.save(planet);
@@ -64,7 +64,7 @@ public class PlanetService {
         return savedPlanets;
     }
 
-    private void addCourseTheme(Integer systemId, Integer courseThemeId, CreatePlanet planet) {
+    private void addCourseTheme(Integer systemId, Integer courseThemeId, PlanetCreateRequest planet) {
         WebClient webClient = WebClient.create(COURSE_APP_URL);
         webClient.post()
                 .uri("/course/" + systemId + "/theme")
