@@ -2,9 +2,9 @@ package org.example.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.example.dto.orbit.OrbitDTO;
 import org.example.dto.orbit.OrbitWithStarSystemsCreateRequest;
 import org.example.dto.orbit.OrbitWithStarSystemsGetResponse;
-import org.example.dto.orbit.OrbitDTO;
 import org.example.dto.starsystem.StarSystemCreateRequest;
 import org.example.dto.starsystem.StarSystemWithDependenciesGetResponse;
 import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
@@ -91,7 +91,7 @@ public class OrbitService {
     public Orbit updateOrbit(Integer orbitId, OrbitDTO orbit) {
         if (!galaxyRepository.existsById(orbit.getGalaxyId()))
             throw new GalaxyNotFoundException(orbit.getGalaxyId());
-        if (orbitExists(orbit.getGalaxyId(), orbit.getOrbitLevel()))
+        if (orbitExists(orbit.getGalaxyId(), orbitId, orbit.getOrbitLevel()))
             throw new OrbitCoordinatesException();
         Orbit updatedOrbit = orbitRepository.findById(orbitId).orElseThrow(() -> new OrbitNotFoundException(orbitId));
         updatedOrbit.setOrbitLevel(orbit.getOrbitLevel());
@@ -100,9 +100,14 @@ public class OrbitService {
         return orbitRepository.save(updatedOrbit);
     }
 
+    private boolean orbitExists(Integer galaxyId, Integer orbitId, Integer orbitLevel) {
+        return orbitRepository.findOrbitsByGalaxyId(galaxyId).stream()
+                .anyMatch(o -> o.getOrbitLevel().equals(orbitLevel) && !o.getOrbitId().equals(orbitId));
+    }
+
     private boolean orbitExists(Integer galaxyId, Integer orbitLevel) {
-        return orbitRepository.findOrbitsByGalaxyId(galaxyId)
-                .stream().anyMatch(o -> o.getOrbitLevel().equals(orbitLevel));
+        return orbitRepository.findOrbitsByGalaxyId(galaxyId).stream()
+                .anyMatch(o -> o.getOrbitLevel().equals(orbitLevel));
     }
 
     public Map<String, String> deleteOrbit(Integer orbitId) {

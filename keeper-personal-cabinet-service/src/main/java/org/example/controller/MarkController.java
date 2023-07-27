@@ -2,13 +2,11 @@ package org.example.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.coursemark.MarkDTO;
 import org.example.service.MarkService;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -52,10 +50,7 @@ public class MarkController {
                     })
     })
     public ResponseEntity<?> setThemeMark(@PathVariable("themeId") Integer themeId,
-                                          @Valid @RequestBody MarkDTO completeThemeRequest,
-                                          @RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token) {
-        markService.setToken(token);
-        return ResponseEntity.ok(
-                markService.setThemeMark(themeId, completeThemeRequest));
+                                          @Valid @RequestBody MarkDTO completeThemeRequest) {
+        return ResponseEntity.ok(markService.setThemeMark(themeId, completeThemeRequest));
     }
 }

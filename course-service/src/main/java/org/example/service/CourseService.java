@@ -141,13 +141,12 @@ public class CourseService {
 
     public Course updateCourse(Integer galaxyId, Integer courseId, CourseUpdateRequest course) {
         Course updatedCourse = courseRepository.findById(courseId).orElseThrow(() -> new CourseNotFoundException(courseId));
-        boolean courseExists = Arrays.stream(getSystemsIdByGalaxyId(galaxyId))
-                .anyMatch(s -> s.getSystemName().equals(updatedCourse.getTitle()));
-        if (courseExists)
+        boolean courseTitleExists = Arrays.stream(getSystemsIdByGalaxyId(galaxyId))
+                .anyMatch(s -> s.getSystemName().equals(updatedCourse.getTitle()) && !s.getSystemId().equals(courseId));
+        if (courseTitleExists)
             throw new CourseAlreadyExistsException(updatedCourse.getTitle());
         updatedCourse.setTitle(course.getTitle());
         updatedCourse.setDescription(course.getDescription());
-        updatedCourse.setLastModified(new Date());
         return courseRepository.save(updatedCourse);
     }
 
@@ -169,14 +168,14 @@ public class CourseService {
     }
 
     public Keeper setKeeperToCourse(Integer courseId, KeeperCreateRequest keeperCreateRequest) {
-        Keeper keeper = new Keeper();
         if (!courseRepository.existsById(courseId))
             throw new CourseNotFoundException(courseId);
         if (!personRepository.existsById(keeperCreateRequest.getPersonId()))
             throw new PersonNotFoundException();
-        keeper.setCourseId(courseId);
-        keeper.setPersonId(keeperCreateRequest.getPersonId());
-        keeper.setStartDate(new Date());
-        return keeperRepository.save(keeper);
+        return keeperRepository.save(
+                Keeper.builder()
+                        .courseId(courseId)
+                        .personId(keeperCreateRequest.getPersonId())
+                        .build());
     }
 }

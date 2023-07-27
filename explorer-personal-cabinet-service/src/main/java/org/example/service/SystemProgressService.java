@@ -2,9 +2,13 @@ package org.example.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.example.dto.starsystem.*;
+import org.example.dto.starsystem.StarSystemDTO;
+import org.example.dto.starsystem.StarSystemWithDependenciesGetResponse;
+import org.example.dto.starsystem.SystemDependencyModel;
 import org.example.dto.systemprogress.PlanetCompletionDTO;
+import org.example.dto.systemprogress.StarSystemsState;
 import org.example.dto.systemprogress.SystemWithPlanetsProgress;
+import org.example.dto.systemprogress.SystemWithProgress;
 import org.example.exception.classes.connectEX.ConnectException;
 import org.example.exception.classes.courseEX.CourseNotFoundException;
 import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
@@ -13,7 +17,6 @@ import org.example.model.Explorer;
 import org.example.model.Person;
 import org.example.model.course.Course;
 import org.example.model.course.CourseTheme;
-import org.example.model.progress.CourseThemeCompletion;
 import org.example.repository.CourseRepository;
 import org.example.repository.CourseThemeRepository;
 import org.example.repository.ExplorerRepository;
@@ -41,11 +44,11 @@ public class SystemProgressService {
     @Value("${app_galaxy_url}")
     private String GALAXY_APP_URL;
 
-    public StarSystemsForUser getSystemsProgressForCurrentUser(Integer galaxyId) {
+    public StarSystemsState getSystemsProgressForCurrentUser(Integer galaxyId) {
         Person authenticatedPerson = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Set<Integer> openedSystems = new HashSet<>();
-        Set<SystemWithProgress> studiedSystems = new HashSet<>();
-        Set<Integer> closedSystems = new HashSet<>();
+        Set<Integer> openedSystems = new LinkedHashSet<>();
+        Set<SystemWithProgress> studiedSystems = new LinkedHashSet<>();
+        Set<Integer> closedSystems = new LinkedHashSet<>();
         for (StarSystemDTO system : getSystemsByGalaxyId(galaxyId)) {
             Optional<Explorer> explorerOptional = explorerRepository.findExplorerByPersonIdAndCourseId(
                     authenticatedPerson.getPersonId(), system.getSystemId());
@@ -61,7 +64,8 @@ public class SystemProgressService {
                     openedSystems.add(system.getSystemId());
             }
         }
-        return StarSystemsForUser.builder()
+        return StarSystemsState.builder()
+                .personId(authenticatedPerson.getPersonId())
                 .firstName(authenticatedPerson.getFirstName())
                 .lastName(authenticatedPerson.getLastName())
                 .patronymic(authenticatedPerson.getPatronymic())
@@ -89,29 +93,22 @@ public class SystemProgressService {
 
     public SystemWithPlanetsProgress getPlanetsProgressBySystemId(Integer systemId) {
         Integer authenticatedPersonId = getAuthenticatedPersonId();
-        Course course = courseRepository.findById(systemId).orElseThrow(() -> new CourseNotFoundException(systemId));
-        Optional<Explorer> explorerOptional = explorerRepository.findExplorerByPersonIdAndCourseId(authenticatedPersonId, systemId);
-        if (explorerOptional.isEmpty())
-            throw new ExplorerNotFoundException();
-        Explorer explorer = explorerOptional.get();
-        SystemWithPlanetsProgress systemWithPlanetsProgress = new SystemWithPlanetsProgress();
-        systemWithPlanetsProgress.setCourseId(course.getCourseId());
-        systemWithPlanetsProgress.setTitle(course.getTitle());
-        List<PlanetCompletionDTO> planetCompletionDTOS = new LinkedList<>();
+        Course course = courseRepository.findById(systemId).orElseThrow(
+                () -> new CourseNotFoundException(systemId));
+        Explorer explorer = explorerRepository.findExplorerByPersonIdAndCourseId(authenticatedPersonId, systemId)
+                .orElseThrow(() -> new ExplorerNotFoundException(systemId));
+        List<PlanetCompletionDTO> planetsCompletion = new LinkedList<>();
         for (CourseTheme ct : courseThemeRepository.findCourseThemesByCourseIdOrderByCourseThemeNumberAsc(systemId)) {
-            Optional<CourseThemeCompletion> planetProgress = planetProgressRepository.findCourseThemeProgressByExplorerIdAndCourseThemeId(explorer.getExplorerId(), ct.getCourseThemeId());
-            if (planetProgress.isPresent())
-                planetCompletionDTOS.add(
-                        new PlanetCompletionDTO(ct.getCourseThemeId(), ct.getTitle(), planetProgress.get().getCompleted())
-                );
-            else {
-                planetCompletionDTOS.add(
-                        new PlanetCompletionDTO(ct.getCourseThemeId(), ct.getTitle(), false)
-                );
-            }
+            Boolean planetCompleted = planetProgressRepository.findCourseThemeProgressByExplorerIdAndCourseThemeId(explorer.getExplorerId(), ct.getCourseThemeId()).isPresent();
+            planetsCompletion.add(
+                    new PlanetCompletionDTO(ct.getCourseThemeId(), ct.getTitle(), planetCompleted)
+            );
         }
-        systemWithPlanetsProgress.setPlanetsWithProgress(planetCompletionDTOS);
-        return systemWithPlanetsProgress;
+        return SystemWithPlanetsProgress.builder()
+                .courseId(systemId)
+                .title(course.getTitle())
+                .planetsWithProgress(planetsCompletion)
+                .build();
     }
 
     private Integer getAuthenticatedPersonId() {

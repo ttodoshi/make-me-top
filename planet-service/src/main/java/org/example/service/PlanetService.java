@@ -85,7 +85,7 @@ public class PlanetService {
         checkSystemExists(planet.getSystemId());
         Planet updatedPlanet = planetRepository.findById(planetId)
                 .orElseThrow(() -> new PlanetNotFoundException(planetId));
-        if (planetExists(planet.getSystemId(), planet.getPlanetName()))
+        if (planetExists(planet.getSystemId(), planetId, planet.getPlanetName()))
             throw new PlanetAlreadyExistsException(planet.getPlanetName());
         updatedPlanet.setPlanetName(planet.getPlanetName());
         updatedPlanet.setSystemId(planet.getSystemId());
@@ -96,6 +96,12 @@ public class PlanetService {
     private boolean planetExists(Integer systemId, String planetName) {
         return planetRepository.findPlanetsBySystemId(systemId).stream().anyMatch(
                 p -> p.getPlanetName().equals(planetName)
+        );
+    }
+
+    private boolean planetExists(Integer systemId, Integer planetId, String planetName) {
+        return planetRepository.findPlanetsBySystemId(systemId).stream().anyMatch(
+                p -> p.getPlanetName().equals(planetName) && !p.getPlanetId().equals(planetId)
         );
     }
 

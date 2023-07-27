@@ -14,8 +14,8 @@ import org.example.repository.GalaxyRepository;
 import org.example.repository.OrbitRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
-
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -45,8 +45,7 @@ public class GalaxyService {
         List<OrbitWithStarSystemsWithoutGalaxyIdGetResponse> orbitWithStarSystemsList = new LinkedList<>();
         orbitRepository.findOrbitsByGalaxyId(galaxyId).forEach(
                 o -> orbitWithStarSystemsList.add(
-                        mapper.map(
-                                orbitService.getOrbitWithSystemList(o.getOrbitId()),
+                        mapper.map(orbitService.getOrbitWithSystemList(o.getOrbitId()),
                                 OrbitWithStarSystemsWithoutGalaxyIdGetResponse.class)
                 )
         );

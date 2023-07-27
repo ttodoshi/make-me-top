@@ -21,7 +21,7 @@ public interface PlanetProgressRepository extends JpaRepository<CourseThemeCompl
             "WHERE explorer.person_id = ?1 AND explorer.explorer_id NOT IN (\n" +
             "\tSELECT course_mark.explorer_id FROM course.course_mark\n" +
             ") LIMIT 1", nativeQuery = true)
-    Integer getCurrentInvestigatedSystemId(Integer personId);
+    Optional<Integer> getCurrentInvestigatedSystemId(Integer personId);
 
     Optional<CourseThemeCompletion> findCourseThemeProgressByExplorerIdAndCourseThemeId(Integer explorerId, Integer courseThemeId);
 }

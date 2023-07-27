@@ -1,14 +1,14 @@
-package org.example.dto.starsystem;
+package org.example.dto.systemprogress;
 
 import lombok.Builder;
 import lombok.Data;
 
-import java.util.List;
 import java.util.Set;
 
 @Builder
 @Data
-public class StarSystemsForUser {
+public class StarSystemsState {
+    private Integer personId;
     private String firstName;
     private String lastName;
     private String patronymic;

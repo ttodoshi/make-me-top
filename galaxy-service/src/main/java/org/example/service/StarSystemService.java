@@ -104,13 +104,18 @@ public class StarSystemService {
         StarSystem updatedStarSystem = starSystemRepository.getReferenceById(systemId);
         if (!orbitRepository.existsById(starSystem.getOrbitId()))
             throw new OrbitNotFoundException(starSystem.getOrbitId());
-        if (systemExists(orbitRepository.getReferenceById(starSystem.getOrbitId()).getGalaxyId(), starSystem.getSystemName()))
+        if (systemExists(orbitRepository.getReferenceById(starSystem.getOrbitId()).getGalaxyId(), systemId, starSystem.getSystemName()))
             throw new SystemAlreadyExistsException(starSystem.getSystemName());
         updatedStarSystem.setSystemName(starSystem.getSystemName());
         updatedStarSystem.setSystemPosition(starSystem.getSystemPosition());
         updatedStarSystem.setOrbitId(starSystem.getOrbitId());
         updatedStarSystem.setSystemLevel(starSystem.getSystemLevel());
         return starSystemRepository.save(updatedStarSystem);
+    }
+
+    private boolean systemExists(Integer galaxyId, Integer systemId, String systemName) {
+        return starSystemRepository.findSystemsByGalaxyId(galaxyId)
+                .stream().anyMatch(s -> Objects.equals(s.getSystemName(), systemName) && !s.getSystemId().equals(systemId));
     }
 
     private boolean systemExists(Integer galaxyId, String systemName) {

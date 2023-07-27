@@ -17,8 +17,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-
 @Service
 @RequiredArgsConstructor
 public class CourseRegistrationRequestService {
@@ -37,8 +35,7 @@ public class CourseRegistrationRequestService {
             throw new CourseNotFoundException(request.getCourseId());
         if (!keeperExistsOnCourse(request.getKeeperId(), request.getCourseId()))
             throw new KeeperNotFoundException(request.getKeeperId());
-        Person authenticatedPerson = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Integer authenticatedPersonId = authenticatedPerson.getPersonId();
+        Integer authenticatedPersonId = getAuthenticatedPersonId();
         if (isCurrentlyStudying(authenticatedPersonId))
             throw new PersonIsStudyingException();
         if (isPersonKeeperOnCourse(authenticatedPersonId, request.getCourseId()))
@@ -46,7 +43,6 @@ public class CourseRegistrationRequestService {
         if (systemProgressService.hasUncompletedParents(authenticatedPersonId, request.getCourseId()))
             throw new SystemParentsNotCompletedException(request.getCourseId());
         CourseRegistrationRequest courseRegistrationRequest = mapper.map(request, CourseRegistrationRequest.class);
-        courseRegistrationRequest.setRequestDate(new Date());
         courseRegistrationRequest.setStatusId(
                 courseRegistrationRequestStatusRepository
                         .findCourseRegistrationRequestStatusByStatus(CourseRegistrationRequestStatusType.PROCESSING)
@@ -58,6 +54,11 @@ public class CourseRegistrationRequestService {
     private boolean keeperExistsOnCourse(Integer keeperId, Integer courseId) {
         Keeper keeper = keeperRepository.findById(keeperId).orElseThrow(() -> new KeeperNotFoundException(keeperId));
         return keeper.getCourseId().equals(courseId);
+    }
+
+    private Integer getAuthenticatedPersonId() {
+        Person authenticatedPerson = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return authenticatedPerson.getPersonId();
     }
 
     private boolean isCurrentlyStudying(Integer authenticatedPersonId) {

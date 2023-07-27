@@ -4,9 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.config.mapper.PersonMapper;
 import org.example.config.security.JwtServiceInterface;
+import org.example.dto.AuthResponse;
 import org.example.dto.AuthResponseEmployee;
 import org.example.dto.LoginRequest;
-import org.example.dto.AuthResponse;
 import org.example.exception.classes.connectEX.ConnectException;
 import org.example.exception.classes.personEX.PersonNotFoundException;
 import org.example.model.Person;
@@ -20,7 +20,6 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -35,7 +34,7 @@ public class PersonService {
     @Value("${url_auth_mmtr}")
     private String MMTR_AUTH_URL;
 
-    public Object login(LoginRequest request, HttpServletResponse response) {
+    public String login(LoginRequest request, HttpServletResponse response) {
         Person person = authenticatePerson(request);
         String token = jwtGenerator.generateToken(person, request.getRole());
         Cookie tokenCookie = generateCookie(token);
@@ -43,28 +42,25 @@ public class PersonService {
         return token;
     }
 
-    private Person authenticatePerson(LoginRequest request) {
-        Optional<AuthResponseEmployee> authResponseOptional = sendAuthRequest(request);
-        if (authResponseOptional.isEmpty())
-            throw new PersonNotFoundException();
-        AuthResponseEmployee authResponse = authResponseOptional.get();
+    private Person authenticatePerson(LoginRequest loginRequest) {
+        AuthResponseEmployee authResponse = authenticateEmployee(loginRequest);
         return personRepository.findById(authResponse.getEmployeeId()).orElseGet(
                 () -> personRepository.save(personMapper.UserAuthResponseToPerson(authResponse))
         );
     }
 
-    private Cookie generateCookie(String token) {
-        Cookie tokenCookie = new Cookie("token", token);
-        tokenCookie.setMaxAge(43200);
-        tokenCookie.setPath("/");
-        return tokenCookie;
+    private AuthResponseEmployee authenticateEmployee(LoginRequest loginRequest) {
+        AuthResponse authResponse = sendAuthenticateRequest(loginRequest);
+        if (authResponse.getIsSuccess())
+            return authResponse.getObject();
+        throw new PersonNotFoundException();
     }
 
-    public Optional<AuthResponseEmployee> sendAuthRequest(LoginRequest userRequest) {
+    private AuthResponse sendAuthenticateRequest(LoginRequest loginRequest) {
         WebClient webClient = WebClient.create(MMTR_AUTH_URL);
-        AuthResponse response = webClient.post()
+        return webClient.post()
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(userRequest)
+                .bodyValue(loginRequest)
                 .acceptCharset(StandardCharsets.UTF_8)
                 .retrieve()
                 .bodyToMono(AuthResponse.class)
@@ -73,9 +69,12 @@ public class PersonService {
                     throw new ConnectException();
                 })
                 .block();
-        Optional<AuthResponseEmployee> employeeOptional = Optional.empty();
-        if (response != null && response.getIsSuccess())
-            employeeOptional = Optional.of(response.getObject());
-        return employeeOptional;
+    }
+
+    private Cookie generateCookie(String token) {
+        Cookie tokenCookie = new Cookie("token", token);
+        tokenCookie.setMaxAge(43200);
+        tokenCookie.setPath("/");
+        return tokenCookie;
     }
 }
