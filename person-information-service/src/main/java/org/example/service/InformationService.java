@@ -103,7 +103,7 @@ public class InformationService {
     }
 
     private Integer getCurrentCourseThemeId(Explorer explorer) {
-        List<PlanetCompletionDTO> planetsProgress = getPlanetsProgressBySystemId(explorer).getPlanetsWithProgress();
+        List<PlanetCompletionDTO> planetsProgress = getPlanetsProgress(explorer).getPlanetsWithProgress();
         for (PlanetCompletionDTO planet : planetsProgress) {
             if (!planet.getCompleted())
                 return planet.getCourseThemeId();
@@ -111,7 +111,7 @@ public class InformationService {
         return planetsProgress.get(planetsProgress.size() - 1).getCourseThemeId();
     }
 
-    private SystemWithPlanetsProgress getPlanetsProgressBySystemId(Explorer explorer) {
+    private SystemWithPlanetsProgress getPlanetsProgress(Explorer explorer) {
         Course course = courseRepository.getReferenceById(explorer.getCourseId());
         List<PlanetCompletionDTO> planetsCompletion = new LinkedList<>();
         for (CourseTheme ct : courseThemeRepository.findCourseThemesByCourseIdOrderByCourseThemeNumberAsc(explorer.getCourseId())) {

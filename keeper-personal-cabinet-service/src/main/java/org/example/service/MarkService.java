@@ -36,6 +36,7 @@ public class MarkService {
 
     private final ModelMapper mapper;
 
+    @Transactional
     public CourseMark setCourseMark(MarkDTO courseMark) {
         if (courseMark.getValue() < 1 || courseMark.getValue() > 5)
             throw new UnexpectedMarkValueException();
@@ -46,6 +47,13 @@ public class MarkService {
                     new CourseMark(courseMark.getExplorerId(), new Date(), courseMark.getValue())
             );
         throw new ExplorerDoesNotNeedMarkException(courseMark.getExplorerId());
+    }
+
+    private boolean explorerNeedFinalAssessment(Integer explorerId) {
+        Person person = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return explorerRepository
+                .getExplorersNeededFinalAssessmentByKeeperPersonId(person.getPersonId()).stream()
+                .anyMatch(e -> e.getExplorerId().equals(explorerId));
     }
 
     @Transactional
@@ -74,7 +82,7 @@ public class MarkService {
     }
 
     private Integer getCurrentCourseThemeId(Explorer explorer) {
-        List<PlanetCompletionDTO> planetsProgress = getPlanetsProgressBySystemId(explorer).getPlanetsWithProgress();
+        List<PlanetCompletionDTO> planetsProgress = getPlanetsProgress(explorer).getPlanetsWithProgress();
         for (PlanetCompletionDTO planet : planetsProgress) {
             if (!planet.getCompleted())
                 return planet.getCourseThemeId();
@@ -82,7 +90,7 @@ public class MarkService {
         return planetsProgress.get(planetsProgress.size() - 1).getCourseThemeId();
     }
 
-    private SystemWithPlanetsProgress getPlanetsProgressBySystemId(Explorer explorer) {
+    private SystemWithPlanetsProgress getPlanetsProgress(Explorer explorer) {
         Course course = courseRepository.findById(explorer.getCourseId()).orElseThrow(() -> new CourseNotFoundException(explorer.getCourseId()));
         List<PlanetCompletionDTO> planetsCompletion = new LinkedList<>();
         for (CourseTheme ct : courseThemeRepository.findCourseThemesByCourseIdOrderByCourseThemeNumberAsc(explorer.getCourseId())) {
@@ -96,12 +104,5 @@ public class MarkService {
                 .title(course.getTitle())
                 .planetsWithProgress(planetsCompletion)
                 .build();
-    }
-
-    private boolean explorerNeedFinalAssessment(Integer explorerId) {
-        Person person = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return explorerRepository
-                .getExplorersNeededFinalAssessmentByKeeperPersonId(person.getPersonId()).stream()
-                .anyMatch(e -> e.getExplorerId().equals(explorerId));
     }
 }

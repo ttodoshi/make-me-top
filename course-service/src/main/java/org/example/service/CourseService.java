@@ -55,6 +55,7 @@ public class CourseService {
         Integer authenticatedPersonId = getAuthenticatedPersonId();
         List<ExplorerWithRating> explorers = getExplorersForCourse(courseId);
         explorers.stream()
+                // if person is studying on course
                 .filter(e -> e.getPersonId().equals(authenticatedPersonId))
                 .findAny()
                 .ifPresent(e -> {
