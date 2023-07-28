@@ -9,7 +9,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface CourseRepository extends JpaRepository<Course, Integer> {
-    // TODO
     @Query(value = "SELECT new org.example.dto.course.CourseWithRating(\n" +
             "\tc.courseId, c.title, ROUND(AVG(cr.rating), 1) as rating, k.keeperId\n" +
             ")\n" +

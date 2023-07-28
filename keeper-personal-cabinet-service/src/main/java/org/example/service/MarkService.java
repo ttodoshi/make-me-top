@@ -7,11 +7,13 @@ import org.example.dto.systemprogress.PlanetCompletionDTO;
 import org.example.dto.systemprogress.SystemWithPlanetsProgress;
 import org.example.exception.classes.courseEX.CourseNotFoundException;
 import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
+import org.example.exception.classes.keeperEX.DifferentKeeperException;
 import org.example.exception.classes.markEX.ExplorerDoesNotNeedMarkException;
 import org.example.exception.classes.markEX.UnexpectedMarkValueException;
 import org.example.exception.classes.progressEX.PlanetAlreadyCompletedException;
 import org.example.exception.classes.progressEX.UnexpectedCourseThemeException;
 import org.example.model.Explorer;
+import org.example.model.Keeper;
 import org.example.model.Person;
 import org.example.model.course.Course;
 import org.example.model.course.CourseTheme;
@@ -33,21 +35,30 @@ public class MarkService {
     private final PlanetProgressRepository planetProgressRepository;
     private final CourseRepository courseRepository;
     private final CourseThemeRepository courseThemeRepository;
+    private final KeeperRepository keeperRepository;
 
     private final ModelMapper mapper;
 
     @Transactional
     public CourseMark setCourseMark(MarkDTO courseMark) {
-        // TODO check if it is not different keeper from this course
-        if (courseMark.getValue() < 1 || courseMark.getValue() > 5)
-            throw new UnexpectedMarkValueException();
         if (!explorerRepository.existsById(courseMark.getExplorerId()))
             throw new ExplorerNotFoundException();
+        if (isNotKeeperForThisExplorer(courseMark.getExplorerId()))
+            throw new DifferentKeeperException();
+        if (courseMark.getValue() < 1 || courseMark.getValue() > 5)
+            throw new UnexpectedMarkValueException();
         if (explorerNeedFinalAssessment(courseMark.getExplorerId()))
             return courseMarkRepository.save(
                     mapper.map(courseMark, CourseMark.class)
             );
         throw new ExplorerDoesNotNeedMarkException(courseMark.getExplorerId());
+    }
+
+    private boolean isNotKeeperForThisExplorer(Integer explorerId) {
+        final Person authenticatedPerson = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Explorer explorer = explorerRepository.getReferenceById(explorerId);
+        Keeper keeper = keeperRepository.getKeeperForPersonOnCourse(explorer.getPersonId(), explorer.getCourseId());
+        return !authenticatedPerson.getPersonId().equals(keeper.getPersonId());
     }
 
     private boolean explorerNeedFinalAssessment(Integer explorerId) {
@@ -67,8 +78,9 @@ public class MarkService {
     }
 
     private void saveProgress(Integer themeId, MarkDTO mark) {
-        // TODO check if it is not different keeper from this course
         Explorer explorer = explorerRepository.findById(mark.getExplorerId()).orElseThrow(ExplorerNotFoundException::new);
+        if (isNotKeeperForThisExplorer(mark.getExplorerId()))
+            throw new DifferentKeeperException();
         if (mark.getValue() < 1 || mark.getValue() > 5)
             throw new UnexpectedMarkValueException();
         Optional<CourseThemeCompletion> courseThemeProgressOptional = planetProgressRepository

@@ -22,7 +22,7 @@ public class HomeworkController {
     @GetMapping("theme/{themeId}/homework")
     @PreAuthorize("@roleService.hasAnyCourseRoleByThemeId(#themeId, T(org.example.model.role.CourseRoleType).EXPLORER) ||" +
             "@roleService.hasAnyCourseRoleByThemeId(#themeId, T(org.example.model.role.CourseRoleType).KEEPER) ||" +
-            "@roleService.hasAnyGeneralRole(T(org.example.model.role.GeneralRoleType).BIG_BROTHER)") // TODO
+            "@roleService.hasAnyGeneralRole(T(org.example.model.role.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Get homework for theme", tags = "homework")
     @ApiResponses(value = {
             @ApiResponse(

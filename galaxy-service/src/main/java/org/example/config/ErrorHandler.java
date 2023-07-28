@@ -2,7 +2,6 @@ package org.example.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.exception.ErrorResponse;
-import org.example.exception.classes.connectEX.ConnectException;
 import org.example.exception.classes.dependencyEX.DependencyAlreadyExistsException;
 import org.example.exception.classes.dependencyEX.DependencyCouldNotBeCreatedException;
 import org.example.exception.classes.dependencyEX.DependencyNotFoundException;
@@ -22,7 +21,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import javax.validation.ConstraintViolationException;
-import java.util.concurrent.TimeoutException;
 
 @RestControllerAdvice
 @Slf4j
@@ -77,18 +75,6 @@ public class ErrorHandler {
     public ResponseEntity<ErrorResponse> handleConstraintViolationException(Exception e) {
         logWarning(e);
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), "Ошибка в поступивших данных"), HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(ConnectException.class)
-    public ResponseEntity<ErrorResponse> handleConnectException(Exception e) {
-        logError(e);
-        return new ResponseEntity<>(new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    @ExceptionHandler(TimeoutException.class)
-    public ResponseEntity<ErrorResponse> handleTimeoutException(Exception e) {
-        logError(e);
-        return handleConnectException(new ConnectException());
     }
 
     @ExceptionHandler(GalaxyNotFoundException.class)
