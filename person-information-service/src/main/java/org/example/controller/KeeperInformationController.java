@@ -21,7 +21,7 @@ public class KeeperInformationController {
 
     @GetMapping("{personId}")
     @PreAuthorize("isAuthenticated()")
-    @Operation(summary = "Get information", tags = "personal cabinet")
+    @Operation(summary = "Get information", tags = "public info")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
@@ -33,5 +33,21 @@ public class KeeperInformationController {
     })
     public ResponseEntity<?> getInformation(@PathVariable Integer personId) {
         return ResponseEntity.ok(informationService.getKeeperPublicInformation(personId));
+    }
+
+    @GetMapping("{personId}/rating")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Get keeper rating", tags = "public info")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Keeper rating",
+                    content = {
+                            @Content(
+                                    mediaType = "*")
+                    })
+    })
+    public ResponseEntity<?> getKeeperRating(@PathVariable("personId") Integer personId) {
+        return ResponseEntity.ok(informationService.getKeeperRating(personId));
     }
 }

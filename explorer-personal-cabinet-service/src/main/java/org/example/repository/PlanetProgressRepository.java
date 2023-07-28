@@ -1,16 +1,16 @@
 package org.example.repository;
 
-import org.example.model.progress.CourseThemeProgress;
+import org.example.model.progress.CourseThemeCompletion;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.Optional;
 
-public interface PlanetProgressRepository extends JpaRepository<CourseThemeProgress, Integer> {
+public interface PlanetProgressRepository extends JpaRepository<CourseThemeCompletion, Integer> {
     @Query(value = "SELECT (\n" +
-            "\tSELECT COUNT(*) as count FROM course.course_theme_progress\n" +
-            "\tJOIN course.explorer ON explorer.explorer_id = course_theme_progress.explorer_id\n" +
-            "\tWHERE course_theme_progress.progress = 100 AND course_theme_progress.explorer_id = ?1 AND explorer.course_id = ?2\n" +
+            "\tSELECT COUNT(*) as count FROM course.course_theme_completion\n" +
+            "\tJOIN course.explorer ON explorer.explorer_id = course_theme_completion.explorer_id\n" +
+            "\tWHERE course_theme_completion.completed = TRUE AND course_theme_completion.explorer_id = ?1 AND explorer.course_id = ?2\n" +
             ") / CAST(COUNT(*) as float) * 100 as progress\n" +
             "FROM course.course_theme\n" +
             "WHERE course_theme.course_id = ?2",
@@ -23,5 +23,5 @@ public interface PlanetProgressRepository extends JpaRepository<CourseThemeProgr
             ") LIMIT 1", nativeQuery = true)
     Integer getCurrentInvestigatedSystemId(Integer personId);
 
-    Optional<CourseThemeProgress> findCourseThemeProgressByExplorerIdAndCourseThemeId(Integer explorerId, Integer courseThemeId);
+    Optional<CourseThemeCompletion> findCourseThemeProgressByExplorerIdAndCourseThemeId(Integer explorerId, Integer courseThemeId);
 }

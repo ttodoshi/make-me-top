@@ -9,7 +9,7 @@ import javax.validation.constraints.NotNull;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@NotNull
 public class KeeperRejectionDTO {
+    @NotNull
     private Integer reasonId;
 }

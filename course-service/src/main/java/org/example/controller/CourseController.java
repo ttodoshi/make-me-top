@@ -7,8 +7,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.course.CourseUpdateRequest;
-import org.example.dto.keeper.AddKeeperRequest;
-import org.example.model.Course;
+import org.example.dto.keeper.KeeperCreateRequest;
+import org.example.model.course.Course;
 import org.example.service.CourseService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +25,7 @@ public class CourseController {
 
     @GetMapping("course/{courseId}")
     @PreAuthorize("isAuthenticated()")
-    @Operation(summary = "Get course by course id with keepers", tags = "course")
+    @Operation(summary = "Get course by course id", tags = "course")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
@@ -35,7 +35,9 @@ public class CourseController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> getCourseById(@PathVariable("courseId") Integer courseId) {
+    public ResponseEntity<?> getCourseById(@PathVariable("courseId") Integer courseId,
+                                           @RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token) {
+        courseService.setToken(token);
         return ResponseEntity.ok(courseService.getCourse(courseId));
     }
 
@@ -51,14 +53,14 @@ public class CourseController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> getAllCourses(@PathVariable("galaxyId") Integer galaxyId,
-                                           @RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token) {
+    public ResponseEntity<?> getCoursesByGalaxyId(@PathVariable("galaxyId") Integer galaxyId,
+                                                  @RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token) {
         courseService.setToken(token);
         return ResponseEntity.ok(courseService.getCoursesByGalaxyId(galaxyId));
     }
 
     @PostMapping("course")
-    @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
+    @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.role.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Create course", tags = "course", hidden = true)
     @ApiResponses(value = {
             @ApiResponse(
@@ -75,7 +77,7 @@ public class CourseController {
 
 
     @PutMapping("galaxy/{galaxyId}/course/{courseId}")
-    @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
+    @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.role.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Update course by id", tags = "course")
     @ApiResponses(value = {
             @ApiResponse(
@@ -95,7 +97,7 @@ public class CourseController {
     }
 
     @PostMapping("course/{courseId}/keeper")
-    @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
+    @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.role.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Add keeper on course", tags = "course")
     @ApiResponses(value = {
             @ApiResponse(
@@ -106,8 +108,8 @@ public class CourseController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> setKeeperToCourse(@Valid @PathVariable("courseId") Integer courseId,
-                                               @RequestBody AddKeeperRequest addKeeperRequest) {
-        return ResponseEntity.ok(courseService.setKeeperToCourse(courseId, addKeeperRequest));
+    public ResponseEntity<?> setKeeperToCourse(@PathVariable("courseId") Integer courseId,
+                                               @Valid @RequestBody KeeperCreateRequest keeperCreateRequest) {
+        return ResponseEntity.ok(courseService.setKeeperToCourse(courseId, keeperCreateRequest));
     }
 }

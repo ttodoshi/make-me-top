@@ -6,13 +6,13 @@ import org.example.dto.theme.CourseThemeUpdateRequest;
 import org.example.exception.classes.courseEX.CourseNotFoundException;
 import org.example.exception.classes.coursethemeEX.CourseThemeAlreadyExistsException;
 import org.example.exception.classes.coursethemeEX.CourseThemeNotFoundException;
-import org.example.model.CourseTheme;
+import org.example.model.course.CourseTheme;
 import org.example.repository.CourseRepository;
 import org.example.repository.CourseThemeRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.util.Date;
 import java.util.List;
 
@@ -45,17 +45,17 @@ public class CourseThemeService {
 
     public CourseTheme updateCourseTheme(CourseThemeUpdateRequest courseTheme,
                                          Integer courseThemeId) {
-        CourseTheme updatedTheme = courseThemeRepository.findById(courseThemeId).orElseThrow(() -> new CourseThemeNotFoundException(courseThemeId));
+        CourseTheme updatedTheme = courseThemeRepository.findById(courseThemeId)
+                .orElseThrow(() -> new CourseThemeNotFoundException(courseThemeId));
         if (!courseRepository.existsById(courseTheme.getCourseId()))
             throw new CourseNotFoundException(courseTheme.getCourseId());
-        boolean themeExists = courseThemeRepository.findCourseThemesByCourseId(updatedTheme.getCourseId()).stream().anyMatch(
-                t -> t.getTitle().equals(updatedTheme.getTitle())
-        );
-        if (themeExists)
+        boolean themeTitleExists = courseThemeRepository.findCourseThemesByCourseId(
+                        updatedTheme.getCourseId()).stream()
+                .anyMatch(t -> t.getTitle().equals(updatedTheme.getTitle()) && !t.getCourseThemeId().equals(courseThemeId));
+        if (themeTitleExists)
             throw new CourseThemeAlreadyExistsException(updatedTheme.getTitle());
         updatedTheme.setCourseId(courseTheme.getCourseId());
         updatedTheme.setTitle(courseTheme.getTitle());
-        updatedTheme.setLastModified(new Date());
         updatedTheme.setDescription(courseTheme.getDescription());
         updatedTheme.setContent(courseTheme.getContent());
         updatedTheme.setCourseThemeNumber(courseTheme.getCourseThemeNumber());

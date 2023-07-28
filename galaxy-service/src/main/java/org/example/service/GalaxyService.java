@@ -2,11 +2,11 @@ package org.example.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.example.dto.galaxy.CreateGalaxyRequest;
+import org.example.dto.galaxy.GalaxyCreateRequest;
 import org.example.dto.galaxy.GalaxyDTO;
-import org.example.dto.galaxy.GetGalaxyRequest;
-import org.example.dto.orbit.CreateOrbitWithStarSystems;
-import org.example.dto.orbit.GetOrbitWithStarSystemsWithoutGalaxyId;
+import org.example.dto.galaxy.GalaxyGetResponse;
+import org.example.dto.orbit.OrbitWithStarSystemsCreateRequest;
+import org.example.dto.orbit.OrbitWithStarSystemsWithoutGalaxyIdGetResponse;
 import org.example.exception.classes.galaxyEX.GalaxyAlreadyExistsException;
 import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
 import org.example.model.Galaxy;
@@ -14,8 +14,8 @@ import org.example.repository.GalaxyRepository;
 import org.example.repository.OrbitRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -38,30 +38,29 @@ public class GalaxyService {
         return galaxyRepository.findAll();
     }
 
-    public GetGalaxyRequest getGalaxyById(Integer galaxyId) {
+    public GalaxyGetResponse getGalaxyById(Integer galaxyId) {
         if (!galaxyRepository.existsById(galaxyId))
             throw new GalaxyNotFoundException(galaxyId);
-        GetGalaxyRequest galaxy = mapper.map(galaxyRepository.getReferenceById(galaxyId), GetGalaxyRequest.class);
-        List<GetOrbitWithStarSystemsWithoutGalaxyId> orbitWithStarSystemsList = new LinkedList<>();
+        GalaxyGetResponse galaxy = mapper.map(galaxyRepository.getReferenceById(galaxyId), GalaxyGetResponse.class);
+        List<OrbitWithStarSystemsWithoutGalaxyIdGetResponse> orbitWithStarSystemsList = new LinkedList<>();
         orbitRepository.findOrbitsByGalaxyId(galaxyId).forEach(
                 o -> orbitWithStarSystemsList.add(
-                        mapper.map(
-                                orbitService.getOrbitWithSystemList(o.getOrbitId()),
-                                GetOrbitWithStarSystemsWithoutGalaxyId.class)
+                        mapper.map(orbitService.getOrbitWithSystemList(o.getOrbitId()),
+                                OrbitWithStarSystemsWithoutGalaxyIdGetResponse.class)
                 )
         );
-        galaxy.setOrbitsList(orbitWithStarSystemsList);
+        galaxy.setOrbitList(orbitWithStarSystemsList);
         return galaxy;
     }
 
     @Transactional
-    public GetGalaxyRequest createGalaxy(CreateGalaxyRequest createGalaxyRequest) {
-        if (galaxyExists(createGalaxyRequest.getGalaxyName()))
-            throw new GalaxyAlreadyExistsException(createGalaxyRequest.getGalaxyName());
-        Galaxy galaxy = mapper.map(createGalaxyRequest, Galaxy.class);
+    public GalaxyGetResponse createGalaxy(GalaxyCreateRequest galaxyCreateRequest) {
+        if (galaxyExists(galaxyCreateRequest.getGalaxyName()))
+            throw new GalaxyAlreadyExistsException(galaxyCreateRequest.getGalaxyName());
+        Galaxy galaxy = mapper.map(galaxyCreateRequest, Galaxy.class);
         Integer savedGalaxyId = galaxyRepository.save(galaxy).getGalaxyId();
         orbitService.setToken(token);
-        for (CreateOrbitWithStarSystems orbit : createGalaxyRequest.getOrbitsList()) {
+        for (OrbitWithStarSystemsCreateRequest orbit : galaxyCreateRequest.getOrbitList()) {
             orbitService.createOrbit(savedGalaxyId, orbit);
         }
         return getGalaxyById(savedGalaxyId);

@@ -19,6 +19,6 @@ public class CourseMark {
     private Integer explorerId;
     @CreatedDate
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
-    private Date endDate;
+    private Date courseEndDate;
     private Integer value;
 }

@@ -1,7 +1,7 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.dependency.CreateDependencyRequest;
+import org.example.dto.dependency.DependencyCreateRequest;
 import org.example.dto.dependency.DependencyRequest;
 import org.example.exception.classes.dependencyEX.DependencyAlreadyExistsException;
 import org.example.exception.classes.dependencyEX.DependencyCouldNotBeCreatedException;
@@ -11,8 +11,8 @@ import org.example.model.SystemDependency;
 import org.example.repository.DependencyRepository;
 import org.example.repository.StarSystemRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -25,9 +25,9 @@ public class DependencyService {
     private final StarSystemRepository starSystemRepository;
 
     @Transactional
-    public List<SystemDependency> addDependency(List<CreateDependencyRequest> systemDependency) {
+    public List<SystemDependency> addDependency(List<DependencyCreateRequest> systemDependency) {
         List<SystemDependency> dependencies = new LinkedList<>();
-        for (CreateDependencyRequest dependency : systemDependency) {
+        for (DependencyCreateRequest dependency : systemDependency) {
             if (dependency.getChildId().equals(dependency.getParentId()))
                 throw new DependencyCouldNotBeCreatedException(dependency.getChildId(), dependency.getParentId());
             if ((dependency.getParentId() == null && dependencyRepository.getSystemDependencyByChildIdAndParentNull(dependency.getChildId()) != null) ||

@@ -9,8 +9,9 @@ import javax.validation.constraints.NotNull;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@NotNull
 public class CreateCourseRegistrationRequest {
+    @NotNull
     private Integer courseId;
+    @NotNull
     private Integer keeperId;
 }

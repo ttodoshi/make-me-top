@@ -2,11 +2,13 @@ package org.example.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.exception.ErrorResponse;
+import org.example.exception.classes.connectEX.ConnectException;
 import org.example.exception.classes.courseEX.CourseAlreadyExistsException;
 import org.example.exception.classes.courseEX.CourseNotFoundException;
 import org.example.exception.classes.coursethemeEX.CourseThemeAlreadyExistsException;
 import org.example.exception.classes.coursethemeEX.CourseThemeNotFoundException;
 import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
+import org.example.exception.classes.homeworkEX.HomeworkNotFoundException;
 import org.example.exception.classes.personEX.PersonNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,11 +19,12 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import javax.validation.ConstraintViolationException;
+import java.util.concurrent.TimeoutException;
 
 @RestControllerAdvice
 @Slf4j
 public class ErrorHandler {
-    private void logWarning(Exception e) {
+    private void logWarning(Throwable e) {
         StackTraceElement[] stackTrace = e.getStackTrace();
         if (stackTrace.length > 0) {
             StackTraceElement firstStackTraceElement = stackTrace[0];
@@ -30,6 +33,17 @@ public class ErrorHandler {
             int lineNumber = firstStackTraceElement.getLineNumber();
             log.warn("Произошла ошибка в классе: {}, методе: {}, строка: {}\n\n" + e + "\n", className, methodName, lineNumber);
         } else log.warn(e.toString());
+    }
+
+    private void logError(Throwable e) {
+        StackTraceElement[] stackTrace = e.getStackTrace();
+        if (stackTrace.length > 0) {
+            StackTraceElement firstStackTraceElement = stackTrace[0];
+            String className = firstStackTraceElement.getClassName();
+            String methodName = firstStackTraceElement.getMethodName();
+            int lineNumber = firstStackTraceElement.getLineNumber();
+            log.error("Произошла ошибка в классе: {}, методе: {}, строка: {}\n\n" + e + "\n", className, methodName, lineNumber);
+        } else log.error(e.toString());
     }
 
     @ExceptionHandler(AccessDeniedException.class)
@@ -94,6 +108,24 @@ public class ErrorHandler {
 
     @ExceptionHandler(PersonNotFoundException.class)
     public ResponseEntity<ErrorResponse> handlePersonNotFoundException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(ConnectException.class)
+    public ResponseEntity<ErrorResponse> handleConnectException(Exception e) {
+        logError(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(TimeoutException.class)
+    public ResponseEntity<ErrorResponse> handleTimeoutException(Exception e) {
+        logError(e);
+        return handleConnectException(new ConnectException());
+    }
+
+    @ExceptionHandler(HomeworkNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleHomeworkNotFoundException(Exception e) {
         logWarning(e);
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
     }

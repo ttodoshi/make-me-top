@@ -4,15 +4,15 @@ import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Positive;
-import javax.validation.constraints.PositiveOrZero;
 
 @Data
-@NotNull
 public class StarSystemDTO {
     @NotBlank
     private String systemName;
+    @NotNull
     private Integer systemLevel;
+    @NotNull
     private Integer systemPosition;
+    @NotNull
     private Integer orbitId;
 }

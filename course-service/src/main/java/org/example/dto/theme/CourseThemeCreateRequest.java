@@ -6,12 +6,15 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @Data
-@NotNull
 public class CourseThemeCreateRequest {
+    @NotNull
     private Integer courseThemeId;
     @NotBlank
     private String title;
+    @NotNull
     private String description;
+    @NotNull
     private String content;
+    @NotNull
     private Integer courseThemeNumber;
 }

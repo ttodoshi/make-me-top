@@ -7,7 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.dto.galaxy.CreateGalaxyRequest;
+import org.example.dto.galaxy.GalaxyCreateRequest;
 import org.example.dto.galaxy.GalaxyDTO;
 import org.example.service.GalaxyService;
 import org.springframework.http.HttpHeaders;
@@ -70,7 +70,7 @@ public class GalaxyController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> createGalaxy(@Valid @RequestBody CreateGalaxyRequest model,
+    public ResponseEntity<?> createGalaxy(@Valid @RequestBody GalaxyCreateRequest model,
                                           @RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token) {
         galaxyService.setToken(token);
         return ResponseEntity.ok(galaxyService.createGalaxy(model));

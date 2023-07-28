@@ -8,23 +8,20 @@ import org.example.dto.feedback.PersonWithRating;
 import org.example.dto.homework.HomeworkRequestDTO;
 import org.example.dto.keeper.KeeperDTO;
 import org.example.dto.systemprogress.CurrentCourseProgressDTO;
-import org.example.dto.systemprogress.PlanetWithProgress;
+import org.example.dto.systemprogress.PlanetCompletionDTO;
 import org.example.dto.systemprogress.SystemWithPlanetsProgress;
-import org.example.exception.classes.courseEX.CourseNotFoundException;
 import org.example.exception.classes.coursethemeEX.CourseThemeNotFoundException;
-import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
 import org.example.exception.classes.personEX.PersonNotFoundException;
 import org.example.model.Explorer;
 import org.example.model.Person;
 import org.example.model.course.Course;
 import org.example.model.course.CourseTheme;
-import org.example.model.progress.CourseThemeProgress;
 import org.example.model.role.AuthenticationRoleType;
 import org.example.repository.*;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -54,7 +51,7 @@ public class InformationService {
         }
     }
 
-    public Map<String, Object> getKeeperInformation() {
+    private Map<String, Object> getKeeperInformation() {
         Person authenticatedPerson = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Integer authenticatedPersonId = authenticatedPerson.getPersonId();
         Map<String, Object> response = new LinkedHashMap<>();
@@ -69,74 +66,65 @@ public class InformationService {
         return response;
     }
 
-    private Double getKeeperRating(Integer personId) {
+    public Double getKeeperRating(Integer personId) {
         return Math.ceil(explorerFeedbackRepository.getKeeperRating(personId).orElse(0.0) * 10) / 10;
     }
 
-    public Map<String, Object> getExplorerInformation() {
+    private Map<String, Object> getExplorerInformation() {
         Person authenticatedPerson = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Integer authenticatedPersonId = authenticatedPerson.getPersonId();
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("person", authenticatedPerson);
         response.put("rating", getExplorerRating(authenticatedPersonId));
         response.put("totalSystems", explorerRepository.getExplorerSystemsCount(authenticatedPersonId));
-        response.put("currentSystem", getCurrentSystemProgress(authenticatedPersonId));
+        getCurrentSystemProgress(authenticatedPersonId)
+                .ifPresent(p -> response.put("currentSystem", p));
         response.put("investigatedSystems", courseMarkRepository.getInvestigatedSystemsByPersonId(authenticatedPersonId));
         response.put("ratingTable", getRatingTable());
         return response;
     }
 
-    private CurrentCourseProgressDTO getCurrentSystemProgress(Integer personId) {
-        Integer currentSystemId = planetProgressRepository.getCurrentInvestigatedSystemId(personId);
-        if (currentSystemId == null)
-            return null;
+    private Optional<CurrentCourseProgressDTO> getCurrentSystemProgress(Integer personId) {
+        Optional<CurrentCourseProgressDTO> currentCourseProgressOptional = Optional.empty();
+        Optional<Integer> currentSystemIdOptional = planetProgressRepository.getCurrentInvestigatedSystemId(personId);
+        if (currentSystemIdOptional.isEmpty())
+            return currentCourseProgressOptional;
+        Integer currentSystemId = currentSystemIdOptional.get();
         Optional<Explorer> explorerOptional = explorerRepository.findExplorerByPersonIdAndCourseId(personId, currentSystemId);
-        Explorer explorer;
         if (explorerOptional.isEmpty())
-            return null;
-        else
-            explorer = explorerOptional.get();
+            return currentCourseProgressOptional;
+        Explorer explorer = explorerOptional.get();
         Double progress = planetProgressRepository.getSystemProgress(explorer.getExplorerId(), currentSystemId);
-        Integer currentThemeId = getCurrentCourseThemeId(personId, currentSystemId);
+        Integer currentThemeId = getCurrentCourseThemeId(explorer);
         CourseTheme currentTheme = courseThemeRepository.findById(currentThemeId).orElseThrow(() -> new CourseThemeNotFoundException(currentThemeId));
         Course currentCourse = courseRepository.getReferenceById(currentSystemId);
         KeeperDTO keeper = keeperRepository.getKeeperForPersonOnCourse(personId, currentSystemId);
-        return new CurrentCourseProgressDTO(explorer.getExplorerId(), currentTheme.getCourseThemeId(), currentTheme.getTitle(), currentCourse.getCourseId(), currentCourse.getTitle(), keeper, progress);
+        return Optional.of(new CurrentCourseProgressDTO(explorer.getExplorerId(), currentTheme.getCourseThemeId(), currentTheme.getTitle(), currentCourse.getCourseId(), currentCourse.getTitle(), keeper, progress));
     }
 
-    private Integer getCurrentCourseThemeId(Integer personId, Integer systemId) {
-        List<PlanetWithProgress> planetsProgress = getPlanetsProgressBySystemId(personId, systemId).getPlanetsWithProgress();
-        for (PlanetWithProgress planet : planetsProgress) {
-            if (!planet.getProgress().equals(100))
+    private Integer getCurrentCourseThemeId(Explorer explorer) {
+        List<PlanetCompletionDTO> planetsProgress = getPlanetsProgress(explorer).getPlanetsWithProgress();
+        for (PlanetCompletionDTO planet : planetsProgress) {
+            if (!planet.getCompleted())
                 return planet.getCourseThemeId();
         }
         return planetsProgress.get(planetsProgress.size() - 1).getCourseThemeId();
     }
 
-    private SystemWithPlanetsProgress getPlanetsProgressBySystemId(Integer personId, Integer systemId) {
-        Course course = courseRepository.findById(systemId).orElseThrow(() -> new CourseNotFoundException(systemId));
-        Optional<Explorer> explorerOptional = explorerRepository.findExplorerByPersonIdAndCourseId(personId, systemId);
-        if (explorerOptional.isEmpty())
-            throw new ExplorerNotFoundException();
-        Explorer explorer = explorerOptional.get();
-        SystemWithPlanetsProgress systemWithPlanetsProgress = new SystemWithPlanetsProgress();
-        systemWithPlanetsProgress.setCourseId(course.getCourseId());
-        systemWithPlanetsProgress.setTitle(course.getTitle());
-        List<PlanetWithProgress> planetWithProgresses = new LinkedList<>();
-        for (CourseTheme ct : courseThemeRepository.findCourseThemesByCourseIdOrderByCourseThemeNumberAsc(systemId)) {
-            Optional<CourseThemeProgress> planetProgress = planetProgressRepository.findCourseThemeProgressByExplorerIdAndCourseThemeId(explorer.getExplorerId(), ct.getCourseThemeId());
-            if (planetProgress.isPresent())
-                planetWithProgresses.add(
-                        new PlanetWithProgress(ct.getCourseThemeId(), ct.getTitle(), planetProgress.get().getProgress())
-                );
-            else {
-                planetWithProgresses.add(
-                        new PlanetWithProgress(ct.getCourseThemeId(), ct.getTitle(), 0)
-                );
-            }
+    private SystemWithPlanetsProgress getPlanetsProgress(Explorer explorer) {
+        Course course = courseRepository.getReferenceById(explorer.getCourseId());
+        List<PlanetCompletionDTO> planetsCompletion = new LinkedList<>();
+        for (CourseTheme ct : courseThemeRepository.findCourseThemesByCourseIdOrderByCourseThemeNumberAsc(explorer.getCourseId())) {
+            Boolean planetCompleted = planetProgressRepository.findCourseThemeProgressByExplorerIdAndCourseThemeId(explorer.getExplorerId(), ct.getCourseThemeId()).isPresent();
+            planetsCompletion.add(
+                    new PlanetCompletionDTO(ct.getCourseThemeId(), ct.getTitle(), planetCompleted)
+            );
         }
-        systemWithPlanetsProgress.setPlanetsWithProgress(planetWithProgresses);
-        return systemWithPlanetsProgress;
+        return SystemWithPlanetsProgress.builder()
+                .courseId(course.getCourseId())
+                .title(course.getTitle())
+                .planetsWithProgress(planetsCompletion)
+                .build();
     }
 
     private Integer getAuthenticatedPersonId() {
@@ -144,7 +132,7 @@ public class InformationService {
         return authenticatedPerson.getPersonId();
     }
 
-    private Double getExplorerRating(Integer personId) {
+    public Double getExplorerRating(Integer personId) {
         return Math.ceil(keeperFeedbackRepository.getExplorerRating(personId).orElse(0.0) * 10) / 10;
     }
 
@@ -154,7 +142,7 @@ public class InformationService {
 
     @Transactional
     public Map<String, Object> getKeeperPublicInformation(Integer personId) {
-        Person person = personRepository.findById(personId).orElseThrow(() -> new PersonNotFoundException());
+        Person person = personRepository.findById(personId).orElseThrow(() -> new PersonNotFoundException(personId));
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("person", person);
         response.put("rating", getKeeperRating(personId));
@@ -168,15 +156,15 @@ public class InformationService {
     @Transactional
     public Map<String, Object> getExplorerPublicInformation(Integer personId) {
         Integer authenticatedPersonId = getAuthenticatedPersonId();
-        Person person = personRepository.findById(personId).orElseThrow(() -> new PersonNotFoundException());
+        Person person = personRepository.findById(personId).orElseThrow(() -> new PersonNotFoundException(personId));
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("person", person);
         response.put("rating", getExplorerRating(personId));
         List<KeeperFeedbackDTO> feedback = keeperFeedbackRepository.getExplorerCommentsByPersonId(personId);
         response.put("totalFeedback", feedback.size());
         response.put("totalSystems", explorerRepository.getExplorerSystemsCount(personId));
-        CurrentCourseProgressDTO currentCourse = getCurrentSystemProgress(personId);
-        if (currentCourse == null) {
+        Optional<CurrentCourseProgressDTO> currentCourseOptional = getCurrentSystemProgress(personId);
+        if (currentCourseOptional.isEmpty()) {
             Optional<CourseRegistrationRequestDTO> studyRequestOptional = courseRegistrationRequestRepository.getStudyRequestByPersonId(personId);
             if (studyRequestOptional.isPresent() && keeperRepository.getReferenceById(studyRequestOptional.get().getKeeperId()).getPersonId().equals(authenticatedPersonId)) {
                 response.put("studyRequest", studyRequestOptional.get());
@@ -184,10 +172,15 @@ public class InformationService {
         } else {
             if (roleService.hasAnyAuthenticationRole(AuthenticationRoleType.KEEPER)) {
                 List<HomeworkRequestDTO> homeworkRequests = homeworkRequestRepository.getReviewRequestsByKeeperPersonId(authenticatedPersonId).stream().filter(h -> h.getPersonId().equals(personId)).collect(Collectors.toList());
-                if (!homeworkRequests.isEmpty())
-                    response.put("reviewRequests", homeworkRequests);
+                if (!homeworkRequests.isEmpty()) {
+                    Optional<HomeworkRequestDTO> homeworkRequestOptional = homeworkRequests
+                            .stream()
+                            .filter(hr -> hr.getPersonId().equals(personId))
+                            .findFirst();
+                    homeworkRequestOptional.ifPresent(homeworkRequestDTO -> response.put("reviewRequest", homeworkRequestDTO));
+                }
             }
-            response.put("currentSystem", currentCourse);
+            response.put("currentSystem", currentCourseOptional.get());
         }
         response.put("investigatedSystems", courseMarkRepository.getInvestigatedSystemsByPersonId(personId));
         response.put("feedback", feedback);

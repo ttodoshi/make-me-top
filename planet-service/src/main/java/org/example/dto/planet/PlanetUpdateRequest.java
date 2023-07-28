@@ -6,10 +6,11 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @Data
-@NotNull
 public class PlanetUpdateRequest {
     @NotBlank
     private String planetName;
+    @NotNull
     private Integer planetNumber;
+    @NotNull
     private Integer systemId;
 }

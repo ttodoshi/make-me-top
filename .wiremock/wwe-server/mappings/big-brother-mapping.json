@@ -1,10 +1,14 @@
 {
+  "priority": 1,
   "request": {
     "url": "/login/",
     "method": "POST",
     "headers": {
       "Content-Type": {
-        "equalTo": "application/json; charset=UTF-8"
+        "equalTo": "application/json"
+      },
+      "Accept-Charset": {
+        "equalTo": "utf-8"
       }
     },
     "bodyPatterns": [

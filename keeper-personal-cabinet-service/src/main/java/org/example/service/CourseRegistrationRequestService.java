@@ -12,9 +12,8 @@ import org.example.model.courserequest.*;
 import org.example.repository.*;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,7 +38,7 @@ public class CourseRegistrationRequestService {
         if (authenticatedKeeperIsNotKeeperInRequest(authenticatedPersonId, request))
             throw new DifferentKeeperException();
         CourseRegistrationRequestStatusType status;
-        if (requestReply.isApproved()) {
+        if (requestReply.getApproved()) {
             status = CourseRegistrationRequestStatusType.APPROVED;
             addExplorer(request.getPersonId(), request.getCourseId());
         } else {
@@ -58,13 +57,15 @@ public class CourseRegistrationRequestService {
     }
 
     private void addExplorer(Integer personId, Integer courseId) {
-        Explorer explorer = new Explorer();
-        explorer.setPersonId(personId);
-        explorer.setCourseId(courseId);
-        explorer.setStartDate(new Date());
-        explorerRepository.save(explorer);
+        explorerRepository.save(
+                Explorer.builder()
+                        .personId(personId)
+                        .courseId(courseId)
+                        .build()
+        );
     }
 
+    @Transactional
     public KeeperRejection sendRejection(Integer requestId, KeeperRejectionDTO rejection) {
         Person authenticatedPerson = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         CourseRegistrationRequest request = courseRegistrationRequestRepository
@@ -76,10 +77,12 @@ public class CourseRegistrationRequestService {
             throw new KeeperRejectionAlreadyExistsException();
         if (authenticatedKeeperIsNotKeeperInRequest(authenticatedPerson.getPersonId(), request))
             throw new DifferentKeeperException();
-        KeeperRejection keeperRejection = new KeeperRejection();
-        keeperRejection.setRequestId(requestId);
-        keeperRejection.setReasonId(rejection.getReasonId());
-        return keeperRejectionRepository.save(keeperRejection);
+        return keeperRejectionRepository.save(
+                KeeperRejection.builder()
+                        .requestId(requestId)
+                        .reasonId(rejection.getReasonId())
+                        .build()
+        );
     }
 
     private boolean authenticatedKeeperIsNotKeeperInRequest(Integer personId, CourseRegistrationRequest request) {

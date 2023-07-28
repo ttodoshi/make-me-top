@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.example.dto.coursetheme.CourseThemeCreateRequest;
 import org.example.dto.coursetheme.CourseThemeDTO;
-import org.example.dto.planet.CreatePlanet;
+import org.example.dto.planet.PlanetCreateRequest;
 import org.example.dto.planet.PlanetUpdateRequest;
 import org.example.dto.starsystem.StarSystemDTO;
 import org.example.exception.classes.connectEX.ConnectException;
@@ -16,16 +16,12 @@ import org.example.repository.PlanetRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.ResourceAccessException;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.client.WebClient;
 
-import javax.transaction.Transactional;
+import java.time.Duration;
 import java.util.*;
 
 @Service
@@ -36,7 +32,6 @@ public class PlanetService {
 
     private final ModelMapper mapper;
 
-    private final RestTemplate restTemplate;
     @Setter
     private String token;
     @Value("${galaxy_app_url}")
@@ -45,23 +40,21 @@ public class PlanetService {
     private String COURSE_APP_URL;
 
     public List<Planet> getPlanetsListBySystemId(Integer systemId) {
-        if (systemExists(systemId))
-            return planetRepository.findPlanetsBySystemId(systemId);
-        throw new SystemNotFoundException(systemId);
+        checkSystemExists(systemId);
+        return planetRepository.findPlanetsBySystemId(systemId);
     }
 
     @Transactional
-    public List<Planet> addPlanets(Integer systemId, List<CreatePlanet> planets) {
-        List<CreatePlanet> savingPlanetsList = new LinkedList<>();
-        for (CreatePlanet planet : planets) {
-            if (!systemExists(systemId))
-                throw new SystemNotFoundException(systemId);
+    public List<Planet> addPlanets(Integer systemId, List<PlanetCreateRequest> planets) {
+        checkSystemExists(systemId);
+        List<PlanetCreateRequest> savingPlanetsList = new LinkedList<>();
+        for (PlanetCreateRequest planet : planets) {
             if (savingPlanetsList.contains(planet) || planetExists(systemId, planet.getPlanetName()))
                 throw new PlanetAlreadyExistsException(planet.getPlanetName());
             savingPlanetsList.add(planet);
         }
         List<Planet> savedPlanets = new ArrayList<>();
-        for (CreatePlanet currentPlanet : planets) {
+        for (PlanetCreateRequest currentPlanet : planets) {
             Planet planet = mapper.map(currentPlanet, Planet.class);
             planet.setSystemId(systemId);
             Planet savedPlanet = planetRepository.save(planet);
@@ -71,20 +64,28 @@ public class PlanetService {
         return savedPlanets;
     }
 
-    private void addCourseTheme(Integer systemId, Integer courseThemeId, CreatePlanet planet) {
-        HttpEntity<CourseThemeCreateRequest> entity = new HttpEntity<>(new CourseThemeCreateRequest(courseThemeId,
-                planet.getPlanetName(), planet.getDescription(), planet.getContent(), planet.getPlanetNumber()),
-                createHeaders());
-        restTemplate.postForEntity(COURSE_APP_URL + "/course/" + systemId + "/theme", entity, CourseThemeDTO.class);
+    private void addCourseTheme(Integer systemId, Integer courseThemeId, PlanetCreateRequest planet) {
+        WebClient webClient = WebClient.create(COURSE_APP_URL);
+        webClient.post()
+                .uri("/course/" + systemId + "/theme")
+                .bodyValue(new CourseThemeCreateRequest(courseThemeId, planet.getPlanetName(),
+                        planet.getDescription(), planet.getContent(), planet.getPlanetNumber()))
+                .header("Authorization", token)
+                .retrieve()
+                .bodyToMono(CourseThemeDTO.class)
+                .timeout(Duration.ofSeconds(5))
+                .onErrorResume(throwable -> {
+                    throw new ConnectException();
+                })
+                .subscribe();
     }
 
     @Transactional
     public Planet updatePlanet(PlanetUpdateRequest planet, Integer planetId) {
-        if (!systemExists(planet.getSystemId()))
-            throw new SystemNotFoundException(planet.getSystemId());
+        checkSystemExists(planet.getSystemId());
         Planet updatedPlanet = planetRepository.findById(planetId)
                 .orElseThrow(() -> new PlanetNotFoundException(planetId));
-        if (planetExists(planet.getSystemId(), planet.getPlanetName()))
+        if (planetExists(planet.getSystemId(), planetId, planet.getPlanetName()))
             throw new PlanetAlreadyExistsException(planet.getPlanetName());
         updatedPlanet.setPlanetName(planet.getPlanetName());
         updatedPlanet.setSystemId(planet.getSystemId());
@@ -98,6 +99,12 @@ public class PlanetService {
         );
     }
 
+    private boolean planetExists(Integer systemId, Integer planetId, String planetName) {
+        return planetRepository.findPlanetsBySystemId(systemId).stream().anyMatch(
+                p -> p.getPlanetName().equals(planetName) && !p.getPlanetId().equals(planetId)
+        );
+    }
+
     public Map<String, String> deletePlanetById(Integer planetId) {
         if (!planetRepository.existsById(planetId))
             throw new PlanetNotFoundException(planetId);
@@ -107,24 +114,20 @@ public class PlanetService {
         return response;
     }
 
-    private boolean systemExists(Integer systemId) {
-        try {
-            return restTemplate.exchange(
-                            GALAXY_APP_URL + "/system/" + systemId,
-                            HttpMethod.GET,
-                            new HttpEntity<>(createHeaders()),
-                            StarSystemDTO.class)
-                    .getStatusCode().equals(HttpStatus.OK);
-        } catch (HttpClientErrorException e) {
-            return false;
-        } catch (ResourceAccessException e) {
-            throw new ConnectException();
-        }
-    }
-
-    private HttpHeaders createHeaders() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", token);
-        return headers;
+    private void checkSystemExists(Integer systemId) {
+        WebClient webClient = WebClient.create(GALAXY_APP_URL);
+        webClient.get()
+                .uri("/system/" + systemId)
+                .header("Authorization", token)
+                .retrieve()
+                .onStatus(HttpStatus.NOT_FOUND::equals, response -> {
+                    throw new SystemNotFoundException(systemId);
+                })
+                .onStatus(HttpStatus::isError, response -> {
+                    throw new ConnectException();
+                })
+                .bodyToMono(StarSystemDTO.class)
+                .timeout(Duration.ofSeconds(5))
+                .block();
     }
 }

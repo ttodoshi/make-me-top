@@ -21,7 +21,9 @@ public class CourseThemeController {
     private final CourseThemeService courseThemeService;
 
     @GetMapping("theme/{themeId}")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@roleService.hasAnyCourseRoleByThemeId(#themeId, T(org.example.model.role.CourseRoleType).EXPLORER) ||" +
+            "@roleService.hasAnyCourseRoleByThemeId(#themeId, T(org.example.model.role.CourseRoleType).KEEPER) ||" +
+            "@roleService.hasAnyGeneralRole(T(org.example.model.role.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Get theme by theme id", tags = "theme")
     @ApiResponses(value = {
             @ApiResponse(
@@ -37,7 +39,9 @@ public class CourseThemeController {
     }
 
     @GetMapping("course/{courseId}/theme")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@roleService.hasAnyCourseRole(#courseId, T(org.example.model.role.CourseRoleType).EXPLORER) ||" +
+            "@roleService.hasAnyCourseRole(#courseId, T(org.example.model.role.CourseRoleType).KEEPER) ||" +
+            "@roleService.hasAnyGeneralRole(T(org.example.model.role.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Get themes by course id", tags = "theme")
     @ApiResponses(value = {
             @ApiResponse(
@@ -53,7 +57,7 @@ public class CourseThemeController {
     }
 
     @PostMapping("course/{courseId}/theme")
-    @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
+    @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.role.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Create theme", tags = "theme", hidden = true)
     @ApiResponses(value = {
             @ApiResponse(
@@ -71,7 +75,7 @@ public class CourseThemeController {
 
 
     @PutMapping("theme/{themeId}")
-    @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
+    @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.role.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Update theme by id", tags = "theme")
     @ApiResponses(value = {
             @ApiResponse(

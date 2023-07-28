@@ -1,31 +1,27 @@
 package org.example.service;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonParser;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
 import org.example.config.mapper.PersonMapper;
 import org.example.config.security.JwtServiceInterface;
-import org.example.dto.AuthResponseUser;
+import org.example.dto.AuthResponse;
+import org.example.dto.AuthResponseEmployee;
 import org.example.dto.LoginRequest;
 import org.example.exception.classes.connectEX.ConnectException;
 import org.example.exception.classes.personEX.PersonNotFoundException;
 import org.example.model.Person;
 import org.example.repository.PersonRepository;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Optional;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class PersonService {
     private final PersonRepository personRepository;
 
@@ -34,11 +30,9 @@ public class PersonService {
     private final PersonMapper personMapper;
 
     @Value("${url_auth_mmtr}")
-    private String mmtrAuthUrl;
+    private String MMTR_AUTH_URL;
 
-    private final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-
-    public Object login(LoginRequest request, HttpServletResponse response) {
+    public String login(LoginRequest request, HttpServletResponse response) {
         Person person = authenticatePerson(request);
         String token = jwtGenerator.generateToken(person, request.getRole());
         Cookie tokenCookie = generateCookie(token);
@@ -46,15 +40,33 @@ public class PersonService {
         return token;
     }
 
-    private Person authenticatePerson(LoginRequest request) {
-        Optional<AuthResponseUser> authResponseOptional = sendAuthRequest(request);
-        if (authResponseOptional.isEmpty())
-            throw new PersonNotFoundException();
-        AuthResponseUser authResponse = authResponseOptional.get();
-        Optional<Person> personOptional = personRepository.findById(authResponse.getEmployeeId());
-        return personOptional.orElseGet(
+    private Person authenticatePerson(LoginRequest loginRequest) {
+        AuthResponseEmployee authResponse = authenticateEmployee(loginRequest);
+        return personRepository.findById(authResponse.getEmployeeId()).orElseGet(
                 () -> personRepository.save(personMapper.UserAuthResponseToPerson(authResponse))
         );
+    }
+
+    private AuthResponseEmployee authenticateEmployee(LoginRequest loginRequest) {
+        AuthResponse authResponse = sendAuthenticateRequest(loginRequest);
+        if (authResponse.getIsSuccess())
+            return authResponse.getObject();
+        throw new PersonNotFoundException();
+    }
+
+    private AuthResponse sendAuthenticateRequest(LoginRequest loginRequest) {
+        WebClient webClient = WebClient.create(MMTR_AUTH_URL);
+        return webClient.post()
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(loginRequest)
+                .acceptCharset(StandardCharsets.UTF_8)
+                .retrieve()
+                .bodyToMono(AuthResponse.class)
+                .timeout(Duration.ofSeconds(5))
+                .onErrorResume(throwable -> {
+                    throw new ConnectException();
+                })
+                .block();
     }
 
     private Cookie generateCookie(String token) {
@@ -62,47 +74,5 @@ public class PersonService {
         tokenCookie.setMaxAge(43200);
         tokenCookie.setPath("/");
         return tokenCookie;
-    }
-
-    public Optional<AuthResponseUser> sendAuthRequest(LoginRequest userRequest) {
-        Request authRequest = createAuthRequest(userRequest);
-        Optional<AuthResponseUser> employeeOptional = Optional.empty();
-        try (var response = new OkHttpClient().newCall(authRequest).execute()) {
-            String responseBody = response.body().string();
-            if (response.code() == HttpStatus.OK.value() && isResponseSuccess(responseBody))
-                employeeOptional = getUserInformation(responseBody);
-        } catch (Exception e) {
-            log.error(e.toString());
-            throw new ConnectException();
-        }
-        return employeeOptional;
-    }
-
-    private Request createAuthRequest(LoginRequest userRequest) {
-        okhttp3.RequestBody requestBody = okhttp3.RequestBody
-                .create(JSON, userRequest.toString());
-        return new Request.Builder()
-                .url(mmtrAuthUrl)
-                .post(requestBody)
-                .addHeader("Content-Type", "application/json")
-                .build();
-    }
-
-    private boolean isResponseSuccess(String responseBody) {
-        return JsonParser.parseString(responseBody)
-                .getAsJsonObject()
-                .get("isSuccess")
-                .getAsBoolean();
-    }
-
-    private Optional<AuthResponseUser> getUserInformation(String responseBody) {
-        return Optional.of(
-                new Gson().fromJson(
-                        JsonParser.parseString(responseBody)
-                                .getAsJsonObject()
-                                .getAsJsonObject("object"),
-                        AuthResponseUser.class
-                )
-        );
     }
 }

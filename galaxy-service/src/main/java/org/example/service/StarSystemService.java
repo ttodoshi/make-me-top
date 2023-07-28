@@ -5,6 +5,7 @@ import lombok.Setter;
 import org.example.config.mapper.DependencyMapper;
 import org.example.dto.course.CourseDTO;
 import org.example.dto.starsystem.*;
+import org.example.exception.classes.connectEX.ConnectException;
 import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
 import org.example.exception.classes.orbitEX.OrbitNotFoundException;
 import org.example.exception.classes.systemEX.SystemAlreadyExistsException;
@@ -16,12 +17,11 @@ import org.example.repository.OrbitRepository;
 import org.example.repository.StarSystemRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.client.WebClient;
 
-import javax.transaction.Transactional;
 import java.util.*;
 
 @Service
@@ -34,18 +34,17 @@ public class StarSystemService {
 
     private final ModelMapper mapper;
     private final DependencyMapper dependencyMapper;
-    private final RestTemplate restTemplate;
 
     @Setter
     private String token;
     @Value("${course_app_url}")
     private String COURSE_APP_URL;
 
-    public GetStarSystemWithDependencies getStarSystemByIdWithDependencies(Integer systemId) {
+    public StarSystemWithDependenciesGetResponse getStarSystemByIdWithDependencies(Integer systemId) {
         if (!starSystemRepository.existsById(systemId))
             throw new SystemNotFoundException(systemId);
-        GetStarSystemWithDependencies system = mapper.map(
-                starSystemRepository.getReferenceById(systemId), GetStarSystemWithDependencies.class);
+        StarSystemWithDependenciesGetResponse system = mapper.map(
+                starSystemRepository.getReferenceById(systemId), StarSystemWithDependenciesGetResponse.class);
         List<SystemDependencyModel> dependencies = new LinkedList<>();
         dependencyRepository.getSystemChildren(systemId)
                 .stream()
@@ -60,10 +59,10 @@ public class StarSystemService {
         return system;
     }
 
-    public GetStarSystem getStarSystemById(Integer systemId) {
+    public StarSystemGetResponse getStarSystemById(Integer systemId) {
         StarSystem system = starSystemRepository
                 .findById(systemId).orElseThrow(() -> new SystemNotFoundException(systemId));
-        return mapper.map(system, GetStarSystem.class);
+        return mapper.map(system, StarSystemGetResponse.class);
     }
 
     public List<StarSystem> getStarSystemsByGalaxyId(Integer galaxyId) {
@@ -73,7 +72,7 @@ public class StarSystemService {
     }
 
     @Transactional
-    public StarSystem createSystem(Integer orbitId, CreateStarSystem systemRequest) {
+    public StarSystem createSystem(Integer orbitId, StarSystemCreateRequest systemRequest) {
         if (!orbitRepository.existsById(orbitId))
             throw new OrbitNotFoundException(orbitId);
         if (systemExists(orbitRepository.getReferenceById(orbitId).getGalaxyId(), systemRequest.getSystemName()))
@@ -85,27 +84,27 @@ public class StarSystemService {
         return savedSystem;
     }
 
-    private void createCourse(Integer courseId, CreateStarSystem starSystem) {
-        HttpEntity<CourseDTO> entity = new HttpEntity<>(new CourseDTO(courseId,
-                starSystem.getSystemName(), new Date(), new Date(), starSystem.getDescription()),
-                createHeaders());
-        restTemplate.postForEntity(COURSE_APP_URL + "/course/", entity, CourseDTO.class);
+    public void createCourse(Integer courseId, StarSystemCreateRequest starSystem) {
+        WebClient webClient = WebClient.create(COURSE_APP_URL);
+        webClient.post()
+                .uri("/course/")
+                .bodyValue(new CourseDTO(courseId, starSystem.getSystemName(), new Date(), new Date(), starSystem.getDescription()))
+                .header("Authorization", token)
+                .retrieve()
+                .onStatus(HttpStatus::isError, response -> {
+                    throw new ConnectException();
+                })
+                .bodyToMono(Void.class)
+                .subscribe();
     }
 
-    private HttpHeaders createHeaders() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", token);
-        return headers;
-    }
-
-    @Transactional
     public StarSystem updateSystem(StarSystemDTO starSystem, Integer systemId) {
         if (!starSystemRepository.existsById(systemId))
             throw new SystemNotFoundException(systemId);
         StarSystem updatedStarSystem = starSystemRepository.getReferenceById(systemId);
         if (!orbitRepository.existsById(starSystem.getOrbitId()))
             throw new OrbitNotFoundException(starSystem.getOrbitId());
-        if (systemExists(orbitRepository.getReferenceById(starSystem.getOrbitId()).getGalaxyId(), starSystem.getSystemName()))
+        if (systemExists(orbitRepository.getReferenceById(starSystem.getOrbitId()).getGalaxyId(), systemId, starSystem.getSystemName()))
             throw new SystemAlreadyExistsException(starSystem.getSystemName());
         updatedStarSystem.setSystemName(starSystem.getSystemName());
         updatedStarSystem.setSystemPosition(starSystem.getSystemPosition());
@@ -114,12 +113,16 @@ public class StarSystemService {
         return starSystemRepository.save(updatedStarSystem);
     }
 
+    private boolean systemExists(Integer galaxyId, Integer systemId, String systemName) {
+        return starSystemRepository.findSystemsByGalaxyId(galaxyId)
+                .stream().anyMatch(s -> Objects.equals(s.getSystemName(), systemName) && !s.getSystemId().equals(systemId));
+    }
+
     private boolean systemExists(Integer galaxyId, String systemName) {
         return starSystemRepository.findSystemsByGalaxyId(galaxyId)
                 .stream().anyMatch(s -> Objects.equals(s.getSystemName(), systemName));
     }
 
-    @Transactional
     public Map<String, String> deleteSystem(Integer systemId) {
         if (!starSystemRepository.existsById(systemId))
             throw new SystemNotFoundException(systemId);
