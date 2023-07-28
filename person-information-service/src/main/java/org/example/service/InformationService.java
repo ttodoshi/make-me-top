@@ -67,6 +67,8 @@ public class InformationService {
     }
 
     public Double getKeeperRating(Integer personId) {
+        if (!personRepository.existsById(personId))
+            throw new PersonNotFoundException(personId);
         return Math.ceil(explorerFeedbackRepository.getKeeperRating(personId).orElse(0.0) * 10) / 10;
     }
 
@@ -133,6 +135,8 @@ public class InformationService {
     }
 
     public Double getExplorerRating(Integer personId) {
+        if (!personRepository.existsById(personId))
+            throw new PersonNotFoundException(personId);
         return Math.ceil(keeperFeedbackRepository.getExplorerRating(personId).orElse(0.0) * 10) / 10;
     }
 

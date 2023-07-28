@@ -38,13 +38,14 @@ public class MarkService {
 
     @Transactional
     public CourseMark setCourseMark(MarkDTO courseMark) {
+        // TODO check if it is not different keeper from this course
         if (courseMark.getValue() < 1 || courseMark.getValue() > 5)
             throw new UnexpectedMarkValueException();
         if (!explorerRepository.existsById(courseMark.getExplorerId()))
             throw new ExplorerNotFoundException();
         if (explorerNeedFinalAssessment(courseMark.getExplorerId()))
             return courseMarkRepository.save(
-                    new CourseMark(courseMark.getExplorerId(), new Date(), courseMark.getValue())
+                    mapper.map(courseMark, CourseMark.class)
             );
         throw new ExplorerDoesNotNeedMarkException(courseMark.getExplorerId());
     }
@@ -66,6 +67,7 @@ public class MarkService {
     }
 
     private void saveProgress(Integer themeId, MarkDTO mark) {
+        // TODO check if it is not different keeper from this course
         Explorer explorer = explorerRepository.findById(mark.getExplorerId()).orElseThrow(ExplorerNotFoundException::new);
         if (mark.getValue() < 1 || mark.getValue() > 5)
             throw new UnexpectedMarkValueException();
