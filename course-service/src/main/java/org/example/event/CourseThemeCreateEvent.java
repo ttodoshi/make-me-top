@@ -1,4 +1,4 @@
-package org.example.dto.theme;
+package org.example.event;
 
 import lombok.Data;
 
@@ -6,7 +6,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @Data
-public class CourseThemeCreateRequest {
+public class CourseThemeCreateEvent {
     @NotNull
     private Integer courseThemeId;
     @NotBlank

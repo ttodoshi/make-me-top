@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.example.dto.theme.CourseThemeCreateRequest;
 import org.example.dto.theme.CourseThemeUpdateRequest;
 import org.example.service.CourseThemeService;
 import org.springframework.http.ResponseEntity;
@@ -55,24 +54,6 @@ public class CourseThemeController {
     public ResponseEntity<?> getCourseThemesByCourseId(@PathVariable("courseId") Integer courseId) {
         return ResponseEntity.ok(courseThemeService.getCourseThemesByCourseId(courseId));
     }
-
-    @PostMapping("course/{courseId}/theme")
-    @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.role.GeneralRoleType).BIG_BROTHER)")
-    @Operation(summary = "Create theme", tags = "theme", hidden = true)
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Theme created",
-                    content = {
-                            @Content(
-                                    mediaType = "application/json")
-                    })
-    })
-    public ResponseEntity<?> createTheme(@Valid @RequestBody CourseThemeCreateRequest theme,
-                                         @PathVariable("courseId") Integer courseId) {
-        return ResponseEntity.ok(courseThemeService.createCourseTheme(theme, courseId));
-    }
-
 
     @PutMapping("theme/{themeId}")
     @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.role.GeneralRoleType).BIG_BROTHER)")

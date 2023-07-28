@@ -2,11 +2,10 @@ package org.example.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.example.dto.coursetheme.CourseThemeCreateRequest;
-import org.example.dto.coursetheme.CourseThemeDTO;
 import org.example.dto.planet.PlanetCreateRequest;
 import org.example.dto.planet.PlanetUpdateRequest;
 import org.example.dto.starsystem.StarSystemDTO;
+import org.example.event.CourseThemeCreateEvent;
 import org.example.exception.classes.connectEX.ConnectException;
 import org.example.exception.classes.planetEX.PlanetAlreadyExistsException;
 import org.example.exception.classes.planetEX.PlanetNotFoundException;
@@ -17,6 +16,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpStatus;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -31,13 +31,12 @@ public class PlanetService {
     private final PlanetRepository planetRepository;
 
     private final ModelMapper mapper;
+    private final KafkaTemplate<Integer, Object> kafkaTemplate;
 
     @Setter
     private String token;
     @Value("${galaxy_app_url}")
     private String GALAXY_APP_URL;
-    @Value("${course_app_url}")
-    private String COURSE_APP_URL;
 
     public List<Planet> getPlanetsListBySystemId(Integer systemId) {
         checkSystemExists(systemId);
@@ -65,19 +64,9 @@ public class PlanetService {
     }
 
     private void addCourseTheme(Integer systemId, Integer courseThemeId, PlanetCreateRequest planet) {
-        WebClient webClient = WebClient.create(COURSE_APP_URL);
-        webClient.post()
-                .uri("/course/" + systemId + "/theme")
-                .bodyValue(new CourseThemeCreateRequest(courseThemeId, planet.getPlanetName(),
-                        planet.getDescription(), planet.getContent(), planet.getPlanetNumber()))
-                .header("Authorization", token)
-                .retrieve()
-                .bodyToMono(CourseThemeDTO.class)
-                .timeout(Duration.ofSeconds(5))
-                .onErrorResume(throwable -> {
-                    throw new ConnectException();
-                })
-                .subscribe();
+        kafkaTemplate.send("courseThemeTopic", systemId, new CourseThemeCreateEvent(
+                courseThemeId, planet.getPlanetName(),
+                planet.getDescription(), planet.getContent(), planet.getPlanetNumber()));
     }
 
     @Transactional

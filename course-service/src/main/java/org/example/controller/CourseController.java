@@ -8,7 +8,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.course.CourseUpdateRequest;
 import org.example.dto.keeper.KeeperCreateRequest;
-import org.example.model.course.Course;
 import org.example.service.CourseService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -58,23 +57,6 @@ public class CourseController {
         courseService.setToken(token);
         return ResponseEntity.ok(courseService.getCoursesByGalaxyId(galaxyId));
     }
-
-    @PostMapping("course")
-    @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.role.GeneralRoleType).BIG_BROTHER)")
-    @Operation(summary = "Create course", tags = "course", hidden = true)
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Course created",
-                    content = {
-                            @Content(
-                                    mediaType = "application/json")
-                    })
-    })
-    public ResponseEntity<?> createCourse(@Valid @RequestBody Course course) {
-        return ResponseEntity.ok(courseService.createCourse(course));
-    }
-
 
     @PutMapping("galaxy/{galaxyId}/course/{courseId}")
     @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.role.GeneralRoleType).BIG_BROTHER)")

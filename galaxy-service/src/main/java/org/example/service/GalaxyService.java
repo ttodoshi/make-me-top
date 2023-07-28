@@ -1,7 +1,6 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.example.dto.galaxy.GalaxyCreateRequest;
 import org.example.dto.galaxy.GalaxyDTO;
 import org.example.dto.galaxy.GalaxyGetResponse;
@@ -31,9 +30,6 @@ public class GalaxyService {
 
     private final ModelMapper mapper;
 
-    @Setter
-    private String token;
-
     public List<Galaxy> getAllGalaxies() {
         return galaxyRepository.findAll();
     }
@@ -59,7 +55,6 @@ public class GalaxyService {
             throw new GalaxyAlreadyExistsException(galaxyCreateRequest.getGalaxyName());
         Galaxy galaxy = mapper.map(galaxyCreateRequest, Galaxy.class);
         Integer savedGalaxyId = galaxyRepository.save(galaxy).getGalaxyId();
-        orbitService.setToken(token);
         for (OrbitWithStarSystemsCreateRequest orbit : galaxyCreateRequest.getOrbitList()) {
             orbitService.createOrbit(savedGalaxyId, orbit);
         }

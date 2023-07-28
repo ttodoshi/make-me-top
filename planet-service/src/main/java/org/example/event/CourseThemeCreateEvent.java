@@ -1,4 +1,4 @@
-package org.example.dto.coursetheme;
+package org.example.event;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CourseThemeCreateRequest {
+public class CourseThemeCreateEvent {
     private Integer courseThemeId;
     private String title;
     private String description;

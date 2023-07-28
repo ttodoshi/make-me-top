@@ -1,7 +1,6 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.example.dto.orbit.OrbitDTO;
 import org.example.dto.orbit.OrbitWithStarSystemsCreateRequest;
 import org.example.dto.orbit.OrbitWithStarSystemsGetResponse;
@@ -32,9 +31,6 @@ public class OrbitService {
     private final StarSystemService systemService;
 
     private final ModelMapper mapper;
-
-    @Setter
-    private String token;
 
     public OrbitWithStarSystemsGetResponse getOrbitWithSystemList(Integer orbitId) {
         if (!orbitRepository.existsById(orbitId))
@@ -77,7 +73,6 @@ public class OrbitService {
             StarSystem system = mapper.map(currentSystem, StarSystem.class);
             system.setOrbitId(savedOrbit.getOrbitId());
             StarSystem savedSystem = starSystemRepository.save(system);
-            systemService.setToken(token);
             systemService.createCourse(savedSystem.getSystemId(), currentSystem);
         }
         return getOrbitWithSystemList(savedOrbit.getOrbitId());

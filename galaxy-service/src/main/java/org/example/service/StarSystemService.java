@@ -1,11 +1,9 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.example.config.mapper.DependencyMapper;
-import org.example.dto.course.CourseDTO;
 import org.example.dto.starsystem.*;
-import org.example.exception.classes.connectEX.ConnectException;
+import org.example.event.CourseCreateEvent;
 import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
 import org.example.exception.classes.orbitEX.OrbitNotFoundException;
 import org.example.exception.classes.systemEX.SystemAlreadyExistsException;
@@ -16,11 +14,9 @@ import org.example.repository.GalaxyRepository;
 import org.example.repository.OrbitRepository;
 import org.example.repository.StarSystemRepository;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.*;
 
@@ -35,10 +31,7 @@ public class StarSystemService {
     private final ModelMapper mapper;
     private final DependencyMapper dependencyMapper;
 
-    @Setter
-    private String token;
-    @Value("${course_app_url}")
-    private String COURSE_APP_URL;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     public StarSystemWithDependenciesGetResponse getStarSystemByIdWithDependencies(Integer systemId) {
         if (!starSystemRepository.existsById(systemId))
@@ -85,17 +78,7 @@ public class StarSystemService {
     }
 
     public void createCourse(Integer courseId, StarSystemCreateRequest starSystem) {
-        WebClient webClient = WebClient.create(COURSE_APP_URL);
-        webClient.post()
-                .uri("/course/")
-                .bodyValue(new CourseDTO(courseId, starSystem.getSystemName(), new Date(), new Date(), starSystem.getDescription()))
-                .header("Authorization", token)
-                .retrieve()
-                .onStatus(HttpStatus::isError, response -> {
-                    throw new ConnectException();
-                })
-                .bodyToMono(Void.class)
-                .subscribe();
+        kafkaTemplate.send("courseTopic", new CourseCreateEvent(courseId, starSystem.getSystemName(), starSystem.getDescription()));
     }
 
     public StarSystem updateSystem(StarSystemDTO starSystem, Integer systemId) {

@@ -8,6 +8,7 @@ import org.example.dto.explorer.ExplorerWithRating;
 import org.example.dto.keeper.KeeperCreateRequest;
 import org.example.dto.keeper.KeeperWithRating;
 import org.example.dto.starsystem.StarSystemDTO;
+import org.example.event.CourseCreateEvent;
 import org.example.exception.classes.connectEX.ConnectException;
 import org.example.exception.classes.courseEX.CourseAlreadyExistsException;
 import org.example.exception.classes.courseEX.CourseNotFoundException;
@@ -24,9 +25,9 @@ import org.example.repository.PersonRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.Duration;
@@ -141,9 +142,9 @@ public class CourseService {
         ).collect(Collectors.toList());
     }
 
-    @Transactional
-    public Course createCourse(Course course) {
-        return courseRepository.save(course);
+    @KafkaListener(topics = "courseTopic", containerFactory = "courseKafkaListenerContainerFactory")
+    public void createCourse(CourseCreateEvent course) {
+        courseRepository.save(mapper.map(course, Course.class));
     }
 
     public Course updateCourse(Integer galaxyId, Integer courseId, CourseUpdateRequest course) {
