@@ -2,6 +2,7 @@ package org.example.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.example.config.security.RoleService;
 import org.example.dto.course.CourseUpdateRequest;
 import org.example.dto.explorer.ExplorerWithRating;
 import org.example.dto.keeper.KeeperCreateRequest;
@@ -15,6 +16,7 @@ import org.example.exception.classes.personEX.PersonNotFoundException;
 import org.example.model.Keeper;
 import org.example.model.Person;
 import org.example.model.course.Course;
+import org.example.model.role.AuthenticationRoleType;
 import org.example.repository.CourseRepository;
 import org.example.repository.ExplorerRepository;
 import org.example.repository.KeeperRepository;
@@ -39,6 +41,8 @@ public class CourseService {
     private final ExplorerRepository explorerRepository;
     private final PersonRepository personRepository;
 
+    private final RoleService roleService;
+
     private final ModelMapper mapper;
 
     @Setter
@@ -54,16 +58,18 @@ public class CourseService {
                 .orElseThrow(() -> new CourseNotFoundException(courseId)));
         Integer authenticatedPersonId = getAuthenticatedPersonId();
         List<ExplorerWithRating> explorers = getExplorersForCourse(courseId);
-        explorers.stream()
-                // if person is studying on course
-                .filter(e -> e.getPersonId().equals(authenticatedPersonId))
-                .findAny()
-                .ifPresent(e -> {
-                    response.put("you", e);
-                    KeeperWithRating yourKeeper = mapper.map(keeperRepository.getKeeperForPersonOnCourse(e.getPersonId(), courseId), KeeperWithRating.class);
-                    yourKeeper.setRating(getKeeperRating(yourKeeper.getPersonId()));
-                    response.put("yourKeeper", yourKeeper);
-                });
+        if (roleService.hasAnyAuthenticationRole(AuthenticationRoleType.EXPLORER)) {
+            explorers.stream()
+                    // if person is studying on course
+                    .filter(e -> e.getPersonId().equals(authenticatedPersonId))
+                    .findAny()
+                    .ifPresent(e -> {
+                        response.put("you", e);
+                        KeeperWithRating yourKeeper = mapper.map(keeperRepository.getKeeperForPersonOnCourse(e.getPersonId(), courseId), KeeperWithRating.class);
+                        yourKeeper.setRating(getKeeperRating(yourKeeper.getPersonId()));
+                        response.put("yourKeeper", yourKeeper);
+                    });
+        }
         response.put("explorers", explorers);
         response.put("keepers", getKeepersForCourse(courseId));
         return response;

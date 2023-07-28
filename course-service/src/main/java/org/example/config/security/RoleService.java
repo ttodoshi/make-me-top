@@ -3,9 +3,10 @@ package org.example.config.security;
 import lombok.RequiredArgsConstructor;
 import org.example.exception.classes.coursethemeEX.CourseThemeNotFoundException;
 import org.example.exception.classes.homeworkEX.HomeworkNotFoundException;
+import org.example.model.Person;
+import org.example.model.role.AuthenticationRoleType;
 import org.example.model.role.CourseRoleType;
 import org.example.model.role.GeneralRoleType;
-import org.example.model.Person;
 import org.example.repository.CourseRepository;
 import org.example.repository.ExplorerRepository;
 import org.example.repository.HomeworkRepository;
@@ -23,6 +24,14 @@ public class RoleService {
     private final HomeworkRepository homeworkRepository;
 
     public boolean hasAnyGeneralRole(GeneralRoleType role) {
+        for (GrantedAuthority authority : SecurityContextHolder.getContext().getAuthentication().getAuthorities()) {
+            if (authority.getAuthority().equals(role.name()))
+                return true;
+        }
+        return false;
+    }
+
+    public boolean hasAnyAuthenticationRole(AuthenticationRoleType role) {
         for (GrantedAuthority authority : SecurityContextHolder.getContext().getAuthentication().getAuthorities()) {
             if (authority.getAuthority().equals(role.name()))
                 return true;
