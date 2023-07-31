@@ -18,6 +18,5 @@ public class CourseThemeCompletion {
     @JoinColumn(table = "explorer", name = "explorer_id")
     private Integer explorerId;
     private Integer courseThemeId;
-    private Boolean completed;
     private Integer mark;
 }

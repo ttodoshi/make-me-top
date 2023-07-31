@@ -36,7 +36,7 @@ public interface ExplorerRepository extends JpaRepository<Explorer, Integer> {
             ") = (\n" +
             "\tSELECT COUNT(*) FROM CourseThemeCompletion ctp1\n" +
             "\tJOIN Explorer e1 ON e1.explorerId = ctp1.explorerId\n" +
-            "\tWHERE ctp1.completed = TRUE AND e1.explorerId = e.explorerId\n" +
+            "\tWHERE e1.explorerId = e.explorerId\n" +
             ")\n" +
             "AND e.explorerId NOT IN (\n" +
             "\tSELECT cm.explorerId FROM CourseMark cm\n" +

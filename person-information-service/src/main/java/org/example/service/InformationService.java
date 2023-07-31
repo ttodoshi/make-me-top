@@ -7,9 +7,9 @@ import org.example.dto.feedback.KeeperFeedbackDTO;
 import org.example.dto.feedback.PersonWithRating;
 import org.example.dto.homework.HomeworkRequestDTO;
 import org.example.dto.keeper.KeeperDTO;
-import org.example.dto.systemprogress.CurrentCourseProgressDTO;
-import org.example.dto.systemprogress.PlanetCompletionDTO;
-import org.example.dto.systemprogress.SystemWithPlanetsProgress;
+import org.example.dto.courseprogress.CurrentCourseProgressDTO;
+import org.example.dto.courseprogress.CourseThemeCompletionDTO;
+import org.example.dto.courseprogress.CourseWithThemesProgress;
 import org.example.exception.classes.coursethemeEX.CourseThemeNotFoundException;
 import org.example.exception.classes.personEX.PersonNotFoundException;
 import org.example.model.Explorer;
@@ -32,7 +32,7 @@ public class InformationService {
     private final KeeperRepository keeperRepository;
     private final CourseRegistrationRequestRepository courseRegistrationRequestRepository;
     private final HomeworkRequestRepository homeworkRequestRepository;
-    private final PlanetProgressRepository planetProgressRepository;
+    private final CourseThemeCompletionRepository courseThemeCompletionRepository;
     private final CourseMarkRepository courseMarkRepository;
     private final CourseThemeRepository courseThemeRepository;
     private final CourseRepository courseRepository;
@@ -79,16 +79,16 @@ public class InformationService {
         response.put("person", authenticatedPerson);
         response.put("rating", getExplorerRating(authenticatedPersonId));
         response.put("totalSystems", explorerRepository.getExplorerSystemsCount(authenticatedPersonId));
-        getCurrentSystemProgress(authenticatedPersonId)
+        getCurrentCourseProgress(authenticatedPersonId)
                 .ifPresent(p -> response.put("currentSystem", p));
         response.put("investigatedSystems", courseMarkRepository.getInvestigatedSystemsByPersonId(authenticatedPersonId));
         response.put("ratingTable", getRatingTable());
         return response;
     }
 
-    private Optional<CurrentCourseProgressDTO> getCurrentSystemProgress(Integer personId) {
+    private Optional<CurrentCourseProgressDTO> getCurrentCourseProgress(Integer personId) {
         Optional<CurrentCourseProgressDTO> currentCourseProgressOptional = Optional.empty();
-        Optional<Integer> currentSystemIdOptional = planetProgressRepository.getCurrentInvestigatedSystemId(personId);
+        Optional<Integer> currentSystemIdOptional = courseThemeCompletionRepository.getCurrentInvestigatedCourseId(personId);
         if (currentSystemIdOptional.isEmpty())
             return currentCourseProgressOptional;
         Integer currentSystemId = currentSystemIdOptional.get();
@@ -96,7 +96,7 @@ public class InformationService {
         if (explorerOptional.isEmpty())
             return currentCourseProgressOptional;
         Explorer explorer = explorerOptional.get();
-        Double progress = planetProgressRepository.getSystemProgress(explorer.getExplorerId(), currentSystemId);
+        Double progress = courseThemeCompletionRepository.getCourseProgress(explorer.getExplorerId(), currentSystemId);
         Integer currentThemeId = getCurrentCourseThemeId(explorer);
         CourseTheme currentTheme = courseThemeRepository.findById(currentThemeId).orElseThrow(() -> new CourseThemeNotFoundException(currentThemeId));
         Course currentCourse = courseRepository.getReferenceById(currentSystemId);
@@ -105,27 +105,27 @@ public class InformationService {
     }
 
     private Integer getCurrentCourseThemeId(Explorer explorer) {
-        List<PlanetCompletionDTO> planetsProgress = getPlanetsProgress(explorer).getPlanetsWithProgress();
-        for (PlanetCompletionDTO planet : planetsProgress) {
+        List<CourseThemeCompletionDTO> planetsProgress = getThemesProgress(explorer).getThemesWithProgress();
+        for (CourseThemeCompletionDTO planet : planetsProgress) {
             if (!planet.getCompleted())
                 return planet.getCourseThemeId();
         }
         return planetsProgress.get(planetsProgress.size() - 1).getCourseThemeId();
     }
 
-    private SystemWithPlanetsProgress getPlanetsProgress(Explorer explorer) {
+    private CourseWithThemesProgress getThemesProgress(Explorer explorer) {
         Course course = courseRepository.getReferenceById(explorer.getCourseId());
-        List<PlanetCompletionDTO> planetsCompletion = new LinkedList<>();
+        List<CourseThemeCompletionDTO> planetsCompletion = new LinkedList<>();
         for (CourseTheme ct : courseThemeRepository.findCourseThemesByCourseIdOrderByCourseThemeNumberAsc(explorer.getCourseId())) {
-            Boolean planetCompleted = planetProgressRepository.findCourseThemeProgressByExplorerIdAndCourseThemeId(explorer.getExplorerId(), ct.getCourseThemeId()).isPresent();
+            Boolean planetCompleted = courseThemeCompletionRepository.findCourseThemeProgressByExplorerIdAndCourseThemeId(explorer.getExplorerId(), ct.getCourseThemeId()).isPresent();
             planetsCompletion.add(
-                    new PlanetCompletionDTO(ct.getCourseThemeId(), ct.getTitle(), planetCompleted)
+                    new CourseThemeCompletionDTO(ct.getCourseThemeId(), ct.getTitle(), planetCompleted)
             );
         }
-        return SystemWithPlanetsProgress.builder()
+        return CourseWithThemesProgress.builder()
                 .courseId(course.getCourseId())
                 .title(course.getTitle())
-                .planetsWithProgress(planetsCompletion)
+                .themesWithProgress(planetsCompletion)
                 .build();
     }
 
@@ -167,7 +167,7 @@ public class InformationService {
         List<KeeperFeedbackDTO> feedback = keeperFeedbackRepository.getExplorerCommentsByPersonId(personId);
         response.put("totalFeedback", feedback.size());
         response.put("totalSystems", explorerRepository.getExplorerSystemsCount(personId));
-        Optional<CurrentCourseProgressDTO> currentCourseOptional = getCurrentSystemProgress(personId);
+        Optional<CurrentCourseProgressDTO> currentCourseOptional = getCurrentCourseProgress(personId);
         if (currentCourseOptional.isEmpty()) {
             Optional<CourseRegistrationRequestDTO> studyRequestOptional = courseRegistrationRequestRepository.getStudyRequestByPersonId(personId);
             if (studyRequestOptional.isPresent() && keeperRepository.getReferenceById(studyRequestOptional.get().getKeeperId()).getPersonId().equals(authenticatedPersonId)) {
@@ -175,7 +175,11 @@ public class InformationService {
             }
         } else {
             if (roleService.hasAnyAuthenticationRole(AuthenticationRoleType.KEEPER)) {
-                List<HomeworkRequestDTO> homeworkRequests = homeworkRequestRepository.getReviewRequestsByKeeperPersonId(authenticatedPersonId).stream().filter(h -> h.getPersonId().equals(personId)).collect(Collectors.toList());
+                List<HomeworkRequestDTO> homeworkRequests = homeworkRequestRepository
+                        .getReviewRequestsByKeeperPersonId(authenticatedPersonId)
+                        .stream()
+                        .filter(h -> h.getPersonId().equals(personId))
+                        .collect(Collectors.toList());
                 if (!homeworkRequests.isEmpty()) {
                     Optional<HomeworkRequestDTO> homeworkRequestOptional = homeworkRequests
                             .stream()

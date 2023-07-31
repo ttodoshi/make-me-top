@@ -23,7 +23,7 @@ public interface KeeperFeedbackRepository extends JpaRepository<KeeperFeedback, 
             "JOIN Explorer e ON e.explorerId = kf.explorerId\n" +
             "JOIN Person p ON p.personId = e.personId\n" +
             "GROUP BY p.personId\n" +
-            "ORDER BY rating")
+            "ORDER BY rating DESC")
     List<PersonWithRating> getRatingTable();
 
     @Query(value = "SELECT new org.example.dto.feedback.KeeperFeedbackDTO(" +

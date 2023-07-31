@@ -9,6 +9,11 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
 @NoArgsConstructor
-public class KeeperWithRating extends KeeperDTO {
+public class KeeperWithRating extends KeeperDTO implements Comparable<KeeperWithRating> {
     private Double rating;
+
+    @Override
+    public int compareTo(KeeperWithRating keeperWithRating) {
+        return Double.compare(keeperWithRating.getRating(), this.getRating());
+    }
 }

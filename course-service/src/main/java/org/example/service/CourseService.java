@@ -71,8 +71,11 @@ public class CourseService {
                         response.put("yourKeeper", yourKeeper);
                     });
         }
+        Collections.sort(explorers);
+        List<KeeperWithRating> keepers = getKeepersForCourse(courseId);
+        Collections.sort(keepers);
         response.put("explorers", explorers);
-        response.put("keepers", getKeepersForCourse(courseId));
+        response.put("keepers", keepers);
         return response;
     }
 

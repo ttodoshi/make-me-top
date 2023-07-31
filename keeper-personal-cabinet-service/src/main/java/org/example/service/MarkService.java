@@ -2,11 +2,12 @@ package org.example.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.dto.coursemark.MarkDTO;
-import org.example.dto.systemprogress.CourseThemeProgressDTO;
-import org.example.dto.systemprogress.PlanetCompletionDTO;
-import org.example.dto.systemprogress.SystemWithPlanetsProgress;
+import org.example.dto.courseprogress.CourseThemeCompletionDTO;
+import org.example.dto.courseprogress.CourseThemeProgressDTO;
+import org.example.dto.courseprogress.CourseWithThemesProgress;
 import org.example.exception.classes.courseEX.CourseNotFoundException;
 import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
+import org.example.exception.classes.homeworkEX.HomeworkNotCompletedException;
 import org.example.exception.classes.keeperEX.DifferentKeeperException;
 import org.example.exception.classes.markEX.ExplorerDoesNotNeedMarkException;
 import org.example.exception.classes.markEX.UnexpectedMarkValueException;
@@ -32,10 +33,11 @@ import java.util.*;
 public class MarkService {
     private final CourseMarkRepository courseMarkRepository;
     private final ExplorerRepository explorerRepository;
-    private final PlanetProgressRepository planetProgressRepository;
+    private final CourseThemeCompletionRepository courseThemeCompletionRepository;
     private final CourseRepository courseRepository;
     private final CourseThemeRepository courseThemeRepository;
     private final KeeperRepository keeperRepository;
+    private final HomeworkRepository homeworkRepository;
 
     private final ModelMapper mapper;
 
@@ -78,45 +80,55 @@ public class MarkService {
     }
 
     private void saveProgress(Integer themeId, MarkDTO mark) {
-        Explorer explorer = explorerRepository.findById(mark.getExplorerId()).orElseThrow(ExplorerNotFoundException::new);
+        Explorer explorer = explorerRepository.findById(mark.getExplorerId())
+                .orElseThrow(ExplorerNotFoundException::new);
         if (isNotKeeperForThisExplorer(mark.getExplorerId()))
             throw new DifferentKeeperException();
         if (mark.getValue() < 1 || mark.getValue() > 5)
             throw new UnexpectedMarkValueException();
-        Optional<CourseThemeCompletion> courseThemeProgressOptional = planetProgressRepository
+        Optional<CourseThemeCompletion> courseThemeProgressOptional = courseThemeCompletionRepository
                 .findCourseThemeProgressByExplorerIdAndCourseThemeId(explorer.getExplorerId(), themeId);
-        if (courseThemeProgressOptional.isPresent() && courseThemeProgressOptional.get().getCompleted())
+        if (courseThemeProgressOptional.isPresent())
             throw new PlanetAlreadyCompletedException(courseThemeProgressOptional.get().getCourseThemeId());
         Integer currentThemeId = getCurrentCourseThemeId(explorer);
         if (!currentThemeId.equals(themeId))
             throw new UnexpectedCourseThemeException(themeId, currentThemeId);
-        planetProgressRepository.save(mapper.map(new CourseThemeProgressDTO(
-                        explorer.getExplorerId(), themeId, true, mark.getValue()),
+        if (homeworkNotCompleted(themeId, explorer))
+            throw new HomeworkNotCompletedException(themeId);
+        courseThemeCompletionRepository.save(mapper.map(new CourseThemeProgressDTO(
+                        explorer.getExplorerId(), themeId, mark.getValue()),
                 CourseThemeCompletion.class));
     }
 
     private Integer getCurrentCourseThemeId(Explorer explorer) {
-        List<PlanetCompletionDTO> planetsProgress = getPlanetsProgress(explorer).getPlanetsWithProgress();
-        for (PlanetCompletionDTO planet : planetsProgress) {
-            if (!planet.getCompleted())
-                return planet.getCourseThemeId();
+        List<CourseThemeCompletionDTO> themesProgress = getThemesProgress(explorer).getThemesWithProgress();
+        for (CourseThemeCompletionDTO theme : themesProgress) {
+            if (!theme.getCompleted())
+                return theme.getCourseThemeId();
         }
-        return planetsProgress.get(planetsProgress.size() - 1).getCourseThemeId();
+        return themesProgress.get(themesProgress.size() - 1).getCourseThemeId();
     }
 
-    private SystemWithPlanetsProgress getPlanetsProgress(Explorer explorer) {
-        Course course = courseRepository.findById(explorer.getCourseId()).orElseThrow(() -> new CourseNotFoundException(explorer.getCourseId()));
-        List<PlanetCompletionDTO> planetsCompletion = new LinkedList<>();
+    private CourseWithThemesProgress getThemesProgress(Explorer explorer) {
+        Course course = courseRepository.findById(explorer.getCourseId())
+                .orElseThrow(() -> new CourseNotFoundException(explorer.getCourseId()));
+        List<CourseThemeCompletionDTO> themesCompletion = new LinkedList<>();
         for (CourseTheme ct : courseThemeRepository.findCourseThemesByCourseIdOrderByCourseThemeNumberAsc(explorer.getCourseId())) {
-            Boolean planetCompleted = planetProgressRepository.findCourseThemeProgressByExplorerIdAndCourseThemeId(explorer.getExplorerId(), ct.getCourseThemeId()).isPresent();
-            planetsCompletion.add(
-                    new PlanetCompletionDTO(ct.getCourseThemeId(), ct.getTitle(), planetCompleted)
+            Boolean themeCompleted = courseThemeCompletionRepository
+                    .findCourseThemeProgressByExplorerIdAndCourseThemeId(explorer.getExplorerId(), ct.getCourseThemeId()).isPresent();
+            themesCompletion.add(
+                    new CourseThemeCompletionDTO(ct.getCourseThemeId(), ct.getTitle(), themeCompleted)
             );
         }
-        return SystemWithPlanetsProgress.builder()
+        return CourseWithThemesProgress.builder()
                 .courseId(explorer.getCourseId())
                 .title(course.getTitle())
-                .planetsWithProgress(planetsCompletion)
+                .themesWithProgress(themesCompletion)
                 .build();
+    }
+
+    private boolean homeworkNotCompleted(Integer themeId, Explorer explorer) {
+        return !(homeworkRepository.findAllByCourseThemeId(themeId).size() ==
+                homeworkRepository.findAllCompletedByThemeId(themeId, explorer.getExplorerId()).size());
     }
 }

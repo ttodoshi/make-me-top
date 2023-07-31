@@ -24,9 +24,9 @@ public class CourseRegistrationRequestService {
     private final CourseRegistrationRequestStatusRepository courseRegistrationRequestStatusRepository;
     private final CourseRepository courseRepository;
     private final KeeperRepository keeperRepository;
-    private final PlanetProgressRepository planetProgressRepository;
+    private final CourseThemeCompletionRepository courseThemeCompletionRepository;
 
-    private final SystemProgressService systemProgressService;
+    private final CourseProgressService courseProgressService;
 
     private final ModelMapper mapper;
 
@@ -40,7 +40,7 @@ public class CourseRegistrationRequestService {
             throw new PersonIsStudyingException();
         if (isPersonKeeperOnCourse(authenticatedPersonId, request.getCourseId()))
             throw new PersonIsKeeperException();
-        if (systemProgressService.hasUncompletedParents(authenticatedPersonId, request.getCourseId()))
+        if (courseProgressService.hasUncompletedParents(authenticatedPersonId, request.getCourseId()))
             throw new SystemParentsNotCompletedException(request.getCourseId());
         CourseRegistrationRequest courseRegistrationRequest = mapper.map(request, CourseRegistrationRequest.class);
         courseRegistrationRequest.setStatusId(
@@ -62,7 +62,7 @@ public class CourseRegistrationRequestService {
     }
 
     private boolean isCurrentlyStudying(Integer authenticatedPersonId) {
-        return planetProgressRepository.getCurrentInvestigatedSystemId(authenticatedPersonId) != null;
+        return courseThemeCompletionRepository.getCurrentInvestigatedCourseId(authenticatedPersonId) != null;
     }
 
     private boolean isPersonKeeperOnCourse(Integer authenticatedPersonId, Integer courseId) {
