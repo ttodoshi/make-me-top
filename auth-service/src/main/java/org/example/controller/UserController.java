@@ -35,8 +35,23 @@ public class UserController {
                                     mediaType = "*")
                     })
     })
-    public ResponseEntity<?> loginUser(@Valid @RequestBody LoginRequest loginRequest,
-                                       HttpServletResponse response) {
+    public ResponseEntity<?> logout(@Valid @RequestBody LoginRequest loginRequest,
+                                    HttpServletResponse response) {
         return ResponseEntity.ok(personService.login(loginRequest, response));
+    }
+
+    @PostMapping("logout")
+    @Operation(summary = "Log out", tags = "authentication")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Log out",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json")
+                    })
+    })
+    public ResponseEntity<?> logout(HttpServletResponse response) {
+        return ResponseEntity.ok(personService.logout(response));
     }
 }

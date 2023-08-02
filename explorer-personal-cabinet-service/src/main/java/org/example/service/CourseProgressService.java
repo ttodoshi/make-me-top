@@ -41,7 +41,7 @@ public class CourseProgressService {
 
     @Setter
     private String token;
-    @Value("${app_galaxy_url}")
+    @Value("${galaxy_app_url}")
     private String GALAXY_APP_URL;
 
     public CoursesState getCoursesProgressForCurrentUser(Integer galaxyId) {

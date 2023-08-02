@@ -82,6 +82,8 @@ services:
       - postgres
     volumes:
       - ./.logs/galaxy-service/:/app/logs/
+    env_file:
+      - .env
     networks:
       postgres:
         ipv4_address: 10.10.0.8
@@ -94,6 +96,8 @@ services:
       - postgres
     volumes:
       - ./.logs/planet-service/:/app/logs/
+    env_file:
+      - .env
     networks:
       postgres:
         ipv4_address: 10.10.0.7
@@ -107,6 +111,8 @@ services:
       - postgres
     volumes:
       - ./.logs/auth-service/:/app/logs/
+    env_file:
+      - .env
     networks:
       postgres:
         ipv4_address: 10.10.0.6
@@ -120,6 +126,8 @@ services:
       - postgres
     volumes:
       - ./.logs/course-service/:/app/logs/
+    env_file:
+      - .env
     networks:
       postgres:
         ipv4_address: 10.10.0.9
@@ -133,6 +141,8 @@ services:
       - postgres
     volumes:
       - ./.logs/person-information-service/:/app/logs/
+    env_file:
+      - .env
     networks:
       postgres:
         ipv4_address: 10.10.0.10
@@ -145,6 +155,8 @@ services:
       - postgres
     volumes:
       - ./.logs/explorer-cabinet-service/:/app/logs/
+    env_file:
+      - .env
     networks:
       postgres:
         ipv4_address: 10.10.0.5
@@ -157,6 +169,8 @@ services:
       - postgres
     volumes:
       - ./.logs/keeper-cabinet-service/:/app/logs/
+    env_file:
+      - .env
     networks:
       postgres:
         ipv4_address: 10.10.0.4
