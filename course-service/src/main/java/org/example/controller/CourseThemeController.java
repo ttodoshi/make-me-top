@@ -69,6 +69,6 @@ public class CourseThemeController {
     })
     public ResponseEntity<?> updateCourseTheme(@Valid @RequestBody CourseThemeUpdateRequest theme,
                                                @PathVariable Integer themeId) {
-        return ResponseEntity.ok(courseThemeService.updateCourseTheme(theme, themeId));
+        return ResponseEntity.ok(courseThemeService.updateCourseTheme(themeId, theme));
     }
 }

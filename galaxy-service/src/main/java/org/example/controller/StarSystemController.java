@@ -89,7 +89,7 @@ public class StarSystemController {
     })
     public ResponseEntity<?> updateSystem(@Valid @RequestBody StarSystemDTO starSystem,
                                           @PathVariable("systemId") Integer systemId) {
-        return ResponseEntity.ok(starSystemService.updateSystem(starSystem, systemId));
+        return ResponseEntity.ok(starSystemService.updateSystem(systemId, starSystem));
     }
 
     @DeleteMapping("system/{systemId}")

@@ -8,7 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.dependency.DependencyRequest;
 import org.example.dto.dependency.DependencyCreateRequest;
-import org.example.service.DependencyService;
+import org.example.service.SystemDependencyService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -23,7 +23,7 @@ import java.util.List;
 @JsonIgnoreProperties({"trace"})
 @Validated
 public class SystemDependencyController {
-    private final DependencyService dependencyService;
+    private final SystemDependencyService systemDependencyService;
 
     @PostMapping
     @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
@@ -38,7 +38,7 @@ public class SystemDependencyController {
                     })
     })
     public ResponseEntity<?> addDependency(@RequestBody List<@Valid DependencyCreateRequest> dependency) {
-        return ResponseEntity.ok(dependencyService.addDependency(dependency));
+        return ResponseEntity.ok(systemDependencyService.addDependency(dependency));
     }
 
     @DeleteMapping
@@ -54,6 +54,6 @@ public class SystemDependencyController {
                     })
     })
     public ResponseEntity<?> deleteDependency(@Valid @RequestBody DependencyRequest model) {
-        return ResponseEntity.ok(dependencyService.deleteDependency(model));
+        return ResponseEntity.ok(systemDependencyService.deleteDependency(model));
     }
 }

@@ -188,12 +188,6 @@ public class ErrorHandler {
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(MarkAlreadyExists.class)
-    public ResponseEntity<ErrorResponse> handleMarkAlreadyExists(Exception e) {
-        logWarning(e);
-        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
-    }
-
     @ExceptionHandler(HomeworkIsStillEditingException.class)
     public ResponseEntity<ErrorResponse> handleHomeworkIsStillEditingException(Exception e) {
         logWarning(e);

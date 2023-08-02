@@ -48,7 +48,7 @@ public class HomeworkRequestController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> sendRequest(@PathVariable("themeId") Integer themeId) {
+    public ResponseEntity<?> getHomeworkRequests(@PathVariable("themeId") Integer themeId) {
         return ResponseEntity.ok(homeworkRequestService.getHomeworkRequests(themeId));
     }
 }

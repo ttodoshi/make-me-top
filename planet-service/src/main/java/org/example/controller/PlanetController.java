@@ -78,7 +78,7 @@ public class PlanetController {
                                               @Valid @RequestBody PlanetUpdateRequest planet,
                                               @RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token) {
         planetService.setToken(token);
-        return ResponseEntity.ok(planetService.updatePlanet(planet, planetId));
+        return ResponseEntity.ok(planetService.updatePlanet(planetId, planet));
     }
 
     @DeleteMapping("planet/{planetId}")

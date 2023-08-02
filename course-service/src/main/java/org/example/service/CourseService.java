@@ -10,10 +10,7 @@ import org.example.dto.keeper.KeeperWithRating;
 import org.example.dto.starsystem.StarSystemDTO;
 import org.example.event.CourseCreateEvent;
 import org.example.exception.classes.connectEX.ConnectException;
-import org.example.exception.classes.courseEX.CourseAlreadyExistsException;
 import org.example.exception.classes.courseEX.CourseNotFoundException;
-import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
-import org.example.exception.classes.personEX.PersonNotFoundException;
 import org.example.model.Keeper;
 import org.example.model.Person;
 import org.example.model.course.Course;
@@ -21,7 +18,7 @@ import org.example.model.role.AuthenticationRoleType;
 import org.example.repository.CourseRepository;
 import org.example.repository.ExplorerRepository;
 import org.example.repository.KeeperRepository;
-import org.example.repository.PersonRepository;
+import org.example.validator.CourseValidator;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -40,16 +37,15 @@ public class CourseService {
     private final CourseRepository courseRepository;
     private final KeeperRepository keeperRepository;
     private final ExplorerRepository explorerRepository;
-    private final PersonRepository personRepository;
 
+    private final GalaxyRequestSender galaxyRequestSender;
+    private final CourseValidator courseValidator;
     private final RoleService roleService;
 
     private final ModelMapper mapper;
 
     @Setter
     private String token;
-    @Value("${galaxy_app_url}")
-    private String GALAXY_APP_URL;
     @Value("${info_app_url}")
     private String INFO_APP_URL;
 
@@ -59,6 +55,9 @@ public class CourseService {
                 .orElseThrow(() -> new CourseNotFoundException(courseId)));
         Integer authenticatedPersonId = getAuthenticatedPersonId();
         List<ExplorerWithRating> explorers = getExplorersForCourse(courseId);
+        Collections.sort(explorers);
+        List<KeeperWithRating> keepers = getKeepersForCourse(courseId);
+        Collections.sort(keepers);
         if (roleService.hasAnyAuthenticationRole(AuthenticationRoleType.EXPLORER)) {
             explorers.stream()
                     // if person is studying on course
@@ -71,9 +70,6 @@ public class CourseService {
                         response.put("yourKeeper", yourKeeper);
                     });
         }
-        Collections.sort(explorers);
-        List<KeeperWithRating> keepers = getKeepersForCourse(courseId);
-        Collections.sort(keepers);
         response.put("explorers", explorers);
         response.put("keepers", keepers);
         return response;
@@ -137,12 +133,14 @@ public class CourseService {
     }
 
     public List<Course> getCoursesByGalaxyId(Integer galaxyId) {
-        List<Integer> systems = Arrays.stream(getSystemsIdByGalaxyId(galaxyId))
+        galaxyRequestSender.setToken(token);
+        List<Integer> systems = Arrays.stream(galaxyRequestSender.getSystemsByGalaxyId(galaxyId))
                 .mapToInt(StarSystemDTO::getSystemId)
                 .boxed().collect(Collectors.toList());
-        return courseRepository.findAll().stream().filter(
-                c -> systems.contains(c.getCourseId())
-        ).collect(Collectors.toList());
+        return courseRepository.findAll()
+                .stream()
+                .filter(c -> systems.contains(c.getCourseId()))
+                .collect(Collectors.toList());
     }
 
     @KafkaListener(topics = "courseTopic", containerFactory = "courseKafkaListenerContainerFactory")
@@ -152,37 +150,15 @@ public class CourseService {
 
     public Course updateCourse(Integer galaxyId, Integer courseId, CourseUpdateRequest course) {
         Course updatedCourse = courseRepository.findById(courseId).orElseThrow(() -> new CourseNotFoundException(courseId));
-        boolean courseTitleExists = Arrays.stream(getSystemsIdByGalaxyId(galaxyId))
-                .anyMatch(s -> s.getSystemName().equals(updatedCourse.getTitle()) && !s.getSystemId().equals(courseId));
-        if (courseTitleExists)
-            throw new CourseAlreadyExistsException(updatedCourse.getTitle());
+        courseValidator.setToken(token);
+        courseValidator.validatePutRequest(galaxyId, courseId, updatedCourse);
         updatedCourse.setTitle(course.getTitle());
         updatedCourse.setDescription(course.getDescription());
         return courseRepository.save(updatedCourse);
     }
 
-    private StarSystemDTO[] getSystemsIdByGalaxyId(Integer galaxyId) {
-        WebClient webClient = WebClient.create(GALAXY_APP_URL);
-        return webClient.get()
-                .uri("/galaxy/" + galaxyId + "/system/")
-                .header("Authorization", token)
-                .retrieve()
-                .onStatus(HttpStatus.NOT_FOUND::equals, response -> {
-                    throw new GalaxyNotFoundException(galaxyId);
-                })
-                .onStatus(HttpStatus::isError, response -> {
-                    throw new ConnectException();
-                })
-                .bodyToMono(StarSystemDTO[].class)
-                .timeout(Duration.ofSeconds(5))
-                .block();
-    }
-
     public Keeper setKeeperToCourse(Integer courseId, KeeperCreateRequest keeperCreateRequest) {
-        if (!courseRepository.existsById(courseId))
-            throw new CourseNotFoundException(courseId);
-        if (!personRepository.existsById(keeperCreateRequest.getPersonId()))
-            throw new PersonNotFoundException();
+        courseValidator.validateSetKeeperRequest(courseId, keeperCreateRequest);
         return keeperRepository.save(
                 Keeper.builder()
                         .courseId(courseId)

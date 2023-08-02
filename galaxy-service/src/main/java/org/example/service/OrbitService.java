@@ -6,8 +6,6 @@ import org.example.dto.orbit.OrbitWithStarSystemsCreateRequest;
 import org.example.dto.orbit.OrbitWithStarSystemsGetResponse;
 import org.example.dto.starsystem.StarSystemCreateRequest;
 import org.example.dto.starsystem.StarSystemWithDependenciesGetResponse;
-import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
-import org.example.exception.classes.orbitEX.OrbitCoordinatesException;
 import org.example.exception.classes.orbitEX.OrbitNotFoundException;
 import org.example.exception.classes.systemEX.SystemAlreadyExistsException;
 import org.example.model.Orbit;
@@ -15,6 +13,7 @@ import org.example.model.StarSystem;
 import org.example.repository.GalaxyRepository;
 import org.example.repository.OrbitRepository;
 import org.example.repository.StarSystemRepository;
+import org.example.validator.OrbitValidator;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,17 +23,16 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class OrbitService {
-    private final GalaxyRepository galaxyRepository;
     private final OrbitRepository orbitRepository;
     private final StarSystemRepository starSystemRepository;
 
+    private final OrbitValidator orbitValidator;
     private final StarSystemService systemService;
 
     private final ModelMapper mapper;
 
     public OrbitWithStarSystemsGetResponse getOrbitWithSystemList(Integer orbitId) {
-        if (!orbitRepository.existsById(orbitId))
-            throw new OrbitNotFoundException(orbitId);
+        orbitValidator.validateGetWithSystemListRequest(orbitId);
         OrbitWithStarSystemsGetResponse orbit = mapper.map(
                 orbitRepository.getReferenceById(orbitId), OrbitWithStarSystemsGetResponse.class);
         List<StarSystemWithDependenciesGetResponse> systemWithDependenciesList = new LinkedList<>();
@@ -54,21 +52,10 @@ public class OrbitService {
 
     @Transactional
     public OrbitWithStarSystemsGetResponse createOrbit(Integer galaxyId, OrbitWithStarSystemsCreateRequest orbitRequest) {
-        if (!galaxyRepository.existsById(galaxyId))
-            throw new GalaxyNotFoundException(galaxyId);
-        if (orbitExists(galaxyId, orbitRequest.getOrbitLevel()))
-            throw new OrbitCoordinatesException();
+        orbitValidator.validatePostRequest(galaxyId, orbitRequest);
         Orbit orbit = mapper.map(orbitRequest, Orbit.class);
         orbit.setGalaxyId(galaxyId);
         Orbit savedOrbit = orbitRepository.save(orbit);
-        List<StarSystemCreateRequest> savingSystemsList = new LinkedList<>();
-        for (StarSystemCreateRequest system : orbitRequest.getSystemList()) {
-            if (!orbitRepository.existsById(savedOrbit.getOrbitId()))
-                throw new OrbitNotFoundException(savedOrbit.getOrbitId());
-            if (savingSystemsList.contains(system) || systemExists(orbitRepository.getReferenceById(savedOrbit.getOrbitId()).getGalaxyId(), system.getSystemName()))
-                throw new SystemAlreadyExistsException(system.getSystemName());
-            savingSystemsList.add(system);
-        }
         for (StarSystemCreateRequest currentSystem : orbitRequest.getSystemList()) {
             StarSystem system = mapper.map(currentSystem, StarSystem.class);
             system.setOrbitId(savedOrbit.getOrbitId());
@@ -78,16 +65,8 @@ public class OrbitService {
         return getOrbitWithSystemList(savedOrbit.getOrbitId());
     }
 
-    private boolean systemExists(Integer galaxyId, String systemName) {
-        return starSystemRepository.findSystemsByGalaxyId(galaxyId)
-                .stream().anyMatch(s -> Objects.equals(s.getSystemName(), systemName));
-    }
-
     public Orbit updateOrbit(Integer orbitId, OrbitDTO orbit) {
-        if (!galaxyRepository.existsById(orbit.getGalaxyId()))
-            throw new GalaxyNotFoundException(orbit.getGalaxyId());
-        if (orbitExists(orbit.getGalaxyId(), orbitId, orbit.getOrbitLevel()))
-            throw new OrbitCoordinatesException();
+        orbitValidator.validatePutRequest(orbitId, orbit);
         Orbit updatedOrbit = orbitRepository.findById(orbitId).orElseThrow(() -> new OrbitNotFoundException(orbitId));
         updatedOrbit.setOrbitLevel(orbit.getOrbitLevel());
         updatedOrbit.setSystemCount(orbit.getSystemCount());
@@ -95,19 +74,8 @@ public class OrbitService {
         return orbitRepository.save(updatedOrbit);
     }
 
-    private boolean orbitExists(Integer galaxyId, Integer orbitId, Integer orbitLevel) {
-        return orbitRepository.findOrbitsByGalaxyId(galaxyId).stream()
-                .anyMatch(o -> o.getOrbitLevel().equals(orbitLevel) && !o.getOrbitId().equals(orbitId));
-    }
-
-    private boolean orbitExists(Integer galaxyId, Integer orbitLevel) {
-        return orbitRepository.findOrbitsByGalaxyId(galaxyId).stream()
-                .anyMatch(o -> o.getOrbitLevel().equals(orbitLevel));
-    }
-
     public Map<String, String> deleteOrbit(Integer orbitId) {
-        if (!orbitRepository.existsById(orbitId))
-            throw new OrbitNotFoundException(orbitId);
+        orbitValidator.validateDeleteRequest(orbitId);
         orbitRepository.deleteById(orbitId);
         Map<String, String> response = new HashMap<>();
         response.put("message", "Орбита " + orbitId + " была уничтожена неизвестным оружием инопланетной цивилизации");

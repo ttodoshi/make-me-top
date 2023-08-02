@@ -4,11 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.example.dto.homework.HomeworkCreateRequest;
 import org.example.dto.homework.HomeworkDTO;
 import org.example.dto.homework.HomeworkUpdateRequest;
-import org.example.exception.classes.coursethemeEX.CourseThemeNotFoundException;
 import org.example.exception.classes.homeworkEX.HomeworkNotFoundException;
 import org.example.model.homework.Homework;
-import org.example.repository.CourseThemeRepository;
 import org.example.repository.HomeworkRepository;
+import org.example.validator.HomeworkValidator;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
@@ -21,20 +20,19 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class HomeworkService {
     private final HomeworkRepository homeworkRepository;
-    private final CourseThemeRepository courseThemeRepository;
+
+    private final HomeworkValidator homeworkValidator;
 
     private final ModelMapper mapper;
 
     public List<HomeworkDTO> getHomeworkByThemeId(Integer themeId) {
-        if (!courseThemeRepository.existsById(themeId))
-            throw new CourseThemeNotFoundException(themeId);
+        homeworkValidator.validateGetRequest(themeId);
         return homeworkRepository.findHomeworksByCourseThemeId(themeId)
                 .stream().map(h -> mapper.map(h, HomeworkDTO.class)).collect(Collectors.toList());
     }
 
     public Homework addHomework(Integer themeId, HomeworkCreateRequest homework) {
-        if (!courseThemeRepository.existsById(themeId))
-            throw new CourseThemeNotFoundException(themeId);
+        homeworkValidator.validatePostRequest(themeId);
         Homework createdHomework = new Homework();
         createdHomework.setContent(homework.getContent());
         createdHomework.setCourseThemeId(themeId);
@@ -42,8 +40,7 @@ public class HomeworkService {
     }
 
     public Homework updateHomework(Integer homeworkId, HomeworkUpdateRequest homework) {
-        if (!courseThemeRepository.existsById(homework.getCourseThemeId()))
-            throw new CourseThemeNotFoundException(homework.getCourseThemeId());
+        homeworkValidator.validatePutRequest(homework.getCourseThemeId());
         Homework updatedHomework = homeworkRepository.findById(homeworkId).orElseThrow(() -> new HomeworkNotFoundException(homeworkId));
         updatedHomework.setContent(homework.getContent());
         updatedHomework.setCourseThemeId(homework.getCourseThemeId());
@@ -51,9 +48,8 @@ public class HomeworkService {
     }
 
     public Map<String, String> deleteHomework(Integer homeworkId) {
+        homeworkValidator.validateDeleteRequest(homeworkId);
         Map<String, String> response = new HashMap<>();
-        if (!homeworkRepository.existsById(homeworkId))
-            throw new HomeworkNotFoundException(homeworkId);
         homeworkRepository.deleteById(homeworkId);
         response.put("message", "Удалено задание " + homeworkId);
         return response;

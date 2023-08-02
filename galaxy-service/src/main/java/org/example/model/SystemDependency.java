@@ -1,6 +1,5 @@
 package org.example.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -9,7 +8,6 @@ import javax.persistence.*;
 @Entity
 @Table(name = "system_dependency", schema = "galaxy")
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 public class SystemDependency {
     @Id
@@ -22,4 +20,10 @@ public class SystemDependency {
     @JoinColumn(name = "parent_id")
     private StarSystem parent;
     private Boolean isAlternative;
+
+    public SystemDependency(StarSystem child, StarSystem parent, Boolean isAlternative) {
+        this.child = child;
+        this.parent = parent;
+        this.isAlternative = isAlternative;
+    }
 }

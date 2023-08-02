@@ -99,9 +99,9 @@ public class CourseProgressService {
                 .orElseThrow(() -> new ExplorerNotFoundException(systemId));
         List<CourseThemeCompletionDTO> planetsCompletion = new LinkedList<>();
         for (CourseTheme ct : courseThemeRepository.findCourseThemesByCourseIdOrderByCourseThemeNumberAsc(systemId)) {
-            Boolean planetCompleted = courseThemeCompletionRepository.findCourseThemeProgressByExplorerIdAndCourseThemeId(explorer.getExplorerId(), ct.getCourseThemeId()).isPresent();
+            Boolean themeCompleted = courseThemeCompletionRepository.findCourseThemeProgressByExplorerIdAndCourseThemeId(explorer.getExplorerId(), ct.getCourseThemeId()).isPresent();
             planetsCompletion.add(
-                    new CourseThemeCompletionDTO(ct.getCourseThemeId(), ct.getTitle(), planetCompleted)
+                    new CourseThemeCompletionDTO(ct.getCourseThemeId(), ct.getTitle(), themeCompleted)
             );
         }
         return CourseWithThemesProgress.builder()
