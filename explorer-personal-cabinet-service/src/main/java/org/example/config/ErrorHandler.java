@@ -85,7 +85,7 @@ public class ErrorHandler {
     @ExceptionHandler(SystemParentsNotCompletedException.class)
     public ResponseEntity<ErrorResponse> handleSystemParentsNotCompletedException(Exception e) {
         logWarning(e);
-        return new ResponseEntity<>(new ErrorResponse(HttpStatus.METHOD_NOT_ALLOWED.getReasonPhrase(), e.getMessage()), HttpStatus.METHOD_NOT_ALLOWED);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(ConnectException.class)
@@ -121,7 +121,7 @@ public class ErrorHandler {
     @ExceptionHandler(StatusNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleStatusNotFoundException(Exception e) {
         logWarning(e);
-        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(PersonIsKeeperException.class)

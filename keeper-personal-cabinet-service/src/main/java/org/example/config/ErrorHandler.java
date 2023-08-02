@@ -12,7 +12,6 @@ import org.example.exception.classes.markEX.ExplorerDoesNotNeedMarkException;
 import org.example.exception.classes.markEX.UnexpectedMarkValueException;
 import org.example.exception.classes.personEX.PersonNotFoundException;
 import org.example.exception.classes.progressEX.PlanetAlreadyCompletedException;
-import org.example.exception.classes.progressEX.SystemParentsNotCompletedException;
 import org.example.exception.classes.progressEX.UnexpectedCourseThemeException;
 import org.example.exception.classes.requestEX.*;
 import org.springframework.http.HttpStatus;
@@ -156,12 +155,6 @@ public class ErrorHandler {
     public ResponseEntity<ErrorResponse> handlePlanetAlreadyCompletedException(Exception e) {
         logWarning(e);
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), e.getMessage()), HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(SystemParentsNotCompletedException.class)
-    public ResponseEntity<ErrorResponse> handleSystemParentsNotCompletedException(Exception e) {
-        logWarning(e);
-        return new ResponseEntity<>(new ErrorResponse(HttpStatus.METHOD_NOT_ALLOWED.getReasonPhrase(), e.getMessage()), HttpStatus.METHOD_NOT_ALLOWED);
     }
 
     @ExceptionHandler(UnexpectedCourseThemeException.class)
