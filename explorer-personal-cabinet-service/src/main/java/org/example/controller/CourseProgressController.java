@@ -20,11 +20,11 @@ public class CourseProgressController {
 
     @GetMapping("galaxy/{galaxyId}")
     @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).EXPLORER)")
-    @Operation(summary = "Get systems progress for current user", tags = "system progress")
+    @Operation(summary = "Get courses progress by galaxy id", tags = "system progress")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Systems progress",
+                    description = "Galaxy courses progress",
                     content = {
                             @Content(
                                     mediaType = "application/json")
@@ -40,11 +40,11 @@ public class CourseProgressController {
     @GetMapping("course/{courseId}")
     @PreAuthorize("@roleService.hasAnyCourseRole(#courseId, " +
             "T(org.example.model.role.CourseRoleType).EXPLORER)")
-    @Operation(summary = "Get course planets progress for current user", tags = "system progress")
+    @Operation(summary = "Get course themes progress by course id", tags = "system progress")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Systems progress",
+                    description = "Themes progress",
                     content = {
                             @Content(
                                     mediaType = "application/json")

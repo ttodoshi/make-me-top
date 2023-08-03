@@ -27,7 +27,7 @@ public class SystemDependencyController {
 
     @PostMapping
     @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
-    @Operation(summary = "Add dependency", tags = "dependency")
+    @Operation(summary = "Create dependency", tags = "dependency")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",

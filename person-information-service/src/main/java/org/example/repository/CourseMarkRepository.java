@@ -21,6 +21,7 @@ public interface CourseMarkRepository extends JpaRepository<CourseMark, Integer>
             "JOIN Course c ON c.courseId = crr.courseId\n" +
             "JOIN Explorer e ON e.personId = crr.personId AND e.courseId = crr.courseId\n" +
             "JOIN CourseMark cm ON cm.explorerId = e.explorerId\n" +
-            "WHERE crr.personId = :personId AND crrs.status = 'APPROVED'")
+            "WHERE crr.personId = :personId AND crrs.status = 'APPROVED'\n" +
+            "ORDER BY cm.courseEndDate DESC")
     List<CourseWithRating> getInvestigatedSystemsByPersonId(@Param("personId") Integer personId);
 }

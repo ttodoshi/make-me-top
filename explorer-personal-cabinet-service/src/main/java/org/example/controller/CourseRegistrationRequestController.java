@@ -28,7 +28,7 @@ public class CourseRegistrationRequestController {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Course request",
+                    description = "Course request sent",
                     content = {
                             @Content(
                                     mediaType = "application/json")

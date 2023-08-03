@@ -34,6 +34,7 @@ public class StarSystemService {
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
+    @Transactional
     public StarSystemWithDependenciesGetResponse getStarSystemByIdWithDependencies(Integer systemId) {
         starSystemValidator.validateGetSystemWithDependencies(systemId);
         StarSystemWithDependenciesGetResponse system = mapper.map(

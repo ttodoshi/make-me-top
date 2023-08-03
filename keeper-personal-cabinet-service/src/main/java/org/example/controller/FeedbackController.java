@@ -25,7 +25,7 @@ public class FeedbackController {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Feedback",
+                    description = "Feedback sent",
                     content = {
                             @Content(
                                     mediaType = "application/json")

@@ -7,10 +7,8 @@ import org.example.dto.orbit.OrbitWithStarSystemsGetResponse;
 import org.example.dto.starsystem.StarSystemCreateRequest;
 import org.example.dto.starsystem.StarSystemWithDependenciesGetResponse;
 import org.example.exception.classes.orbitEX.OrbitNotFoundException;
-import org.example.exception.classes.systemEX.SystemAlreadyExistsException;
 import org.example.model.Orbit;
 import org.example.model.StarSystem;
-import org.example.repository.GalaxyRepository;
 import org.example.repository.OrbitRepository;
 import org.example.repository.StarSystemRepository;
 import org.example.validator.OrbitValidator;
@@ -18,7 +16,10 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +32,7 @@ public class OrbitService {
 
     private final ModelMapper mapper;
 
+    @Transactional
     public OrbitWithStarSystemsGetResponse getOrbitWithSystemList(Integer orbitId) {
         orbitValidator.validateGetWithSystemListRequest(orbitId);
         OrbitWithStarSystemsGetResponse orbit = mapper.map(

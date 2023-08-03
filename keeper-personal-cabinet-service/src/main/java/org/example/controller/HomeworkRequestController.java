@@ -22,11 +22,11 @@ public class HomeworkRequestController {
 
     @PostMapping("{homeworkId}/mark")
     @PreAuthorize("@roleService.hasAnyCourseRoleByHomeworkId(#homeworkId, T(org.example.model.role.CourseRoleType).KEEPER)")
-    @Operation(summary = "Set homework mark", tags = "homework")
+    @Operation(summary = "Set homework mark from 1 to 5", tags = "homework")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Homework mark",
+                    description = "Homework mark set",
                     content = {
                             @Content(
                                     mediaType = "application/json")
@@ -43,7 +43,7 @@ public class HomeworkRequestController {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Homework response",
+                    description = "Homework response sent",
                     content = {
                             @Content(
                                     mediaType = "application/json")

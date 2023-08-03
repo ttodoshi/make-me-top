@@ -25,7 +25,7 @@ public class HomeworkRequestController {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Homework request",
+                    description = "Homework review request sent",
                     content = {
                             @Content(
                                     mediaType = "application/json")
@@ -38,11 +38,11 @@ public class HomeworkRequestController {
 
     @GetMapping("theme/{themeId}/homework")
     @PreAuthorize("@roleService.hasAnyCourseRoleByThemeId(#themeId, T(org.example.model.role.CourseRoleType).EXPLORER)")
-    @Operation(summary = "Get opened requests by themeId", tags = "homework")
+    @Operation(summary = "Get opened requests by theme id", tags = "homework")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Homework requests",
+                    description = "Opened homework requests by theme id",
                     content = {
                             @Content(
                                     mediaType = "application/json")

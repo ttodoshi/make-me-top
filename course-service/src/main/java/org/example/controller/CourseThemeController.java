@@ -27,7 +27,7 @@ public class CourseThemeController {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Theme by theme id",
+                    description = "Requested theme",
                     content = {
                             @Content(
                                     mediaType = "application/json")
@@ -45,7 +45,7 @@ public class CourseThemeController {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Themes by course id",
+                    description = "Requested themes by course id",
                     content = {
                             @Content(
                                     mediaType = "application/json")

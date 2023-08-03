@@ -23,11 +23,11 @@ public class StarSystemController {
 
     @GetMapping("system/{systemId}")
     @PreAuthorize("isAuthenticated()")
-    @Operation(summary = "Get system by systemId", tags = "system")
+    @Operation(summary = "Get system by id", tags = "system")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "System by system id",
+                    description = "Requested system",
                     content = {
                             @Content(
                                     mediaType = "application/json")
@@ -47,7 +47,7 @@ public class StarSystemController {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Systems by galaxy id",
+                    description = "Requested systems by galaxy id",
                     content = {
                             @Content(
                                     mediaType = "application/json")

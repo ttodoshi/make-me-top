@@ -25,7 +25,7 @@ public class GalaxyController {
 
     @GetMapping
     @PreAuthorize("isAuthenticated()")
-    @Operation(summary = "Get all Galaxies", tags = "galaxy")
+    @Operation(summary = "Get all galaxies", tags = "galaxy")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
@@ -41,12 +41,11 @@ public class GalaxyController {
 
     @GetMapping("{galaxyId}")
     @PreAuthorize("isAuthenticated()")
-    @Secured({"ROLE_EXPLORER", "ROLE_KEEPER", "ROLE_BIG_BROTHER"})
-    @Operation(summary = "Get galaxy by Id", tags = "galaxy")
+    @Operation(summary = "Get galaxy by id", tags = "galaxy")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Galaxy by id",
+                    description = "Requested galaxy",
                     content = {
                             @Content(
                                     mediaType = "application/json")
@@ -58,7 +57,7 @@ public class GalaxyController {
 
     @PostMapping
     @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
-    @Operation(summary = "Create Galaxy", tags = "galaxy")
+    @Operation(summary = "Create galaxy", tags = "galaxy")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
@@ -75,7 +74,7 @@ public class GalaxyController {
 
     @PutMapping("{galaxyId}")
     @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
-    @Operation(summary = "Update Galaxy", tags = "galaxy")
+    @Operation(summary = "Update galaxy", tags = "galaxy")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
@@ -92,7 +91,7 @@ public class GalaxyController {
 
     @DeleteMapping("{galaxyId}")
     @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
-    @Operation(summary = "Delete Galaxy", tags = "galaxy")
+    @Operation(summary = "Delete galaxy", tags = "galaxy")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",

@@ -28,7 +28,7 @@ public class CourseController {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Course by course id",
+                    description = "Requested course",
                     content = {
                             @Content(
                                     mediaType = "application/json")
@@ -46,7 +46,7 @@ public class CourseController {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Courses",
+                    description = "Requested courses by galaxy id",
                     content = {
                             @Content(
                                     mediaType = "application/json")

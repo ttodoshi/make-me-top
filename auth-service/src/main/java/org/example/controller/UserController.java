@@ -45,7 +45,7 @@ public class UserController {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Log out",
+                    description = "Log out successful",
                     content = {
                             @Content(
                                     mediaType = "application/json")

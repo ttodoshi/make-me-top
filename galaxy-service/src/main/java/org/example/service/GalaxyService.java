@@ -34,6 +34,7 @@ public class GalaxyService {
         return galaxyRepository.findAll();
     }
 
+    @Transactional
     public GalaxyGetResponse getGalaxyById(Integer galaxyId) {
         galaxyValidator.validateGetByIdRequest(galaxyId);
         GalaxyGetResponse galaxy = mapper.map(galaxyRepository.getReferenceById(galaxyId), GalaxyGetResponse.class);

@@ -21,11 +21,11 @@ public class ExplorerInformationController {
 
     @GetMapping("{personId}")
     @PreAuthorize("isAuthenticated()")
-    @Operation(summary = "Get information", tags = "public info")
+    @Operation(summary = "Get explorer public information", tags = "public info")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Explorer information",
+                    description = "Requested explorer information",
                     content = {
                             @Content(
                                     mediaType = "application/json")
@@ -41,7 +41,7 @@ public class ExplorerInformationController {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Explorer rating",
+                    description = "Requested explorer rating",
                     content = {
                             @Content(
                                     mediaType = "*")

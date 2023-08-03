@@ -22,11 +22,11 @@ public class FeedbackController {
 
     @PostMapping("course/{courseId}/explorer-feedback")
     @PreAuthorize("@roleService.hasAnyCourseRole(#courseId, T(org.example.model.role.CourseRoleType).EXPLORER)")
-    @Operation(summary = "Send feedback for keeper", tags = "feedback")
+    @Operation(summary = "Send feedback for keeper (rating from 1 to 5)", tags = "feedback")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Feedback",
+                    description = "Feedback sent",
                     content = {
                             @Content(
                                     mediaType = "application/json")
@@ -39,11 +39,11 @@ public class FeedbackController {
 
     @PostMapping("course/{courseId}/course-feedback")
     @PreAuthorize("@roleService.hasAnyCourseRole(#courseId, T(org.example.model.role.CourseRoleType).EXPLORER)")
-    @Operation(summary = "Send feedback for course", tags = "feedback")
+    @Operation(summary = "Set rating from 1 to 5 for course", tags = "feedback")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Feedback",
+                    description = "Rating set",
                     content = {
                             @Content(
                                     mediaType = "application/json")

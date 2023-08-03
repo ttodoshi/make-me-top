@@ -21,11 +21,11 @@ public class KeeperInformationController {
 
     @GetMapping("{personId}")
     @PreAuthorize("isAuthenticated()")
-    @Operation(summary = "Get information", tags = "public info")
+    @Operation(summary = "Get keeper public information", tags = "public info")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Keeper information",
+                    description = "Requested keeper information",
                     content = {
                             @Content(
                                     mediaType = "application/json")
@@ -41,7 +41,7 @@ public class KeeperInformationController {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Keeper rating",
+                    description = "Requested keeper rating",
                     content = {
                             @Content(
                                     mediaType = "*")

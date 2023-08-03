@@ -20,11 +20,11 @@ public class InfoController {
 
     @GetMapping
     @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).EXPLORER) || @roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).KEEPER)")
-    @Operation(summary = "Get information", tags = "personal cabinet")
+    @Operation(summary = "Get personal cabinet information", tags = "personal cabinet")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "User information",
+                    description = "Requested information",
                     content = {
                             @Content(
                                     mediaType = "application/json")
