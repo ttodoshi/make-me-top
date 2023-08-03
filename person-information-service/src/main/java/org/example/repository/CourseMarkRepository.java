@@ -10,11 +10,11 @@ import java.util.List;
 
 public interface CourseMarkRepository extends JpaRepository<CourseMark, Integer> {
     @Query(value = "SELECT new org.example.dto.course.CourseWithRating(\n" +
-            "        c.courseId, c.title, (\n" +
+            "        c.courseId, c.title, COALESCE((\n" +
             "                SELECT ROUND(AVG(cr.rating),1) FROM CourseRating cr\n" +
             "                JOIN Explorer e1 ON e1.explorerId = cr.explorerId\n" +
             "                WHERE e1.courseId = c.courseId\n" +
-            "        ) as rating, crr.keeperId\n" +
+            "        ), 0) as rating, crr.keeperId\n" +
             ")\n" +
             "FROM CourseRegistrationRequest crr\n" +
             "JOIN CourseRegistrationRequestStatus crrs ON crrs.statusId = crr.statusId\n" +

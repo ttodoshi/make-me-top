@@ -14,6 +14,6 @@ public interface HomeworkRequestRepository extends JpaRepository<HomeworkRequest
     @Query(value = "SELECT hr FROM HomeworkRequest hr\n" +
             "JOIN Homework h ON h.homeworkId = hr.homeworkId\n" +
             "JOIN HomeworkRequestStatus hrs ON hrs.statusId = hr.statusId\n" +
-            "WHERE h.courseThemeId = :themeId AND hrs.status != 'CLOSED'")
-    List<HomeworkRequest> findOpenedHomeworkRequestsByThemeId(@Param("themeId") Integer themeId);
+            "WHERE h.courseThemeId = :themeId AND hrs.status != 'CLOSED' AND hr.explorerId = :explorerId")
+    List<HomeworkRequest> findOpenedHomeworkRequestsByThemeId(@Param("themeId") Integer themeId, @Param("explorerId") Integer explorerId);
 }

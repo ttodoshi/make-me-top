@@ -12,7 +12,9 @@ import java.util.Set;
 public interface ExplorerRepository extends JpaRepository<Explorer, Integer> {
     Optional<Explorer> findExplorerByPersonIdAndCourseId(Integer personId, Integer courseId);
 
-    @Query(value = "SELECT new org.example.dto.explorer.ExplorerNeededFinalAssessment(p.personId, p.firstName, p.lastName, p.patronymic, c.courseId, c.title, e.explorerId)\n" +
+    @Query(value = "SELECT new org.example.dto.explorer.ExplorerNeededFinalAssessment(\n" +
+            "\tp.personId, p.firstName, p.lastName, p.patronymic, c.courseId, c.title, e.explorerId\n" +
+            ")\n" +
             "FROM Explorer e\n" +
             "JOIN Person p ON p.personId = e.personId\n" +
             "JOIN Course c ON c.courseId = e.courseId\n" +
