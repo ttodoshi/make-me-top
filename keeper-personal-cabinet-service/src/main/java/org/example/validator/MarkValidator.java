@@ -38,7 +38,7 @@ public class MarkValidator {
 
     public void validateCourseMarkRequest(MarkDTO courseMark) {
         if (!explorerRepository.existsById(courseMark.getExplorerId()))
-            throw new ExplorerNotFoundException();
+            throw new ExplorerNotFoundException(courseMark.getExplorerId());
         if (isNotKeeperForThisExplorer(courseMark.getExplorerId()))
             throw new DifferentKeeperException();
         if (courseMark.getValue() < 1 || courseMark.getValue() > 5)
@@ -63,7 +63,7 @@ public class MarkValidator {
 
     public void validateThemeMarkRequest(Integer themeId, MarkDTO mark) {
         Explorer explorer = explorerRepository.findById(mark.getExplorerId())
-                .orElseThrow(ExplorerNotFoundException::new);
+                .orElseThrow(() -> new ExplorerNotFoundException(mark.getExplorerId()));
         if (isNotKeeperForThisExplorer(explorer.getExplorerId()))
             throw new DifferentKeeperException();
         if (mark.getValue() < 1 || mark.getValue() > 5)

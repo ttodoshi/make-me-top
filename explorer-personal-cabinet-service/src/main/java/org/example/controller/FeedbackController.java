@@ -20,7 +20,7 @@ import javax.validation.Valid;
 public class FeedbackController {
     private final FeedbackService feedbackService;
 
-    @PostMapping("course/{courseId}/keeper-feedback")
+    @PostMapping("course/{courseId}/explorer-feedback")
     @PreAuthorize("@roleService.hasAnyCourseRole(#courseId, T(org.example.model.role.CourseRoleType).EXPLORER)")
     @Operation(summary = "Send feedback for keeper", tags = "feedback")
     @ApiResponses(value = {

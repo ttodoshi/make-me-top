@@ -6,11 +6,16 @@ import org.example.exception.classes.connectEX.ConnectException;
 import org.example.exception.classes.courseEX.CourseNotFoundException;
 import org.example.exception.classes.coursethemeEX.CourseThemeNotFoundException;
 import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
+import org.example.exception.classes.explorerEX.ExplorerNotStudyingWithKeeper;
+import org.example.exception.classes.feedbackEX.FeedbackAlreadyExists;
+import org.example.exception.classes.feedbackEX.UnexpectedRatingValue;
 import org.example.exception.classes.homeworkEX.*;
 import org.example.exception.classes.keeperEX.DifferentKeeperException;
+import org.example.exception.classes.keeperEX.KeeperNotFoundException;
 import org.example.exception.classes.markEX.ExplorerDoesNotNeedMarkException;
 import org.example.exception.classes.markEX.UnexpectedMarkValueException;
 import org.example.exception.classes.personEX.PersonNotFoundException;
+import org.example.exception.classes.progressEX.CourseNotCompletedException;
 import org.example.exception.classes.progressEX.PlanetAlreadyCompletedException;
 import org.example.exception.classes.progressEX.UnexpectedCourseThemeException;
 import org.example.exception.classes.requestEX.*;
@@ -23,6 +28,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import javax.validation.ConstraintViolationException;
+import java.lang.reflect.Executable;
 
 @RestControllerAdvice
 @Slf4j
@@ -197,5 +203,35 @@ public class ErrorHandler {
     public ResponseEntity<ErrorResponse> handleHomeworkNotFoundException(Exception e) {
         logWarning(e);
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(KeeperNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleKeeperNotFoundException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(FeedbackAlreadyExists.class)
+    public ResponseEntity<ErrorResponse> handleFeedbackAlreadyExists(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(CourseNotCompletedException.class)
+    public ResponseEntity<ErrorResponse> handleCourseNotCompletedException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(ExplorerNotStudyingWithKeeper.class)
+    public ResponseEntity<ErrorResponse> handleExplorerNotStudyingWithKeeper(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(UnexpectedRatingValue.class)
+    public ResponseEntity<ErrorResponse> handleUnexpectedRatingValue(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), e.getMessage()), HttpStatus.BAD_REQUEST);
     }
 }

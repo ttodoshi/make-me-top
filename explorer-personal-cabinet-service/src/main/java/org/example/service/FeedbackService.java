@@ -6,7 +6,6 @@ import org.example.dto.feedback.ExplorerFeedbackCreateRequest;
 import org.example.exception.classes.courseEX.CourseNotFoundException;
 import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
 import org.example.exception.classes.keeperEX.KeeperNotFoundException;
-import org.example.exception.classes.keeperEX.KeeperNotOnCourseException;
 import org.example.model.Explorer;
 import org.example.model.Keeper;
 import org.example.model.Person;
@@ -36,13 +35,11 @@ public class FeedbackService {
             throw new CourseNotFoundException(courseId);
         Keeper keeper = keeperRepository.findById(feedback.getKeeperId())
                 .orElseThrow(() -> new KeeperNotFoundException(feedback.getKeeperId()));
-        if (!courseId.equals(keeper.getCourseId()))
-            throw new KeeperNotOnCourseException(keeper.getKeeperId(), courseId);
         Integer personId = getAuthenticatedPersonId();
         Explorer explorer = explorerRepository
                 .findExplorerByPersonIdAndCourseId(personId, courseId)
                 .orElseThrow(() -> new ExplorerNotFoundException(courseId));
-        feedbackValidator.validateFeedbackForKeeperRequest(explorer.getExplorerId(), explorer.getCourseId());
+        feedbackValidator.validateFeedbackForKeeperRequest(explorer, feedback);
         ExplorerFeedback savingFeedback = mapper.map(feedback, ExplorerFeedback.class);
         savingFeedback.setExplorerId(explorer.getExplorerId());
         return explorerFeedbackRepository.save(savingFeedback);
@@ -60,7 +57,7 @@ public class FeedbackService {
         Explorer explorer = explorerRepository
                 .findExplorerByPersonIdAndCourseId(personId, courseId)
                 .orElseThrow(() -> new ExplorerNotFoundException(courseId));
-        feedbackValidator.validateCourseRatingRequest(explorer.getExplorerId(), courseId);
+        feedbackValidator.validateCourseRatingRequest(explorer.getExplorerId(), courseId, request);
         return courseRatingRepository.save(
                 new CourseRating(explorer.getExplorerId(), request.getRating())
         );

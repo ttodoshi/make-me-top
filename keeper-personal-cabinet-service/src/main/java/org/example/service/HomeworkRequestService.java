@@ -3,8 +3,11 @@ package org.example.service;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.coursemark.MarkDTO;
 import org.example.dto.homework.CreateHomeworkResponse;
+import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
 import org.example.exception.classes.homeworkEX.HomeworkRequestNotFound;
+import org.example.exception.classes.markEX.UnexpectedMarkValueException;
 import org.example.exception.classes.requestEX.StatusNotFoundException;
+import org.example.model.Explorer;
 import org.example.model.homework.HomeworkMark;
 import org.example.model.homework.HomeworkRequest;
 import org.example.model.homework.HomeworkRequestStatusType;
@@ -22,11 +25,14 @@ public class HomeworkRequestService {
     private final HomeworkRequestStatusRepository homeworkRequestStatusRepository;
     private final HomeworkMarkRepository homeworkMarkRepository;
     private final HomeworkResponseRepository homeworkResponseRepository;
+    private final ExplorerRepository explorerRepository;
 
     private final HomeworkRequestValidator homeworkRequestValidator;
 
     public HomeworkMark setHomeworkMark(Integer homeworkId, MarkDTO mark) {
         HomeworkRequest homeworkRequest = changeRequestStatus(homeworkId, mark.getExplorerId(), HomeworkRequestStatusType.CLOSED);
+        if (mark.getValue() < 1 || mark.getValue() > 5)
+            throw new UnexpectedMarkValueException();
         return homeworkMarkRepository.save(
                 new HomeworkMark(homeworkRequest.getRequestId(), mark.getValue())
         );
@@ -47,11 +53,12 @@ public class HomeworkRequestService {
     }
 
     private HomeworkRequest changeRequestStatus(Integer homeworkId, Integer explorerId, HomeworkRequestStatusType status) {
-        homeworkRequestValidator.checkExplorerExists(explorerId);
+        Explorer explorer = explorerRepository.findById(explorerId)
+                .orElseThrow(() -> new ExplorerNotFoundException(explorerId));
         HomeworkRequest homeworkRequest = homeworkRequestRepository
                 .findHomeworkRequestByHomeworkIdAndExplorerId(homeworkId, explorerId)
                 .orElseThrow(() -> new HomeworkRequestNotFound(homeworkId, explorerId));
-        homeworkRequestValidator.validateHomeworkRequest(explorerId, homeworkRequest);
+        homeworkRequestValidator.validateHomeworkRequest(explorer, homeworkRequest);
         homeworkRequest.setStatusId(getStatusId(status));
         return homeworkRequestRepository.save(homeworkRequest);
     }

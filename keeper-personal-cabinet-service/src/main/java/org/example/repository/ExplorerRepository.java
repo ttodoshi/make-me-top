@@ -6,11 +6,18 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 public interface ExplorerRepository extends JpaRepository<Explorer, Integer> {
     Optional<Explorer> findExplorerByPersonIdAndCourseId(Integer personId, Integer courseId);
+
+    @Query(value = "SELECT e FROM CourseRegistrationRequest crr\n" +
+            "JOIN Explorer e ON e.personId = crr.personId AND e.courseId = crr.courseId\n" +
+            "JOIN CourseRegistrationRequestStatus crrs ON crrs.statusId = crr.statusId\n" +
+            "WHERE crr.keeperId = :keeperId AND crrs.status = 'APPROVED'")
+    List<Explorer> findExplorersForKeeper(@Param("keeperId") Integer keeperId);
 
     @Query(value = "SELECT new org.example.dto.explorer.ExplorerNeededFinalAssessment(\n" +
             "\tp.personId, p.firstName, p.lastName, p.patronymic, c.courseId, c.title, e.explorerId\n" +

@@ -49,7 +49,7 @@ public class RoleService {
     public boolean hasAnyCourseRoleByExplorerId(Integer explorerId, CourseRoleType role) {
         return hasAnyCourseRole(
                 explorerRepository.findById(explorerId)
-                        .orElseThrow(ExplorerNotFoundException::new).getCourseId(),
+                        .orElseThrow(() -> new ExplorerNotFoundException(explorerId)).getCourseId(),
                 role
         );
     }

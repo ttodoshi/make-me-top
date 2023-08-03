@@ -7,9 +7,11 @@ import org.example.exception.classes.courseEX.CourseNotFoundException;
 import org.example.exception.classes.coursethemeEX.CourseThemeNotFoundException;
 import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
 import org.example.exception.classes.feedbackEX.FeedbackAlreadyExists;
+import org.example.exception.classes.feedbackEX.UnexpectedRatingValue;
 import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
 import org.example.exception.classes.homeworkEX.HomeworkAlreadyCheckingException;
 import org.example.exception.classes.homeworkEX.HomeworkRequestAlreadyClosedException;
+import org.example.exception.classes.keeperEX.DifferentKeeperException;
 import org.example.exception.classes.keeperEX.KeeperNotFoundException;
 import org.example.exception.classes.keeperEX.KeeperNotOnCourseException;
 import org.example.exception.classes.personEX.PersonNotFoundException;
@@ -189,6 +191,18 @@ public class ErrorHandler {
 
     @ExceptionHandler(KeeperNotOnCourseException.class)
     public ResponseEntity<ErrorResponse> handleKeeperNotOnCourseException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), e.getMessage()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(DifferentKeeperException.class)
+    public ResponseEntity<ErrorResponse> handleDifferentKeeperException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), e.getMessage()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(UnexpectedRatingValue.class)
+    public ResponseEntity<ErrorResponse> handleUnexpectedRatingValue(Exception e) {
         logWarning(e);
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), e.getMessage()), HttpStatus.BAD_REQUEST);
     }
