@@ -52,6 +52,8 @@ services:
     volumes:
       - postgres:/data/postgres
       - .:/docker-entrypoint-initdb.d
+    depends_on:
+      - kafka
     ports:
       - "5432:5432"
     networks:

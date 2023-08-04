@@ -23,16 +23,21 @@ public class GalaxyValidator {
             throw new GalaxyAlreadyExistsException(request.getGalaxyName());
     }
 
-    public void validatePutRequest(Integer galaxyId, GalaxyDTO galaxy) {
-        if (!galaxyRepository.existsById(galaxyId))
-            throw new GalaxyNotFoundException(galaxyId);
-        if (galaxyExists(galaxy.getGalaxyName()))
-            throw new GalaxyAlreadyExistsException(galaxy.getGalaxyName());
-    }
-
     private boolean galaxyExists(String galaxyName) {
         return galaxyRepository.findAll().stream()
                 .anyMatch(g -> g.getGalaxyName().equals(galaxyName));
+    }
+
+    public void validatePutRequest(Integer galaxyId, GalaxyDTO galaxy) {
+        if (!galaxyRepository.existsById(galaxyId))
+            throw new GalaxyNotFoundException(galaxyId);
+        if (galaxyExists(galaxyId, galaxy.getGalaxyName()))
+            throw new GalaxyAlreadyExistsException(galaxy.getGalaxyName());
+    }
+
+    private boolean galaxyExists(Integer galaxyId, String galaxyName) {
+        return galaxyRepository.findAll().stream()
+                .anyMatch(g -> g.getGalaxyName().equals(galaxyName) && !g.getGalaxyId().equals(galaxyId));
     }
 
     public void validateDeleteRequest(Integer galaxyId) {

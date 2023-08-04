@@ -20,6 +20,7 @@ import org.example.exception.classes.progressEX.SystemParentsNotCompletedExcepti
 import org.example.exception.classes.progressEX.UnexpectedCourseThemeException;
 import org.example.exception.classes.requestEX.PersonIsKeeperException;
 import org.example.exception.classes.requestEX.PersonIsStudyingException;
+import org.example.exception.classes.requestEX.RequestAlreadySentException;
 import org.example.exception.classes.requestEX.StatusNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -205,5 +206,11 @@ public class ErrorHandler {
     public ResponseEntity<ErrorResponse> handleUnexpectedRatingValue(Exception e) {
         logWarning(e);
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), e.getMessage()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(RequestAlreadySentException.class)
+    public ResponseEntity<ErrorResponse> handleRequestAlreadySentException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
     }
 }

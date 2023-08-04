@@ -12,6 +12,7 @@ import org.example.model.courserequest.KeeperRejection;
 import org.example.model.courserequest.RejectionReason;
 import org.example.repository.*;
 import org.example.validator.CourseRegistrationRequestValidator;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +27,7 @@ public class CourseRegistrationRequestService {
     private final RejectionReasonRepository rejectionReasonRepository;
     private final ExplorerRepository explorerRepository;
 
+    private final KafkaTemplate<String, Integer> kafkaTemplate;
     private final CourseRegistrationRequestValidator courseRegistrationRequestValidator;
 
     @Transactional
@@ -48,12 +50,17 @@ public class CourseRegistrationRequestService {
     }
 
     private void addExplorer(Integer personId, Integer courseId) {
+        sendGalaxyCacheRefreshMessage(courseId);
         explorerRepository.save(
                 Explorer.builder()
                         .personId(personId)
                         .courseId(courseId)
                         .build()
         );
+    }
+
+    private void sendGalaxyCacheRefreshMessage(Integer courseId) {
+        kafkaTemplate.send("galaxyCacheTopic", courseId);
     }
 
     @Transactional

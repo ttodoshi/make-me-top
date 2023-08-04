@@ -7,7 +7,9 @@ import org.example.exception.classes.keeperEX.KeeperNotFoundException;
 import org.example.exception.classes.progressEX.SystemParentsNotCompletedException;
 import org.example.exception.classes.requestEX.PersonIsKeeperException;
 import org.example.exception.classes.requestEX.PersonIsStudyingException;
+import org.example.exception.classes.requestEX.RequestAlreadySentException;
 import org.example.model.Keeper;
+import org.example.repository.CourseRegistrationRequestRepository;
 import org.example.repository.CourseRepository;
 import org.example.repository.CourseThemeCompletionRepository;
 import org.example.repository.KeeperRepository;
@@ -19,6 +21,7 @@ import org.springframework.stereotype.Component;
 public class CourseRegistrationRequestValidator {
     private final CourseRepository courseRepository;
     private final KeeperRepository keeperRepository;
+    private final CourseRegistrationRequestRepository courseRegistrationRequestRepository;
     private final CourseThemeCompletionRepository courseThemeCompletionRepository;
 
     private final CourseProgressService courseProgressService;
@@ -34,6 +37,8 @@ public class CourseRegistrationRequestValidator {
             throw new PersonIsKeeperException();
         if (courseProgressService.hasUncompletedParents(personId, request.getCourseId()))
             throw new SystemParentsNotCompletedException(request.getCourseId());
+        if (courseRegistrationRequestRepository.findProcessingRequest().isPresent())
+            throw new RequestAlreadySentException();
     }
 
     private boolean keeperExistsOnCourse(Integer keeperId, Integer courseId) {

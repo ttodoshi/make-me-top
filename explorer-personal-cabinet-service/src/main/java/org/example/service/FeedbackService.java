@@ -7,13 +7,13 @@ import org.example.exception.classes.courseEX.CourseNotFoundException;
 import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
 import org.example.exception.classes.keeperEX.KeeperNotFoundException;
 import org.example.model.Explorer;
-import org.example.model.Keeper;
 import org.example.model.Person;
 import org.example.model.feedback.CourseRating;
 import org.example.model.feedback.ExplorerFeedback;
 import org.example.repository.*;
 import org.example.validator.FeedbackValidator;
 import org.modelmapper.ModelMapper;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -27,14 +27,15 @@ public class FeedbackService {
     private final CourseRatingRepository courseRatingRepository;
 
     private final FeedbackValidator feedbackValidator;
+    private final KafkaTemplate<String, Integer> kafkaTemplate;
 
     private final ModelMapper mapper;
 
     public ExplorerFeedback sendFeedbackForKeeper(Integer courseId, ExplorerFeedbackCreateRequest feedback) {
         if (!courseRepository.existsById(courseId))
             throw new CourseNotFoundException(courseId);
-        Keeper keeper = keeperRepository.findById(feedback.getKeeperId())
-                .orElseThrow(() -> new KeeperNotFoundException(feedback.getKeeperId()));
+        if (!keeperRepository.existsById(feedback.getKeeperId()))
+            throw new KeeperNotFoundException(feedback.getKeeperId());
         Integer personId = getAuthenticatedPersonId();
         Explorer explorer = explorerRepository
                 .findExplorerByPersonIdAndCourseId(personId, courseId)
@@ -42,12 +43,17 @@ public class FeedbackService {
         feedbackValidator.validateFeedbackForKeeperRequest(explorer, feedback);
         ExplorerFeedback savingFeedback = mapper.map(feedback, ExplorerFeedback.class);
         savingFeedback.setExplorerId(explorer.getExplorerId());
+        sendGalaxyCacheRefreshMessage(courseId);
         return explorerFeedbackRepository.save(savingFeedback);
     }
 
     private Integer getAuthenticatedPersonId() {
         Person authenticatedPerson = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return authenticatedPerson.getPersonId();
+    }
+
+    private void sendGalaxyCacheRefreshMessage(Integer courseId) {
+        kafkaTemplate.send("galaxyCacheTopic", courseId);
     }
 
     public CourseRating rateCourse(Integer courseId, CourseRatingCreateRequest request) {

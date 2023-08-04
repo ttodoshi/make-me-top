@@ -13,6 +13,7 @@ import org.example.repository.DependencyRepository;
 import org.example.repository.StarSystemRepository;
 import org.example.validator.StarSystemValidator;
 import org.modelmapper.ModelMapper;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -64,6 +65,7 @@ public class StarSystemService {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = "galaxiesCache", key = "@orbitService.getOrbitById(#orbitId).galaxyId")
     public StarSystem createSystem(Integer orbitId, StarSystemCreateRequest systemRequest) {
         starSystemValidator.validatePostRequest(orbitId, systemRequest);
         StarSystem system = mapper.map(systemRequest, StarSystem.class);
@@ -87,6 +89,7 @@ public class StarSystemService {
         return starSystemRepository.save(updatedStarSystem);
     }
 
+    @CacheEvict(cacheNames = "galaxiesCache", key = "@orbitService.getOrbitById(@starSystemService.getStarSystemById(#systemId)).galaxyId")
     public Map<String, String> deleteSystem(Integer systemId) {
         starSystemValidator.validateDeleteRequest(systemId);
         starSystemRepository.deleteById(systemId);

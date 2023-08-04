@@ -13,6 +13,7 @@ import org.example.repository.OrbitRepository;
 import org.example.repository.StarSystemRepository;
 import org.example.validator.OrbitValidator;
 import org.modelmapper.ModelMapper;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,6 +54,7 @@ public class OrbitService {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = "galaxiesCache", key = "#galaxyId")
     public OrbitWithStarSystemsGetResponse createOrbit(Integer galaxyId, OrbitWithStarSystemsCreateRequest orbitRequest) {
         orbitValidator.validatePostRequest(galaxyId, orbitRequest);
         Orbit orbit = mapper.map(orbitRequest, Orbit.class);
@@ -76,6 +78,7 @@ public class OrbitService {
         return orbitRepository.save(updatedOrbit);
     }
 
+    @CacheEvict(cacheNames = "galaxiesCache", key = "@orbitService.getOrbitById(#orbitId).galaxyId")
     public Map<String, String> deleteOrbit(Integer orbitId) {
         orbitValidator.validateDeleteRequest(orbitId);
         orbitRepository.deleteById(orbitId);

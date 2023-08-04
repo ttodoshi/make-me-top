@@ -23,6 +23,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -42,6 +43,7 @@ public class CourseService {
     private final CourseValidator courseValidator;
     private final RoleService roleService;
 
+    private final KafkaTemplate<String, Integer> kafkaTemplate;
     private final ModelMapper mapper;
 
     @Setter
@@ -159,10 +161,15 @@ public class CourseService {
 
     public Keeper setKeeperToCourse(Integer courseId, KeeperCreateRequest keeperCreateRequest) {
         courseValidator.validateSetKeeperRequest(courseId, keeperCreateRequest);
+        sendGalaxyCacheRefreshMessage(courseId);
         return keeperRepository.save(
                 Keeper.builder()
                         .courseId(courseId)
                         .personId(keeperCreateRequest.getPersonId())
                         .build());
+    }
+
+    private void sendGalaxyCacheRefreshMessage(Integer courseId) {
+        kafkaTemplate.send("galaxyCacheTopic", courseId);
     }
 }

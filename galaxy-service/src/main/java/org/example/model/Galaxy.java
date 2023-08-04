@@ -12,4 +12,5 @@ public class Galaxy {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer galaxyId;
     private String galaxyName;
+    private String galaxyDescription;
 }
