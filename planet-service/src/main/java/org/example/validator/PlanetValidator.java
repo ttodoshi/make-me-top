@@ -58,7 +58,7 @@ public class PlanetValidator {
     private void checkSystemExists(Integer systemId) {
         WebClient webClient = WebClient.create(GALAXY_APP_URL);
         webClient.get()
-                .uri("/system/" + systemId)
+                .uri("system/" + systemId)
                 .header("Authorization", token)
                 .retrieve()
                 .onStatus(HttpStatus.NOT_FOUND::equals, response -> {

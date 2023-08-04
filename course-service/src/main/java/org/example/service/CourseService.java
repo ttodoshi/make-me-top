@@ -102,7 +102,7 @@ public class CourseService {
     private Double getExplorerRating(Integer personId) {
         WebClient webClient = WebClient.create(INFO_APP_URL);
         return webClient.get()
-                .uri("/explorer/" + personId + "/rating/")
+                .uri("explorer/" + personId + "/rating/")
                 .header("Authorization", token)
                 .retrieve()
                 .onStatus(HttpStatus::isError, response -> {
@@ -116,7 +116,7 @@ public class CourseService {
     private Double getKeeperRating(Integer personId) {
         WebClient webClient = WebClient.create(INFO_APP_URL);
         return webClient.get()
-                .uri("/keeper/" + personId + "/rating/")
+                .uri("keeper/" + personId + "/rating/")
                 .header("Authorization", token)
                 .retrieve()
                 .onStatus(HttpStatus::isError, response -> {

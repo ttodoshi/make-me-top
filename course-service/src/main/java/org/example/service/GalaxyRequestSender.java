@@ -23,7 +23,7 @@ public class GalaxyRequestSender {
     public StarSystemDTO[] getSystemsByGalaxyId(Integer galaxyId) {
         WebClient webClient = WebClient.create(GALAXY_APP_URL);
         return webClient.get()
-                .uri("/galaxy/" + galaxyId + "/system/")
+                .uri("galaxy/" + galaxyId + "/system/")
                 .header("Authorization", token)
                 .retrieve()
                 .onStatus(HttpStatus.NOT_FOUND::equals, response -> {

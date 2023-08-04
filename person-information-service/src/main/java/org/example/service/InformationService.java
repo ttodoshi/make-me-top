@@ -2,14 +2,14 @@ package org.example.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.config.RoleService;
+import org.example.dto.courseprogress.CourseThemeCompletionDTO;
+import org.example.dto.courseprogress.CourseWithThemesProgress;
+import org.example.dto.courseprogress.CurrentCourseProgressDTO;
 import org.example.dto.courseregistration.CourseRegistrationRequestDTO;
 import org.example.dto.feedback.KeeperFeedbackDTO;
 import org.example.dto.feedback.PersonWithRating;
 import org.example.dto.homework.HomeworkRequestDTO;
 import org.example.dto.keeper.KeeperDTO;
-import org.example.dto.courseprogress.CurrentCourseProgressDTO;
-import org.example.dto.courseprogress.CourseThemeCompletionDTO;
-import org.example.dto.courseprogress.CourseWithThemesProgress;
 import org.example.exception.classes.coursethemeEX.CourseThemeNotFoundException;
 import org.example.exception.classes.personEX.PersonNotFoundException;
 import org.example.model.Explorer;
@@ -43,12 +43,13 @@ public class InformationService {
     private final RoleService roleService;
 
     @Transactional
-    public Map<String, Object> getInformation() {
-        if (roleService.hasAnyAuthenticationRole(AuthenticationRoleType.EXPLORER)) {
-            return getExplorerInformation();
-        } else {
-            return getKeeperInformation();
-        }
+    public Map<String, Object> getExplorerCabinetInformation() {
+        return getExplorerInformation();
+    }
+
+    @Transactional
+    public Map<String, Object> getKeeperCabinetInformation() {
+        return getKeeperInformation();
     }
 
     private Map<String, Object> getKeeperInformation() {

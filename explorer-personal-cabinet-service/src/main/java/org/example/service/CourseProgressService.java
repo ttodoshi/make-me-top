@@ -78,7 +78,7 @@ public class CourseProgressService {
     private StarSystemDTO[] getSystemsByGalaxyId(Integer galaxyId) {
         WebClient webClient = WebClient.create(GALAXY_APP_URL);
         return webClient.get()
-                .uri("/galaxy/" + galaxyId + "/system/")
+                .uri("galaxy/" + galaxyId + "/system/")
                 .header("Authorization", token)
                 .retrieve()
                 .onStatus(HttpStatus.NOT_FOUND::equals, response -> {
@@ -135,7 +135,7 @@ public class CourseProgressService {
     private StarSystemWithDependenciesGetResponse getStarSystemWithDependencies(Integer systemId) {
         WebClient webClient = WebClient.create(GALAXY_APP_URL);
         return webClient.get()
-                .uri("/system/" + systemId + "?withDependencies=true")
+                .uri("system/" + systemId + "?withDependencies=true")
                 .header("Authorization", token)
                 .retrieve()
                 .onStatus(HttpStatus.NOT_FOUND::equals, response -> {
