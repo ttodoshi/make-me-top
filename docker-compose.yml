@@ -12,6 +12,35 @@ services:
       postgres:
         ipv4_address: 10.10.0.15
 
+  zookeeper:
+    image: confluentinc/cp-zookeeper
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      postgres:
+        ipv4_address: 10.10.0.2
+
+  kafka:
+    image: confluentinc/cp-kafka
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://kafka:29092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+    networks:
+      postgres:
+        ipv4_address: 10.10.0.16
+
   postgres:
     container_name: postgres_container
     image: postgres
@@ -23,6 +52,8 @@ services:
     volumes:
       - postgres:/data/postgres
       - .:/docker-entrypoint-initdb.d
+    depends_on:
+      - kafka
     ports:
       - "5432:5432"
     networks:
@@ -53,6 +84,8 @@ services:
       - postgres
     volumes:
       - ./.logs/galaxy-service/:/app/logs/
+    env_file:
+      - .env
     networks:
       postgres:
         ipv4_address: 10.10.0.8
@@ -65,6 +98,8 @@ services:
       - postgres
     volumes:
       - ./.logs/planet-service/:/app/logs/
+    env_file:
+      - .env
     networks:
       postgres:
         ipv4_address: 10.10.0.7
@@ -78,6 +113,8 @@ services:
       - postgres
     volumes:
       - ./.logs/auth-service/:/app/logs/
+    env_file:
+      - .env
     networks:
       postgres:
         ipv4_address: 10.10.0.6
@@ -91,6 +128,8 @@ services:
       - postgres
     volumes:
       - ./.logs/course-service/:/app/logs/
+    env_file:
+      - .env
     networks:
       postgres:
         ipv4_address: 10.10.0.9
@@ -104,6 +143,8 @@ services:
       - postgres
     volumes:
       - ./.logs/person-information-service/:/app/logs/
+    env_file:
+      - .env
     networks:
       postgres:
         ipv4_address: 10.10.0.10
@@ -116,6 +157,8 @@ services:
       - postgres
     volumes:
       - ./.logs/explorer-cabinet-service/:/app/logs/
+    env_file:
+      - .env
     networks:
       postgres:
         ipv4_address: 10.10.0.5
@@ -128,6 +171,8 @@ services:
       - postgres
     volumes:
       - ./.logs/keeper-cabinet-service/:/app/logs/
+    env_file:
+      - .env
     networks:
       postgres:
         ipv4_address: 10.10.0.4

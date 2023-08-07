@@ -9,15 +9,14 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface CourseRepository extends JpaRepository<Course, Integer> {
-    // TODO
     @Query(value = "SELECT new org.example.dto.course.CourseWithRating(\n" +
-            "\tc.courseId, c.title, ROUND(AVG(cr.rating), 1) as rating, k.keeperId\n" +
+            "\tc.courseId, c.title, COALESCE(ROUND(AVG(cr.rating), 1), 0) AS rating, k.keeperId\n" +
             ")\n" +
             "FROM Keeper k\n" +
             "JOIN Course c ON c.courseId = k.courseId\n" +
-            "JOIN Explorer e ON e.courseId = c.courseId\n" +
-            "JOIN CourseRating cr ON cr.explorerId = e.explorerId\n " +
+            "LEFT JOIN Explorer e ON e.courseId = c.courseId\n" +
+            "LEFT JOIN CourseRating cr ON cr.explorerId = e.explorerId\n " +
             "WHERE k.personId = :personId\n" +
-            "GROUP BY c.courseId, k.keeperId\n")
+            "GROUP BY c.courseId, k.keeperId")
     List<CourseWithRating> findCoursesByKeeperPersonId(@Param("personId") Integer personId);
 }

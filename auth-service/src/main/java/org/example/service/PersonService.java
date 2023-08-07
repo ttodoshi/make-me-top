@@ -19,6 +19,8 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +31,7 @@ public class PersonService {
 
     private final PersonMapper personMapper;
 
-    @Value("${url_auth_mmtr}")
+    @Value("${mmtr_auth_url}")
     private String MMTR_AUTH_URL;
 
     public String login(LoginRequest request, HttpServletResponse response) {
@@ -74,5 +76,15 @@ public class PersonService {
         tokenCookie.setMaxAge(43200);
         tokenCookie.setPath("/");
         return tokenCookie;
+    }
+
+    public Map<String, Object> logout(HttpServletResponse response) {
+        Cookie tokenCookie = new Cookie("token", "");
+        tokenCookie.setMaxAge(0);
+        tokenCookie.setPath("/");
+        response.addCookie(tokenCookie);
+        Map<String, Object> jsonResponse = new HashMap<>();
+        jsonResponse.put("message", "Выход успешный");
+        return jsonResponse;
     }
 }

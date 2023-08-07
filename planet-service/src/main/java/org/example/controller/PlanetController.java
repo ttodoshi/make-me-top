@@ -31,7 +31,7 @@ public class PlanetController {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Planets by system id",
+                    description = "Requested planets by system id",
                     content = {
                             @Content(
                                     mediaType = "application/json")
@@ -49,7 +49,7 @@ public class PlanetController {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Create planets",
+                    description = "Planets created",
                     content = {
                             @Content(
                                     mediaType = "application/json")
@@ -68,7 +68,7 @@ public class PlanetController {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Update planet",
+                    description = "Planet updated",
                     content = {
                             @Content(
                                     mediaType = "application/json")
@@ -78,7 +78,7 @@ public class PlanetController {
                                               @Valid @RequestBody PlanetUpdateRequest planet,
                                               @RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token) {
         planetService.setToken(token);
-        return ResponseEntity.ok(planetService.updatePlanet(planet, planetId));
+        return ResponseEntity.ok(planetService.updatePlanet(planetId, planet));
     }
 
     @DeleteMapping("planet/{planetId}")
@@ -87,7 +87,7 @@ public class PlanetController {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Delete planet",
+                    description = "Planet deleted",
                     content = {
                             @Content(
                                     mediaType = "application/json")

@@ -2,14 +2,12 @@ package org.example.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.starsystem.StarSystemCreateRequest;
 import org.example.dto.starsystem.StarSystemDTO;
 import org.example.service.StarSystemService;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -25,11 +23,11 @@ public class StarSystemController {
 
     @GetMapping("system/{systemId}")
     @PreAuthorize("isAuthenticated()")
-    @Operation(summary = "Get system by systemId", tags = "system")
+    @Operation(summary = "Get system by id", tags = "system")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "System by system id",
+                    description = "Requested system",
                     content = {
                             @Content(
                                     mediaType = "application/json")
@@ -49,7 +47,7 @@ public class StarSystemController {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Systems by galaxy id",
+                    description = "Requested systems by galaxy id",
                     content = {
                             @Content(
                                     mediaType = "application/json")
@@ -72,9 +70,7 @@ public class StarSystemController {
                     })
     })
     public ResponseEntity<?> createSystem(@Valid @RequestBody StarSystemCreateRequest starSystem,
-                                          @PathVariable("orbitId") Integer orbitId,
-                                          @RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token) {
-        starSystemService.setToken(token);
+                                          @PathVariable("orbitId") Integer orbitId) {
         return ResponseEntity.ok(starSystemService.createSystem(orbitId, starSystem));
     }
 
@@ -93,7 +89,7 @@ public class StarSystemController {
     })
     public ResponseEntity<?> updateSystem(@Valid @RequestBody StarSystemDTO starSystem,
                                           @PathVariable("systemId") Integer systemId) {
-        return ResponseEntity.ok(starSystemService.updateSystem(starSystem, systemId));
+        return ResponseEntity.ok(starSystemService.updateSystem(systemId, starSystem));
     }
 
     @DeleteMapping("system/{systemId}")
@@ -108,9 +104,7 @@ public class StarSystemController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> deleteSystem(@PathVariable("systemId") Integer systemId,
-                                          @RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token) {
-        starSystemService.setToken(token);
+    public ResponseEntity<?> deleteSystem(@PathVariable("systemId") Integer systemId) {
         return ResponseEntity.ok(starSystemService.deleteSystem(systemId));
     }
 }

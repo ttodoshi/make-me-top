@@ -18,12 +18,14 @@ public interface KeeperFeedbackRepository extends JpaRepository<KeeperFeedback, 
             "GROUP BY person.person_id", nativeQuery = true)
     Optional<Double> getExplorerRating(Integer personId);
 
-    @Query(value = "SELECT new org.example.dto.feedback.PersonWithRating(p.personId, p.firstName, p.lastName, p.patronymic, ROUND(AVG(kf.rating), 1) as rating)\n" +
-            "FROM KeeperFeedback kf\n" +
-            "JOIN Explorer e ON e.explorerId = kf.explorerId\n" +
-            "JOIN Person p ON p.personId = e.personId\n" +
+    @Query(value = "SELECT new org.example.dto.feedback.PersonWithRating(\n" +
+            "\tp.personId, p.firstName, p.lastName, p.patronymic, COALESCE(ROUND(AVG(kf.rating), 1), 0) as rating\n" +
+            ")\n" +
+            "FROM Person p\n" +
+            "LEFT JOIN Explorer e ON e.personId = p.personId\n" +
+            "LEFT JOIN KeeperFeedback kf ON kf.explorerId = e.explorerId\n" +
             "GROUP BY p.personId\n" +
-            "ORDER BY rating")
+            "ORDER BY rating DESC")
     List<PersonWithRating> getRatingTable();
 
     @Query(value = "SELECT new org.example.dto.feedback.KeeperFeedbackDTO(" +

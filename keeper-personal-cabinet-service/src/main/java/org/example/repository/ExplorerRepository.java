@@ -6,13 +6,22 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 public interface ExplorerRepository extends JpaRepository<Explorer, Integer> {
     Optional<Explorer> findExplorerByPersonIdAndCourseId(Integer personId, Integer courseId);
 
-    @Query(value = "SELECT new org.example.dto.explorer.ExplorerNeededFinalAssessment(p.personId, p.firstName, p.lastName, p.patronymic, c.courseId, c.title, e.explorerId)\n" +
+    @Query(value = "SELECT e FROM CourseRegistrationRequest crr\n" +
+            "JOIN Explorer e ON e.personId = crr.personId AND e.courseId = crr.courseId\n" +
+            "JOIN CourseRegistrationRequestStatus crrs ON crrs.statusId = crr.statusId\n" +
+            "WHERE crr.keeperId = :keeperId AND crrs.status = 'APPROVED'")
+    List<Explorer> findExplorersForKeeper(@Param("keeperId") Integer keeperId);
+
+    @Query(value = "SELECT new org.example.dto.explorer.ExplorerNeededFinalAssessment(\n" +
+            "\tp.personId, p.firstName, p.lastName, p.patronymic, c.courseId, c.title, e.explorerId\n" +
+            ")\n" +
             "FROM Explorer e\n" +
             "JOIN Person p ON p.personId = e.personId\n" +
             "JOIN Course c ON c.courseId = e.courseId\n" +
@@ -26,7 +35,7 @@ public interface ExplorerRepository extends JpaRepository<Explorer, Integer> {
             ") = (\n" +
             "\tSELECT COUNT(*) FROM CourseThemeCompletion ctc1\n" +
             "\tJOIN Explorer e1 ON e1.explorerId = ctc1.explorerId\n" +
-            "\tWHERE ctc1.completed = TRUE AND e1.explorerId = e.explorerId\n" +
+            "\tWHERE e1.explorerId = e.explorerId\n" +
             ")\n" +
             "AND e.explorerId NOT IN (\n" +
             "\tSELECT cm.explorerId FROM CourseMark cm\n" +

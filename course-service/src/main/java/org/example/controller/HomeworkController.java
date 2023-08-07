@@ -22,12 +22,12 @@ public class HomeworkController {
     @GetMapping("theme/{themeId}/homework")
     @PreAuthorize("@roleService.hasAnyCourseRoleByThemeId(#themeId, T(org.example.model.role.CourseRoleType).EXPLORER) ||" +
             "@roleService.hasAnyCourseRoleByThemeId(#themeId, T(org.example.model.role.CourseRoleType).KEEPER) ||" +
-            "@roleService.hasAnyGeneralRole(T(org.example.model.role.GeneralRoleType).BIG_BROTHER)") // TODO
-    @Operation(summary = "Get homework for theme", tags = "homework")
+            "@roleService.hasAnyGeneralRole(T(org.example.model.role.GeneralRoleType).BIG_BROTHER)")
+    @Operation(summary = "Get homework by theme id", tags = "homework")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Theme homework",
+                    description = "Requested theme homework",
                     content = {
                             @Content(
                                     mediaType = "application/json")
@@ -40,11 +40,11 @@ public class HomeworkController {
     @PostMapping("theme/{themeId}/homework")
     @PreAuthorize("@roleService.hasAnyCourseRoleByThemeId(#themeId, T(org.example.model.role.CourseRoleType).KEEPER) ||" +
             "@roleService.hasAnyGeneralRole(T(org.example.model.role.GeneralRoleType).BIG_BROTHER)")
-    @Operation(summary = "Add homework to theme", tags = "homework")
+    @Operation(summary = "Create homework for theme", tags = "homework")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Add theme homework",
+                    description = "Homework created",
                     content = {
                             @Content(
                                     mediaType = "application/json")
@@ -58,11 +58,11 @@ public class HomeworkController {
     @PutMapping("homework/{homeworkId}")
     @PreAuthorize("@roleService.hasAnyCourseRoleByHomeworkId(#homeworkId, T(org.example.model.role.CourseRoleType).KEEPER) ||" +
             "@roleService.hasAnyGeneralRole(T(org.example.model.role.GeneralRoleType).BIG_BROTHER)")
-    @Operation(summary = "Update homework to theme", tags = "homework")
+    @Operation(summary = "Update homework by id", tags = "homework")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Update theme homework",
+                    description = "Homework updated",
                     content = {
                             @Content(
                                     mediaType = "application/json")
@@ -76,11 +76,11 @@ public class HomeworkController {
     @DeleteMapping("homework/{homeworkId}")
     @PreAuthorize("@roleService.hasAnyCourseRoleByHomeworkId(#homeworkId, T(org.example.model.role.CourseRoleType).KEEPER) ||" +
             "@roleService.hasAnyGeneralRole(T(org.example.model.role.GeneralRoleType).BIG_BROTHER)")
-    @Operation(summary = "Delete homework to theme", tags = "homework")
+    @Operation(summary = "Delete homework by id", tags = "homework")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Delete theme homework",
+                    description = "Homework deleted",
                     content = {
                             @Content(
                                     mediaType = "application/json")

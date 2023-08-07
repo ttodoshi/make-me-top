@@ -14,7 +14,7 @@ import java.util.Set;
 public interface ExplorerRepository extends JpaRepository<Explorer, Integer> {
     Optional<Explorer> findExplorerByPersonIdAndCourseId(Integer personId, Integer courseId);
 
-    @Query(value = "SELECT COUNT(*) FROM course.course_registration_request\n" +
+    @Query(value = "SELECT COUNT(DISTINCT course_registration_request.person_id) FROM course.course_registration_request\n" +
             "JOIN course.keeper ON keeper.keeper_id = course_registration_request.keeper_id\n" +
             "JOIN course.course_registration_request_status\n" +
             "ON course_registration_request_status.status_id = course_registration_request.status_id\n" +
@@ -36,7 +36,7 @@ public interface ExplorerRepository extends JpaRepository<Explorer, Integer> {
             ") = (\n" +
             "\tSELECT COUNT(*) FROM CourseThemeCompletion ctp1\n" +
             "\tJOIN Explorer e1 ON e1.explorerId = ctp1.explorerId\n" +
-            "\tWHERE ctp1.completed = TRUE AND e1.explorerId = e.explorerId\n" +
+            "\tWHERE e1.explorerId = e.explorerId\n" +
             ")\n" +
             "AND e.explorerId NOT IN (\n" +
             "\tSELECT cm.explorerId FROM CourseMark cm\n" +

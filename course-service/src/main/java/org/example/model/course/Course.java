@@ -25,11 +25,9 @@ public class Course {
     private String title;
     @CreatedDate
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
-    @NotNull
     private Date creationDate;
     @LastModifiedDate
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
-    @NotNull
     private Date lastModified;
     @NotNull
     private String description;

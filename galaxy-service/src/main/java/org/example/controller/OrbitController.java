@@ -23,11 +23,11 @@ public class OrbitController {
 
     @GetMapping("orbit/{orbitId}")
     @PreAuthorize("isAuthenticated()")
-    @Operation(summary = "Get Orbit", tags = "orbit")
+    @Operation(summary = "Get orbit by id", tags = "orbit")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Orbit by id",
+                    description = "Requested orbit",
                     content = {
                             @Content(
                                     mediaType = "application/json")
@@ -43,7 +43,7 @@ public class OrbitController {
 
     @PostMapping("galaxy/{galaxyId}/orbit")
     @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
-    @Operation(summary = "Create Orbit", tags = "orbit")
+    @Operation(summary = "Create orbit", tags = "orbit")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
@@ -60,7 +60,7 @@ public class OrbitController {
 
     @PutMapping("orbit/{orbitId}")
     @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
-    @Operation(summary = "Update Orbit", tags = "orbit")
+    @Operation(summary = "Update orbit by id", tags = "orbit")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
@@ -77,7 +77,7 @@ public class OrbitController {
 
     @DeleteMapping("orbit/{orbitId}")
     @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
-    @Operation(summary = "Delete Orbit", tags = "orbit")
+    @Operation(summary = "Delete orbit by id", tags = "orbit")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",

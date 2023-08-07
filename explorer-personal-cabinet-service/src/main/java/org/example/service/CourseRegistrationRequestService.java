@@ -1,47 +1,41 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.example.dto.courseregistration.CreateCourseRegistrationRequest;
-import org.example.exception.classes.courseEX.CourseNotFoundException;
-import org.example.exception.classes.keeperEX.KeeperNotFoundException;
-import org.example.exception.classes.progressEX.SystemParentsNotCompletedException;
-import org.example.exception.classes.requestEX.PersonIsKeeperException;
-import org.example.exception.classes.requestEX.PersonIsStudyingException;
+import org.example.exception.classes.requestEX.PersonIsNotPersonInRequestException;
+import org.example.exception.classes.requestEX.RequestNotFoundException;
 import org.example.exception.classes.requestEX.StatusNotFoundException;
-import org.example.model.Keeper;
 import org.example.model.Person;
 import org.example.model.courserequest.CourseRegistrationRequest;
 import org.example.model.courserequest.CourseRegistrationRequestStatusType;
-import org.example.repository.*;
+import org.example.repository.CourseRegistrationRequestRepository;
+import org.example.repository.CourseRegistrationRequestStatusRepository;
+import org.example.validator.CourseRegistrationRequestValidator;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class CourseRegistrationRequestService {
     private final CourseRegistrationRequestRepository courseRegistrationRequestRepository;
     private final CourseRegistrationRequestStatusRepository courseRegistrationRequestStatusRepository;
-    private final CourseRepository courseRepository;
-    private final KeeperRepository keeperRepository;
-    private final PlanetProgressRepository planetProgressRepository;
 
-    private final SystemProgressService systemProgressService;
+    private final CourseRegistrationRequestValidator courseRegistrationRequestValidator;
 
     private final ModelMapper mapper;
 
+    @Setter
+    private String token;
+
     public CourseRegistrationRequest sendRequest(CreateCourseRegistrationRequest request) {
-        if (!courseRepository.existsById(request.getCourseId()))
-            throw new CourseNotFoundException(request.getCourseId());
-        if (!keeperExistsOnCourse(request.getKeeperId(), request.getCourseId()))
-            throw new KeeperNotFoundException(request.getKeeperId());
         Integer authenticatedPersonId = getAuthenticatedPersonId();
-        if (isCurrentlyStudying(authenticatedPersonId))
-            throw new PersonIsStudyingException();
-        if (isPersonKeeperOnCourse(authenticatedPersonId, request.getCourseId()))
-            throw new PersonIsKeeperException();
-        if (systemProgressService.hasUncompletedParents(authenticatedPersonId, request.getCourseId()))
-            throw new SystemParentsNotCompletedException(request.getCourseId());
+        courseRegistrationRequestValidator.setToken(token);
+        courseRegistrationRequestValidator.validateSendRequest(authenticatedPersonId, request);
         CourseRegistrationRequest courseRegistrationRequest = mapper.map(request, CourseRegistrationRequest.class);
         courseRegistrationRequest.setStatusId(
                 courseRegistrationRequestStatusRepository
@@ -51,21 +45,25 @@ public class CourseRegistrationRequestService {
         return courseRegistrationRequestRepository.save(courseRegistrationRequest);
     }
 
-    private boolean keeperExistsOnCourse(Integer keeperId, Integer courseId) {
-        Keeper keeper = keeperRepository.findById(keeperId).orElseThrow(() -> new KeeperNotFoundException(keeperId));
-        return keeper.getCourseId().equals(courseId);
-    }
-
     private Integer getAuthenticatedPersonId() {
         Person authenticatedPerson = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return authenticatedPerson.getPersonId();
     }
 
-    private boolean isCurrentlyStudying(Integer authenticatedPersonId) {
-        return planetProgressRepository.getCurrentInvestigatedSystemId(authenticatedPersonId) != null;
-    }
-
-    private boolean isPersonKeeperOnCourse(Integer authenticatedPersonId, Integer courseId) {
-        return keeperRepository.findKeeperByPersonIdAndCourseId(authenticatedPersonId, courseId).isPresent();
+    public Map<String, String> cancelRequest(Integer requestId) {
+        CourseRegistrationRequest request = courseRegistrationRequestRepository.findById(requestId)
+                .orElseThrow(() -> new RequestNotFoundException(requestId));
+        if (!request.getPersonId().equals(getAuthenticatedPersonId()))
+            throw new PersonIsNotPersonInRequestException();
+        request.setStatusId(
+                courseRegistrationRequestStatusRepository
+                        .findCourseRegistrationRequestStatusByStatus(CourseRegistrationRequestStatusType.DENIED)
+                        .orElseThrow(() -> new StatusNotFoundException(CourseRegistrationRequestStatusType.DENIED))
+                        .getStatusId()
+        );
+        courseRegistrationRequestRepository.save(request);
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Вы отменили запрос на прохождение курса " + request.getCourseId());
+        return response;
     }
 }

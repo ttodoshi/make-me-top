@@ -20,14 +20,14 @@ import javax.validation.Valid;
 public class CourseRegistrationRequestController {
     private final CourseRegistrationRequestService courseRegistrationRequestService;
 
-    @PatchMapping("/{requestId}")
-    @PreAuthorize("@roleService.hasAnyCourseRoleByRequestId(#requestId," +
-            "T(org.example.model.role.CourseRoleType).KEEPER)")
+    @PatchMapping("{requestId}")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).KEEPER) || " +
+            "@roleService.hasAnyCourseRoleByRequestId(#requestId, T(org.example.model.role.CourseRoleType).KEEPER)")
     @Operation(summary = "Reply to course registration request", tags = "course request")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Reply to course request",
+                    description = "Request closed",
                     content = {
                             @Content(
                                     mediaType = "application/json")
@@ -38,14 +38,14 @@ public class CourseRegistrationRequestController {
         return ResponseEntity.ok(courseRegistrationRequestService.replyToRequest(requestId, reply));
     }
 
-    @PostMapping("/{requestId}/rejection")
-    @PreAuthorize("@roleService.hasAnyCourseRoleByRequestId(#requestId," +
-            "T(org.example.model.role.CourseRoleType).KEEPER)")
+    @PostMapping("{requestId}/rejection")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).KEEPER) || " +
+            "@roleService.hasAnyCourseRoleByRequestId(#requestId, T(org.example.model.role.CourseRoleType).KEEPER)")
     @Operation(summary = "Send keeper rejection", tags = "course request")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Send keeper rejection",
+                    description = "Keeper rejection sent",
                     content = {
                             @Content(
                                     mediaType = "application/json")
@@ -57,13 +57,13 @@ public class CourseRegistrationRequestController {
                 courseRegistrationRequestService.sendRejection(requestId, rejection));
     }
 
-    @GetMapping("/rejection")
+    @GetMapping("rejection")
     @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).KEEPER)")
     @Operation(summary = "Get keeper rejection reasons", tags = "course request")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Get keeper rejection reasons",
+                    description = "Keeper rejection reasons",
                     content = {
                             @Content(
                                     mediaType = "application/json")
