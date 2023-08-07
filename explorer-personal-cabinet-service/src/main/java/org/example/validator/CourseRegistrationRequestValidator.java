@@ -1,6 +1,7 @@
 package org.example.validator;
 
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.example.dto.courseregistration.CreateCourseRegistrationRequest;
 import org.example.exception.classes.courseEX.CourseNotFoundException;
 import org.example.exception.classes.keeperEX.KeeperNotFoundException;
@@ -26,6 +27,9 @@ public class CourseRegistrationRequestValidator {
 
     private final CourseProgressService courseProgressService;
 
+    @Setter
+    private String token;
+
     public void validateSendRequest(Integer personId, CreateCourseRegistrationRequest request) {
         if (!courseRepository.existsById(request.getCourseId()))
             throw new CourseNotFoundException(request.getCourseId());
@@ -35,9 +39,10 @@ public class CourseRegistrationRequestValidator {
             throw new PersonIsStudyingException();
         if (isPersonKeeperOnCourse(personId, request.getCourseId()))
             throw new PersonIsKeeperException();
+        courseProgressService.setToken(token);
         if (courseProgressService.hasUncompletedParents(personId, request.getCourseId()))
             throw new SystemParentsNotCompletedException(request.getCourseId());
-        if (courseRegistrationRequestRepository.findProcessingRequest().isPresent())
+        if (courseRegistrationRequestRepository.findProcessingRequest(personId).isPresent())
             throw new RequestAlreadySentException();
     }
 

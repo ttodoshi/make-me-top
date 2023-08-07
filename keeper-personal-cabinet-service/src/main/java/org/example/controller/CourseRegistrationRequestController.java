@@ -21,8 +21,8 @@ public class CourseRegistrationRequestController {
     private final CourseRegistrationRequestService courseRegistrationRequestService;
 
     @PatchMapping("{requestId}")
-    @PreAuthorize("@roleService.hasAnyCourseRoleByRequestId(#requestId," +
-            "T(org.example.model.role.CourseRoleType).KEEPER)")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).KEEPER) || " +
+            "@roleService.hasAnyCourseRoleByRequestId(#requestId, T(org.example.model.role.CourseRoleType).KEEPER)")
     @Operation(summary = "Reply to course registration request", tags = "course request")
     @ApiResponses(value = {
             @ApiResponse(
@@ -39,8 +39,8 @@ public class CourseRegistrationRequestController {
     }
 
     @PostMapping("{requestId}/rejection")
-    @PreAuthorize("@roleService.hasAnyCourseRoleByRequestId(#requestId," +
-            "T(org.example.model.role.CourseRoleType).KEEPER)")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).KEEPER) || " +
+            "@roleService.hasAnyCourseRoleByRequestId(#requestId, T(org.example.model.role.CourseRoleType).KEEPER)")
     @Operation(summary = "Send keeper rejection", tags = "course request")
     @ApiResponses(value = {
             @ApiResponse(

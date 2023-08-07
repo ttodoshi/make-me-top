@@ -30,16 +30,16 @@ public class CourseProgressController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> getSystemsProgress(@PathVariable("galaxyId") Integer galaxyId,
-                                                @RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token) {
+    public ResponseEntity<?> leaveCourse(@PathVariable("galaxyId") Integer galaxyId,
+                                         @RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token) {
         courseProgressService.setToken(token);
         return ResponseEntity.ok(
                 courseProgressService.getCoursesProgressForCurrentUser(galaxyId));
     }
 
     @GetMapping("course/{courseId}")
-    @PreAuthorize("@roleService.hasAnyCourseRole(#courseId, " +
-            "T(org.example.model.role.CourseRoleType).EXPLORER)")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).EXPLORER) || " +
+            "@roleService.hasAnyCourseRole(#courseId, T(org.example.model.role.CourseRoleType).EXPLORER)")
     @Operation(summary = "Get course themes progress by course id", tags = "system progress")
     @ApiResponses(value = {
             @ApiResponse(
@@ -53,5 +53,22 @@ public class CourseProgressController {
     public ResponseEntity<?> getSystemPlanetsProgress(@PathVariable("courseId") Integer courseId) {
         return ResponseEntity.ok(
                 courseProgressService.getThemesProgressByCourseId(courseId));
+    }
+
+    @DeleteMapping("course/{courseId}")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).EXPLORER) || @roleService.hasAnyCourseRole(#courseId, T(org.example.model.role.CourseRoleType).EXPLORER)")
+    @Operation(summary = "Leave course", tags = "system progress")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Successfully left course",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json")
+                    })
+    })
+    public ResponseEntity<?> leaveCourse(@PathVariable("courseId") Integer courseId) {
+        return ResponseEntity.ok(
+                courseProgressService.leaveCourse(courseId));
     }
 }

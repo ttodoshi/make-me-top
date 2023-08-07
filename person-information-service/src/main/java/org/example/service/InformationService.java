@@ -1,15 +1,19 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.example.config.RoleService;
 import org.example.dto.courseprogress.CourseThemeCompletionDTO;
 import org.example.dto.courseprogress.CourseWithThemesProgress;
 import org.example.dto.courseprogress.CurrentCourseProgressDTO;
-import org.example.dto.courseregistration.CourseRegistrationRequestDTO;
+import org.example.dto.courseregistration.CourseRegistrationRequestForExplorer;
+import org.example.dto.courseregistration.CourseRegistrationRequestForKeeper;
 import org.example.dto.feedback.KeeperFeedbackDTO;
 import org.example.dto.feedback.PersonWithRating;
+import org.example.dto.galaxy.GalaxyDTO;
 import org.example.dto.homework.HomeworkRequestDTO;
 import org.example.dto.keeper.KeeperDTO;
+import org.example.exception.classes.connectEX.ConnectException;
 import org.example.exception.classes.coursethemeEX.CourseThemeNotFoundException;
 import org.example.exception.classes.personEX.PersonNotFoundException;
 import org.example.model.Explorer;
@@ -18,10 +22,14 @@ import org.example.model.course.Course;
 import org.example.model.course.CourseTheme;
 import org.example.model.role.AuthenticationRoleType;
 import org.example.repository.*;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.client.WebClient;
 
+import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -42,17 +50,50 @@ public class InformationService {
 
     private final RoleService roleService;
 
+    @Setter
+    private String token;
+    @Value("${galaxy_app_url}")
+    private String GALAXY_APP_URL;
+
     @Transactional
     public Map<String, Object> getExplorerCabinetInformation() {
-        return getExplorerInformation();
+        Person authenticatedPerson = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Integer authenticatedPersonId = authenticatedPerson.getPersonId();
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("person", authenticatedPerson);
+        response.put("rating", getExplorerRating(authenticatedPersonId));
+        response.put("totalSystems", explorerRepository.getExplorerSystemsCount(authenticatedPersonId));
+        getCurrentCourseProgress(authenticatedPersonId)
+                .ifPresent(p -> response.put("currentSystem", p));
+        Optional<CourseRegistrationRequestForExplorer> studyRequestOptional = courseRegistrationRequestRepository.getStudyRequestByExplorerPersonId(authenticatedPersonId);
+        if (studyRequestOptional.isPresent()) {
+            CourseRegistrationRequestForExplorer studyRequest = studyRequestOptional.get();
+            GalaxyDTO galaxy = getGalaxyByCourseId(studyRequest.getCourseId());
+            studyRequest.setGalaxyId(galaxy.getGalaxyId());
+            studyRequest.setGalaxyName(galaxy.getGalaxyName());
+            response.put("studyRequest", studyRequest);
+        }
+        response.put("investigatedSystems", courseMarkRepository.getInvestigatedSystemsByPersonId(authenticatedPersonId));
+        response.put("ratingTable", getRatingTable());
+        return response;
+    }
+
+    private GalaxyDTO getGalaxyByCourseId(Integer courseId) {
+        WebClient webClient = WebClient.create(GALAXY_APP_URL);
+        return webClient.get()
+                .uri("system/" + courseId + "/galaxy/")
+                .header("Authorization", token)
+                .retrieve()
+                .onStatus(HttpStatus::isError, response -> {
+                    throw new ConnectException();
+                })
+                .bodyToMono(GalaxyDTO.class)
+                .timeout(Duration.ofSeconds(5))
+                .block();
     }
 
     @Transactional
     public Map<String, Object> getKeeperCabinetInformation() {
-        return getKeeperInformation();
-    }
-
-    private Map<String, Object> getKeeperInformation() {
         Person authenticatedPerson = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Integer authenticatedPersonId = authenticatedPerson.getPersonId();
         Map<String, Object> response = new LinkedHashMap<>();
@@ -71,20 +112,6 @@ public class InformationService {
         if (!personRepository.existsById(personId))
             throw new PersonNotFoundException(personId);
         return Math.ceil(explorerFeedbackRepository.getKeeperRating(personId).orElse(0.0) * 10) / 10;
-    }
-
-    private Map<String, Object> getExplorerInformation() {
-        Person authenticatedPerson = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Integer authenticatedPersonId = authenticatedPerson.getPersonId();
-        Map<String, Object> response = new LinkedHashMap<>();
-        response.put("person", authenticatedPerson);
-        response.put("rating", getExplorerRating(authenticatedPersonId));
-        response.put("totalSystems", explorerRepository.getExplorerSystemsCount(authenticatedPersonId));
-        getCurrentCourseProgress(authenticatedPersonId)
-                .ifPresent(p -> response.put("currentSystem", p));
-        response.put("investigatedSystems", courseMarkRepository.getInvestigatedSystemsByPersonId(authenticatedPersonId));
-        response.put("ratingTable", getRatingTable());
-        return response;
     }
 
     private Optional<CurrentCourseProgressDTO> getCurrentCourseProgress(Integer personId) {
@@ -170,7 +197,7 @@ public class InformationService {
         response.put("totalSystems", explorerRepository.getExplorerSystemsCount(personId));
         Optional<CurrentCourseProgressDTO> currentCourseOptional = getCurrentCourseProgress(personId);
         if (currentCourseOptional.isEmpty()) {
-            Optional<CourseRegistrationRequestDTO> studyRequestOptional = courseRegistrationRequestRepository.getStudyRequestByPersonId(personId);
+            Optional<CourseRegistrationRequestForKeeper> studyRequestOptional = courseRegistrationRequestRepository.getStudyRequestByPersonId(personId);
             if (studyRequestOptional.isPresent() && keeperRepository.getReferenceById(studyRequestOptional.get().getKeeperId()).getPersonId().equals(authenticatedPersonId)) {
                 response.put("studyRequest", studyRequestOptional.get());
             }

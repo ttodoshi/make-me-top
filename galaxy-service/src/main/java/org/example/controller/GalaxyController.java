@@ -18,13 +18,13 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 
 @RestController
-@RequestMapping("/galaxy-app/galaxy/")
+@RequestMapping("/galaxy-app/")
 @RequiredArgsConstructor
 @Slf4j
 public class GalaxyController {
     private final GalaxyService galaxyService;
 
-    @GetMapping
+    @GetMapping("galaxy/")
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get all galaxies", tags = "galaxy")
     @ApiResponses(value = {
@@ -41,7 +41,7 @@ public class GalaxyController {
         return ResponseEntity.ok(galaxyService.getAllGalaxies());
     }
 
-    @GetMapping("{galaxyId}")
+    @GetMapping("galaxy/{galaxyId}")
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get galaxy by id", tags = "galaxy")
     @ApiResponses(value = {
@@ -57,7 +57,7 @@ public class GalaxyController {
         return ResponseEntity.ok(galaxyService.getGalaxyById(galaxyId));
     }
 
-    @PostMapping
+    @PostMapping("galaxy/")
     @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Create galaxy", tags = "galaxy")
     @ApiResponses(value = {
@@ -74,7 +74,7 @@ public class GalaxyController {
     }
 
 
-    @PutMapping("{galaxyId}")
+    @PutMapping("galaxy/{galaxyId}")
     @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Update galaxy", tags = "galaxy")
     @ApiResponses(value = {
@@ -91,7 +91,7 @@ public class GalaxyController {
         return ResponseEntity.ok(galaxyService.updateGalaxy(id, galaxy));
     }
 
-    @DeleteMapping("{galaxyId}")
+    @DeleteMapping("galaxy/{galaxyId}")
     @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Delete galaxy", tags = "galaxy")
     @ApiResponses(value = {
@@ -105,5 +105,21 @@ public class GalaxyController {
     })
     public ResponseEntity<?> deleteGalaxy(@PathVariable("galaxyId") Integer galaxyId) {
         return ResponseEntity.ok(galaxyService.deleteGalaxy(galaxyId));
+    }
+
+    @GetMapping("system/{systemId}/galaxy")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Get galaxy by system id", tags = "galaxy")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Requested galaxy",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json")
+                    })
+    })
+    public ResponseEntity<?> getGalaxyBySystemId(@PathVariable("systemId") Integer systemId) {
+        return ResponseEntity.ok(galaxyService.getGalaxyBySystemId(systemId));
     }
 }

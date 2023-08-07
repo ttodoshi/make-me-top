@@ -18,10 +18,7 @@ import org.example.exception.classes.personEX.PersonNotFoundException;
 import org.example.exception.classes.progressEX.CourseNotCompletedException;
 import org.example.exception.classes.progressEX.SystemParentsNotCompletedException;
 import org.example.exception.classes.progressEX.UnexpectedCourseThemeException;
-import org.example.exception.classes.requestEX.PersonIsKeeperException;
-import org.example.exception.classes.requestEX.PersonIsStudyingException;
-import org.example.exception.classes.requestEX.RequestAlreadySentException;
-import org.example.exception.classes.requestEX.StatusNotFoundException;
+import org.example.exception.classes.requestEX.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -210,6 +207,18 @@ public class ErrorHandler {
 
     @ExceptionHandler(RequestAlreadySentException.class)
     public ResponseEntity<ErrorResponse> handleRequestAlreadySentException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(RequestNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleRequestNotFoundException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(PersonIsNotPersonInRequestException.class)
+    public ResponseEntity<ErrorResponse> handlePersonIsNotPersonInRequestException(Exception e) {
         logWarning(e);
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
     }

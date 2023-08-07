@@ -8,12 +8,14 @@ import org.example.dto.galaxy.GalaxyGetResponse;
 import org.example.dto.galaxy.GalaxyInformationGetResponse;
 import org.example.dto.orbit.OrbitWithStarSystemsCreateRequest;
 import org.example.dto.orbit.OrbitWithStarSystemsWithoutGalaxyIdGetResponse;
+import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
+import org.example.exception.classes.systemEX.SystemNotFoundException;
 import org.example.model.Galaxy;
 import org.example.repository.GalaxyRepository;
 import org.example.repository.OrbitRepository;
+import org.example.repository.StarSystemRepository;
 import org.example.validator.GalaxyValidator;
 import org.modelmapper.ModelMapper;
-import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +30,7 @@ import java.util.Map;
 public class GalaxyService {
     private final GalaxyRepository galaxyRepository;
     private final OrbitRepository orbitRepository;
+    private final StarSystemRepository starSystemRepository;
 
     private final GalaxyValidator galaxyValidator;
     private final OrbitService orbitService;
@@ -59,6 +62,14 @@ public class GalaxyService {
         );
         galaxy.setOrbitList(orbitWithStarSystemsList);
         return galaxy;
+    }
+
+    public Galaxy getGalaxyBySystemId(Integer systemId) {
+        if (!starSystemRepository.existsById(systemId))
+            throw new SystemNotFoundException(systemId);
+        Integer galaxyId = galaxyRepository.getGalaxyIdBySystemId(systemId);
+        return galaxyRepository.findById(galaxyId)
+                .orElseThrow(() -> new GalaxyNotFoundException(galaxyId));
     }
 
     @Transactional

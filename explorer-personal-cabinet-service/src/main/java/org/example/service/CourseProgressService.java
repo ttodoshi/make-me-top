@@ -2,13 +2,13 @@ package org.example.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.example.dto.courseprogress.CourseThemeCompletionDTO;
+import org.example.dto.courseprogress.CourseWithProgress;
+import org.example.dto.courseprogress.CourseWithThemesProgress;
+import org.example.dto.courseprogress.CoursesState;
 import org.example.dto.starsystem.StarSystemDTO;
 import org.example.dto.starsystem.StarSystemWithDependenciesGetResponse;
 import org.example.dto.starsystem.SystemDependencyModel;
-import org.example.dto.courseprogress.CourseThemeCompletionDTO;
-import org.example.dto.courseprogress.CoursesState;
-import org.example.dto.courseprogress.CourseWithThemesProgress;
-import org.example.dto.courseprogress.CourseWithProgress;
 import org.example.exception.classes.connectEX.ConnectException;
 import org.example.exception.classes.courseEX.CourseNotFoundException;
 import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
@@ -17,10 +17,8 @@ import org.example.model.Explorer;
 import org.example.model.Person;
 import org.example.model.course.Course;
 import org.example.model.course.CourseTheme;
-import org.example.repository.CourseRepository;
-import org.example.repository.CourseThemeRepository;
-import org.example.repository.ExplorerRepository;
-import org.example.repository.CourseThemeCompletionRepository;
+import org.example.model.courserequest.CourseRegistrationRequest;
+import org.example.repository.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -38,6 +36,7 @@ public class CourseProgressService {
     private final ExplorerRepository explorerRepository;
     private final CourseRepository courseRepository;
     private final CourseThemeRepository courseThemeRepository;
+    private final CourseRegistrationRequestRepository courseRegistrationRequestRepository;
 
     @Setter
     private String token;
@@ -154,5 +153,19 @@ public class CourseProgressService {
                 .stream()
                 .filter(s -> s.getType().equals("parent"))
                 .collect(Collectors.toList());
+    }
+
+    public Map<String, String> leaveCourse(Integer courseId) {
+        final Integer personId = getAuthenticatedPersonId();
+        Optional<Explorer> explorer = explorerRepository.findExplorerByPersonIdAndCourseId(personId, courseId);
+        if (explorer.isEmpty())
+            throw new ExplorerNotFoundException(courseId);
+        explorerRepository.deleteById(explorer.get().getExplorerId());
+        CourseRegistrationRequest request = courseRegistrationRequestRepository
+                .findApprovedCourseRegistrationRequestByPersonIdAndCourseId(personId, courseId);
+        courseRegistrationRequestRepository.deleteById(request.getRequestId());
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Вы ушли с курса " + courseId);
+        return response;
     }
 }

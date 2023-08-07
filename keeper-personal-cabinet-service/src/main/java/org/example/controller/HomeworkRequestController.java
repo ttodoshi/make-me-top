@@ -21,7 +21,8 @@ public class HomeworkRequestController {
     private final HomeworkRequestService homeworkRequestService;
 
     @PostMapping("{homeworkId}/mark")
-    @PreAuthorize("@roleService.hasAnyCourseRoleByHomeworkId(#homeworkId, T(org.example.model.role.CourseRoleType).KEEPER)")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).KEEPER) || " +
+            "@roleService.hasAnyCourseRoleByHomeworkId(#homeworkId, T(org.example.model.role.CourseRoleType).KEEPER)")
     @Operation(summary = "Set homework mark from 1 to 5", tags = "homework")
     @ApiResponses(value = {
             @ApiResponse(
@@ -38,7 +39,8 @@ public class HomeworkRequestController {
     }
 
     @PostMapping("{homeworkId}/response")
-    @PreAuthorize("@roleService.hasAnyCourseRoleByHomeworkId(#homeworkId, T(org.example.model.role.CourseRoleType).KEEPER)")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).KEEPER) || " +
+            "@roleService.hasAnyCourseRoleByHomeworkId(#homeworkId, T(org.example.model.role.CourseRoleType).KEEPER)")
     @Operation(summary = "Send homework response", tags = "homework")
     @ApiResponses(value = {
             @ApiResponse(
