@@ -33,8 +33,8 @@ public class CourseRegistrationRequestController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> sendRequest(@PathVariable("requestId") Integer requestId,
-                                         @Valid @RequestBody CourseRegistrationRequestReply reply) {
+    public ResponseEntity<?> replyToRequest(@PathVariable("requestId") Integer requestId,
+                                            @Valid @RequestBody CourseRegistrationRequestReply reply) {
         return ResponseEntity.ok(courseRegistrationRequestService.replyToRequest(requestId, reply));
     }
 

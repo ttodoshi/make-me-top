@@ -30,8 +30,8 @@ public class CourseProgressController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> leaveCourse(@PathVariable("galaxyId") Integer galaxyId,
-                                         @RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token) {
+    public ResponseEntity<?> getCoursesProgressForCurrentUser(@PathVariable("galaxyId") Integer galaxyId,
+                                                              @RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token) {
         courseProgressService.setToken(token);
         return ResponseEntity.ok(
                 courseProgressService.getCoursesProgressForCurrentUser(galaxyId));
