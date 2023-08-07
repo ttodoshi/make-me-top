@@ -156,6 +156,8 @@ public class CourseProgressService {
     }
 
     public Map<String, String> leaveCourse(Integer courseId) {
+        if (!courseRepository.existsById(courseId))
+            throw new CourseNotFoundException(courseId);
         final Integer personId = getAuthenticatedPersonId();
         Optional<Explorer> explorer = explorerRepository.findExplorerByPersonIdAndCourseId(personId, courseId);
         if (explorer.isEmpty())
