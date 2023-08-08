@@ -15,12 +15,29 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 
 @RestController
-@RequestMapping("/keeper-cabinet/homework")
+@RequestMapping("/keeper-cabinet")
 @RequiredArgsConstructor
 public class HomeworkRequestController {
     private final HomeworkRequestService homeworkRequestService;
 
-    @PostMapping("{homeworkId}/mark")
+    @GetMapping("homework-request/{requestId}")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).KEEPER) || " +
+            "@roleService.hasAnyCourseRoleByHomeworkRequestId(#requestId, T(org.example.model.role.CourseRoleType).KEEPER)")
+    @Operation(summary = "Get homework request", tags = "homework")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Homework request",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json")
+                    })
+    })
+    public ResponseEntity<?> getHomeworkRequest(@PathVariable("requestId") Integer requestId) {
+        return ResponseEntity.ok(homeworkRequestService.getHomeworkRequest(requestId));
+    }
+
+    @PostMapping("homework/{homeworkId}/mark")
     @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).KEEPER) || " +
             "@roleService.hasAnyCourseRoleByHomeworkId(#homeworkId, T(org.example.model.role.CourseRoleType).KEEPER)")
     @Operation(summary = "Set homework mark from 1 to 5", tags = "homework")
@@ -38,7 +55,7 @@ public class HomeworkRequestController {
         return ResponseEntity.ok(homeworkRequestService.setHomeworkMark(homeworkId, mark));
     }
 
-    @PostMapping("{homeworkId}/response")
+    @PostMapping("homework/{homeworkId}/response")
     @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).KEEPER) || " +
             "@roleService.hasAnyCourseRoleByHomeworkId(#homeworkId, T(org.example.model.role.CourseRoleType).KEEPER)")
     @Operation(summary = "Send homework response", tags = "homework")

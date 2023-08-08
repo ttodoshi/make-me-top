@@ -69,4 +69,9 @@ public class HomeworkRequestService {
                 .orElseThrow(() -> new StatusNotFoundException(status))
                 .getStatusId();
     }
+
+    public HomeworkRequest getHomeworkRequest(Integer requestId) {
+        return homeworkRequestRepository.findById(requestId)
+                .orElseThrow(() -> new HomeworkRequestNotFound(requestId));
+    }
 }
