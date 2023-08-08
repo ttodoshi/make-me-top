@@ -5,6 +5,7 @@ import org.example.exception.ErrorResponse;
 import org.example.exception.classes.connectEX.ConnectException;
 import org.example.exception.classes.courseEX.CourseAlreadyExistsException;
 import org.example.exception.classes.courseEX.CourseNotFoundException;
+import org.example.exception.classes.courseEX.CourseNotFoundInGalaxyException;
 import org.example.exception.classes.coursethemeEX.CourseThemeAlreadyExistsException;
 import org.example.exception.classes.coursethemeEX.CourseThemeNotFoundException;
 import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
@@ -126,6 +127,12 @@ public class ErrorHandler {
 
     @ExceptionHandler(HomeworkNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleHomeworkNotFoundException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(CourseNotFoundInGalaxyException.class)
+    public ResponseEntity<ErrorResponse> handleCourseNotFoundInGalaxyException(Exception e) {
         logWarning(e);
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
     }

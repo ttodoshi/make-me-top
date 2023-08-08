@@ -16,7 +16,7 @@ import org.example.exception.classes.markEX.ExplorerDoesNotNeedMarkException;
 import org.example.exception.classes.markEX.UnexpectedMarkValueException;
 import org.example.exception.classes.personEX.PersonNotFoundException;
 import org.example.exception.classes.progressEX.CourseNotCompletedException;
-import org.example.exception.classes.progressEX.PlanetAlreadyCompletedException;
+import org.example.exception.classes.progressEX.ThemeAlreadyCompletedException;
 import org.example.exception.classes.progressEX.UnexpectedCourseThemeException;
 import org.example.exception.classes.requestEX.*;
 import org.springframework.http.HttpStatus;
@@ -28,7 +28,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import javax.validation.ConstraintViolationException;
-import java.lang.reflect.Executable;
 
 @RestControllerAdvice
 @Slf4j
@@ -157,7 +156,7 @@ public class ErrorHandler {
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(PlanetAlreadyCompletedException.class)
+    @ExceptionHandler(ThemeAlreadyCompletedException.class)
     public ResponseEntity<ErrorResponse> handlePlanetAlreadyCompletedException(Exception e) {
         logWarning(e);
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), e.getMessage()), HttpStatus.BAD_REQUEST);
