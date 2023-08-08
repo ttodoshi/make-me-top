@@ -16,6 +16,7 @@ import javax.validation.Valid;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/course-app/")
 public class HomeworkController {
     private final HomeworkService homeworkService;
 

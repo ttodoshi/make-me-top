@@ -102,7 +102,15 @@ public class InformationService {
         response.put("totalSystems", keeperRepository.getKeeperSystemsCount(authenticatedPersonId));
         response.put("totalExplorers", explorerRepository.getExplorersCountForKeeper(authenticatedPersonId));
         response.put("studyingExplorers", explorerRepository.getStudyingPeopleByKeeperPersonId(authenticatedPersonId));
-        response.put("studyRequests", courseRegistrationRequestRepository.getStudyRequestsByKeeperPersonId(authenticatedPersonId));
+        response.put("studyRequests",
+                courseRegistrationRequestRepository.getStudyRequestsByKeeperPersonId(
+                                authenticatedPersonId)
+                        .stream()
+                        .peek(
+                                r -> r.setRating(getExplorerRating(r.getPersonId()))
+                        )
+                        .collect(Collectors.toList())
+        );
         response.put("finalAssessments", explorerRepository.getExplorersNeededFinalAssessmentByKeeperPersonId(authenticatedPersonId));
         response.put("reviewRequests", homeworkRequestRepository.getReviewRequestsByKeeperPersonId(authenticatedPersonId));
         return response;
