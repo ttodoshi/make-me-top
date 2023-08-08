@@ -10,7 +10,7 @@ import org.example.exception.classes.homeworkEX.HomeworkNotCompletedException;
 import org.example.exception.classes.keeperEX.DifferentKeeperException;
 import org.example.exception.classes.markEX.ExplorerDoesNotNeedMarkException;
 import org.example.exception.classes.markEX.UnexpectedMarkValueException;
-import org.example.exception.classes.progressEX.PlanetAlreadyCompletedException;
+import org.example.exception.classes.progressEX.ThemeAlreadyCompletedException;
 import org.example.exception.classes.progressEX.UnexpectedCourseThemeException;
 import org.example.model.Explorer;
 import org.example.model.Keeper;
@@ -71,7 +71,7 @@ public class MarkValidator {
         Optional<CourseThemeCompletion> courseThemeProgressOptional = courseThemeCompletionRepository
                 .findCourseThemeProgressByExplorerIdAndCourseThemeId(explorer.getExplorerId(), themeId);
         if (courseThemeProgressOptional.isPresent())
-            throw new PlanetAlreadyCompletedException(courseThemeProgressOptional.get().getCourseThemeId());
+            throw new ThemeAlreadyCompletedException(courseThemeProgressOptional.get().getCourseThemeId());
         Integer currentThemeId = getCurrentCourseThemeId(explorer);
         if (!currentThemeId.equals(themeId))
             throw new UnexpectedCourseThemeException(themeId, currentThemeId);

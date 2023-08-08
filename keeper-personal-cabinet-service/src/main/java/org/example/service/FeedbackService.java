@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.dto.feedback.KeeperFeedbackCreateRequest;
 import org.example.exception.classes.courseEX.CourseNotFoundException;
 import org.example.exception.classes.keeperEX.DifferentKeeperException;
+import org.example.exception.classes.keeperEX.KeeperNotFoundException;
 import org.example.model.Keeper;
 import org.example.model.Person;
 import org.example.model.feedback.KeeperFeedback;
@@ -31,7 +32,7 @@ public class FeedbackService {
             throw new CourseNotFoundException(courseId);
         Integer personId = getAuthenticatedPersonId();
         Keeper keeper = keeperRepository.findKeeperByPersonIdAndCourseId(personId, courseId)
-                .orElseThrow(DifferentKeeperException::new);
+                .orElseThrow(KeeperNotFoundException::new);
         feedbackValidator.validateFeedbackForExplorerRequest(keeper.getKeeperId(), feedback);
         KeeperFeedback savingFeedback = mapper.map(feedback, KeeperFeedback.class);
         savingFeedback.setKeeperId(keeper.getKeeperId());
