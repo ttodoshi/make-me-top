@@ -15,14 +15,14 @@ public class CourseThemeValidator {
     private final CourseThemeRepository courseThemeRepository;
 
     public void validateGetThemesByCourseIdRequest(Integer courseId) {
-        if (courseRepository.existsById(courseId))
+        if (!courseRepository.existsById(courseId))
             throw new CourseNotFoundException(courseId);
     }
 
     public void validatePutRequest(Integer themeId, CourseThemeUpdateRequest theme) {
         if (!courseRepository.existsById(theme.getCourseId()))
             throw new CourseNotFoundException(theme.getCourseId());
-        boolean themeTitleExists = courseThemeRepository.findCourseThemesByCourseId(
+        boolean themeTitleExists = courseThemeRepository.findCourseThemesByCourseIdOrderByCourseThemeNumber(
                         theme.getCourseId()).stream()
                 .anyMatch(t -> t.getTitle().equals(theme.getTitle()) && !t.getCourseThemeId().equals(themeId));
         if (themeTitleExists)

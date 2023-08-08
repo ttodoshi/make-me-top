@@ -35,7 +35,7 @@ public class CourseThemeService {
 
     public List<CourseTheme> getCourseThemesByCourseId(Integer courseId) {
         courseThemeValidator.validateGetThemesByCourseIdRequest(courseId);
-        return courseThemeRepository.findCourseThemesByCourseId(courseId);
+        return courseThemeRepository.findCourseThemesByCourseIdOrderByCourseThemeNumber(courseId);
     }
 
     @KafkaListener(topics = "courseThemeTopic", containerFactory = "themeKafkaListenerContainerFactory")
