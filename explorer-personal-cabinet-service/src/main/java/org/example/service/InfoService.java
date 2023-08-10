@@ -21,7 +21,7 @@ public class InfoService {
     public Map<String, Object> getExplorerPersonalCabinetInfo() {
         WebClient webClient = WebClient.create(INFO_APP_URL);
         return webClient.get()
-                .uri("explorer/")
+                .uri("explorer-cabinet/")
                 .header("Authorization", token)
                 .retrieve()
                 .onStatus(HttpStatus::isError, response -> {

@@ -47,7 +47,7 @@ public class ExplorerInformationController {
                                     mediaType = "*")
                     })
     })
-    public ResponseEntity<?> getKeeperRating(@PathVariable("personId") Integer personId) {
+    public ResponseEntity<?> getExplorerRating(@PathVariable("personId") Integer personId) {
         return ResponseEntity.ok(informationService.getExplorerRating(personId));
     }
 }

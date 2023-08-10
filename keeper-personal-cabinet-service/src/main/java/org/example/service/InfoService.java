@@ -21,7 +21,7 @@ public class InfoService {
     public Map<String, Object> getKeeperPersonalCabinetInfo() {
         WebClient webClient = WebClient.create(INFO_APP_URL);
         return webClient.get()
-                .uri("keeper/")
+                .uri("keeper-cabinet/")
                 .header("Authorization", token)
                 .retrieve()
                 .onStatus(HttpStatus::isError, response -> {

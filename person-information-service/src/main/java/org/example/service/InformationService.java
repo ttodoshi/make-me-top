@@ -207,7 +207,9 @@ public class InformationService {
         if (currentCourseOptional.isEmpty()) {
             Optional<CourseRegistrationRequestForKeeper> studyRequestOptional = courseRegistrationRequestRepository.getStudyRequestByPersonId(personId);
             if (studyRequestOptional.isPresent() && keeperRepository.getReferenceById(studyRequestOptional.get().getKeeperId()).getPersonId().equals(authenticatedPersonId)) {
-                response.put("studyRequest", studyRequestOptional.get());
+                CourseRegistrationRequestForKeeper studyRequest = studyRequestOptional.get();
+                studyRequest.setRating(getExplorerRating(studyRequest.getPersonId()));
+                response.put("studyRequest", studyRequest);
             }
         } else {
             if (roleService.hasAnyAuthenticationRole(AuthenticationRoleType.KEEPER)) {

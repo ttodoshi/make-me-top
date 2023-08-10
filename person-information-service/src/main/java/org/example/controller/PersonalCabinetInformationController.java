@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class PersonalCabinetInformationController {
     private final InformationService informationService;
 
-    @GetMapping("explorer")
+    @GetMapping("explorer-cabinet")
     @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).EXPLORER)")
     @Operation(summary = "Get explorer personal cabinet information", tags = "personal cabinet", hidden = true)
     @ApiResponses(value = {
@@ -38,7 +38,7 @@ public class PersonalCabinetInformationController {
         return ResponseEntity.ok(informationService.getExplorerCabinetInformation());
     }
 
-    @GetMapping("keeper")
+    @GetMapping("keeper-cabinet")
     @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).KEEPER)")
     @Operation(summary = "Get keeper personal cabinet information", tags = "personal cabinet", hidden = true)
     @ApiResponses(value = {

@@ -5,7 +5,6 @@ import org.example.dto.theme.CourseThemeUpdateRequest;
 import org.example.event.CourseThemeCreateEvent;
 import org.example.exception.classes.coursethemeEX.CourseThemeNotFoundException;
 import org.example.model.course.CourseTheme;
-import org.example.repository.CourseRepository;
 import org.example.repository.CourseThemeRepository;
 import org.example.validator.CourseThemeValidator;
 import org.modelmapper.ModelMapper;
@@ -21,7 +20,6 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class CourseThemeService {
-    private final CourseRepository courseRepository;
     private final CourseThemeRepository courseThemeRepository;
 
     private final CourseThemeValidator courseThemeValidator;

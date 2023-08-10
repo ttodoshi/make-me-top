@@ -12,7 +12,6 @@ import java.util.Collection;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 public class GalaxyInformationGetResponse extends GalaxyDTO {
-    private Integer galaxyId;
     private Integer systemCount;
     private Integer explorerCount;
     private Collection<ExplorerWithSystemsDTO> explorers;
@@ -20,8 +19,7 @@ public class GalaxyInformationGetResponse extends GalaxyDTO {
     private Collection<KeeperWithSystemsDTO> keepers;
 
     public GalaxyInformationGetResponse(Integer galaxyId, String galaxyName, String galaxyDescription, Integer systemCount, Integer explorerCount, Collection<ExplorerWithSystemsDTO> explorers, Integer keeperCount, Collection<KeeperWithSystemsDTO> keepers) {
-        super(galaxyName, galaxyDescription);
-        this.galaxyId = galaxyId;
+        super(galaxyId, galaxyName, galaxyDescription);
         this.systemCount = systemCount;
         this.explorerCount = explorerCount;
         this.explorers = explorers;
