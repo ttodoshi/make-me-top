@@ -3,15 +3,12 @@ package org.example.service;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.example.dto.galaxy.GalaxyInformationGetResponse;
-import org.example.dto.keeper.KeeperWithGalaxyDTO;
-import org.example.exception.classes.connectEX.ConnectException;
+import org.example.dto.person.PersonWithRatingAndGalaxyDTO;
+import org.example.logic.sort.AllPersonList;
+import org.example.logic.sort.PersonList;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
 
-import java.time.Duration;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,24 +17,24 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class KeeperService {
     private final ModelMapper mapper;
+    private final GalaxyRequestSender galaxyRequestSender;
 
-    @Value("${galaxy_app_url}")
-    private String GALAXY_APP_URL;
     @Setter
     private String token;
 
-    public List<KeeperWithGalaxyDTO> getKeepers(String sort, Integer galaxyId, Integer systemId) {
-        KeeperList keeperList = getKeeperList();
-        return keeperList.getKeepers();
+    public List<PersonWithRatingAndGalaxyDTO> getKeepers(String sort, Integer galaxyId, Integer systemId) {
+        PersonList personList = getKeeperList();
+        return personList.getPeople();
     }
 
-    private KeeperList getKeeperList() {
-        GalaxyInformationGetResponse[] galaxies = sendGetGalaxiesRequest();
-        List<KeeperWithGalaxyDTO> keepers = new LinkedList<>();
+    private PersonList getKeeperList() {
+        galaxyRequestSender.setToken(token);
+        GalaxyInformationGetResponse[] galaxies = galaxyRequestSender.sendGetGalaxiesRequest();
+        List<PersonWithRatingAndGalaxyDTO> keepers = new LinkedList<>();
         for (GalaxyInformationGetResponse galaxy : galaxies) {
-            List<KeeperWithGalaxyDTO> keepersFromGalaxy = galaxy.getKeepers().stream()
+            List<PersonWithRatingAndGalaxyDTO> keepersFromGalaxy = galaxy.getKeepers().stream()
                     .map(k -> {
-                        KeeperWithGalaxyDTO keeper = mapper.map(k, KeeperWithGalaxyDTO.class);
+                        PersonWithRatingAndGalaxyDTO keeper = mapper.map(k, PersonWithRatingAndGalaxyDTO.class);
                         return keeper
                                 .withGalaxyId(galaxy.getGalaxyId())
                                 .withGalaxyName(galaxy.getGalaxyName());
@@ -45,20 +42,6 @@ public class KeeperService {
                     .collect(Collectors.toList());
             keepers.addAll(keepersFromGalaxy);
         }
-        return new AllKeeperList(keepers);
-    }
-
-    private GalaxyInformationGetResponse[] sendGetGalaxiesRequest() {
-        WebClient webClient = WebClient.create(GALAXY_APP_URL);
-        return webClient.get()
-                .uri("galaxy/")
-                .header("Authorization", token)
-                .retrieve()
-                .onStatus(HttpStatus::isError, response -> {
-                    throw new ConnectException();
-                })
-                .bodyToMono(GalaxyInformationGetResponse[].class)
-                .timeout(Duration.ofSeconds(10))
-                .block();
+        return new AllPersonList(keepers);
     }
 }

@@ -1,4 +1,4 @@
-package org.example.dto.keeper;
+package org.example.dto.person;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,7 +11,7 @@ import java.util.List;
 @With
 @AllArgsConstructor
 @NoArgsConstructor
-public class KeeperWithGalaxyDTO {
+public class PersonWithRatingAndGalaxyDTO {
     private Integer personId;
     private String firstName;
     private String lastName;
