@@ -4,16 +4,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.example.dto.galaxy.GalaxyInformationGetResponse;
 import org.example.dto.person.PersonWithRatingAndGalaxyDTO;
-import org.example.exception.classes.connectEX.ConnectException;
 import org.example.logic.sort.AllPersonList;
 import org.example.logic.sort.PersonList;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
 
-import java.time.Duration;
 import java.time.Period;
 import java.util.LinkedList;
 import java.util.List;
