@@ -2,6 +2,7 @@ package org.example.repository;
 
 import org.example.dto.courseregistration.CourseRegistrationRequestForExplorer;
 import org.example.dto.courseregistration.CourseRegistrationRequestForKeeper;
+import org.example.dto.courseregistration.CourseRegistrationRequestForKeeperWithGalaxy;
 import org.example.model.courserequest.CourseRegistrationRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -20,13 +21,13 @@ public interface CourseRegistrationRequestRepository extends JpaRepository<Cours
             "WHERE k.personId = :personId AND crrs.status = 'PROCESSING'")
     List<CourseRegistrationRequestForKeeper> getStudyRequestsByKeeperPersonId(@Param("personId") Integer personId);
 
-    @Query(value = "SELECT new org.example.dto.courseregistration.CourseRegistrationRequestForKeeper(crr.requestId, p.personId, p.firstName, p.lastName, p.patronymic, c.courseId, c.title, crr.keeperId)\n" +
+    @Query(value = "SELECT new org.example.dto.courseregistration.CourseRegistrationRequestForKeeperWithGalaxy(crr.requestId, p.personId, p.firstName, p.lastName, p.patronymic, c.courseId, c.title, crr.keeperId)\n" +
             "FROM CourseRegistrationRequest crr\n" +
             "JOIN CourseRegistrationRequestStatus crrs ON crrs.statusId = crr.statusId\n" +
             "JOIN Course c ON c.courseId = crr.courseId\n" +
             "JOIN Person p ON p.personId = crr.personId\n" +
             "WHERE crr.personId = :personId AND crrs.status = 'PROCESSING'")
-    Optional<CourseRegistrationRequestForKeeper> getStudyRequestByPersonId(@Param("personId") Integer personId);
+    Optional<CourseRegistrationRequestForKeeperWithGalaxy> getStudyRequestByPersonId(@Param("personId") Integer personId);
 
     @Query(value = "SELECT new org.example.dto.courseregistration.CourseRegistrationRequestForExplorer(" +
             "\tcrr.requestId, c.courseId, c.title, p.personId, p.firstName, p.lastName, p.patronymic, k.keeperId" +

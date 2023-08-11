@@ -21,6 +21,7 @@ import org.example.model.courserequest.CourseRegistrationRequest;
 import org.example.repository.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -37,6 +38,8 @@ public class CourseProgressService {
     private final CourseRepository courseRepository;
     private final CourseThemeRepository courseThemeRepository;
     private final CourseRegistrationRequestRepository courseRegistrationRequestRepository;
+
+    private final KafkaTemplate<String, Integer> kafkaTemplate;
 
     @Setter
     private String token;
@@ -166,8 +169,13 @@ public class CourseProgressService {
         CourseRegistrationRequest request = courseRegistrationRequestRepository
                 .findApprovedCourseRegistrationRequestByPersonIdAndCourseId(personId, courseId);
         courseRegistrationRequestRepository.deleteById(request.getRequestId());
+        sendGalaxyCacheRefreshMessage(courseId);
         Map<String, String> response = new HashMap<>();
         response.put("message", "Вы ушли с курса " + courseId);
         return response;
+    }
+
+    private void sendGalaxyCacheRefreshMessage(Integer courseId) {
+        kafkaTemplate.send("galaxyCacheTopic", courseId);
     }
 }

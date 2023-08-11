@@ -43,17 +43,16 @@ public class PersonService {
     }
 
     private Person authenticatePerson(LoginRequest loginRequest) {
-        AuthResponseEmployee authResponse = authenticateEmployee(loginRequest);
-        return personRepository.findById(authResponse.getEmployeeId()).orElseGet(
-                () -> personRepository.save(personMapper.UserAuthResponseToPerson(authResponse))
-        );
+        AuthResponse response = sendAuthenticateRequest(loginRequest);
+        if (!response.getIsSuccess())
+            throw new PersonNotFoundException();
+        return findPerson(response.getObject());
     }
 
-    private AuthResponseEmployee authenticateEmployee(LoginRequest loginRequest) {
-        AuthResponse authResponse = sendAuthenticateRequest(loginRequest);
-        if (authResponse.getIsSuccess())
-            return authResponse.getObject();
-        throw new PersonNotFoundException();
+    private Person findPerson(AuthResponseEmployee employee) {
+        return personRepository.findById(employee.getEmployeeId()).orElseGet(
+                () -> personRepository.save(personMapper.UserAuthResponseToPerson(employee))
+        );
     }
 
     private AuthResponse sendAuthenticateRequest(LoginRequest loginRequest) {

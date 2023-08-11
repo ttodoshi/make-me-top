@@ -35,7 +35,7 @@ public class UserController {
                                     mediaType = "*")
                     })
     })
-    public ResponseEntity<?> logout(@Valid @RequestBody LoginRequest loginRequest,
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest,
                                     HttpServletResponse response) {
         return ResponseEntity.ok(personService.login(loginRequest, response));
     }
