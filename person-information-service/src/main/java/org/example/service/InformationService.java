@@ -122,7 +122,7 @@ public class InformationService {
         return Math.ceil(explorerFeedbackRepository.getKeeperRating(personId).orElse(0.0) * 10) / 10;
     }
 
-    private Optional<CurrentCourseProgressDTO> getCurrentCourseProgress(Integer personId) {
+    protected Optional<CurrentCourseProgressDTO> getCurrentCourseProgress(Integer personId) {
         Optional<CurrentCourseProgressDTO> currentCourseProgressOptional = Optional.empty();
         Optional<Integer> currentSystemIdOptional = courseThemeCompletionRepository.getCurrentInvestigatedCourseId(personId);
         if (currentSystemIdOptional.isEmpty())
