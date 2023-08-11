@@ -7,7 +7,7 @@ import org.example.dto.courseprogress.CourseThemeCompletionDTO;
 import org.example.dto.courseprogress.CourseWithThemesProgress;
 import org.example.dto.courseprogress.CurrentCourseProgressDTO;
 import org.example.dto.courseregistration.CourseRegistrationRequestForExplorer;
-import org.example.dto.courseregistration.CourseRegistrationRequestForKeeper;
+import org.example.dto.courseregistration.CourseRegistrationRequestForKeeperWithGalaxy;
 import org.example.dto.feedback.KeeperFeedbackDTO;
 import org.example.dto.feedback.PersonWithRating;
 import org.example.dto.galaxy.GalaxyDTO;
@@ -205,10 +205,13 @@ public class InformationService {
         response.put("totalSystems", explorerRepository.getExplorerSystemsCount(personId));
         Optional<CurrentCourseProgressDTO> currentCourseOptional = getCurrentCourseProgress(personId);
         if (currentCourseOptional.isEmpty()) {
-            Optional<CourseRegistrationRequestForKeeper> studyRequestOptional = courseRegistrationRequestRepository.getStudyRequestByPersonId(personId);
+            Optional<CourseRegistrationRequestForKeeperWithGalaxy> studyRequestOptional = courseRegistrationRequestRepository.getStudyRequestByPersonId(personId);
             if (studyRequestOptional.isPresent() && keeperRepository.getReferenceById(studyRequestOptional.get().getKeeperId()).getPersonId().equals(authenticatedPersonId)) {
-                CourseRegistrationRequestForKeeper studyRequest = studyRequestOptional.get();
+                CourseRegistrationRequestForKeeperWithGalaxy studyRequest = studyRequestOptional.get();
                 studyRequest.setRating(getExplorerRating(studyRequest.getPersonId()));
+                GalaxyDTO galaxy = getGalaxyByCourseId(studyRequest.getCourseId());
+                studyRequest.setGalaxyId(galaxy.getGalaxyId());
+                studyRequest.setGalaxyName(galaxy.getGalaxyName());
                 response.put("studyRequest", studyRequest);
             }
         } else {

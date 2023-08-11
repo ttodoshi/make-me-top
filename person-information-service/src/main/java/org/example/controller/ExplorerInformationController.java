@@ -34,7 +34,9 @@ public class ExplorerInformationController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> getInformation(@PathVariable Integer personId) {
+    public ResponseEntity<?> getInformation(@PathVariable Integer personId,
+                                            @RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token) {
+        informationService.setToken(token);
         return ResponseEntity.ok(informationService.getExplorerPublicInformation(personId));
     }
 
