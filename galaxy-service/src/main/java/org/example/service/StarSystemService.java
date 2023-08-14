@@ -89,7 +89,7 @@ public class StarSystemService {
         return starSystemRepository.save(updatedStarSystem);
     }
 
-    @CacheEvict(cacheNames = "galaxiesCache", key = "@orbitService.getOrbitById(@starSystemService.getStarSystemById(#systemId)).galaxyId")
+    @CacheEvict(cacheNames = "galaxiesCache", key = "@orbitService.getOrbitById(@starSystemService.getStarSystemById(#systemId)).galaxyId", beforeInvocation = true)
     public Map<String, String> deleteSystem(Integer systemId) {
         starSystemValidator.validateDeleteRequest(systemId);
         starSystemRepository.deleteById(systemId);

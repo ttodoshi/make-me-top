@@ -2,7 +2,7 @@ package org.example.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.example.config.RoleService;
+import org.example.config.security.RoleService;
 import org.example.dto.courseprogress.CourseThemeCompletionDTO;
 import org.example.dto.courseprogress.CourseWithThemesProgress;
 import org.example.dto.courseprogress.CurrentCourseProgressDTO;

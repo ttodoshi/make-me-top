@@ -1,4 +1,4 @@
-package org.example.config;
+package org.example.config.security;
 
 import lombok.RequiredArgsConstructor;
 import org.example.model.role.AuthenticationRoleType;
