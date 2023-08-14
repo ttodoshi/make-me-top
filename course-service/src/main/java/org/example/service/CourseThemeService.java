@@ -2,18 +2,17 @@ package org.example.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.dto.theme.CourseThemeUpdateRequest;
-import org.example.event.CourseThemeCreateEvent;
+import org.example.dto.event.CourseThemeCreateEvent;
 import org.example.exception.classes.coursethemeEX.CourseThemeNotFoundException;
 import org.example.model.course.CourseTheme;
 import org.example.repository.CourseThemeRepository;
-import org.example.validator.CourseThemeValidator;
+import org.example.service.validator.CourseThemeValidatorService;
 import org.modelmapper.ModelMapper;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -22,7 +21,7 @@ import java.util.List;
 public class CourseThemeService {
     private final CourseThemeRepository courseThemeRepository;
 
-    private final CourseThemeValidator courseThemeValidator;
+    private final CourseThemeValidatorService courseThemeValidatorService;
 
     private final ModelMapper mapper;
 
@@ -32,12 +31,11 @@ public class CourseThemeService {
     }
 
     public List<CourseTheme> getCourseThemesByCourseId(Integer courseId) {
-        courseThemeValidator.validateGetThemesByCourseIdRequest(courseId);
+        courseThemeValidatorService.validateGetThemesByCourseIdRequest(courseId);
         return courseThemeRepository.findCourseThemesByCourseIdOrderByCourseThemeNumber(courseId);
     }
 
     @KafkaListener(topics = "courseThemeTopic", containerFactory = "themeKafkaListenerContainerFactory")
-    @Transactional
     public CourseTheme createCourseTheme(@Header(KafkaHeaders.RECEIVED_MESSAGE_KEY) Integer courseId,
                                          @Payload CourseThemeCreateEvent courseThemeRequest) {
         CourseTheme theme = mapper.map(courseThemeRequest, CourseTheme.class);
@@ -45,16 +43,17 @@ public class CourseThemeService {
         return courseThemeRepository.save(theme);
     }
 
-    public CourseTheme updateCourseTheme(Integer courseThemeId,
-                                         CourseThemeUpdateRequest courseTheme) {
+    public CourseTheme updateCourseTheme(Integer courseThemeId, CourseThemeUpdateRequest courseTheme) {
         CourseTheme updatedTheme = courseThemeRepository.findById(courseThemeId)
                 .orElseThrow(() -> new CourseThemeNotFoundException(courseThemeId));
-        courseThemeValidator.validatePutRequest(courseThemeId, courseTheme);
-        updatedTheme.setCourseId(courseTheme.getCourseId());
-        updatedTheme.setTitle(courseTheme.getTitle());
-        updatedTheme.setDescription(courseTheme.getDescription());
-        updatedTheme.setContent(courseTheme.getContent());
-        updatedTheme.setCourseThemeNumber(courseTheme.getCourseThemeNumber());
-        return courseThemeRepository.save(updatedTheme);
+        courseThemeValidatorService.validatePutRequest(courseThemeId, courseTheme);
+        return courseThemeRepository.save(
+                updatedTheme
+                        .withCourseId(courseTheme.getCourseId())
+                        .withTitle(courseTheme.getTitle())
+                        .withDescription(courseTheme.getDescription())
+                        .withContent(courseTheme.getContent())
+                        .withCourseThemeNumber(courseTheme.getCourseThemeNumber())
+        );
     }
 }

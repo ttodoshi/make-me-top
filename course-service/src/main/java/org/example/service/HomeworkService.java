@@ -7,7 +7,7 @@ import org.example.dto.homework.HomeworkUpdateRequest;
 import org.example.exception.classes.homeworkEX.HomeworkNotFoundException;
 import org.example.model.homework.Homework;
 import org.example.repository.HomeworkRepository;
-import org.example.validator.HomeworkValidator;
+import org.example.service.validator.HomeworkValidatorService;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
@@ -21,18 +21,18 @@ import java.util.stream.Collectors;
 public class HomeworkService {
     private final HomeworkRepository homeworkRepository;
 
-    private final HomeworkValidator homeworkValidator;
+    private final HomeworkValidatorService homeworkValidatorService;
 
     private final ModelMapper mapper;
 
     public List<HomeworkDTO> getHomeworkByThemeId(Integer themeId) {
-        homeworkValidator.validateGetRequest(themeId);
+        homeworkValidatorService.validateGetRequest(themeId);
         return homeworkRepository.findHomeworksByCourseThemeId(themeId)
                 .stream().map(h -> mapper.map(h, HomeworkDTO.class)).collect(Collectors.toList());
     }
 
     public Homework addHomework(Integer themeId, HomeworkCreateRequest homework) {
-        homeworkValidator.validatePostRequest(themeId);
+        homeworkValidatorService.validatePostRequest(themeId);
         Homework createdHomework = new Homework();
         createdHomework.setContent(homework.getContent());
         createdHomework.setCourseThemeId(themeId);
@@ -40,7 +40,7 @@ public class HomeworkService {
     }
 
     public Homework updateHomework(Integer homeworkId, HomeworkUpdateRequest homework) {
-        homeworkValidator.validatePutRequest(homework.getCourseThemeId());
+        homeworkValidatorService.validatePutRequest(homework.getCourseThemeId());
         Homework updatedHomework = homeworkRepository.findById(homeworkId).orElseThrow(() -> new HomeworkNotFoundException(homeworkId));
         updatedHomework.setContent(homework.getContent());
         updatedHomework.setCourseThemeId(homework.getCourseThemeId());
@@ -48,7 +48,7 @@ public class HomeworkService {
     }
 
     public Map<String, String> deleteHomework(Integer homeworkId) {
-        homeworkValidator.validateDeleteRequest(homeworkId);
+        homeworkValidatorService.validateDeleteRequest(homeworkId);
         Map<String, String> response = new HashMap<>();
         homeworkRepository.deleteById(homeworkId);
         response.put("message", "Удалено задание " + homeworkId);

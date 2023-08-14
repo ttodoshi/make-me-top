@@ -25,7 +25,7 @@ public class KafkaConsumerConfig {
     public ConsumerFactory<String, Object> courseFactory() {
         Map<String, Object> properties = objectProperties();
         properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        properties.put(JsonDeserializer.TYPE_MAPPINGS, "course:org.example.event.CourseCreateEvent");
+        properties.put(JsonDeserializer.TYPE_MAPPINGS, "course:org.example.dto.event.CourseCreateEvent");
         return new DefaultKafkaConsumerFactory<>(properties);
     }
 
@@ -41,7 +41,7 @@ public class KafkaConsumerConfig {
     public ConsumerFactory<String, Object> themeFactory() {
         Map<String, Object> properties = objectProperties();
         properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, IntegerDeserializer.class);
-        properties.put(JsonDeserializer.TYPE_MAPPINGS, "theme:org.example.event.CourseThemeCreateEvent");
+        properties.put(JsonDeserializer.TYPE_MAPPINGS, "theme:org.example.dto.event.CourseThemeCreateEvent");
         return new DefaultKafkaConsumerFactory<>(properties);
     }
 

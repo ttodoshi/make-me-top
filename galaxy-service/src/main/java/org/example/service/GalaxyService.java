@@ -1,7 +1,6 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.example.dto.galaxy.GalaxyCreateRequest;
 import org.example.dto.galaxy.GalaxyDTO;
 import org.example.dto.galaxy.GalaxyGetResponse;
@@ -14,7 +13,7 @@ import org.example.model.Galaxy;
 import org.example.repository.GalaxyRepository;
 import org.example.repository.OrbitRepository;
 import org.example.repository.StarSystemRepository;
-import org.example.validator.GalaxyValidator;
+import org.example.service.validator.GalaxyValidatorService;
 import org.modelmapper.ModelMapper;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
@@ -32,16 +31,14 @@ public class GalaxyService {
     private final OrbitRepository orbitRepository;
     private final StarSystemRepository starSystemRepository;
 
-    private final GalaxyValidator galaxyValidator;
+    private final GalaxyValidatorService galaxyValidatorService;
     private final OrbitService orbitService;
     private final GalaxyInformationService galaxyInformationService;
 
     private final ModelMapper mapper;
-    @Setter
-    private String token;
 
+    @Transactional(readOnly = true)
     public List<GalaxyInformationGetResponse> getAllGalaxies() {
-        galaxyInformationService.setToken(token);
         List<GalaxyInformationGetResponse> galaxies = new LinkedList<>();
         for (Galaxy galaxy : galaxyRepository.findAll()) {
             galaxies.add(galaxyInformationService.getGalaxyInformation(galaxy));
@@ -49,9 +46,9 @@ public class GalaxyService {
         return galaxies;
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public GalaxyGetResponse getGalaxyById(Integer galaxyId) {
-        galaxyValidator.validateGetByIdRequest(galaxyId);
+        galaxyValidatorService.validateGetByIdRequest(galaxyId);
         GalaxyGetResponse galaxy = mapper.map(galaxyRepository.getReferenceById(galaxyId), GalaxyGetResponse.class);
         List<OrbitWithStarSystemsWithoutGalaxyIdGetResponse> orbitWithStarSystemsList = new LinkedList<>();
         orbitRepository.findOrbitsByGalaxyId(galaxyId).forEach(
@@ -74,7 +71,7 @@ public class GalaxyService {
 
     @Transactional
     public GalaxyGetResponse createGalaxy(GalaxyCreateRequest galaxyCreateRequest) {
-        galaxyValidator.validatePostRequest(galaxyCreateRequest);
+        galaxyValidatorService.validatePostRequest(galaxyCreateRequest);
         Galaxy galaxy = mapper.map(galaxyCreateRequest, Galaxy.class);
         Integer savedGalaxyId = galaxyRepository.save(galaxy).getGalaxyId();
         for (OrbitWithStarSystemsCreateRequest orbit : galaxyCreateRequest.getOrbitList()) {
@@ -85,7 +82,7 @@ public class GalaxyService {
 
     @CacheEvict(cacheNames = "galaxiesCache", key = "#galaxyId")
     public Galaxy updateGalaxy(Integer galaxyId, GalaxyDTO galaxy) {
-        galaxyValidator.validatePutRequest(galaxyId, galaxy);
+        galaxyValidatorService.validatePutRequest(galaxyId, galaxy);
         Galaxy updatedGalaxy = galaxyRepository.getReferenceById(galaxyId);
         updatedGalaxy.setGalaxyName(galaxy.getGalaxyName());
         updatedGalaxy.setGalaxyDescription(galaxy.getGalaxyDescription());
@@ -94,7 +91,7 @@ public class GalaxyService {
 
     @CacheEvict(cacheNames = "galaxiesCache", key = "#galaxyId")
     public Map<String, String> deleteGalaxy(Integer galaxyId) {
-        galaxyValidator.validateDeleteRequest(galaxyId);
+        galaxyValidatorService.validateDeleteRequest(galaxyId);
         galaxyRepository.deleteById(galaxyId);
         Map<String, String> response = new HashMap<>();
         response.put("message", "Галактика " + galaxyId + " была уничтожена квазаром");

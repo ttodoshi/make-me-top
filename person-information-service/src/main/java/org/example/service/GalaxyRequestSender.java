@@ -17,7 +17,7 @@ public class GalaxyRequestSender {
     @Setter
     private String token;
 
-    public GalaxyInformationGetResponse[] sendGetGalaxiesRequest() {
+    public GalaxyInformationGetResponse[] getGalaxies() {
         WebClient webClient = WebClient.create(GALAXY_APP_URL);
         return webClient.get()
                 .uri("galaxy/")

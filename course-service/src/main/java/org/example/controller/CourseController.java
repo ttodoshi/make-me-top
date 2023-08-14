@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.course.CourseUpdateRequest;
 import org.example.dto.keeper.KeeperCreateRequest;
+import org.example.repository.AuthorizationHeaderRepository;
 import org.example.service.CourseService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -34,9 +35,7 @@ public class CourseController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> getCourseById(@PathVariable("courseId") Integer courseId,
-                                           @RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token) {
-        courseService.setToken(token);
+    public ResponseEntity<?> getCourseById(@PathVariable("courseId") Integer courseId) {
         return ResponseEntity.ok(courseService.getCourse(courseId));
     }
 
@@ -52,9 +51,7 @@ public class CourseController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> getCoursesByGalaxyId(@PathVariable("galaxyId") Integer galaxyId,
-                                                  @RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token) {
-        courseService.setToken(token);
+    public ResponseEntity<?> getCoursesByGalaxyId(@PathVariable("galaxyId") Integer galaxyId) {
         return ResponseEntity.ok(courseService.getCoursesByGalaxyId(galaxyId));
     }
 
@@ -72,9 +69,7 @@ public class CourseController {
     })
     public ResponseEntity<?> updateCourse(@PathVariable("galaxyId") Integer galaxyId,
                                           @PathVariable Integer courseId,
-                                          @RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token,
                                           @Valid @RequestBody CourseUpdateRequest course) {
-        courseService.setToken(token);
         return ResponseEntity.ok(courseService.updateCourse(galaxyId, courseId, course));
     }
 

@@ -1,7 +1,6 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.example.dto.course.CourseGetResponse;
 import org.example.dto.explorer.ExplorerWithSystemsDTO;
@@ -9,6 +8,7 @@ import org.example.dto.galaxy.GalaxyInformationGetResponse;
 import org.example.dto.keeper.KeeperWithSystemsDTO;
 import org.example.model.Galaxy;
 import org.example.model.StarSystem;
+import org.example.repository.CourseRepository;
 import org.example.repository.GalaxyRepository;
 import org.example.repository.StarSystemRepository;
 import org.modelmapper.ModelMapper;
@@ -16,9 +16,8 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Duration;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -29,19 +28,18 @@ import java.util.Map;
 public class GalaxyInformationService {
     private final GalaxyRepository galaxyRepository;
     private final StarSystemRepository starSystemRepository;
+    private final CourseRepository courseRepository;
 
     private final ModelMapper mapper;
 
-    @Setter
-    private String token;
-
     @Cacheable(cacheNames = "galaxiesCache", key = "#galaxy.galaxyId")
+    @Transactional(readOnly = true)
     public GalaxyInformationGetResponse getGalaxyInformation(Galaxy galaxy) {
         List<StarSystem> systems = starSystemRepository.findSystemsByGalaxyId(galaxy.getGalaxyId());
         Map<Integer, KeeperWithSystemsDTO> keepers = new HashMap<>();
         Map<Integer, ExplorerWithSystemsDTO> explorers = new HashMap<>();
         for (StarSystem system : systems) {
-            CourseGetResponse course = getCourseById(system.getSystemId());
+            CourseGetResponse course = courseRepository.getCourseById(system.getSystemId());
             course.getExplorers().forEach(
                     e -> {
                         if (explorers.containsKey(e.getPersonId())) {
@@ -83,17 +81,6 @@ public class GalaxyInformationService {
                 keepers.size(),
                 keepers.values()
         );
-    }
-
-    private CourseGetResponse getCourseById(Integer courseId) {
-        WebClient webClient = WebClient.create("http://10.10.0.9:8106/course-app/");
-        return webClient.get()
-                .uri("course/" + courseId + "/")
-                .header("Authorization", token)
-                .retrieve()
-                .bodyToMono(CourseGetResponse.class)
-                .timeout(Duration.ofSeconds(5))
-                .block();
     }
 
     @KafkaListener(topics = "galaxyCacheTopic", containerFactory = "galaxyCacheKafkaListenerContainerFactory")

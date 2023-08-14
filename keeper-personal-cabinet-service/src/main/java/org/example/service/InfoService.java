@@ -1,7 +1,9 @@
 package org.example.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.example.exception.classes.connectEX.ConnectException;
+import org.example.repository.custom.AuthorizationHeaderRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
@@ -12,17 +14,17 @@ import java.time.Duration;
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class InfoService {
+    private final AuthorizationHeaderRepository authorizationHeaderRepository;
     @Value("${info_app_url}")
     private String INFO_APP_URL;
-    @Setter
-    private String token;
 
     public Map<String, Object> getKeeperPersonalCabinetInfo() {
         WebClient webClient = WebClient.create(INFO_APP_URL);
         return webClient.get()
                 .uri("keeper-cabinet/")
-                .header("Authorization", token)
+                .header("Authorization", authorizationHeaderRepository.getAuthorizationHeader())
                 .retrieve()
                 .onStatus(HttpStatus::isError, response -> {
                     throw new ConnectException();

@@ -1,13 +1,13 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.example.dto.courseprogress.CurrentCourseProgressDTO;
 import org.example.dto.explorer.ExplorerWithCurrentSystem;
 import org.example.dto.galaxy.GalaxyInformationGetResponse;
 import org.example.dto.person.PersonWithRatingAndGalaxyDTO;
-import org.example.logic.sort.AllPersonList;
-import org.example.logic.sort.PersonList;
+import org.example.repository.custom.GalaxyRepository;
+import org.example.service.sort.AllPersonList;
+import org.example.service.sort.PersonList;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
@@ -20,12 +20,10 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class ExplorerService {
-    private final ModelMapper mapper;
-    private final GalaxyRequestSender galaxyRequestSender;
-    private final InformationService informationService;
+    private final GalaxyRepository galaxyRepository;
 
-    @Setter
-    private String token;
+    private final InformationService informationService;
+    private final ModelMapper mapper;
 
     public List<Object> getExplorers(String sort, Period period, Integer systemId) {
         PersonList explorerList = getExplorerList();
@@ -42,8 +40,7 @@ public class ExplorerService {
     }
 
     private PersonList getExplorerList() {
-        galaxyRequestSender.setToken(token);
-        GalaxyInformationGetResponse[] galaxies = galaxyRequestSender.sendGetGalaxiesRequest();
+        GalaxyInformationGetResponse[] galaxies = galaxyRepository.getGalaxies();
         List<PersonWithRatingAndGalaxyDTO> explorers = new LinkedList<>();
         for (GalaxyInformationGetResponse galaxy : galaxies) {
             List<PersonWithRatingAndGalaxyDTO> explorersFromGalaxy = galaxy.getExplorers().stream()

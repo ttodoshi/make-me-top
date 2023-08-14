@@ -1,14 +1,13 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.example.dto.planet.PlanetCreateRequest;
 import org.example.dto.planet.PlanetUpdateRequest;
-import org.example.event.CourseThemeCreateEvent;
+import org.example.dto.event.CourseThemeCreateEvent;
 import org.example.exception.classes.planetEX.PlanetNotFoundException;
 import org.example.model.Planet;
 import org.example.repository.PlanetRepository;
-import org.example.validator.PlanetValidator;
+import org.example.service.validator.PlanetValidatorService;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -26,23 +25,18 @@ import java.util.Map;
 public class PlanetService {
     private final PlanetRepository planetRepository;
 
-    private final PlanetValidator planetValidator;
+    private final PlanetValidatorService planetValidatorService;
     private final ModelMapper mapper;
     private final KafkaTemplate<Integer, Object> kafkaTemplate;
 
-    @Setter
-    private String token;
-
     public List<Planet> getPlanetsListBySystemId(Integer systemId) {
-        planetValidator.setToken(token);
-        planetValidator.validateGetPlanetsRequest(systemId);
+        planetValidatorService.validateGetPlanetsRequest(systemId);
         return planetRepository.findPlanetsBySystemId(systemId);
     }
 
     @Transactional
     public List<Planet> addPlanets(Integer systemId, List<PlanetCreateRequest> planets) {
-        planetValidator.setToken(token);
-        planetValidator.validatePostRequest(systemId, planets);
+        planetValidatorService.validatePostRequest(systemId, planets);
         List<Planet> savedPlanets = new ArrayList<>();
         for (PlanetCreateRequest currentPlanet : planets) {
             Planet planet = mapper.map(currentPlanet, Planet.class);
@@ -64,8 +58,7 @@ public class PlanetService {
     public Planet updatePlanet(Integer planetId, PlanetUpdateRequest planet) {
         Planet updatedPlanet = planetRepository.findById(planetId)
                 .orElseThrow(() -> new PlanetNotFoundException(planetId));
-        planetValidator.setToken(token);
-        planetValidator.validatePutRequest(planetId, planet);
+        planetValidatorService.validatePutRequest(planetId, planet);
         updatedPlanet.setPlanetName(planet.getPlanetName());
         updatedPlanet.setSystemId(planet.getSystemId());
         updatedPlanet.setPlanetNumber(planet.getPlanetNumber());
@@ -73,7 +66,7 @@ public class PlanetService {
     }
 
     public Map<String, String> deletePlanetById(Integer planetId) {
-        planetValidator.validateDeleteRequest(planetId);
+        planetValidatorService.validateDeleteRequest(planetId);
         planetRepository.deleteById(planetId);
         Map<String, String> response = new HashMap<>();
         response.put("message", "Планета " + planetId + " подлежит уничтожению для создания межгалактической трассы");

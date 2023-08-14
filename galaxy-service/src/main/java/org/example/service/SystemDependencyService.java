@@ -8,7 +8,7 @@ import org.example.exception.classes.systemEX.SystemNotFoundException;
 import org.example.model.SystemDependency;
 import org.example.repository.DependencyRepository;
 import org.example.repository.StarSystemRepository;
-import org.example.validator.SystemDependencyValidator;
+import org.example.service.validator.SystemDependencyValidatorService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,13 +23,13 @@ public class SystemDependencyService {
     private final DependencyRepository dependencyRepository;
     private final StarSystemRepository starSystemRepository;
 
-    private final SystemDependencyValidator systemDependencyValidator;
+    private final SystemDependencyValidatorService systemDependencyValidatorService;
 
     @Transactional
     public List<SystemDependency> addDependency(List<DependencyCreateRequest> systemDependency) {
         List<SystemDependency> dependencies = new LinkedList<>();
         for (DependencyCreateRequest dependency : systemDependency) {
-            systemDependencyValidator.validateDependency(dependency);
+            systemDependencyValidatorService.validateDependency(dependency);
             dependencies.add(
                     dependencyRepository.save(
                             new SystemDependency(

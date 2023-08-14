@@ -9,8 +9,14 @@ import org.example.model.Explorer;
 import org.example.model.Person;
 import org.example.model.homework.HomeworkRequest;
 import org.example.model.homework.HomeworkRequestStatusType;
-import org.example.repository.*;
-import org.example.validator.HomeworkRequestValidator;
+import org.example.repository.ExplorerRepository;
+import org.example.repository.KeeperRepository;
+import org.example.repository.course.CourseRepository;
+import org.example.repository.course.CourseThemeRepository;
+import org.example.repository.homework.HomeworkRequestRepository;
+import org.example.repository.homework.HomeworkRequestStatusRepository;
+import org.example.repository.homework.HomeworkResponseRepository;
+import org.example.service.validator.HomeworkRequestValidatorService;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -31,7 +37,7 @@ public class HomeworkRequestService {
     private final HomeworkRequestStatusRepository homeworkRequestStatusRepository;
     private final HomeworkResponseRepository homeworkResponseRepository;
 
-    private final HomeworkRequestValidator homeworkRequestValidator;
+    private final HomeworkRequestValidatorService homeworkRequestValidatorService;
 
     private final ModelMapper mapper;
 
@@ -46,12 +52,12 @@ public class HomeworkRequestService {
                 .findHomeworkRequestByHomeworkIdAndExplorerId(homeworkId, explorer.getExplorerId());
         if (homeworkRequestOptional.isPresent()) {
             HomeworkRequest homeworkRequest = homeworkRequestOptional.get();
-            homeworkRequestValidator.validateExistingRequest(homeworkRequest);
+            homeworkRequestValidatorService.validateExistingRequest(homeworkRequest);
             homeworkRequest.setContent(request.getContent());
             homeworkRequest.setStatusId(checkingStatusId);
             return homeworkRequestRepository.save(homeworkRequest);
         } else {
-            homeworkRequestValidator.validateNewRequest(themeId, explorer);
+            homeworkRequestValidatorService.validateNewRequest(themeId, explorer);
             return homeworkRequestRepository.save(
                     HomeworkRequest.builder()
                             .homeworkId(homeworkId)
@@ -85,9 +91,9 @@ public class HomeworkRequestService {
                 .getStatusId();
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<GetHomeworkRequest> getHomeworkRequests(Integer themeId) {
-        homeworkRequestValidator.validateGetHomeworkRequests(themeId);
+        homeworkRequestValidatorService.validateGetHomeworkRequests(themeId);
         Integer personId = getAuthenticatedPersonId();
         Integer courseId = courseRepository.getCourseIdByThemeId(themeId);
         Explorer explorer = explorerRepository.findExplorerByPersonIdAndCourseId(personId, courseId).orElseThrow(() -> new ExplorerNotFoundException(courseId));

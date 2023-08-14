@@ -5,9 +5,9 @@ import org.example.dto.coursemark.MarkDTO;
 import org.example.dto.courseprogress.CourseThemeProgressDTO;
 import org.example.model.progress.CourseMark;
 import org.example.model.progress.CourseThemeCompletion;
-import org.example.repository.CourseMarkRepository;
-import org.example.repository.CourseThemeCompletionRepository;
-import org.example.validator.MarkValidator;
+import org.example.repository.courseprogress.CourseMarkRepository;
+import org.example.repository.courseprogress.CourseThemeCompletionRepository;
+import org.example.service.validator.MarkValidatorService;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,21 +18,19 @@ public class MarkService {
     private final CourseMarkRepository courseMarkRepository;
     private final CourseThemeCompletionRepository courseThemeCompletionRepository;
 
-    private final MarkValidator markValidator;
+    private final MarkValidatorService markValidatorService;
 
     private final ModelMapper mapper;
 
-    @Transactional
     public CourseMark setCourseMark(MarkDTO courseMark) {
-        markValidator.validateCourseMarkRequest(courseMark);
+        markValidatorService.validateCourseMarkRequest(courseMark);
         return courseMarkRepository.save(
                 mapper.map(courseMark, CourseMark.class)
         );
     }
 
-    @Transactional
     public CourseThemeCompletion setThemeMark(Integer themeId, MarkDTO mark) {
-        markValidator.validateThemeMarkRequest(themeId, mark);
+        markValidatorService.validateThemeMarkRequest(themeId, mark);
         return courseThemeCompletionRepository.save(
                 mapper.map(
                         new CourseThemeProgressDTO(
