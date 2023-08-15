@@ -8,6 +8,7 @@ build-job:       # This job runs in the build stage, which runs first.
         - pwd
         - cd /home/timur/builds/uuPDjeBa/0/Dkorolkov/mmtback
         - mvn clean package
+        - mvn -f ./config-service/pom.xml clean package
         - mvn -f ./discovery-service/pom.xml clean package
         - docker-compose up -d --build
         - echo "Скачалося и запустилося"

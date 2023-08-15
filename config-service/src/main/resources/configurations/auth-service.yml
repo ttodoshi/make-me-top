@@ -1,0 +1,19 @@
+server:
+  port: 8103
+spring:
+  application:
+    name: auth-service
+  datasource:
+    url: ${env:SPRING_DATASOURCE_URL}
+    username: postgres
+    password: pass
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    service-url:
+      defaultZone: http://10.10.0.12:8761/eureka

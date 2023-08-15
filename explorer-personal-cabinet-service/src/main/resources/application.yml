@@ -1,31 +1,5 @@
-server:
-  port: 8104
 spring:
   application:
     name: explorer-personal-cabinet-service
-  datasource:
-    password: pass
-    driver-class-name: org.postgresql.Driver
-    username: postgres
-    url: ${env:SPRING_DATASOURCE_URL}
-  kafka:
-    producer:
-      value-serializer: org.apache.kafka.common.serialization.IntegerSerializer
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-    template:
-      default-topic: galaxyCacheTopic
-    bootstrap-servers: ${env:SPRING_KAFKA_BOOTSTRAP_SERVERS}
-  jpa:
-    properties:
-      hibernate:
-        current_session_context_class: org.springframework.orm.hibernate5.SpringSessionContext
-        transaction:
-          jta:
-            platform: org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform
-    open-in-view: false
-eureka:
-  instance:
-    prefer-ip-address: true
-  client:
-    service-url:
-      defaultZone: http://10.10.0.12:8761/eureka
+  config:
+    import: optional:configserver:http://10.10.0.11:8888

@@ -81,10 +81,23 @@ services:
     ports:
       - "8761:8761"
     depends_on:
-      - postgres
+      - app_config_service
     networks:
       postgres:
         ipv4_address: 10.10.0.12
+
+  app_config_service:
+    container_name: app_config_service_container
+    build: ./config-service
+    ports:
+      - "8888:8888"
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+    networks:
+      postgres:
+        ipv4_address: 10.10.0.11
 
   app_galaxy:
     container_name: app_galaxy_container
