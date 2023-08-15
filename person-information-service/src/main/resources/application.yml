@@ -1,0 +1,25 @@
+server:
+  port: 8107
+spring:
+  application:
+    name: person-information-service
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    url: ${env:SPRING_DATASOURCE_URL}
+    password: pass
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate:
+        enable_lazy_load_no_trans: true
+        transaction:
+          jta:
+            platform: org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform
+        current_session_context_class: org.springframework.orm.hibernate5.SpringSessionContext
+eureka:
+  client:
+    service-url:
+      defaultZone: http://10.10.0.12:8761/eureka
+  instance:
+    prefer-ip-address: 'true'

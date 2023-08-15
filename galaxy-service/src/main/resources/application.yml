@@ -1,0 +1,32 @@
+server:
+  port: 8101
+spring:
+  application:
+    name: galaxy-service
+  datasource:
+    password: pass
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    url: ${env:SPRING_DATASOURCE_URL}
+  kafka:
+    producer:
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+    template:
+      default-topic: courseTopic
+    bootstrap-servers: ${env:SPRING_KAFKA_BOOTSTRAP_SERVERS}
+  jpa:
+    properties:
+      hibernate:
+        current_session_context_class: org.springframework.orm.hibernate5.SpringSessionContext
+        enable_lazy_load_no_trans: true
+        transaction:
+          jta:
+            platform: org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform
+    open-in-view: false
+eureka:
+  instance:
+    prefer-ip-address: 'true'
+  client:
+    service-url:
+      defaultZone: http://10.10.0.12:8761/eureka

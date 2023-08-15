@@ -1,0 +1,37 @@
+server:
+  port: 8102
+spring:
+  application:
+    name: planet-service
+  datasource:
+    password: pass
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    url: ${env:SPRING_DATASOURCE_URL}
+  kafka:
+    producer:
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      key-serializer: org.apache.kafka.common.serialization.IntegerSerializer
+    template:
+      default-topic: courseThemeTopic
+    bootstrap-servers: ${env:SPRING_KAFKA_BOOTSTRAP_SERVERS}
+    consumer:
+      properties:
+        spring:
+          json:
+            type:
+              mapping: theme:org.example.dto.event.CourseThemeCreateEvent
+  jpa:
+    properties:
+      hibernate:
+        current_session_context_class: org.springframework.orm.hibernate5.SpringSessionContext
+        transaction:
+          jta:
+            platform: org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform
+    open-in-view: false
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    service-url:
+      defaultZone: http://10.10.0.12:8761/eureka
