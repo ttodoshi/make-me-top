@@ -75,13 +75,24 @@ services:
         ipv4_address: 10.10.0.13
     restart: unless-stopped
 
+  app_discovery_service:
+    container_name: app_discovery_service_container
+    build: ./discovery-service
+    ports:
+      - "8761:8761"
+    depends_on:
+      - postgres
+    networks:
+      postgres:
+        ipv4_address: 10.10.0.12
+
   app_galaxy:
     container_name: app_galaxy_container
     build: ./galaxy-service
     ports:
       - "8101:8101"
     depends_on:
-      - postgres
+      - app_discovery_service
     volumes:
       - ./.logs/galaxy-service/:/app/logs/
     env_file:
@@ -95,7 +106,7 @@ services:
     ports:
       - "8102:8102"
     depends_on:
-      - postgres
+      - app_discovery_service
     volumes:
       - ./.logs/planet-service/:/app/logs/
     env_file:
@@ -110,7 +121,7 @@ services:
     ports:
       - "8103:8103"
     depends_on:
-      - postgres
+      - app_discovery_service
     volumes:
       - ./.logs/auth-service/:/app/logs/
     env_file:
@@ -125,7 +136,7 @@ services:
     ports:
       - "8106:8106"
     depends_on:
-      - postgres
+      - app_discovery_service
     volumes:
       - ./.logs/course-service/:/app/logs/
     env_file:
@@ -140,7 +151,7 @@ services:
     ports:
       - "8107:8107"
     depends_on:
-      - postgres
+      - app_discovery_service
     volumes:
       - ./.logs/person-information-service/:/app/logs/
     env_file:
@@ -154,30 +165,31 @@ services:
     ports:
       - "8104:8104"
     depends_on:
-      - postgres
+      - app_discovery_service
     volumes:
       - ./.logs/explorer-cabinet-service/:/app/logs/
     env_file:
       - .env
     networks:
       postgres:
-        ipv4_address: 10.10.0.5
+        ipv4_address: 10.10.0.4
   app_keeper_personal_cabinet:
     container_name: app_keeper_personal_cabinet_container
     build: ./keeper-personal-cabinet-service
     ports:
       - "8105:8105"
     depends_on:
-      - postgres
+      - app_discovery_service
     volumes:
       - ./.logs/keeper-cabinet-service/:/app/logs/
     env_file:
       - .env
     networks:
       postgres:
-        ipv4_address: 10.10.0.4
+        ipv4_address: 10.10.0.5
 
   nginx:
+    container_name: nginx
     image: nginx
     ports:
       - "4401:4401"

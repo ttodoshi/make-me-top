@@ -1,8 +1,9 @@
 package org.example.repository;
 
+import com.netflix.discovery.EurekaClient;
+import com.netflix.discovery.shared.Application;
 import lombok.RequiredArgsConstructor;
 import org.example.exception.classes.connectEX.ConnectException;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -13,13 +14,14 @@ import java.time.Duration;
 @RequiredArgsConstructor
 public class RatingRepositoryImpl implements RatingRepository {
     private final AuthorizationHeaderRepository authorizationHeaderRepository;
-    @Value("${info_app_url}")
-    private String INFO_APP_URL;
+
+    private final WebClient.Builder webClientBuilder;
 
     @Override
     public Double getExplorerRating(Integer personId) {
-        WebClient webClient = WebClient.create(INFO_APP_URL);
-        return webClient.get()
+        return webClientBuilder
+                .baseUrl("http://person-information-service/info/").build()
+                .get()
                 .uri("explorer/" + personId + "/rating/")
                 .header("Authorization", authorizationHeaderRepository.getAuthorizationHeader())
                 .retrieve()
@@ -33,8 +35,9 @@ public class RatingRepositoryImpl implements RatingRepository {
 
     @Override
     public Double getKeeperRating(Integer personId) {
-        WebClient webClient = WebClient.create(INFO_APP_URL);
-        return webClient.get()
+        return webClientBuilder
+                .baseUrl("http://person-information-service/info/").build()
+                .get()
                 .uri("keeper/" + personId + "/rating/")
                 .header("Authorization", authorizationHeaderRepository.getAuthorizationHeader())
                 .retrieve()

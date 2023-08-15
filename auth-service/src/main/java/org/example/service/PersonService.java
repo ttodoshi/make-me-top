@@ -29,6 +29,7 @@ public class PersonService {
 
     private final JwtServiceInterface jwtGenerator;
 
+    private final WebClient.Builder webClientBuilder;
     private final PersonMapper personMapper;
 
     @Value("${mmtr_auth_url}")
@@ -56,8 +57,9 @@ public class PersonService {
     }
 
     private AuthResponse sendAuthenticateRequest(LoginRequest loginRequest) {
-        WebClient webClient = WebClient.create(MMTR_AUTH_URL);
-        return webClient.post()
+        return webClientBuilder.baseUrl(MMTR_AUTH_URL).build()
+                .post()
+                .uri("ts-rest/SingleSignOn/authorization/")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(loginRequest)
                 .acceptCharset(StandardCharsets.UTF_8)

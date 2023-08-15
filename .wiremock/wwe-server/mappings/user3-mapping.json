@@ -1,7 +1,7 @@
 {
   "priority": 1,
   "request": {
-    "url": "/login/",
+    "url": "/ts-rest/SingleSignOn/authorization/",
     "method": "POST",
     "headers": {
       "Content-Type": {

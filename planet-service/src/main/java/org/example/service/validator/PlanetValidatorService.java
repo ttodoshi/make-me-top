@@ -10,7 +10,6 @@ import org.example.exception.classes.planetEX.PlanetNotFoundException;
 import org.example.exception.classes.systemEX.SystemNotFoundException;
 import org.example.repository.AuthorizationHeaderRepository;
 import org.example.repository.PlanetRepository;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -24,9 +23,7 @@ import java.util.List;
 public class PlanetValidatorService {
     private final PlanetRepository planetRepository;
     private final AuthorizationHeaderRepository authorizationHeaderRepository;
-
-    @Value("${galaxy_app_url}")
-    private String GALAXY_APP_URL;
+    private final WebClient.Builder webClientBuilder;
 
     public void validateGetPlanetsRequest(Integer systemId) {
         checkSystemExists(systemId);
@@ -55,8 +52,9 @@ public class PlanetValidatorService {
     }
 
     private void checkSystemExists(Integer systemId) {
-        WebClient webClient = WebClient.create(GALAXY_APP_URL);
-        webClient.get()
+        webClientBuilder
+                .baseUrl("http://galaxy-service/galaxy-app/").build()
+                .get()
                 .uri("system/" + systemId)
                 .header("Authorization", authorizationHeaderRepository.getAuthorizationHeader())
                 .retrieve()
