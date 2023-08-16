@@ -78,10 +78,12 @@
     </root>
 
     <logger name="org.example" level="warn" additivity="false">
+        <appender-ref ref="InfoLogFile"/>
         <appender-ref ref="ErrorLogFile"/>
         <appender-ref ref="Console"/>
     </logger>
     <logger name="org.springframework" level="info" additivity="false">
+        <appender-ref ref="InfoLogFile"/>
         <appender-ref ref="Console"/>
     </logger>
 

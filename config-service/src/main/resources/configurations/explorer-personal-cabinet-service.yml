@@ -3,6 +3,12 @@ server:
 spring:
   application:
     name: explorer-personal-cabinet-service
+  boot:
+    admin:
+      client:
+        url: http://admin-service/
+        username: admin
+        password: admin
   datasource:
     password: pass
     driver-class-name: org.postgresql.Driver
@@ -29,4 +35,15 @@ eureka:
   client:
     service-url:
       defaultZone: http://10.10.0.12:8761/eureka
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    logfile:
+      enabled: true
+logging:
+  file:
+    name: logs/info.log
 secret-key: secretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecret

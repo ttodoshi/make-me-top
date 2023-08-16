@@ -8,7 +8,6 @@
         <artifactId>mmt-back</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-    <groupId>org.example</groupId>
     <artifactId>galaxy-service</artifactId>
     <version>1.0-SNAPSHOT</version>
 

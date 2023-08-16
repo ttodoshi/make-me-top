@@ -3,6 +3,12 @@ server:
 spring:
   application:
     name: person-information-service
+  boot:
+    admin:
+      client:
+        url: http://admin-service/
+        username: admin
+        password: admin
   datasource:
     driver-class-name: org.postgresql.Driver
     username: postgres
@@ -23,4 +29,15 @@ eureka:
       defaultZone: http://10.10.0.12:8761/eureka
   instance:
     prefer-ip-address: 'true'
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    logfile:
+      enabled: true
+logging:
+  file:
+    name: logs/info.log
 secret-key: secretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecret

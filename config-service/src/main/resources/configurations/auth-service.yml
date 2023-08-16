@@ -3,6 +3,12 @@ server:
 spring:
   application:
     name: auth-service
+  boot:
+    admin:
+      client:
+        url: http://admin-service/
+        username: admin
+        password: admin
   datasource:
     url: jdbc:postgresql://10.10.0.14:5432/mmt
     username: postgres
@@ -17,5 +23,16 @@ eureka:
   client:
     service-url:
       defaultZone: http://10.10.0.12:8761/eureka
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    logfile:
+      enabled: true
+logging:
+  file:
+    name: logs/info.log
 mmtr-auth-url: http://10.10.0.15:8080/
 secret-key: secretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecret
