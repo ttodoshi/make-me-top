@@ -4,7 +4,7 @@ spring:
   application:
     name: auth-service
   datasource:
-    url: ${env:SPRING_DATASOURCE_URL}
+    url: jdbc:postgresql://10.10.0.14:5432/mmt
     username: postgres
     password: pass
     driver-class-name: org.postgresql.Driver
@@ -17,3 +17,5 @@ eureka:
   client:
     service-url:
       defaultZone: http://10.10.0.12:8761/eureka
+mmtr-auth-url: http://10.10.0.15:8080/
+secret-key: secretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecret

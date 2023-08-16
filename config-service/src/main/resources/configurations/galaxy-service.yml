@@ -7,14 +7,14 @@ spring:
     password: pass
     driver-class-name: org.postgresql.Driver
     username: postgres
-    url: ${env:SPRING_DATASOURCE_URL}
+    url: jdbc:postgresql://10.10.0.14:5432/mmt
   kafka:
     producer:
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
     template:
       default-topic: courseTopic
-    bootstrap-servers: ${env:SPRING_KAFKA_BOOTSTRAP_SERVERS}
+    bootstrap-servers: 10.10.0.16:29092
   jpa:
     properties:
       hibernate:
@@ -30,3 +30,4 @@ eureka:
   client:
     service-url:
       defaultZone: http://10.10.0.12:8761/eureka
+secret-key: secretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecret

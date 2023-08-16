@@ -6,7 +6,7 @@ spring:
   datasource:
     driver-class-name: org.postgresql.Driver
     username: postgres
-    url: ${env:SPRING_DATASOURCE_URL}
+    url: jdbc:postgresql://10.10.0.14:5432/mmt
     password: pass
   jpa:
     open-in-view: false
@@ -23,3 +23,4 @@ eureka:
       defaultZone: http://10.10.0.12:8761/eureka
   instance:
     prefer-ip-address: 'true'
+secret-key: secretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecret

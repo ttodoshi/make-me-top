@@ -32,7 +32,7 @@ public class PersonService {
     private final WebClient.Builder webClientBuilder;
     private final PersonMapper personMapper;
 
-    @Value("${mmtr_auth_url}")
+    @Value("${mmtr-auth-url}")
     private String MMTR_AUTH_URL;
 
     public String login(LoginRequest request, HttpServletResponse response) {

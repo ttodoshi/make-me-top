@@ -1,15 +1,14 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.dto.event.CourseThemeCreateEvent;
 import org.example.dto.planet.PlanetCreateRequest;
 import org.example.dto.planet.PlanetUpdateRequest;
-import org.example.dto.event.CourseThemeCreateEvent;
 import org.example.exception.classes.planetEX.PlanetNotFoundException;
 import org.example.model.Planet;
 import org.example.repository.PlanetRepository;
 import org.example.service.validator.PlanetValidatorService;
 import org.modelmapper.ModelMapper;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +20,6 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
-@PropertySource(value = {"classpath:config.properties"})
 public class PlanetService {
     private final PlanetRepository planetRepository;
 
