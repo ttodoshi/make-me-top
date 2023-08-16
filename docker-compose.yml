@@ -82,7 +82,7 @@ services:
       - "8761:8761"
     healthcheck:
       test: [ "CMD", "wget", "--spider", "http://localhost:8761/actuator/health" ]
-      interval: 25s
+      interval: 20s
       timeout: 5s
       retries: 5
     depends_on:
@@ -99,7 +99,7 @@ services:
       - "8888:8888"
     healthcheck:
       test: [ "CMD", "wget", "--spider", "http://localhost:8888/actuator/health" ]
-      interval: 25s
+      interval: 20s
       timeout: 5s
       retries: 5
     depends_on:
