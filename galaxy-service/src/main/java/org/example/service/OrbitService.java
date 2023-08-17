@@ -78,7 +78,7 @@ public class OrbitService {
         return orbitRepository.save(updatedOrbit);
     }
 
-    @CacheEvict(cacheNames = "galaxiesCache", key = "@orbitService.getOrbitById(#orbitId).galaxyId")
+    @CacheEvict(cacheNames = "galaxiesCache", key = "@orbitService.getOrbitById(#orbitId).galaxyId", beforeInvocation = true)
     public Map<String, String> deleteOrbit(Integer orbitId) {
         orbitValidatorService.validateDeleteRequest(orbitId);
         orbitRepository.deleteById(orbitId);
