@@ -4,14 +4,12 @@ stages:          #  of stages for jobs, and their order of execution
 build-job:       # This job runs in the build stage, which runs first.
   stage: build
   script:
-        - echo "\nСобираем проект...\n"
-        - pwd
-        - cd /home/timur/builds/uuPDjeBa/0/Dkorolkov/mmtback
+        - echo -e "\nСобираем проект...\n"
         - mvn clean package
         - mvn -f ./config-service/pom.xml clean package
         - mvn -f ./discovery-service/pom.xml clean package
         - mvn -f ./admin-service/pom.xml clean package
         - docker-compose up -d --build
-        - echo "\nЗапустилося!!\n"
+        - echo -e "\nЗапустилося!!\n"
   rules:
     - if: ($CI_COMMIT_BRANCH == "master")
