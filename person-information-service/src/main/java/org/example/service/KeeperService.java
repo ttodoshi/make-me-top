@@ -1,11 +1,11 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.example.dto.galaxy.GalaxyInformationGetResponse;
 import org.example.dto.person.PersonWithRatingAndGalaxyDTO;
-import org.example.logic.sort.AllPersonList;
-import org.example.logic.sort.PersonList;
+import org.example.repository.custom.GalaxyRepository;
+import org.example.service.sort.AllPersonList;
+import org.example.service.sort.PersonList;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
@@ -16,11 +16,9 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class KeeperService {
-    private final ModelMapper mapper;
-    private final GalaxyRequestSender galaxyRequestSender;
+    private final GalaxyRepository galaxyRepository;
 
-    @Setter
-    private String token;
+    private final ModelMapper mapper;
 
     public List<PersonWithRatingAndGalaxyDTO> getKeepers(String sort, Integer galaxyId, Integer systemId) {
         PersonList personList = getKeeperList();
@@ -28,8 +26,7 @@ public class KeeperService {
     }
 
     private PersonList getKeeperList() {
-        galaxyRequestSender.setToken(token);
-        GalaxyInformationGetResponse[] galaxies = galaxyRequestSender.sendGetGalaxiesRequest();
+        GalaxyInformationGetResponse[] galaxies = galaxyRepository.getGalaxies();
         List<PersonWithRatingAndGalaxyDTO> keepers = new LinkedList<>();
         for (GalaxyInformationGetResponse galaxy : galaxies) {
             List<PersonWithRatingAndGalaxyDTO> keepersFromGalaxy = galaxy.getKeepers().stream()

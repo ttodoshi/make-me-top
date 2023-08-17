@@ -75,17 +75,58 @@ services:
         ipv4_address: 10.10.0.13
     restart: unless-stopped
 
+  app_discovery_service:
+    container_name: app_discovery_service_container
+    build: ./discovery-service
+    ports:
+      - "8761:8761"
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "http://localhost:8761/actuator/health" ]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      app_config_service:
+        condition: service_healthy
+    networks:
+      postgres:
+        ipv4_address: 10.10.0.12
+
+  app_config_service:
+    container_name: app_config_service_container
+    build: ./config-service
+    ports:
+      - "8888:8888"
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "http://localhost:8888/actuator/health" ]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      - postgres
+    networks:
+      postgres:
+        ipv4_address: 10.10.0.11
+  app_admin_service:
+    container_name: app_admin_service_container
+    build: ./admin-service
+    ports:
+      - "8108:8108"
+    depends_on:
+      app_discovery_service:
+        condition: service_healthy
+    networks:
+      postgres:
+        ipv4_address: 10.10.0.17
+
   app_galaxy:
     container_name: app_galaxy_container
     build: ./galaxy-service
     ports:
       - "8101:8101"
     depends_on:
-      - postgres
-    volumes:
-      - ./.logs/galaxy-service/:/app/logs/
-    env_file:
-      - .env
+      app_discovery_service:
+        condition: service_healthy
     networks:
       postgres:
         ipv4_address: 10.10.0.8
@@ -95,11 +136,8 @@ services:
     ports:
       - "8102:8102"
     depends_on:
-      - postgres
-    volumes:
-      - ./.logs/planet-service/:/app/logs/
-    env_file:
-      - .env
+      app_discovery_service:
+        condition: service_healthy
     networks:
       postgres:
         ipv4_address: 10.10.0.7
@@ -110,11 +148,8 @@ services:
     ports:
       - "8103:8103"
     depends_on:
-      - postgres
-    volumes:
-      - ./.logs/auth-service/:/app/logs/
-    env_file:
-      - .env
+      app_discovery_service:
+        condition: service_healthy
     networks:
       postgres:
         ipv4_address: 10.10.0.6
@@ -125,11 +160,8 @@ services:
     ports:
       - "8106:8106"
     depends_on:
-      - postgres
-    volumes:
-      - ./.logs/course-service/:/app/logs/
-    env_file:
-      - .env
+      app_discovery_service:
+        condition: service_healthy
     networks:
       postgres:
         ipv4_address: 10.10.0.9
@@ -140,11 +172,8 @@ services:
     ports:
       - "8107:8107"
     depends_on:
-      - postgres
-    volumes:
-      - ./.logs/person-information-service/:/app/logs/
-    env_file:
-      - .env
+      app_discovery_service:
+        condition: service_healthy
     networks:
       postgres:
         ipv4_address: 10.10.0.10
@@ -154,30 +183,25 @@ services:
     ports:
       - "8104:8104"
     depends_on:
-      - postgres
-    volumes:
-      - ./.logs/explorer-cabinet-service/:/app/logs/
-    env_file:
-      - .env
+      app_discovery_service:
+        condition: service_healthy
     networks:
       postgres:
-        ipv4_address: 10.10.0.5
+        ipv4_address: 10.10.0.4
   app_keeper_personal_cabinet:
     container_name: app_keeper_personal_cabinet_container
     build: ./keeper-personal-cabinet-service
     ports:
       - "8105:8105"
     depends_on:
-      - postgres
-    volumes:
-      - ./.logs/keeper-cabinet-service/:/app/logs/
-    env_file:
-      - .env
+      app_discovery_service:
+        condition: service_healthy
     networks:
       postgres:
-        ipv4_address: 10.10.0.4
+        ipv4_address: 10.10.0.5
 
   nginx:
+    container_name: nginx
     image: nginx
     ports:
       - "4401:4401"

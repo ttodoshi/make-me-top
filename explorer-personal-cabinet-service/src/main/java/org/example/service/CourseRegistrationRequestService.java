@@ -1,7 +1,6 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.example.dto.courseregistration.CreateCourseRegistrationRequest;
 import org.example.exception.classes.requestEX.PersonIsNotPersonInRequestException;
 import org.example.exception.classes.requestEX.RequestNotFoundException;
@@ -9,9 +8,9 @@ import org.example.exception.classes.requestEX.StatusNotFoundException;
 import org.example.model.Person;
 import org.example.model.courserequest.CourseRegistrationRequest;
 import org.example.model.courserequest.CourseRegistrationRequestStatusType;
-import org.example.repository.CourseRegistrationRequestRepository;
-import org.example.repository.CourseRegistrationRequestStatusRepository;
-import org.example.validator.CourseRegistrationRequestValidator;
+import org.example.repository.courseregistration.CourseRegistrationRequestRepository;
+import org.example.repository.courseregistration.CourseRegistrationRequestStatusRepository;
+import org.example.service.validator.CourseRegistrationRequestValidatorService;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -25,17 +24,13 @@ public class CourseRegistrationRequestService {
     private final CourseRegistrationRequestRepository courseRegistrationRequestRepository;
     private final CourseRegistrationRequestStatusRepository courseRegistrationRequestStatusRepository;
 
-    private final CourseRegistrationRequestValidator courseRegistrationRequestValidator;
+    private final CourseRegistrationRequestValidatorService courseRegistrationRequestValidatorService;
 
     private final ModelMapper mapper;
 
-    @Setter
-    private String token;
-
     public CourseRegistrationRequest sendRequest(CreateCourseRegistrationRequest request) {
         Integer authenticatedPersonId = getAuthenticatedPersonId();
-        courseRegistrationRequestValidator.setToken(token);
-        courseRegistrationRequestValidator.validateSendRequest(authenticatedPersonId, request);
+        courseRegistrationRequestValidatorService.validateSendRequest(authenticatedPersonId, request);
         CourseRegistrationRequest courseRegistrationRequest = mapper.map(request, CourseRegistrationRequest.class);
         courseRegistrationRequest.setStatusId(
                 courseRegistrationRequestStatusRepository

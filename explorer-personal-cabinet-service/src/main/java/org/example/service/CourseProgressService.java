@@ -1,7 +1,6 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.example.dto.courseprogress.CourseThemeCompletionDTO;
 import org.example.dto.courseprogress.CourseWithProgress;
 import org.example.dto.courseprogress.CourseWithThemesProgress;
@@ -9,24 +8,23 @@ import org.example.dto.courseprogress.CoursesState;
 import org.example.dto.starsystem.StarSystemDTO;
 import org.example.dto.starsystem.StarSystemWithDependenciesGetResponse;
 import org.example.dto.starsystem.SystemDependencyModel;
-import org.example.exception.classes.connectEX.ConnectException;
 import org.example.exception.classes.courseEX.CourseNotFoundException;
 import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
-import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
 import org.example.model.Explorer;
 import org.example.model.Person;
 import org.example.model.course.Course;
 import org.example.model.course.CourseTheme;
 import org.example.model.courserequest.CourseRegistrationRequest;
 import org.example.repository.*;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
+import org.example.repository.course.CourseRepository;
+import org.example.repository.course.CourseThemeRepository;
+import org.example.repository.courseprogress.CourseThemeCompletionRepository;
+import org.example.repository.courseregistration.CourseRegistrationRequestRepository;
+import org.example.repository.custom.StarSystemRepository;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
 
-import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -38,20 +36,16 @@ public class CourseProgressService {
     private final CourseRepository courseRepository;
     private final CourseThemeRepository courseThemeRepository;
     private final CourseRegistrationRequestRepository courseRegistrationRequestRepository;
+    private final StarSystemRepository starSystemRepository;
 
     private final KafkaTemplate<String, Integer> kafkaTemplate;
-
-    @Setter
-    private String token;
-    @Value("${galaxy_app_url}")
-    private String GALAXY_APP_URL;
 
     public CoursesState getCoursesProgressForCurrentUser(Integer galaxyId) {
         Person authenticatedPerson = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Set<Integer> openedCourses = new LinkedHashSet<>();
         Set<CourseWithProgress> studiedCourses = new LinkedHashSet<>();
         Set<Integer> closedCourses = new LinkedHashSet<>();
-        for (StarSystemDTO system : getSystemsByGalaxyId(galaxyId)) {
+        for (StarSystemDTO system : starSystemRepository.getSystemsByGalaxyId(galaxyId)) {
             Optional<Explorer> explorerOptional = explorerRepository.findExplorerByPersonIdAndCourseId(
                     authenticatedPerson.getPersonId(), system.getSystemId());
             if (explorerOptional.isPresent()) {
@@ -75,22 +69,6 @@ public class CourseProgressService {
                 .studiedCourses(studiedCourses)
                 .closedCourses(closedCourses)
                 .build();
-    }
-
-    private StarSystemDTO[] getSystemsByGalaxyId(Integer galaxyId) {
-        WebClient webClient = WebClient.create(GALAXY_APP_URL);
-        return webClient.get()
-                .uri("galaxy/" + galaxyId + "/system/")
-                .header("Authorization", token)
-                .retrieve()
-                .onStatus(HttpStatus.NOT_FOUND::equals, response -> {
-                    throw new GalaxyNotFoundException(galaxyId);
-                })
-                .onStatus(HttpStatus::isError, response -> {
-                    throw new ConnectException();
-                })
-                .bodyToMono(StarSystemDTO[].class)
-                .block(Duration.ofSeconds(5));
     }
 
     public CourseWithThemesProgress getThemesProgressByCourseId(Integer systemId) {
@@ -120,7 +98,8 @@ public class CourseProgressService {
 
     public boolean hasUncompletedParents(Integer personId, Integer systemId) {
         boolean parentsUncompleted = false;
-        StarSystemWithDependenciesGetResponse systemWithDependencies = getStarSystemWithDependencies(systemId);
+        StarSystemWithDependenciesGetResponse systemWithDependencies = starSystemRepository
+                .getStarSystemWithDependencies(systemId);
         if (systemWithDependencies == null)
             return false;
         for (SystemDependencyModel system : getParentDependencies(systemWithDependencies)) {
@@ -132,23 +111,6 @@ public class CourseProgressService {
                 return false;
         }
         return parentsUncompleted;
-    }
-
-    private StarSystemWithDependenciesGetResponse getStarSystemWithDependencies(Integer systemId) {
-        WebClient webClient = WebClient.create(GALAXY_APP_URL);
-        return webClient.get()
-                .uri("system/" + systemId + "?withDependencies=true")
-                .header("Authorization", token)
-                .retrieve()
-                .onStatus(HttpStatus.NOT_FOUND::equals, response -> {
-                    throw new CourseNotFoundException(systemId);
-                })
-                .onStatus(HttpStatus::isError, response -> {
-                    throw new ConnectException();
-                })
-                .bodyToMono(StarSystemWithDependenciesGetResponse.class)
-                .timeout(Duration.ofSeconds(5))
-                .block();
     }
 
     private List<SystemDependencyModel> getParentDependencies(StarSystemWithDependenciesGetResponse systemWithDependencies) {

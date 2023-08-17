@@ -33,8 +33,7 @@ public class InfoController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> getKeeperPersonalCabinetInfo(@RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token) {
-        infoService.setToken(token);
+    public ResponseEntity<?> getKeeperPersonalCabinetInfo() {
         return ResponseEntity.ok(infoService.getKeeperPersonalCabinetInfo());
     }
 }

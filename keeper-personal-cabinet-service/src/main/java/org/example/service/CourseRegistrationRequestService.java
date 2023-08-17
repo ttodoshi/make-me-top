@@ -10,8 +10,12 @@ import org.example.model.courserequest.CourseRegistrationRequest;
 import org.example.model.courserequest.CourseRegistrationRequestStatusType;
 import org.example.model.courserequest.KeeperRejection;
 import org.example.model.courserequest.RejectionReason;
-import org.example.repository.*;
-import org.example.validator.CourseRegistrationRequestValidator;
+import org.example.repository.ExplorerRepository;
+import org.example.repository.courseregistration.CourseRegistrationRequestRepository;
+import org.example.repository.courseregistration.CourseRegistrationRequestStatusRepository;
+import org.example.repository.courseregistration.KeeperRejectionRepository;
+import org.example.repository.courseregistration.RejectionReasonRepository;
+import org.example.service.validator.CourseRegistrationRequestValidatorService;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,13 +32,13 @@ public class CourseRegistrationRequestService {
     private final ExplorerRepository explorerRepository;
 
     private final KafkaTemplate<String, Integer> kafkaTemplate;
-    private final CourseRegistrationRequestValidator courseRegistrationRequestValidator;
+    private final CourseRegistrationRequestValidatorService courseRegistrationRequestValidatorService;
 
     @Transactional
     public CourseRegistrationRequest replyToRequest(Integer requestId, CourseRegistrationRequestReply requestReply) {
         CourseRegistrationRequest request = courseRegistrationRequestRepository
                 .findById(requestId).orElseThrow(() -> new RequestNotFoundException(requestId));
-        courseRegistrationRequestValidator.validateRequest(request);
+        courseRegistrationRequestValidatorService.validateRequest(request);
         CourseRegistrationRequestStatusType status;
         if (requestReply.getApproved()) {
             status = CourseRegistrationRequestStatusType.APPROVED;
@@ -63,9 +67,8 @@ public class CourseRegistrationRequestService {
         kafkaTemplate.send("galaxyCacheTopic", courseId);
     }
 
-    @Transactional
     public KeeperRejection sendRejection(Integer requestId, KeeperRejectionDTO rejection) {
-        courseRegistrationRequestValidator.validateRejectionRequest(requestId);
+        courseRegistrationRequestValidatorService.validateRejectionRequest(requestId);
         return keeperRejectionRepository.save(
                 KeeperRejection.builder()
                         .requestId(requestId)

@@ -2,12 +2,10 @@ package org.example.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.example.service.CourseProgressService;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -30,9 +28,7 @@ public class CourseProgressController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> getCoursesProgressForCurrentUser(@PathVariable("galaxyId") Integer galaxyId,
-                                                              @RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token) {
-        courseProgressService.setToken(token);
+    public ResponseEntity<?> getCoursesProgressForCurrentUser(@PathVariable("galaxyId") Integer galaxyId) {
         return ResponseEntity.ok(
                 courseProgressService.getCoursesProgressForCurrentUser(galaxyId));
     }

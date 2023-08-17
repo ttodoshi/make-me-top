@@ -1,36 +1,46 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import org.example.dto.courseprogress.CurrentCourseProgressDTO;
+import org.example.dto.explorer.ExplorerWithCurrentSystem;
 import org.example.dto.galaxy.GalaxyInformationGetResponse;
 import org.example.dto.person.PersonWithRatingAndGalaxyDTO;
-import org.example.logic.sort.AllPersonList;
-import org.example.logic.sort.PersonList;
+import org.example.repository.custom.GalaxyRepository;
+import org.example.service.sort.AllPersonList;
+import org.example.service.sort.PersonList;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.time.Period;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class ExplorerService {
+    private final GalaxyRepository galaxyRepository;
+
+    private final InformationService informationService;
     private final ModelMapper mapper;
-    private final GalaxyRequestSender galaxyRequestSender;
 
-    @Setter
-    private String token;
-
-    public List<PersonWithRatingAndGalaxyDTO> getExplorers(String sort, Period period, Integer systemId) {
+    public List<Object> getExplorers(String sort, Period period, Integer systemId) {
         PersonList explorerList = getExplorerList();
-        return explorerList.getPeople();
+        return explorerList.getPeople().stream()
+                .map(p -> {
+                    Optional<CurrentCourseProgressDTO> currentCourseProgressDTOOptional = informationService.getCurrentCourseProgress(p.getPersonId());
+                    if (currentCourseProgressDTOOptional.isPresent()) {
+                        CurrentCourseProgressDTO currentCourseProgressDTO = currentCourseProgressDTOOptional.get();
+                        return new ExplorerWithCurrentSystem(p, currentCourseProgressDTO.getCourseId(), currentCourseProgressDTO.getCourseTitle());
+                    }
+                    return p;
+                })
+                .collect(Collectors.toList());
     }
 
     private PersonList getExplorerList() {
-        galaxyRequestSender.setToken(token);
-        GalaxyInformationGetResponse[] galaxies = galaxyRequestSender.sendGetGalaxiesRequest();
+        GalaxyInformationGetResponse[] galaxies = galaxyRepository.getGalaxies();
         List<PersonWithRatingAndGalaxyDTO> explorers = new LinkedList<>();
         for (GalaxyInformationGetResponse galaxy : galaxies) {
             List<PersonWithRatingAndGalaxyDTO> explorersFromGalaxy = galaxy.getExplorers().stream()

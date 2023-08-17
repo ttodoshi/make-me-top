@@ -8,7 +8,7 @@ import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import org.example.model.Person;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -16,9 +16,9 @@ import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor
-@PropertySource(value = {"classpath:config.properties"})
+@ConfigurationProperties("config")
 public class JwtServiceImpl implements JwtServiceInterface {
-    @Value("${secret_key}")
+    @Value("${secret-key}")
     private String SECRET_KEY;
 
     @Override

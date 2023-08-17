@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.LoginRequest;
 import org.example.service.PersonService;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,7 +20,6 @@ import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/auth/")
-@PropertySource(value = {"classpath:config.properties"})
 @RequiredArgsConstructor
 public class UserController {
     private final PersonService personService;

@@ -2,14 +2,12 @@ package org.example.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.planet.PlanetCreateRequest;
 import org.example.dto.planet.PlanetUpdateRequest;
 import org.example.service.PlanetService;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -37,9 +35,7 @@ public class PlanetController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> getPlanetsBySystemId(@PathVariable("systemId") Integer systemId,
-                                                  @RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token) {
-        planetService.setToken(token);
+    public ResponseEntity<?> getPlanetsBySystemId(@PathVariable("systemId") Integer systemId) {
         return ResponseEntity.ok(planetService.getPlanetsListBySystemId(systemId));
     }
 
@@ -56,9 +52,7 @@ public class PlanetController {
                     })
     })
     public ResponseEntity<?> addPlanets(@RequestBody List<@Valid PlanetCreateRequest> planetList,
-                                        @PathVariable Integer systemId,
-                                        @RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token) {
-        planetService.setToken(token);
+                                        @PathVariable Integer systemId) {
         return ResponseEntity.ok(planetService.addPlanets(systemId, planetList));
     }
 
@@ -75,9 +69,7 @@ public class PlanetController {
                     })
     })
     public ResponseEntity<?> updatePlanetById(@PathVariable("planetId") Integer planetId,
-                                              @Valid @RequestBody PlanetUpdateRequest planet,
-                                              @RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token) {
-        planetService.setToken(token);
+                                              @Valid @RequestBody PlanetUpdateRequest planet) {
         return ResponseEntity.ok(planetService.updatePlanet(planetId, planet));
     }
 
@@ -93,9 +85,7 @@ public class PlanetController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> deletePlanetById(@PathVariable("planetId") Integer id,
-                                              @RequestHeader(HttpHeaders.AUTHORIZATION) @Schema(hidden = true) String token) {
-        planetService.setToken(token);
+    public ResponseEntity<?> deletePlanetById(@PathVariable("planetId") Integer id) {
         return ResponseEntity.ok(planetService.deletePlanetById(id));
     }
 }

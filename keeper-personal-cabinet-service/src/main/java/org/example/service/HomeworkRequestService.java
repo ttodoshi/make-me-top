@@ -13,7 +13,11 @@ import org.example.model.homework.HomeworkRequest;
 import org.example.model.homework.HomeworkRequestStatusType;
 import org.example.model.homework.HomeworkResponse;
 import org.example.repository.*;
-import org.example.validator.HomeworkRequestValidator;
+import org.example.repository.courseprogress.HomeworkMarkRepository;
+import org.example.repository.homework.HomeworkRequestRepository;
+import org.example.repository.homework.HomeworkRequestStatusRepository;
+import org.example.repository.homework.HomeworkResponseRepository;
+import org.example.service.validator.HomeworkRequestValidatorService;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -27,7 +31,7 @@ public class HomeworkRequestService {
     private final HomeworkResponseRepository homeworkResponseRepository;
     private final ExplorerRepository explorerRepository;
 
-    private final HomeworkRequestValidator homeworkRequestValidator;
+    private final HomeworkRequestValidatorService homeworkRequestValidatorService;
 
     public HomeworkMark setHomeworkMark(Integer homeworkId, MarkDTO mark) {
         HomeworkRequest homeworkRequest = changeRequestStatus(homeworkId, mark.getExplorerId(), HomeworkRequestStatusType.CLOSED);
@@ -58,7 +62,7 @@ public class HomeworkRequestService {
         HomeworkRequest homeworkRequest = homeworkRequestRepository
                 .findHomeworkRequestByHomeworkIdAndExplorerId(homeworkId, explorerId)
                 .orElseThrow(() -> new HomeworkRequestNotFound(homeworkId, explorerId));
-        homeworkRequestValidator.validateHomeworkRequest(explorer, homeworkRequest);
+        homeworkRequestValidatorService.validateHomeworkRequest(explorer, homeworkRequest);
         homeworkRequest.setStatusId(getStatusId(status));
         return homeworkRequestRepository.save(homeworkRequest);
     }

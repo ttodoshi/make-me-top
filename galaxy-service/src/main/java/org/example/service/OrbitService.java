@@ -11,7 +11,7 @@ import org.example.model.Orbit;
 import org.example.model.StarSystem;
 import org.example.repository.OrbitRepository;
 import org.example.repository.StarSystemRepository;
-import org.example.validator.OrbitValidator;
+import org.example.service.validator.OrbitValidatorService;
 import org.modelmapper.ModelMapper;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
@@ -28,14 +28,14 @@ public class OrbitService {
     private final OrbitRepository orbitRepository;
     private final StarSystemRepository starSystemRepository;
 
-    private final OrbitValidator orbitValidator;
+    private final OrbitValidatorService orbitValidatorService;
     private final StarSystemService systemService;
 
     private final ModelMapper mapper;
 
-    @Transactional
+    @Transactional(readOnly = true)
     public OrbitWithStarSystemsGetResponse getOrbitWithSystemList(Integer orbitId) {
-        orbitValidator.validateGetWithSystemListRequest(orbitId);
+        orbitValidatorService.validateGetWithSystemListRequest(orbitId);
         OrbitWithStarSystemsGetResponse orbit = mapper.map(
                 orbitRepository.getReferenceById(orbitId), OrbitWithStarSystemsGetResponse.class);
         List<StarSystemWithDependenciesGetResponse> systemWithDependenciesList = new LinkedList<>();
@@ -56,7 +56,7 @@ public class OrbitService {
     @Transactional
     @CacheEvict(cacheNames = "galaxiesCache", key = "#galaxyId")
     public OrbitWithStarSystemsGetResponse createOrbit(Integer galaxyId, OrbitWithStarSystemsCreateRequest orbitRequest) {
-        orbitValidator.validatePostRequest(galaxyId, orbitRequest);
+        orbitValidatorService.validatePostRequest(galaxyId, orbitRequest);
         Orbit orbit = mapper.map(orbitRequest, Orbit.class);
         orbit.setGalaxyId(galaxyId);
         Orbit savedOrbit = orbitRepository.save(orbit);
@@ -70,7 +70,7 @@ public class OrbitService {
     }
 
     public Orbit updateOrbit(Integer orbitId, OrbitDTO orbit) {
-        orbitValidator.validatePutRequest(orbitId, orbit);
+        orbitValidatorService.validatePutRequest(orbitId, orbit);
         Orbit updatedOrbit = orbitRepository.findById(orbitId).orElseThrow(() -> new OrbitNotFoundException(orbitId));
         updatedOrbit.setOrbitLevel(orbit.getOrbitLevel());
         updatedOrbit.setSystemCount(orbit.getSystemCount());
@@ -78,9 +78,9 @@ public class OrbitService {
         return orbitRepository.save(updatedOrbit);
     }
 
-    @CacheEvict(cacheNames = "galaxiesCache", key = "@orbitService.getOrbitById(#orbitId).galaxyId")
+    @CacheEvict(cacheNames = "galaxiesCache", key = "@orbitService.getOrbitById(#orbitId).galaxyId", beforeInvocation = true)
     public Map<String, String> deleteOrbit(Integer orbitId) {
-        orbitValidator.validateDeleteRequest(orbitId);
+        orbitValidatorService.validateDeleteRequest(orbitId);
         orbitRepository.deleteById(orbitId);
         Map<String, String> response = new HashMap<>();
         response.put("message", "Орбита " + orbitId + " была уничтожена неизвестным оружием инопланетной цивилизации");

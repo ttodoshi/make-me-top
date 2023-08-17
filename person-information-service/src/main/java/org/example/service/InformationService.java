@@ -1,8 +1,7 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import org.example.config.RoleService;
+import org.example.config.security.RoleService;
 import org.example.dto.courseprogress.CourseThemeCompletionDTO;
 import org.example.dto.courseprogress.CourseWithThemesProgress;
 import org.example.dto.courseprogress.CurrentCourseProgressDTO;
@@ -13,7 +12,6 @@ import org.example.dto.feedback.PersonWithRating;
 import org.example.dto.galaxy.GalaxyDTO;
 import org.example.dto.homework.HomeworkRequestDTO;
 import org.example.dto.keeper.KeeperDTO;
-import org.example.exception.classes.connectEX.ConnectException;
 import org.example.exception.classes.coursethemeEX.CourseThemeNotFoundException;
 import org.example.exception.classes.personEX.PersonNotFoundException;
 import org.example.model.Explorer;
@@ -21,15 +19,22 @@ import org.example.model.Person;
 import org.example.model.course.Course;
 import org.example.model.course.CourseTheme;
 import org.example.model.role.AuthenticationRoleType;
-import org.example.repository.*;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
+import org.example.repository.ExplorerRepository;
+import org.example.repository.KeeperRepository;
+import org.example.repository.PersonRepository;
+import org.example.repository.course.CourseRepository;
+import org.example.repository.course.CourseThemeRepository;
+import org.example.repository.courseprogress.CourseMarkRepository;
+import org.example.repository.courseprogress.CourseThemeCompletionRepository;
+import org.example.repository.courseregistration.CourseRegistrationRequestRepository;
+import org.example.repository.custom.GalaxyRepository;
+import org.example.repository.feedback.ExplorerFeedbackRepository;
+import org.example.repository.feedback.KeeperFeedbackRepository;
+import org.example.repository.homework.HomeworkRequestRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.reactive.function.client.WebClient;
 
-import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -47,15 +52,11 @@ public class InformationService {
     private final PersonRepository personRepository;
     private final KeeperFeedbackRepository keeperFeedbackRepository;
     private final ExplorerFeedbackRepository explorerFeedbackRepository;
+    private final GalaxyRepository galaxyRepository;
 
     private final RoleService roleService;
 
-    @Setter
-    private String token;
-    @Value("${galaxy_app_url}")
-    private String GALAXY_APP_URL;
-
-    @Transactional
+    @Transactional(readOnly = true)
     public Map<String, Object> getExplorerCabinetInformation() {
         Person authenticatedPerson = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Integer authenticatedPersonId = authenticatedPerson.getPersonId();
@@ -68,7 +69,7 @@ public class InformationService {
         Optional<CourseRegistrationRequestForExplorer> studyRequestOptional = courseRegistrationRequestRepository.getStudyRequestByExplorerPersonId(authenticatedPersonId);
         if (studyRequestOptional.isPresent()) {
             CourseRegistrationRequestForExplorer studyRequest = studyRequestOptional.get();
-            GalaxyDTO galaxy = getGalaxyByCourseId(studyRequest.getCourseId());
+            GalaxyDTO galaxy = galaxyRepository.getGalaxyBySystemId(studyRequest.getCourseId());
             studyRequest.setGalaxyId(galaxy.getGalaxyId());
             studyRequest.setGalaxyName(galaxy.getGalaxyName());
             response.put("studyRequest", studyRequest);
@@ -78,21 +79,7 @@ public class InformationService {
         return response;
     }
 
-    private GalaxyDTO getGalaxyByCourseId(Integer courseId) {
-        WebClient webClient = WebClient.create(GALAXY_APP_URL);
-        return webClient.get()
-                .uri("system/" + courseId + "/galaxy/")
-                .header("Authorization", token)
-                .retrieve()
-                .onStatus(HttpStatus::isError, response -> {
-                    throw new ConnectException();
-                })
-                .bodyToMono(GalaxyDTO.class)
-                .timeout(Duration.ofSeconds(5))
-                .block();
-    }
-
-    @Transactional
+    @Transactional(readOnly = true)
     public Map<String, Object> getKeeperCabinetInformation() {
         Person authenticatedPerson = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Integer authenticatedPersonId = authenticatedPerson.getPersonId();
@@ -122,7 +109,7 @@ public class InformationService {
         return Math.ceil(explorerFeedbackRepository.getKeeperRating(personId).orElse(0.0) * 10) / 10;
     }
 
-    private Optional<CurrentCourseProgressDTO> getCurrentCourseProgress(Integer personId) {
+    protected Optional<CurrentCourseProgressDTO> getCurrentCourseProgress(Integer personId) {
         Optional<CurrentCourseProgressDTO> currentCourseProgressOptional = Optional.empty();
         Optional<Integer> currentSystemIdOptional = courseThemeCompletionRepository.getCurrentInvestigatedCourseId(personId);
         if (currentSystemIdOptional.isEmpty())
@@ -180,7 +167,7 @@ public class InformationService {
         return keeperFeedbackRepository.getRatingTable();
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Map<String, Object> getKeeperPublicInformation(Integer personId) {
         Person person = personRepository.findById(personId).orElseThrow(() -> new PersonNotFoundException(personId));
         Map<String, Object> response = new LinkedHashMap<>();
@@ -193,7 +180,7 @@ public class InformationService {
         return response;
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Map<String, Object> getExplorerPublicInformation(Integer personId) {
         Integer authenticatedPersonId = getAuthenticatedPersonId();
         Person person = personRepository.findById(personId).orElseThrow(() -> new PersonNotFoundException(personId));
@@ -209,7 +196,7 @@ public class InformationService {
             if (studyRequestOptional.isPresent() && keeperRepository.getReferenceById(studyRequestOptional.get().getKeeperId()).getPersonId().equals(authenticatedPersonId)) {
                 CourseRegistrationRequestForKeeperWithGalaxy studyRequest = studyRequestOptional.get();
                 studyRequest.setRating(getExplorerRating(studyRequest.getPersonId()));
-                GalaxyDTO galaxy = getGalaxyByCourseId(studyRequest.getCourseId());
+                GalaxyDTO galaxy = galaxyRepository.getGalaxyBySystemId(studyRequest.getCourseId());
                 studyRequest.setGalaxyId(galaxy.getGalaxyId());
                 studyRequest.setGalaxyName(galaxy.getGalaxyName());
                 response.put("studyRequest", studyRequest);

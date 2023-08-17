@@ -1,0 +1,17 @@
+server:
+  port: 8108
+spring:
+  application:
+    name: admin-service
+  security:
+    user:
+      name: admin
+      password: admin
+  main:
+    allow-bean-definition-overriding: true
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    service-url:
+      defaultZone: http://10.10.0.12:8761/eureka
