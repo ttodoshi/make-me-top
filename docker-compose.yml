@@ -200,13 +200,14 @@ services:
       postgres:
         ipv4_address: 10.10.0.5
 
-  nginx:
-    container_name: nginx
-    image: nginx
+  app_gateway:
+    container_name: app_gateway_container
+    build: ./gateway-service
     ports:
       - "4401:4401"
-    volumes:
-      - ./mmt-nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      app_discovery_service:
+        condition: service_healthy
     networks:
       postgres:
         ipv4_address: 10.10.0.3
