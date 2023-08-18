@@ -10,6 +10,7 @@ import org.example.dto.starsystem.StarSystemWithDependenciesGetResponse;
 import org.example.dto.starsystem.SystemDependencyModel;
 import org.example.exception.classes.courseEX.CourseNotFoundException;
 import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
+import org.example.exception.classes.progressEX.CourseAlreadyCompletedException;
 import org.example.model.Explorer;
 import org.example.model.Person;
 import org.example.model.course.Course;
@@ -38,6 +39,7 @@ public class CourseProgressService {
     private final CourseThemeRepository courseThemeRepository;
     private final CourseRegistrationRequestRepository courseRegistrationRequestRepository;
     private final StarSystemRepository starSystemRepository;
+    private final CourseMarkRepository courseMarkRepository;
 
     private final KafkaTemplate<String, Integer> kafkaTemplate;
 
@@ -128,6 +130,8 @@ public class CourseProgressService {
         Optional<Explorer> explorer = explorerRepository.findExplorerByPersonIdAndCourseId(personId, courseId);
         if (explorer.isEmpty())
             throw new ExplorerNotFoundException(courseId);
+        if (courseMarkRepository.existsById(explorer.get().getExplorerId()))
+            throw new CourseAlreadyCompletedException(courseId);
         explorerRepository.deleteById(explorer.get().getExplorerId());
         CourseRegistrationRequest request = courseRegistrationRequestRepository
                 .findApprovedCourseRegistrationRequestByPersonIdAndCourseId(personId, courseId);
