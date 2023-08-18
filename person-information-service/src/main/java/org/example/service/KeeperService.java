@@ -9,7 +9,7 @@ import org.example.service.sort.PersonList;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,7 +27,7 @@ public class KeeperService {
 
     private PersonList getKeeperList() {
         GalaxyInformationGetResponse[] galaxies = galaxyRepository.getGalaxies();
-        List<PersonWithRatingAndGalaxyDTO> keepers = new LinkedList<>();
+        List<PersonWithRatingAndGalaxyDTO> keepers = new ArrayList<>();
         for (GalaxyInformationGetResponse galaxy : galaxies) {
             List<PersonWithRatingAndGalaxyDTO> keepersFromGalaxy = galaxy.getKeepers().stream()
                     .map(k -> {

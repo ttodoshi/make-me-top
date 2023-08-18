@@ -3,11 +3,11 @@ package org.example.service;
 import lombok.RequiredArgsConstructor;
 import org.example.config.security.RoleService;
 import org.example.dto.course.CourseUpdateRequest;
+import org.example.dto.event.CourseCreateEvent;
 import org.example.dto.explorer.ExplorerWithRating;
 import org.example.dto.keeper.KeeperCreateRequest;
 import org.example.dto.keeper.KeeperWithRating;
 import org.example.dto.starsystem.StarSystemDTO;
-import org.example.dto.event.CourseCreateEvent;
 import org.example.exception.classes.courseEX.CourseNotFoundException;
 import org.example.model.Keeper;
 import org.example.model.Person;
@@ -66,7 +66,7 @@ public class CourseService {
     }
 
     private List<ExplorerWithRating> getExplorersForCourse(Integer courseId) {
-        List<ExplorerWithRating> explorers = new LinkedList<>();
+        List<ExplorerWithRating> explorers = new ArrayList<>();
         explorerRepository.getExplorersByCourseId(courseId).forEach(
                 e -> {
                     ExplorerWithRating explorer = mapper.map(e, ExplorerWithRating.class);
@@ -78,7 +78,7 @@ public class CourseService {
     }
 
     private List<KeeperWithRating> getKeepersForCourse(Integer courseId) {
-        List<KeeperWithRating> keepers = new LinkedList<>();
+        List<KeeperWithRating> keepers = new ArrayList<>();
         keeperRepository.getKeepersByCourseId(courseId).forEach(
                 k -> {
                     KeeperWithRating keeper = mapper.map(k, KeeperWithRating.class);
