@@ -1,0 +1,42 @@
+server:
+  port: 4401
+spring:
+  application:
+    name: gateway-service
+  cloud:
+    gateway:
+      routes:
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/auth/**
+        - id: course-service
+          uri: lb://course-service
+          predicates:
+            - Path=/course-app/**
+        - id: explorer-personal-cabinet-service
+          uri: lb://explorer-personal-cabinet-service
+          predicates:
+            - Path=/explorer-cabinet/**
+        - id: galaxy-service
+          uri: lb://galaxy-service
+          predicates:
+            - Path=/galaxy-app/**
+        - id: keeper-personal-cabinet-service
+          uri: lb://keeper-personal-cabinet-service
+          predicates:
+            - Path=/keeper-cabinet/**
+        - id: person-information-service
+          uri: lb://person-information-service
+          predicates:
+            - Path=/info/**
+        - id: planet-service
+          uri: lb://planet-service
+          predicates:
+            - Path=/planet-app/**
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    service-url:
+      defaultZone: http://10.10.0.12:8761/eureka

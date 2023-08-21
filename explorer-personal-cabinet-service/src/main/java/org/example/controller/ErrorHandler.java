@@ -15,6 +15,7 @@ import org.example.exception.classes.keeperEX.DifferentKeeperException;
 import org.example.exception.classes.keeperEX.KeeperNotFoundException;
 import org.example.exception.classes.keeperEX.KeeperNotOnCourseException;
 import org.example.exception.classes.personEX.PersonNotFoundException;
+import org.example.exception.classes.progressEX.CourseAlreadyCompletedException;
 import org.example.exception.classes.progressEX.CourseNotCompletedException;
 import org.example.exception.classes.progressEX.SystemParentsNotCompletedException;
 import org.example.exception.classes.progressEX.UnexpectedCourseThemeException;
@@ -219,6 +220,12 @@ public class ErrorHandler {
 
     @ExceptionHandler(PersonIsNotPersonInRequestException.class)
     public ResponseEntity<ErrorResponse> handlePersonIsNotPersonInRequestException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(CourseAlreadyCompletedException.class)
+    public ResponseEntity<ErrorResponse> handleCourseAlreadyCompletedException(Exception e) {
         logWarning(e);
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
     }

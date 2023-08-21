@@ -12,7 +12,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.time.Period;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -41,7 +41,7 @@ public class ExplorerService {
 
     private PersonList getExplorerList() {
         GalaxyInformationGetResponse[] galaxies = galaxyRepository.getGalaxies();
-        List<PersonWithRatingAndGalaxyDTO> explorers = new LinkedList<>();
+        List<PersonWithRatingAndGalaxyDTO> explorers = new ArrayList<>();
         for (GalaxyInformationGetResponse galaxy : galaxies) {
             List<PersonWithRatingAndGalaxyDTO> explorersFromGalaxy = galaxy.getExplorers().stream()
                     .map(k -> {

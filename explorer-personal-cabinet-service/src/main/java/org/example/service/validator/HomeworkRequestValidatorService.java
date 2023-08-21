@@ -15,8 +15,8 @@ import org.example.model.course.CourseTheme;
 import org.example.model.homework.HomeworkRequest;
 import org.example.model.homework.HomeworkRequestStatusType;
 import org.example.repository.course.CourseRepository;
-import org.example.repository.courseprogress.CourseThemeCompletionRepository;
 import org.example.repository.course.CourseThemeRepository;
+import org.example.repository.courseprogress.CourseThemeCompletionRepository;
 import org.example.repository.homework.HomeworkRequestStatusRepository;
 import org.springframework.stereotype.Component;
 

@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.Duration;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -31,7 +31,7 @@ public class PlanetValidatorService {
 
     public void validatePostRequest(Integer systemId, List<PlanetCreateRequest> planets) {
         checkSystemExists(systemId);
-        List<PlanetCreateRequest> savingPlanetsList = new LinkedList<>();
+        List<PlanetCreateRequest> savingPlanetsList = new ArrayList<>();
         for (PlanetCreateRequest planet : planets) {
             if (savingPlanetsList.contains(planet) || planetExists(systemId, planet.getPlanetName()))
                 throw new PlanetAlreadyExistsException(planet.getPlanetName());
