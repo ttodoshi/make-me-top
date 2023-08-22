@@ -3,6 +3,12 @@ server:
 spring:
   application:
     name: gateway-service
+  boot:
+    admin:
+      client:
+        url: http://admin-service/
+        username: admin
+        password: admin
   cloud:
     gateway:
       routes:
@@ -34,6 +40,15 @@ spring:
           uri: lb://planet-service
           predicates:
             - Path=/planet-app/**
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    logfile:
+      enabled: true
 eureka:
   instance:
     prefer-ip-address: true
