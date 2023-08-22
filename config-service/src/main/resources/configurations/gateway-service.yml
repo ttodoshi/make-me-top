@@ -49,9 +49,3 @@ management:
   endpoint:
     logfile:
       enabled: true
-eureka:
-  instance:
-    prefer-ip-address: true
-  client:
-    service-url:
-      defaultZone: http://10.10.0.12:8761/eureka

@@ -1,7 +1,5 @@
 spring:
   application:
     name: auth-service
-  config:
-    import: optional:configserver:http://10.10.0.11:8888
-logging:
-  config: http://10.10.0.11:8888/main-application/default/master/logback-spring.xml
+  profiles:
+    default: local

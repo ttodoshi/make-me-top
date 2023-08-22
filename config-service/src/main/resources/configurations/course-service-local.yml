@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    password: pass
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    url: jdbc:postgresql://localhost:5432/mmt
+  kafka:
+    bootstrap-servers: localhost:29092
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka

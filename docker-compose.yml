@@ -88,6 +88,8 @@ services:
     depends_on:
       app_config_service:
         condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
     networks:
       postgres:
         ipv4_address: 10.10.0.12
@@ -115,6 +117,8 @@ services:
     depends_on:
       app_discovery_service:
         condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
     networks:
       postgres:
         ipv4_address: 10.10.0.17
@@ -127,6 +131,8 @@ services:
     depends_on:
       app_discovery_service:
         condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
     networks:
       postgres:
         ipv4_address: 10.10.0.8
@@ -138,6 +144,8 @@ services:
     depends_on:
       app_discovery_service:
         condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
     networks:
       postgres:
         ipv4_address: 10.10.0.7
@@ -150,6 +158,8 @@ services:
     depends_on:
       app_discovery_service:
         condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
     networks:
       postgres:
         ipv4_address: 10.10.0.6
@@ -162,6 +172,8 @@ services:
     depends_on:
       app_discovery_service:
         condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
     networks:
       postgres:
         ipv4_address: 10.10.0.9
@@ -174,6 +186,8 @@ services:
     depends_on:
       app_discovery_service:
         condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
     networks:
       postgres:
         ipv4_address: 10.10.0.10
@@ -185,6 +199,8 @@ services:
     depends_on:
       app_discovery_service:
         condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
     networks:
       postgres:
         ipv4_address: 10.10.0.4
@@ -196,6 +212,8 @@ services:
     depends_on:
       app_discovery_service:
         condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
     networks:
       postgres:
         ipv4_address: 10.10.0.5
@@ -208,6 +226,8 @@ services:
     depends_on:
       app_discovery_service:
         condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
     networks:
       postgres:
         ipv4_address: 10.10.0.3

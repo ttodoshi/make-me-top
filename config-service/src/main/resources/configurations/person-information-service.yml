@@ -9,11 +9,6 @@ spring:
         url: http://admin-service/
         username: admin
         password: admin
-  datasource:
-    driver-class-name: org.postgresql.Driver
-    username: postgres
-    url: jdbc:postgresql://10.10.0.14:5432/mmt
-    password: pass
   jpa:
     open-in-view: false
     properties:
@@ -23,12 +18,6 @@ spring:
           jta:
             platform: org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform
         current_session_context_class: org.springframework.orm.hibernate5.SpringSessionContext
-eureka:
-  client:
-    service-url:
-      defaultZone: http://10.10.0.12:8761/eureka
-  instance:
-    prefer-ip-address: 'true'
 management:
   endpoints:
     web:

@@ -1,0 +1,5 @@
+spring:
+  config:
+    import: optional:configserver:http://localhost:8888
+logging:
+  config: http://localhost:8888/main-application/default/master/logback-spring.xml
