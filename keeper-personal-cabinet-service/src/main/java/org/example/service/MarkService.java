@@ -10,7 +10,6 @@ import org.example.repository.courseprogress.CourseThemeCompletionRepository;
 import org.example.service.validator.MarkValidatorService;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor

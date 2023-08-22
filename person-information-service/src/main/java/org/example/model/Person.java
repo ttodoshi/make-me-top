@@ -25,4 +25,5 @@ public class Person {
     @CreatedDate
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
     private Date registrationDate;
+    private Integer maxExplorers;
 }

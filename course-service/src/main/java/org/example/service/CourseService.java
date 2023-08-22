@@ -20,6 +20,7 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -32,6 +33,7 @@ public class CourseService {
     private final ExplorerRepository explorerRepository;
     private final StarSystemRepository starSystemRepository;
     private final RatingRepository ratingRepository;
+    private final PersonRepository personRepository;
 
     private final CourseValidatorService courseValidatorService;
     private final RoleService roleService;
@@ -120,14 +122,20 @@ public class CourseService {
         );
     }
 
+    @Transactional
     public Keeper setKeeperToCourse(Integer courseId, KeeperCreateRequest keeperCreateRequest) {
         courseValidatorService.validateSetKeeperRequest(courseId, keeperCreateRequest);
         sendGalaxyCacheRefreshMessage(courseId);
+        setDefaultExplorersValue(keeperCreateRequest.getPersonId());
         return keeperRepository.save(
                 Keeper.builder()
                         .courseId(courseId)
                         .personId(keeperCreateRequest.getPersonId())
                         .build());
+    }
+
+    private void setDefaultExplorersValue(Integer personId) {
+        personRepository.getReferenceById(personId).setMaxExplorers(3);
     }
 
     private void sendGalaxyCacheRefreshMessage(Integer courseId) {

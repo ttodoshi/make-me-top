@@ -1,7 +1,5 @@
 package org.example.repository;
 
-import com.netflix.discovery.EurekaClient;
-import com.netflix.discovery.shared.Application;
 import lombok.RequiredArgsConstructor;
 import org.example.exception.classes.connectEX.ConnectException;
 import org.springframework.http.HttpStatus;

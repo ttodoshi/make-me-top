@@ -1,7 +1,6 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.config.mapper.PersonMapper;
 import org.example.config.security.JwtServiceInterface;
 import org.example.dto.AuthResponse;
 import org.example.dto.AuthResponseEmployee;
@@ -30,7 +29,6 @@ public class PersonService {
     private final JwtServiceInterface jwtGenerator;
 
     private final WebClient.Builder webClientBuilder;
-    private final PersonMapper personMapper;
 
     @Value("${mmtr-auth-url}")
     private String MMTR_AUTH_URL;
@@ -52,7 +50,15 @@ public class PersonService {
 
     private Person findPerson(AuthResponseEmployee employee) {
         return personRepository.findById(employee.getEmployeeId()).orElseGet(
-                () -> personRepository.save(personMapper.UserAuthResponseToPerson(employee))
+                () -> personRepository.save(
+                        Person.builder()
+                                .personId(employee.getEmployeeId())
+                                .firstName(employee.getFirstName())
+                                .lastName(employee.getLastName())
+                                .patronymic(employee.getPatronymic())
+                                .maxExplorers(0)
+                                .build()
+                )
         );
     }
 

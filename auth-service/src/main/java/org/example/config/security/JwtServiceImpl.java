@@ -13,8 +13,6 @@ import org.example.model.GeneralRoleType;
 import org.example.model.Person;
 import org.example.repository.GeneralRoleRepository;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;

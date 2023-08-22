@@ -3,8 +3,6 @@ package org.example.dto.explorer;
 import lombok.*;
 import org.example.dto.person.PersonWithRatingAndGalaxyDTO;
 
-import java.util.List;
-
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
