@@ -21,7 +21,7 @@ import org.example.repository.course.CourseRepository;
 import org.example.repository.course.CourseThemeRepository;
 import org.example.repository.courseprogress.CourseMarkRepository;
 import org.example.repository.courseprogress.CourseThemeCompletionRepository;
-import org.example.repository.courseregistration.CourseRegistrationRequestRepository;
+import org.example.repository.courserequest.CourseRegistrationRequestRepository;
 import org.example.repository.custom.StarSystemRepository;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -134,7 +134,7 @@ public class CourseProgressService {
             throw new CourseAlreadyCompletedException(courseId);
         explorerRepository.deleteById(explorer.get().getExplorerId());
         CourseRegistrationRequest request = courseRegistrationRequestRepository
-                .findApprovedCourseRegistrationRequestByPersonIdAndCourseId(personId, courseId);
+                .findAcceptedCourseRegistrationRequestByPersonIdAndCourseId(personId, courseId);
         courseRegistrationRequestRepository.deleteById(request.getRequestId());
         sendGalaxyCacheRefreshMessage(courseId);
         Map<String, String> response = new HashMap<>();

@@ -14,15 +14,16 @@ import java.util.Set;
 public interface ExplorerRepository extends JpaRepository<Explorer, Integer> {
     Optional<Explorer> findExplorerByPersonIdAndCourseId(Integer personId, Integer courseId);
 
-    @Query(value = "SELECT COUNT(DISTINCT course_registration_request.person_id) FROM course.course_registration_request\n" +
-            "JOIN course.keeper ON keeper.keeper_id = course_registration_request.keeper_id\n" +
-            "JOIN course.course_registration_request_status\n" +
-            "ON course_registration_request_status.status_id = course_registration_request.status_id\n" +
-            "WHERE keeper.person_id = ?1 AND course_registration_request_status.status = 'APPROVED'",
+    @Query(value = "SELECT COUNT(DISTINCT course_registration_request_keeper.request_id) FROM course.course_registration_request_keeper\n" +
+            "JOIN course.keeper ON keeper.keeper_id = course_registration_request_keeper.keeper_id\n" +
+            "JOIN course.course_registration_request_keeper_status ON course_registration_request_keeper_status.status_id = course_registration_request_keeper.status_id\n" +
+            "WHERE keeper.person_id = ?1 AND course_registration_request_keeper_status.status = 'APPROVED'",
             nativeQuery = true)
     Integer getExplorersCountForKeeper(Integer personId);
 
-    @Query(value = "SELECT new org.example.dto.explorer.ExplorerNeededFinalAssessment(p.personId, p.firstName, p.lastName, p.patronymic, c.courseId, c.title, e.explorerId)\n" +
+    @Query(value = "SELECT new org.example.dto.explorer.ExplorerNeededFinalAssessment(" +
+            "\tp.personId, p.firstName, p.lastName, p.patronymic, c.courseId, c.title, e.explorerId" +
+            ")\n" +
             "FROM Explorer e\n" +
             "JOIN Person p ON p.personId = e.personId\n" +
             "JOIN Course c ON c.courseId = e.courseId\n" +

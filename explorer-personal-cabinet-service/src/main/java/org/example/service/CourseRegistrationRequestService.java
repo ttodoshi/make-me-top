@@ -1,19 +1,24 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.courseregistration.CreateCourseRegistrationRequest;
-import org.example.exception.classes.requestEX.PersonIsNotPersonInRequestException;
+import org.example.dto.courserequest.CreateCourseRegistrationRequest;
 import org.example.exception.classes.requestEX.RequestNotFoundException;
 import org.example.exception.classes.requestEX.StatusNotFoundException;
+import org.example.model.Keeper;
 import org.example.model.Person;
 import org.example.model.courserequest.CourseRegistrationRequest;
+import org.example.model.courserequest.CourseRegistrationRequestKeeper;
+import org.example.model.courserequest.CourseRegistrationRequestKeeperStatusType;
 import org.example.model.courserequest.CourseRegistrationRequestStatusType;
-import org.example.repository.courseregistration.CourseRegistrationRequestRepository;
-import org.example.repository.courseregistration.CourseRegistrationRequestStatusRepository;
+import org.example.repository.KeeperRepository;
+import org.example.repository.courserequest.CourseRegistrationRequestKeeperRepository;
+import org.example.repository.courserequest.CourseRegistrationRequestKeeperStatusRepository;
+import org.example.repository.courserequest.CourseRegistrationRequestRepository;
+import org.example.repository.courserequest.CourseRegistrationRequestStatusRepository;
 import org.example.service.validator.CourseRegistrationRequestValidatorService;
-import org.modelmapper.ModelMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,20 +28,65 @@ import java.util.Map;
 public class CourseRegistrationRequestService {
     private final CourseRegistrationRequestRepository courseRegistrationRequestRepository;
     private final CourseRegistrationRequestStatusRepository courseRegistrationRequestStatusRepository;
+    private final CourseRegistrationRequestKeeperRepository courseRegistrationRequestKeeperRepository;
+    private final CourseRegistrationRequestKeeperStatusRepository courseRegistrationRequestKeeperStatusRepository;
+    private final KeeperRepository keeperRepository;
 
     private final CourseRegistrationRequestValidatorService courseRegistrationRequestValidatorService;
 
-    private final ModelMapper mapper;
-
+    @Transactional
     public CourseRegistrationRequest sendRequest(CreateCourseRegistrationRequest request) {
         Integer authenticatedPersonId = getAuthenticatedPersonId();
         courseRegistrationRequestValidatorService.validateSendRequest(authenticatedPersonId, request);
-        CourseRegistrationRequest courseRegistrationRequest = mapper.map(request, CourseRegistrationRequest.class);
-        courseRegistrationRequest.setStatusId(
-                courseRegistrationRequestStatusRepository
-                        .findCourseRegistrationRequestStatusByStatus(CourseRegistrationRequestStatusType.PROCESSING)
-                        .orElseThrow(() -> new StatusNotFoundException(CourseRegistrationRequestStatusType.PROCESSING)).getStatusId());
-        courseRegistrationRequest.setPersonId(authenticatedPersonId);
+        if (request.getKeeperId() == null)
+            return sendRequestToAllKeepers(authenticatedPersonId, request.getCourseId());
+        return sendRequestToKeeper(authenticatedPersonId, request);
+    }
+
+    private CourseRegistrationRequest sendRequestToAllKeepers(Integer personId, Integer courseId) {
+        CourseRegistrationRequest request = sendRequest(personId, courseId);
+        Integer processingStatusId = courseRegistrationRequestKeeperStatusRepository
+                .findCourseRegistrationRequestKeeperStatusByStatus(CourseRegistrationRequestKeeperStatusType.PROCESSING)
+                .orElseThrow(() -> new StatusNotFoundException(CourseRegistrationRequestKeeperStatusType.PROCESSING))
+                .getStatusId();
+        for (Keeper keeper : keeperRepository.findKeepersByCourseId(courseId)) {
+            courseRegistrationRequestKeeperRepository.save(
+                    new CourseRegistrationRequestKeeper(
+                            request.getRequestId(),
+                            keeper.getKeeperId(),
+                            processingStatusId
+                    )
+            );
+        }
+        return request;
+    }
+
+    private CourseRegistrationRequest sendRequestToKeeper(Integer personId, CreateCourseRegistrationRequest request) {
+        CourseRegistrationRequest sentRequest = sendRequest(personId, request.getCourseId());
+        Integer processingStatusId = courseRegistrationRequestKeeperStatusRepository
+                .findCourseRegistrationRequestKeeperStatusByStatus(CourseRegistrationRequestKeeperStatusType.PROCESSING)
+                .orElseThrow(() -> new StatusNotFoundException(CourseRegistrationRequestKeeperStatusType.PROCESSING))
+                .getStatusId();
+        courseRegistrationRequestKeeperRepository.save(
+                new CourseRegistrationRequestKeeper(
+                        sentRequest.getRequestId(),
+                        request.getKeeperId(),
+                        processingStatusId
+                )
+        );
+        return sentRequest;
+    }
+
+    private CourseRegistrationRequest sendRequest(Integer personId, Integer courseId) {
+        Integer processingStatusId = courseRegistrationRequestStatusRepository
+                .findCourseRegistrationRequestStatusByStatus(CourseRegistrationRequestStatusType.PROCESSING)
+                .orElseThrow(() -> new StatusNotFoundException(CourseRegistrationRequestStatusType.PROCESSING))
+                .getStatusId();
+        CourseRegistrationRequest courseRegistrationRequest = new CourseRegistrationRequest(
+                courseId,
+                personId,
+                processingStatusId
+        );
         return courseRegistrationRequestRepository.save(courseRegistrationRequest);
     }
 
@@ -45,18 +95,12 @@ public class CourseRegistrationRequestService {
         return authenticatedPerson.getPersonId();
     }
 
+    @Transactional
     public Map<String, String> cancelRequest(Integer requestId) {
         CourseRegistrationRequest request = courseRegistrationRequestRepository.findById(requestId)
                 .orElseThrow(() -> new RequestNotFoundException(requestId));
-        if (!request.getPersonId().equals(getAuthenticatedPersonId()))
-            throw new PersonIsNotPersonInRequestException();
-        request.setStatusId(
-                courseRegistrationRequestStatusRepository
-                        .findCourseRegistrationRequestStatusByStatus(CourseRegistrationRequestStatusType.DENIED)
-                        .orElseThrow(() -> new StatusNotFoundException(CourseRegistrationRequestStatusType.DENIED))
-                        .getStatusId()
-        );
-        courseRegistrationRequestRepository.save(request);
+        courseRegistrationRequestValidatorService.validateCancelRequest(request);
+        courseRegistrationRequestRepository.deleteById(requestId);
         Map<String, String> response = new HashMap<>();
         response.put("message", "Вы отменили запрос на прохождение курса " + request.getCourseId());
         return response;

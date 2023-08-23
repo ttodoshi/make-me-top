@@ -1,7 +1,7 @@
 package org.example.model.courserequest;
 
-public enum CourseRegistrationRequestStatusType {
+public enum CourseRegistrationRequestKeeperStatusType {
     PROCESSING,
     APPROVED,
-    ACCEPTED,
+    REJECTED
 }

@@ -5,8 +5,8 @@ import org.example.config.security.RoleService;
 import org.example.dto.courseprogress.CourseThemeCompletionDTO;
 import org.example.dto.courseprogress.CourseWithThemesProgress;
 import org.example.dto.courseprogress.CurrentCourseProgressDTO;
-import org.example.dto.courseregistration.CourseRegistrationRequestForExplorer;
-import org.example.dto.courseregistration.CourseRegistrationRequestForKeeperWithGalaxy;
+import org.example.dto.courserequest.CourseRegistrationRequestForExplorer;
+import org.example.dto.courserequest.CourseRegistrationRequestForKeeperWithGalaxy;
 import org.example.dto.feedback.KeeperFeedbackDTO;
 import org.example.dto.feedback.PersonWithRating;
 import org.example.dto.galaxy.GalaxyDTO;
@@ -15,9 +15,11 @@ import org.example.dto.keeper.KeeperDTO;
 import org.example.exception.classes.coursethemeEX.CourseThemeNotFoundException;
 import org.example.exception.classes.personEX.PersonNotFoundException;
 import org.example.model.Explorer;
+import org.example.model.Keeper;
 import org.example.model.Person;
 import org.example.model.course.Course;
 import org.example.model.course.CourseTheme;
+import org.example.model.courserequest.CourseRegistrationRequestKeeper;
 import org.example.model.role.AuthenticationRoleType;
 import org.example.repository.ExplorerRepository;
 import org.example.repository.KeeperRepository;
@@ -26,7 +28,8 @@ import org.example.repository.course.CourseRepository;
 import org.example.repository.course.CourseThemeRepository;
 import org.example.repository.courseprogress.CourseMarkRepository;
 import org.example.repository.courseprogress.CourseThemeCompletionRepository;
-import org.example.repository.courseregistration.CourseRegistrationRequestRepository;
+import org.example.repository.courserequest.CourseRegistrationRequestKeeperRepository;
+import org.example.repository.courserequest.CourseRegistrationRequestRepository;
 import org.example.repository.custom.GalaxyRepository;
 import org.example.repository.feedback.ExplorerFeedbackRepository;
 import org.example.repository.feedback.KeeperFeedbackRepository;
@@ -53,6 +56,7 @@ public class InformationService {
     private final KeeperFeedbackRepository keeperFeedbackRepository;
     private final ExplorerFeedbackRepository explorerFeedbackRepository;
     private final GalaxyRepository galaxyRepository;
+    private final CourseRegistrationRequestKeeperRepository courseRegistrationRequestKeeperRepository;
 
     private final RoleService roleService;
 
@@ -69,6 +73,7 @@ public class InformationService {
         Optional<CourseRegistrationRequestForExplorer> studyRequestOptional = courseRegistrationRequestRepository.getStudyRequestByExplorerPersonId(authenticatedPersonId);
         if (studyRequestOptional.isPresent()) {
             CourseRegistrationRequestForExplorer studyRequest = studyRequestOptional.get();
+            setKeeperForStudyRequest(studyRequest);
             GalaxyDTO galaxy = galaxyRepository.getGalaxyBySystemId(studyRequest.getCourseId());
             studyRequest.setGalaxyId(galaxy.getGalaxyId());
             studyRequest.setGalaxyName(galaxy.getGalaxyName());
@@ -77,6 +82,23 @@ public class InformationService {
         response.put("investigatedSystems", courseMarkRepository.getInvestigatedSystemsByPersonId(authenticatedPersonId));
         response.put("ratingTable", getRatingTable());
         return response;
+    }
+
+    private void setKeeperForStudyRequest(CourseRegistrationRequestForExplorer studyRequest) {
+        List<CourseRegistrationRequestKeeper> courseRegistrationRequestKeepers = courseRegistrationRequestKeeperRepository.findAllByRequestId(studyRequest.getRequestId());
+        if (courseRegistrationRequestKeepers.size() == 1) {
+            Integer keeperId = courseRegistrationRequestKeepers.get(0).getKeeperId();
+            Keeper keeper = keeperRepository.getReferenceById(keeperId);
+            Person person = personRepository.getReferenceById(keeper.getPersonId());
+            studyRequest.setKeeper(
+                    new KeeperDTO(
+                            person.getPersonId(),
+                            person.getFirstName(),
+                            person.getLastName(),
+                            person.getPatronymic(),
+                            keeperId)
+            );
+        }
     }
 
     @Transactional(readOnly = true)
@@ -193,7 +215,7 @@ public class InformationService {
         Optional<CurrentCourseProgressDTO> currentCourseOptional = getCurrentCourseProgress(personId);
         if (currentCourseOptional.isEmpty()) {
             Optional<CourseRegistrationRequestForKeeperWithGalaxy> studyRequestOptional = courseRegistrationRequestRepository.getStudyRequestByPersonId(personId);
-            if (studyRequestOptional.isPresent() && keeperRepository.getReferenceById(studyRequestOptional.get().getKeeperId()).getPersonId().equals(authenticatedPersonId)) {
+            if (studyRequestOptional.isPresent() && requestIsForAuthenticatedKeeper(authenticatedPersonId, studyRequestOptional.get())) {
                 CourseRegistrationRequestForKeeperWithGalaxy studyRequest = studyRequestOptional.get();
                 studyRequest.setRating(getExplorerRating(studyRequest.getPersonId()));
                 GalaxyDTO galaxy = galaxyRepository.getGalaxyBySystemId(studyRequest.getCourseId());
@@ -221,5 +243,14 @@ public class InformationService {
         response.put("investigatedSystems", courseMarkRepository.getInvestigatedSystemsByPersonId(personId));
         response.put("feedback", feedback);
         return response;
+    }
+
+    private boolean requestIsForAuthenticatedKeeper(Integer personId, CourseRegistrationRequestForKeeperWithGalaxy studyRequest) {
+        return courseRegistrationRequestKeeperRepository
+                .findAllByRequestId(studyRequest.getRequestId())
+                .stream().map(k -> keeperRepository.getReferenceById(k.getKeeperId()))
+                .map(Keeper::getPersonId)
+                .collect(Collectors.toList())
+                .contains(personId);
     }
 }

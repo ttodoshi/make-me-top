@@ -15,10 +15,7 @@ import org.example.exception.classes.keeperEX.DifferentKeeperException;
 import org.example.exception.classes.keeperEX.KeeperNotFoundException;
 import org.example.exception.classes.keeperEX.KeeperNotOnCourseException;
 import org.example.exception.classes.personEX.PersonNotFoundException;
-import org.example.exception.classes.progressEX.CourseAlreadyCompletedException;
-import org.example.exception.classes.progressEX.CourseNotCompletedException;
-import org.example.exception.classes.progressEX.SystemParentsNotCompletedException;
-import org.example.exception.classes.progressEX.UnexpectedCourseThemeException;
+import org.example.exception.classes.progressEX.*;
 import org.example.exception.classes.requestEX.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -226,6 +223,12 @@ public class ErrorHandler {
 
     @ExceptionHandler(CourseAlreadyCompletedException.class)
     public ResponseEntity<ErrorResponse> handleCourseAlreadyCompletedException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(AlreadyStudyingException.class)
+    public ResponseEntity<ErrorResponse> handleAlreadyStudyingException(Exception e) {
         logWarning(e);
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
     }

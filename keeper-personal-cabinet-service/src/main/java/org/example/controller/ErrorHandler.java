@@ -16,6 +16,7 @@ import org.example.exception.classes.markEX.ExplorerDoesNotNeedMarkException;
 import org.example.exception.classes.markEX.UnexpectedMarkValueException;
 import org.example.exception.classes.personEX.PersonNotFoundException;
 import org.example.exception.classes.progressEX.CourseNotCompletedException;
+import org.example.exception.classes.progressEX.TeachingInProcessException;
 import org.example.exception.classes.progressEX.ThemeAlreadyCompletedException;
 import org.example.exception.classes.progressEX.UnexpectedCourseThemeException;
 import org.example.exception.classes.requestEX.*;
@@ -114,7 +115,7 @@ public class ErrorHandler {
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), e.getMessage()), HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(RequestNotDeniedException.class)
+    @ExceptionHandler(RequestNotRejectedException.class)
     public ResponseEntity<ErrorResponse> handleRequestNotDeniedException(Exception e) {
         logWarning(e);
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
@@ -232,5 +233,11 @@ public class ErrorHandler {
     public ResponseEntity<ErrorResponse> handleUnexpectedRatingValue(Exception e) {
         logWarning(e);
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), e.getMessage()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(TeachingInProcessException.class)
+    public ResponseEntity<ErrorResponse> handleTeachingInProcessException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
     }
 }

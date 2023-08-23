@@ -13,7 +13,6 @@ import java.util.Date;
 @Entity
 @Table(name = "course_registration_request", schema = "course")
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 public class CourseRegistrationRequest {
@@ -24,11 +23,15 @@ public class CourseRegistrationRequest {
     private Integer courseId;
     @JoinColumn(table = "person", name = "person_id")
     private Integer personId;
-    @JoinColumn(table = "keeper", name = "keeper_id")
-    private Integer keeperId;
     @CreatedDate
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
     private Date requestDate;
     @JoinColumn(table = "course_registration_request_status", name = "status_id")
     private Integer statusId;
+
+    public CourseRegistrationRequest(Integer courseId, Integer personId, Integer statusId) {
+        this.courseId = courseId;
+        this.personId = personId;
+        this.statusId = statusId;
+    }
 }

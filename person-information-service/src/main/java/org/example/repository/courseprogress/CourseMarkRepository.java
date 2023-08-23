@@ -14,14 +14,15 @@ public interface CourseMarkRepository extends JpaRepository<CourseMark, Integer>
             "                SELECT ROUND(AVG(cr.rating),1) FROM CourseRating cr\n" +
             "                JOIN Explorer e1 ON e1.explorerId = cr.explorerId\n" +
             "                WHERE e1.courseId = c.courseId\n" +
-            "        ), 0) as rating, crr.keeperId\n" +
+            "        ), 0) as rating, crrk.keeperId\n" +
             ")\n" +
             "FROM CourseRegistrationRequest crr\n" +
+            "JOIN CourseRegistrationRequestKeeper crrk ON crrk.requestId = crr.requestId\n" +
             "JOIN CourseRegistrationRequestStatus crrs ON crrs.statusId = crr.statusId\n" +
             "JOIN Course c ON c.courseId = crr.courseId\n" +
             "JOIN Explorer e ON e.personId = crr.personId AND e.courseId = crr.courseId\n" +
             "JOIN CourseMark cm ON cm.explorerId = e.explorerId\n" +
-            "WHERE crr.personId = :personId AND crrs.status = 'APPROVED'\n" +
+            "WHERE crr.personId = :personId AND crrs.status = 'ACCEPTED'\n" +
             "ORDER BY cm.courseEndDate DESC")
     List<CourseWithRating> getInvestigatedSystemsByPersonId(@Param("personId") Integer personId);
 }

@@ -81,7 +81,7 @@ public class CourseService {
 
     private List<KeeperWithRating> getKeepersForCourse(Integer courseId) {
         List<KeeperWithRating> keepers = new ArrayList<>();
-        keeperRepository.getKeepersByCourseId(courseId).forEach(
+        keeperRepository.findKeepersByCourseId(courseId).forEach(
                 k -> {
                     KeeperWithRating keeper = mapper.map(k, KeeperWithRating.class);
                     keeper.setRating(ratingRepository.getKeeperRating(k.getPersonId()));

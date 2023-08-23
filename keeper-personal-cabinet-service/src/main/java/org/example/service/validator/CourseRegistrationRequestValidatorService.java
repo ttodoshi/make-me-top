@@ -2,23 +2,20 @@ package org.example.service.validator;
 
 import lombok.RequiredArgsConstructor;
 import org.example.exception.classes.keeperEX.DifferentKeeperException;
+import org.example.exception.classes.keeperEX.KeeperNotFoundException;
+import org.example.exception.classes.progressEX.TeachingInProcessException;
 import org.example.exception.classes.requestEX.KeeperRejectionAlreadyExistsException;
 import org.example.exception.classes.requestEX.RequestAlreadyClosedException;
-import org.example.exception.classes.requestEX.RequestNotDeniedException;
 import org.example.exception.classes.requestEX.RequestNotFoundException;
+import org.example.exception.classes.requestEX.RequestNotRejectedException;
 import org.example.model.Keeper;
 import org.example.model.Person;
-import org.example.model.courserequest.CourseRegistrationRequest;
-import org.example.model.courserequest.CourseRegistrationRequestStatus;
-import org.example.model.courserequest.CourseRegistrationRequestStatusType;
-import org.example.repository.courseregistration.CourseRegistrationRequestRepository;
-import org.example.repository.courseregistration.CourseRegistrationRequestStatusRepository;
-import org.example.repository.courseregistration.KeeperRejectionRepository;
+import org.example.model.courserequest.*;
+import org.example.repository.ExplorerRepository;
 import org.example.repository.KeeperRepository;
+import org.example.repository.courserequest.*;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-
-import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -27,36 +24,48 @@ public class CourseRegistrationRequestValidatorService {
     private final CourseRegistrationRequestStatusRepository courseRegistrationRequestStatusRepository;
     private final KeeperRejectionRepository keeperRejectionRepository;
     private final KeeperRepository keeperRepository;
+    private final ExplorerRepository explorerRepository;
+    private final CourseRegistrationRequestKeeperRepository courseRegistrationRequestKeeperRepository;
+    private final CourseRegistrationRequestKeeperStatusRepository courseRegistrationRequestKeeperStatusRepository;
 
     public void validateRequest(CourseRegistrationRequest request) {
-        final Integer authenticatedPersonId = getAuthenticatedPersonId();
         CourseRegistrationRequestStatus currentStatus = courseRegistrationRequestStatusRepository.getReferenceById(request.getStatusId());
         if (!currentStatus.getStatus().equals(CourseRegistrationRequestStatusType.PROCESSING))
             throw new RequestAlreadyClosedException(request.getRequestId());
-        if (authenticatedKeeperIsNotKeeperInRequest(authenticatedPersonId, request))
-            throw new DifferentKeeperException();
     }
 
     public void validateRejectionRequest(Integer requestId) {
         Person authenticatedPerson = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         CourseRegistrationRequest request = courseRegistrationRequestRepository
                 .findById(requestId).orElseThrow(() -> new RequestNotFoundException(requestId));
-        CourseRegistrationRequestStatus currentStatus = courseRegistrationRequestStatusRepository.getReferenceById(request.getStatusId());
-        if (!currentStatus.getStatus().equals(CourseRegistrationRequestStatusType.DENIED))
-            throw new RequestNotDeniedException(requestId);
+        Keeper keeper = keeperRepository
+                .findKeeperByPersonIdAndCourseId(
+                        authenticatedPerson.getPersonId(), request.getCourseId()
+                ).orElseThrow(KeeperNotFoundException::new);
+        CourseRegistrationRequestKeeper keeperResponse = courseRegistrationRequestKeeperRepository
+                .findCourseRegistrationRequestKeeperByRequestIdAndKeeperId(
+                        requestId,
+                        keeper.getKeeperId()
+                ).orElseThrow(DifferentKeeperException::new);
+        CourseRegistrationRequestKeeperStatus currentStatus = courseRegistrationRequestKeeperStatusRepository
+                .getReferenceById(keeperResponse.getStatusId());
+        if (!currentStatus.getStatus().equals(CourseRegistrationRequestKeeperStatusType.REJECTED))
+            throw new RequestNotRejectedException(requestId);
         if (keeperRejectionRepository.findKeeperRejectionByRequestId(requestId).isPresent())
             throw new KeeperRejectionAlreadyExistsException();
-        if (authenticatedKeeperIsNotKeeperInRequest(authenticatedPerson.getPersonId(), request))
-            throw new DifferentKeeperException();
     }
 
-    private Integer getAuthenticatedPersonId() {
-        final Person authenticatedPerson = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return authenticatedPerson.getPersonId();
+    public void validateGetApprovedRequests(Integer personId, Integer courseId) {
+        if (keeperRepository.findKeeperByPersonIdAndCourseId(personId, courseId).isEmpty())
+            throw new KeeperNotFoundException();
     }
 
-    private boolean authenticatedKeeperIsNotKeeperInRequest(Integer personId, CourseRegistrationRequest request) {
-        Optional<Keeper> keeperOptional = keeperRepository.findKeeperByPersonIdAndCourseId(personId, request.getCourseId());
-        return (keeperOptional.isEmpty() || !keeperOptional.get().getKeeperId().equals(request.getKeeperId()));
+    public void validateStartTeachingRequest(Integer personId, Integer courseId) {
+        if (keeperRepository.findKeeperByPersonIdAndCourseId(personId, courseId).isEmpty())
+            throw new KeeperNotFoundException();
+        int currentStudyingExplorersCount = explorerRepository
+                .getStudyingExplorersByKeeperPersonId(personId).size();
+        if (currentStudyingExplorersCount > 0)
+            throw new TeachingInProcessException();
     }
 }

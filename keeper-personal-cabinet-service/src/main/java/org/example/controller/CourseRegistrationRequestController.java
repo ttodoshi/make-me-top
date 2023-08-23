@@ -5,8 +5,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.example.dto.courseregistration.CourseRegistrationRequestReply;
-import org.example.dto.courseregistration.KeeperRejectionDTO;
+import org.example.dto.courserequest.CourseRegistrationRequestReply;
+import org.example.dto.courserequest.KeeperRejectionDTO;
 import org.example.service.CourseRegistrationRequestService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -36,6 +36,38 @@ public class CourseRegistrationRequestController {
     public ResponseEntity<?> replyToRequest(@PathVariable("requestId") Integer requestId,
                                             @Valid @RequestBody CourseRegistrationRequestReply reply) {
         return ResponseEntity.ok(courseRegistrationRequestService.replyToRequest(requestId, reply));
+    }
+
+    @GetMapping("course/{courseId}")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).KEEPER)")
+    @Operation(summary = "Get approved requests by course id", tags = "course request")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Approved requests by course id",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json")
+                    })
+    })
+    public ResponseEntity<?> getApprovedRequests(@PathVariable Integer courseId) {
+        return ResponseEntity.ok(courseRegistrationRequestService.getApprovedRequests(courseId));
+    }
+
+    @PostMapping("course/{courseId}")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).KEEPER)")
+    @Operation(summary = "Start education on course", tags = "course request")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Education started",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json")
+                    })
+    })
+    public ResponseEntity<?> startTeaching(@PathVariable Integer courseId) {
+        return ResponseEntity.ok(courseRegistrationRequestService.startTeaching(courseId));
     }
 
     @PostMapping("{requestId}/rejection")

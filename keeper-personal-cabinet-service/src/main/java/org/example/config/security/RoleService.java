@@ -12,7 +12,7 @@ import org.example.model.role.CourseRoleType;
 import org.example.repository.*;
 import org.example.repository.course.CourseRepository;
 import org.example.repository.course.CourseThemeRepository;
-import org.example.repository.courseregistration.CourseRegistrationRequestRepository;
+import org.example.repository.courserequest.CourseRegistrationRequestRepository;
 import org.example.repository.homework.HomeworkRequestRepository;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;

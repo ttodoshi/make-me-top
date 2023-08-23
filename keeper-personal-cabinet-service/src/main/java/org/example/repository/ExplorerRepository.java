@@ -16,8 +16,20 @@ public interface ExplorerRepository extends JpaRepository<Explorer, Integer> {
     @Query(value = "SELECT e FROM CourseRegistrationRequest crr\n" +
             "JOIN Explorer e ON e.personId = crr.personId AND e.courseId = crr.courseId\n" +
             "JOIN CourseRegistrationRequestStatus crrs ON crrs.statusId = crr.statusId\n" +
-            "WHERE crr.keeperId = :keeperId AND crrs.status = 'APPROVED'")
+            "JOIN CourseRegistrationRequestKeeper crrk ON crrk.requestId = crr.requestId\n" +
+            "JOIN CourseRegistrationRequestKeeperStatus crrks ON crrks.statusId = crrk.statusId\n" +
+            "WHERE crrk.keeperId = :keeperId AND crrks.status = 'APPROVED'")
     List<Explorer> findExplorersForKeeper(@Param("keeperId") Integer keeperId);
+
+    @Query(value = "SELECT e\n" +
+            "FROM Explorer e\n" +
+            "JOIN Person p ON e.personId = p.personId\n" +
+            "JOIN Course c ON c.courseId = e.courseId\n" +
+            "JOIN Keeper k ON k.courseId = c.courseId\n" +
+            "WHERE k.personId = :personId AND e.explorerId NOT IN (\n" +
+            "\tSELECT cm.explorerId FROM CourseMark cm\n" +
+            ")")
+    List<Explorer> getStudyingExplorersByKeeperPersonId(@Param("personId") Integer personId);
 
     @Query(value = "SELECT new org.example.dto.explorer.ExplorerNeededFinalAssessment(\n" +
             "\tp.personId, p.firstName, p.lastName, p.patronymic, c.courseId, c.title, e.explorerId\n" +

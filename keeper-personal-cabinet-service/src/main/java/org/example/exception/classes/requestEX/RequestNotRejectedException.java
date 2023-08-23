@@ -1,7 +1,7 @@
 package org.example.exception.classes.requestEX;
 
-public class RequestNotDeniedException extends RuntimeException {
-    public RequestNotDeniedException(Integer requestId) {
+public class RequestNotRejectedException extends RuntimeException {
+    public RequestNotRejectedException(Integer requestId) {
         super("Запрос " + requestId + " не был закрыт с отказом");
     }
 }

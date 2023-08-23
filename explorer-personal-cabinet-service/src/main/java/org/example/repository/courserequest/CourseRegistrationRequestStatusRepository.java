@@ -1,4 +1,4 @@
-package org.example.repository.courseregistration;
+package org.example.repository.courserequest;
 
 import org.example.model.courserequest.CourseRegistrationRequestStatus;
 import org.example.model.courserequest.CourseRegistrationRequestStatusType;

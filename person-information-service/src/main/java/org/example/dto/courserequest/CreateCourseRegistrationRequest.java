@@ -1,4 +1,4 @@
-package org.example.dto.courseregistration;
+package org.example.dto.courserequest;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,7 +9,9 @@ import javax.validation.constraints.NotNull;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class KeeperRejectionDTO {
+public class CreateCourseRegistrationRequest {
     @NotNull
-    private Integer reasonId;
+    private Integer courseId;
+    @NotNull
+    private Integer keeperId;
 }

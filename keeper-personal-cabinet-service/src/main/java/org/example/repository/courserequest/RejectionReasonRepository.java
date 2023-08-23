@@ -1,4 +1,4 @@
-package org.example.repository.courseregistration;
+package org.example.repository.courserequest;
 
 import org.example.model.courserequest.RejectionReason;
 import org.springframework.data.jpa.repository.JpaRepository;

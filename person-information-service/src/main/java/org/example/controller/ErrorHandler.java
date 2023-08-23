@@ -5,7 +5,6 @@ import org.example.exception.ErrorResponse;
 import org.example.exception.classes.connectEX.ConnectException;
 import org.example.exception.classes.courseEX.CourseNotFoundException;
 import org.example.exception.classes.coursethemeEX.CourseThemeNotFoundException;
-import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
 import org.example.exception.classes.personEX.PersonNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -60,12 +59,6 @@ public class ErrorHandler {
 
     @ExceptionHandler(CourseNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleCourseNotFoundException(Exception e) {
-        logWarning(e);
-        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(ExplorerNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleExplorerNotFoundException(Exception e) {
         logWarning(e);
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
     }

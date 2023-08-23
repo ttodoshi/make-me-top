@@ -15,9 +15,10 @@ public interface KeeperRepository extends JpaRepository<Keeper, Integer> {
             "\tp.personId, p.firstName, p.lastName, p.patronymic, k.keeperId\n" +
             ") FROM CourseRegistrationRequest crr\n" +
             "JOIN CourseRegistrationRequestStatus crrs ON crrs.statusId = crr.statusId\n" +
-            "JOIN Keeper k ON k.keeperId = crr.keeperId\n" +
+            "JOIN CourseRegistrationRequestKeeper crrk ON crrk.requestId = crr.requestId\n" +
+            "JOIN Keeper k ON k.keeperId = crrk.keeperId\n" +
             "JOIN Person p ON p.personId = k.personId\n" +
-            "WHERE crr.personId = :personId AND crrs.status = 'APPROVED' AND crr.courseId = :courseId")
+            "WHERE crr.personId = :personId AND crrs.status = 'ACCEPTED' AND crr.courseId = :courseId")
     KeeperDTO getKeeperForPersonOnCourse(@Param("personId") Integer personId,
                                          @Param("courseId") Integer courseId);
 }
