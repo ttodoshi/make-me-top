@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import org.example.model.homework.HomeworkRequestStatusType;
 import org.example.model.homework.HomeworkResponse;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -20,7 +20,7 @@ public class GetHomeworkRequest {
     private Integer keeperId;
     private Integer explorerId;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
-    private Date requestDate;
+    private LocalDateTime requestDate;
     private Integer statusId;
     private HomeworkRequestStatusType status;
     private List<HomeworkResponse> responses;

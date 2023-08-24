@@ -9,7 +9,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "course_theme", schema = "course")
@@ -24,7 +24,7 @@ public class CourseTheme {
     private String title;
     @LastModifiedDate
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
-    private Date lastModified;
+    private LocalDateTime lastModified;
     private String description;
     private String content;
     @JoinColumn(table = "course", name = "course_id")

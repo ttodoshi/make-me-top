@@ -9,7 +9,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "homework_request", schema = "course")
@@ -31,7 +31,7 @@ public class HomeworkRequest {
     private Integer explorerId;
     @CreatedDate
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
-    private Date requestDate;
+    private LocalDateTime requestDate;
     @JoinColumn(table = "homework_request_status", name = "status_id")
     private Integer statusId;
 }

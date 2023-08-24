@@ -8,7 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.Table;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "course_mark", schema = "course")
@@ -19,6 +19,6 @@ public class CourseMark {
     private Integer explorerId;
     @CreatedDate
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
-    private Date courseEndDate;
+    private LocalDateTime courseEndDate;
     private Integer value;
 }

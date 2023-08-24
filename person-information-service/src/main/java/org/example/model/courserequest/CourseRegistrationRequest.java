@@ -7,7 +7,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "course_registration_request", schema = "course")
@@ -24,7 +24,7 @@ public class CourseRegistrationRequest {
     private Integer personId;
     @CreatedDate
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
-    private Date requestDate;
+    private LocalDateTime requestDate;
     @JoinColumn(table = "course_registration_request_status", name = "status_id")
     private Integer statusId;
 

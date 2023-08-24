@@ -9,7 +9,7 @@ import org.springframework.data.annotation.CreatedDate;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "person", schema = "course")
@@ -24,6 +24,6 @@ public class Person {
     private String patronymic;
     @CreatedDate
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
-    private Date registrationDate;
+    private LocalDateTime registrationDate;
     private Integer maxExplorers;
 }

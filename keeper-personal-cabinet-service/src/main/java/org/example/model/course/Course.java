@@ -8,7 +8,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "course", schema = "course")
@@ -19,9 +19,9 @@ public class Course {
     private String title;
     @CreatedDate
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
-    private Date creationDate;
+    private LocalDateTime creationDate;
     @LastModifiedDate
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
-    private Date lastModified;
+    private LocalDateTime lastModified;
     private String description;
 }
