@@ -46,7 +46,7 @@ public class PersonService {
 
     public String login(LoginRequest request, HttpServletResponse response) {
         Person person = authenticatePerson(request);
-        if (!roleCheckerMap.get(request.getRole()).isRoleAvailable(person.getPersonId()))
+        if (!roleCheckerMap.containsKey(request.getRole()) || !roleCheckerMap.get(request.getRole()).isRoleAvailable(person.getPersonId()))
             throw new RoleNotAvailableException();
         String token = jwtGenerator.generateToken(person, request.getRole());
         Cookie tokenCookie = generateCookie(token);
