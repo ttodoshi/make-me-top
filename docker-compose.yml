@@ -18,6 +18,12 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+    healthcheck:
+      test: nc -z localhost 2181 || exit -1
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
     networks:
       postgres:
         ipv4_address: 10.10.0.2
@@ -28,7 +34,8 @@ services:
     ports:
       - "9092:9092"
     depends_on:
-      - zookeeper
+      zookeeper:
+        condition: service_healthy
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
@@ -85,6 +92,7 @@ services:
       interval: 20s
       timeout: 5s
       retries: 5
+      start_period: 10s
     depends_on:
       app_config_service:
         condition: service_healthy
@@ -104,6 +112,7 @@ services:
       interval: 20s
       timeout: 5s
       retries: 5
+      start_period: 10s
     depends_on:
       - postgres
     networks:
