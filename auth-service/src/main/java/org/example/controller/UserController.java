@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.LoginRequest;
-import org.example.service.PersonService;
+import org.example.service.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,7 +20,7 @@ import javax.validation.Valid;
 @RequestMapping("/auth/")
 @RequiredArgsConstructor
 public class UserController {
-    private final PersonService personService;
+    private final AuthService authService;
 
     @PostMapping("login")
     @Operation(summary = "Log in", tags = "authentication")
@@ -34,8 +34,8 @@ public class UserController {
                     })
     })
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest,
-                                    HttpServletResponse response) {
-        return ResponseEntity.ok(personService.login(loginRequest, response));
+                                   HttpServletResponse response) {
+        return ResponseEntity.ok(authService.login(loginRequest, response));
     }
 
     @PostMapping("logout")
@@ -50,6 +50,6 @@ public class UserController {
                     })
     })
     public ResponseEntity<?> logout(HttpServletResponse response) {
-        return ResponseEntity.ok(personService.logout(response));
+        return ResponseEntity.ok(authService.logout(response));
     }
 }
