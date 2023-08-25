@@ -1,0 +1,66 @@
+{
+  "priority": 1,
+  "request": {
+    "url": "/ts-rest/coaching/getProgramsMentorsByFilters/",
+    "method": "GET",
+    "headers": {
+      "Accept-Charset": {
+        "equalTo": "utf-8"
+      },
+      "Authorization": {
+        "equalTo": "Bearer 098bgj3489gjmsdmf8943jgmidgj934jt093tjh8gn"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "jsonBody": [
+      {
+        "employeeId": 11,
+        "firstName": "Ванёк",
+        "lastName": "Юзер",
+        "patronymic": "Дмитриевич",
+        "kindOfActivityId": 14,
+        "employmentDate": "2023-06-01",
+        "startMentoringDate": "2023-06-02",
+        "isDeleted": false,
+        "programName": "Уровень 1 - базовый",
+        "programGroupId": 4,
+        "groupName": "Обучение Java",
+        "mentoringProgramId": 14,
+        "rating": 90,
+        "courseCount": 4,
+        "countOfSameTimeMentoring": 2,
+        "actuallyFinishedCourses": 0,
+        "programNameId": 14,
+        "employeeInAuthorDepartment": false,
+        "id": 11,
+        "activeProgramName": true
+      },
+      {
+        "employeeId": 12,
+        "firstName": "Обычный",
+        "lastName": "Чел",
+        "patronymic": "Просто",
+        "kindOfActivityId": 1,
+        "employmentDate": "2023-06-01",
+        "startMentoringDate": "2023-06-02",
+        "isDeleted": false,
+        "programName": "Base",
+        "programGroupId": 6,
+        "groupName": "Обучение Frontend",
+        "mentoringProgramId": 72,
+        "courseCount": 0,
+        "countOfSameTimeMentoring": 2,
+        "actuallyFinishedCourses": 0,
+        "programNameId": 72,
+        "employeeInAuthorDepartment": false,
+        "id": 12,
+        "activeProgramName": true
+      }
+    ],
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

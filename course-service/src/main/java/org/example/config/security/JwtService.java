@@ -6,9 +6,7 @@ import org.example.model.Person;
 
 import java.util.function.Function;
 
-public interface JwtServiceInterface {
-
-    String generateToken(Person person, String role);
+public interface JwtService {
 
     String extractId(String jwtToken);
 

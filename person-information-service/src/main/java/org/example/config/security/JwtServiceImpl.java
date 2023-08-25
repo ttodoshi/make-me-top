@@ -17,7 +17,7 @@ import java.util.function.Function;
 @Service
 @RequiredArgsConstructor
 @ConfigurationProperties("config")
-public class JwtServiceImpl implements JwtServiceInterface {
+public class JwtServiceImpl implements JwtService {
     @Value("${secret-key}")
     private String SECRET_KEY;
 

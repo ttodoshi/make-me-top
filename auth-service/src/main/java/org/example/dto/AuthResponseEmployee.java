@@ -8,4 +8,5 @@ public class AuthResponseEmployee {
     private String lastName;
     private String patronymic;
     private Integer employeeId;
+    private TokenInfo userToken;
 }
