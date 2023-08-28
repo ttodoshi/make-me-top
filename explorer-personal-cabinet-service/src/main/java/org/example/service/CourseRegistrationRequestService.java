@@ -45,10 +45,7 @@ public class CourseRegistrationRequestService {
 
     private CourseRegistrationRequest sendRequestToAllKeepers(Integer personId, Integer courseId) {
         CourseRegistrationRequest request = sendRequest(personId, courseId);
-        Integer processingStatusId = courseRegistrationRequestKeeperStatusRepository
-                .findCourseRegistrationRequestKeeperStatusByStatus(CourseRegistrationRequestKeeperStatusType.PROCESSING)
-                .orElseThrow(() -> new StatusNotFoundException(CourseRegistrationRequestKeeperStatusType.PROCESSING))
-                .getStatusId();
+        Integer processingStatusId = getRequestKeeperProcessingStatusId();
         for (Keeper keeper : keeperRepository.findKeepersByCourseId(courseId)) {
             courseRegistrationRequestKeeperRepository.save(
                     new CourseRegistrationRequestKeeper(
@@ -63,10 +60,7 @@ public class CourseRegistrationRequestService {
 
     private CourseRegistrationRequest sendRequestToKeeper(Integer personId, CreateCourseRegistrationRequest request) {
         CourseRegistrationRequest sentRequest = sendRequest(personId, request.getCourseId());
-        Integer processingStatusId = courseRegistrationRequestKeeperStatusRepository
-                .findCourseRegistrationRequestKeeperStatusByStatus(CourseRegistrationRequestKeeperStatusType.PROCESSING)
-                .orElseThrow(() -> new StatusNotFoundException(CourseRegistrationRequestKeeperStatusType.PROCESSING))
-                .getStatusId();
+        Integer processingStatusId = getRequestKeeperProcessingStatusId();
         courseRegistrationRequestKeeperRepository.save(
                 new CourseRegistrationRequestKeeper(
                         sentRequest.getRequestId(),
@@ -88,6 +82,13 @@ public class CourseRegistrationRequestService {
                 processingStatusId
         );
         return courseRegistrationRequestRepository.save(courseRegistrationRequest);
+    }
+
+    private Integer getRequestKeeperProcessingStatusId() {
+        return courseRegistrationRequestKeeperStatusRepository
+                .findCourseRegistrationRequestKeeperStatusByStatus(CourseRegistrationRequestKeeperStatusType.PROCESSING)
+                .orElseThrow(() -> new StatusNotFoundException(CourseRegistrationRequestKeeperStatusType.PROCESSING))
+                .getStatusId();
     }
 
     private Integer getAuthenticatedPersonId() {

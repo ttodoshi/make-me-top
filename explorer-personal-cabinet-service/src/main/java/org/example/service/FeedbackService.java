@@ -30,12 +30,11 @@ public class FeedbackService {
     private final ModelMapper mapper;
 
     public ExplorerFeedback sendFeedbackForKeeper(Integer courseId, ExplorerFeedbackCreateRequest feedback) {
-        feedbackValidatorService.keeperExists(courseId, feedback.getKeeperId());
         Integer personId = getAuthenticatedPersonId();
+        feedbackValidatorService.validateFeedbackForKeeperRequest(personId, feedback);
         Explorer explorer = explorerRepository
                 .findExplorerByPersonIdAndCourseId(personId, courseId)
                 .orElseThrow(() -> new ExplorerNotFoundException(courseId));
-        feedbackValidatorService.validateFeedbackForKeeperRequest(explorer, feedback);
         ExplorerFeedback savingFeedback = mapper.map(feedback, ExplorerFeedback.class);
         savingFeedback.setExplorerId(explorer.getExplorerId());
         sendGalaxyCacheRefreshMessage(courseId);
@@ -52,12 +51,11 @@ public class FeedbackService {
     }
 
     public CourseRating rateCourse(Integer courseId, CourseRatingCreateRequest request) {
-        feedbackValidatorService.courseExists(courseId);
         Integer personId = getAuthenticatedPersonId();
+        feedbackValidatorService.validateCourseRatingRequest(personId, courseId, request);
         Explorer explorer = explorerRepository
                 .findExplorerByPersonIdAndCourseId(personId, courseId)
                 .orElseThrow(() -> new ExplorerNotFoundException(courseId));
-        feedbackValidatorService.validateCourseRatingRequest(explorer.getExplorerId(), courseId, request);
         return courseRatingRepository.save(
                 new CourseRating(explorer.getExplorerId(), request.getRating())
         );

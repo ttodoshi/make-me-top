@@ -15,5 +15,5 @@ public interface ExplorerRepository extends JpaRepository<Explorer, Integer> {
     @Query(value = "SELECT new org.example.dto.explorer.ExplorerDTO(p.personId, p.firstName, p.lastName, p.patronymic, e.explorerId) FROM Explorer e\n" +
             "JOIN Person p ON p.personId = e.personId\n" +
             "WHERE e.courseId = :courseId")
-    List<ExplorerDTO> getExplorersByCourseId(@Param("courseId") Integer courseId);
+    List<ExplorerDTO> findExplorersByCourseId(@Param("courseId") Integer courseId);
 }

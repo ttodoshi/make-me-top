@@ -21,6 +21,9 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -41,6 +44,7 @@ public class CourseService {
     private final KafkaTemplate<String, Integer> kafkaTemplate;
     private final ModelMapper mapper;
 
+    @Transactional(readOnly = true)
     public Map<String, Object> getCourse(Integer courseId) {
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("course", courseRepository.findById(courseId)
@@ -68,27 +72,31 @@ public class CourseService {
     }
 
     private List<ExplorerWithRating> getExplorersForCourse(Integer courseId) {
-        List<ExplorerWithRating> explorers = new ArrayList<>();
-        explorerRepository.getExplorersByCourseId(courseId).forEach(
-                e -> {
-                    ExplorerWithRating explorer = mapper.map(e, ExplorerWithRating.class);
-                    explorer.setRating(ratingRepository.getExplorerRating(e.getPersonId()));
-                    explorers.add(explorer);
-                }
-        );
-        return explorers;
+        Flux<ExplorerWithRating> fluxExplorers = Flux.fromIterable(explorerRepository.findExplorersByCourseId(courseId))
+                .flatMap(e -> Mono.fromCallable(
+                                        () -> {
+                                            ExplorerWithRating explorer = mapper.map(e, ExplorerWithRating.class);
+                                            explorer.setRating(ratingRepository.getExplorerRating(e.getPersonId()));
+                                            return explorer;
+                                        }
+                                )
+                                .subscribeOn(Schedulers.boundedElastic())
+                );
+        return fluxExplorers.collectList().block();
     }
 
     private List<KeeperWithRating> getKeepersForCourse(Integer courseId) {
-        List<KeeperWithRating> keepers = new ArrayList<>();
-        keeperRepository.findKeepersByCourseId(courseId).forEach(
-                k -> {
-                    KeeperWithRating keeper = mapper.map(k, KeeperWithRating.class);
-                    keeper.setRating(ratingRepository.getKeeperRating(k.getPersonId()));
-                    keepers.add(keeper);
-                }
-        );
-        return keepers;
+        Flux<KeeperWithRating> fluxKeepers = Flux.fromIterable(keeperRepository.findKeepersByCourseId(courseId))
+                .flatMap(k -> Mono.fromCallable(
+                                        () -> {
+                                            KeeperWithRating keeper = mapper.map(k, KeeperWithRating.class);
+                                            keeper.setRating(ratingRepository.getExplorerRating(k.getPersonId()));
+                                            return keeper;
+                                        }
+                                )
+                                .subscribeOn(Schedulers.boundedElastic())
+                );
+        return fluxKeepers.collectList().block();
     }
 
     private Integer getAuthenticatedPersonId() {

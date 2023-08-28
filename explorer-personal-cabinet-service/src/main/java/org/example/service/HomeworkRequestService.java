@@ -96,7 +96,8 @@ public class HomeworkRequestService {
         homeworkRequestValidatorService.validateGetHomeworkRequests(themeId);
         Integer personId = getAuthenticatedPersonId();
         Integer courseId = courseRepository.getCourseIdByThemeId(themeId);
-        Explorer explorer = explorerRepository.findExplorerByPersonIdAndCourseId(personId, courseId).orElseThrow(() -> new ExplorerNotFoundException(courseId));
+        Explorer explorer = explorerRepository.findExplorerByPersonIdAndCourseId(personId, courseId)
+                .orElseThrow(() -> new ExplorerNotFoundException(courseId));
         return homeworkRequestRepository.findOpenedHomeworkRequestsByThemeId(themeId, explorer.getExplorerId()).stream()
                 .map(hr -> {
                     GetHomeworkRequest homeworkRequest = mapper.map(hr, GetHomeworkRequest.class);
