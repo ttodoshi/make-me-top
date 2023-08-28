@@ -39,7 +39,8 @@ public class CourseRegistrationRequestController {
     }
 
     @GetMapping("course/{courseId}")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).KEEPER)")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).KEEPER) || " +
+            "@roleService.hasAnyCourseRole(#courseId, T(org.example.model.role.CourseRoleType).KEEPER)")
     @Operation(summary = "Get approved requests by course id", tags = "course request")
     @ApiResponses(value = {
             @ApiResponse(
@@ -55,7 +56,8 @@ public class CourseRegistrationRequestController {
     }
 
     @PostMapping("course/{courseId}")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).KEEPER)")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).KEEPER) || " +
+            "@roleService.hasAnyCourseRole(#courseId, T(org.example.model.role.CourseRoleType).KEEPER)")
     @Operation(summary = "Start education on course", tags = "course request")
     @ApiResponses(value = {
             @ApiResponse(
