@@ -34,7 +34,7 @@ public class CourseProgressController {
     }
 
     @GetMapping("course/{courseId}")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).EXPLORER) || " +
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).EXPLORER) && " +
             "@roleService.hasAnyCourseRole(#courseId, T(org.example.model.role.CourseRoleType).EXPLORER)")
     @Operation(summary = "Get course themes progress by course id", tags = "system progress")
     @ApiResponses(value = {
@@ -52,7 +52,8 @@ public class CourseProgressController {
     }
 
     @DeleteMapping("course/{courseId}")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).EXPLORER) || @roleService.hasAnyCourseRole(#courseId, T(org.example.model.role.CourseRoleType).EXPLORER)")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).EXPLORER) && " +
+            "@roleService.hasAnyCourseRole(#courseId, T(org.example.model.role.CourseRoleType).EXPLORER)")
     @Operation(summary = "Leave course", tags = "system progress")
     @ApiResponses(value = {
             @ApiResponse(

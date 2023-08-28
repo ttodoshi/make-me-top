@@ -21,7 +21,7 @@ public class FeedbackController {
     private final FeedbackService feedbackService;
 
     @PostMapping("course/{courseId}/explorer-feedback")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).EXPLORER) || " +
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).EXPLORER) && " +
             "@roleService.hasAnyCourseRole(#courseId, T(org.example.model.role.CourseRoleType).EXPLORER)")
     @Operation(summary = "Send feedback for keeper (rating from 1 to 5)", tags = "feedback")
     @ApiResponses(value = {
@@ -39,7 +39,7 @@ public class FeedbackController {
     }
 
     @PostMapping("course/{courseId}/course-feedback")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).EXPLORER) || " +
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).EXPLORER) && " +
             "@roleService.hasAnyCourseRole(#courseId, T(org.example.model.role.CourseRoleType).EXPLORER)")
     @Operation(summary = "Set rating from 1 to 5 for course", tags = "feedback")
     @ApiResponses(value = {

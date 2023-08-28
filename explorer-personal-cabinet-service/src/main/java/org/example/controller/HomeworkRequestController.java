@@ -20,7 +20,7 @@ public class HomeworkRequestController {
     private final HomeworkRequestService homeworkRequestService;
 
     @PostMapping("homework/{homeworkId}")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).EXPLORER) ||" +
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).EXPLORER) &&" +
             "@roleService.hasAnyCourseRoleByHomeworkId(#homeworkId, T(org.example.model.role.CourseRoleType).EXPLORER)")
     @Operation(summary = "Send homework review request", tags = "homework")
     @ApiResponses(value = {
@@ -38,7 +38,7 @@ public class HomeworkRequestController {
     }
 
     @GetMapping("theme/{themeId}/homework")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).EXPLORER) || " +
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).EXPLORER) && " +
             "@roleService.hasAnyCourseRoleByThemeId(#themeId, T(org.example.model.role.CourseRoleType).EXPLORER)")
     @Operation(summary = "Get opened requests by theme id", tags = "homework")
     @ApiResponses(value = {

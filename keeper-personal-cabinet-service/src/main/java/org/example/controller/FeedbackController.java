@@ -20,7 +20,7 @@ public class FeedbackController {
     private final FeedbackService feedbackService;
 
     @PostMapping("course/{courseId}/keeper-feedback")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).KEEPER) || " +
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).KEEPER) && " +
             "@roleService.hasAnyCourseRole(#courseId, T(org.example.model.role.CourseRoleType).KEEPER)")
     @Operation(summary = "Send feedback for explorer", tags = "feedback")
     @ApiResponses(value = {

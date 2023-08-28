@@ -21,7 +21,7 @@ public class HomeworkRequestController {
     private final HomeworkRequestService homeworkRequestService;
 
     @GetMapping("homework-request/{requestId}")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).KEEPER) || " +
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).KEEPER) && " +
             "@roleService.hasAnyCourseRoleByHomeworkRequestId(#requestId, T(org.example.model.role.CourseRoleType).KEEPER)")
     @Operation(summary = "Get homework request", tags = "homework")
     @ApiResponses(value = {
@@ -38,7 +38,7 @@ public class HomeworkRequestController {
     }
 
     @PostMapping("homework/{homeworkId}/mark")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).KEEPER) || " +
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).KEEPER) && " +
             "@roleService.hasAnyCourseRoleByHomeworkId(#homeworkId, T(org.example.model.role.CourseRoleType).KEEPER)")
     @Operation(summary = "Set homework mark from 1 to 5", tags = "homework")
     @ApiResponses(value = {
@@ -56,7 +56,7 @@ public class HomeworkRequestController {
     }
 
     @PostMapping("homework/{homeworkId}/response")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).KEEPER) || " +
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).KEEPER) && " +
             "@roleService.hasAnyCourseRoleByHomeworkId(#homeworkId, T(org.example.model.role.CourseRoleType).KEEPER)")
     @Operation(summary = "Send homework response", tags = "homework")
     @ApiResponses(value = {

@@ -20,7 +20,7 @@ public class MarkController {
     private final MarkService markService;
 
     @PostMapping("mark")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).KEEPER) || " +
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).KEEPER) && " +
             "@roleService.hasAnyCourseRoleByExplorerId(#courseMark.explorerId, T(org.example.model.role.CourseRoleType).KEEPER)")
     @Operation(summary = "Set course mark from 1 to 5 to explorer", tags = "mark")
     @ApiResponses(value = {
@@ -37,7 +37,7 @@ public class MarkController {
     }
 
     @PostMapping("theme/{themeId}/mark")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).KEEPER) || " +
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).KEEPER) && " +
             "@roleService.hasAnyCourseRoleByThemeId(#themeId, T(org.example.model.role.CourseRoleType).KEEPER)")
     @Operation(summary = "Set theme mark from 1 to 5 to explorer", tags = "mark")
     @ApiResponses(value = {
