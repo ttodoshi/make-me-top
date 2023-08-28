@@ -1,20 +1,15 @@
 package org.example.service.validator;
 
 import lombok.RequiredArgsConstructor;
-import org.example.exception.classes.keeperEX.DifferentKeeperException;
 import org.example.exception.classes.keeperEX.KeeperNotFoundException;
 import org.example.exception.classes.progressEX.TeachingInProcessException;
 import org.example.exception.classes.requestEX.KeeperRejectionAlreadyExistsException;
 import org.example.exception.classes.requestEX.RequestAlreadyClosedException;
-import org.example.exception.classes.requestEX.RequestNotFoundException;
 import org.example.exception.classes.requestEX.RequestNotRejectedException;
-import org.example.model.Keeper;
-import org.example.model.Person;
 import org.example.model.courserequest.*;
 import org.example.repository.ExplorerRepository;
 import org.example.repository.KeeperRepository;
 import org.example.repository.courserequest.*;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -34,24 +29,12 @@ public class CourseRegistrationRequestValidatorService {
             throw new RequestAlreadyClosedException(request.getRequestId());
     }
 
-    public void validateRejectionRequest(Integer requestId) {
-        Person authenticatedPerson = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        CourseRegistrationRequest request = courseRegistrationRequestRepository
-                .findById(requestId).orElseThrow(() -> new RequestNotFoundException(requestId));
-        Keeper keeper = keeperRepository
-                .findKeeperByPersonIdAndCourseId(
-                        authenticatedPerson.getPersonId(), request.getCourseId()
-                ).orElseThrow(KeeperNotFoundException::new);
-        CourseRegistrationRequestKeeper keeperResponse = courseRegistrationRequestKeeperRepository
-                .findCourseRegistrationRequestKeeperByRequestIdAndKeeperId(
-                        requestId,
-                        keeper.getKeeperId()
-                ).orElseThrow(DifferentKeeperException::new);
+    public void validateRejectionRequest(CourseRegistrationRequestKeeper keeperResponse) {
         CourseRegistrationRequestKeeperStatus currentStatus = courseRegistrationRequestKeeperStatusRepository
                 .getReferenceById(keeperResponse.getStatusId());
         if (!currentStatus.getStatus().equals(CourseRegistrationRequestKeeperStatusType.REJECTED))
-            throw new RequestNotRejectedException(requestId);
-        if (keeperRejectionRepository.findKeeperRejectionByRequestId(requestId).isPresent())
+            throw new RequestNotRejectedException(keeperResponse.getRequestId());
+        if (keeperRejectionRepository.findKeeperRejectionByResponseId(keeperResponse.getResponseId()).isPresent())
             throw new KeeperRejectionAlreadyExistsException();
     }
 

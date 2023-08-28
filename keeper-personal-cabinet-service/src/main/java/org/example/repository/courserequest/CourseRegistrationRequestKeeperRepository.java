@@ -9,7 +9,5 @@ import java.util.Optional;
 public interface CourseRegistrationRequestKeeperRepository extends JpaRepository<CourseRegistrationRequestKeeper, Integer> {
     List<CourseRegistrationRequestKeeper> findCourseRegistrationRequestKeepersByRequestId(Integer requestId);
 
-    List<CourseRegistrationRequestKeeper> findCourseRegistrationRequestKeepersByKeeperIdAndStatusIdOrderByResponseDate(Integer keeperId, Integer statusId);
-
     Optional<CourseRegistrationRequestKeeper> findCourseRegistrationRequestKeeperByRequestIdAndKeeperId(Integer requestId, Integer keeperId);
 }

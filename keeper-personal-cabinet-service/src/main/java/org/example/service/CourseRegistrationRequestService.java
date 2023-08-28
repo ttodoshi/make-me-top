@@ -148,13 +148,23 @@ public class CourseRegistrationRequestService {
         kafkaTemplate.send("galaxyCacheTopic", courseId);
     }
 
+    @Transactional
     public KeeperRejection sendRejection(Integer requestId, KeeperRejectionDTO rejection) {
-        courseRegistrationRequestValidatorService.validateRejectionRequest(requestId);
+        CourseRegistrationRequest request = courseRegistrationRequestRepository
+                .findById(requestId).orElseThrow(() -> new RequestNotFoundException(requestId));
+        Person authenticatedPerson = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Keeper keeper = keeperRepository
+                .findKeeperByPersonIdAndCourseId(
+                        authenticatedPerson.getPersonId(), request.getCourseId()
+                ).orElseThrow(KeeperNotFoundException::new);
+        CourseRegistrationRequestKeeper keeperResponse = courseRegistrationRequestKeeperRepository
+                .findCourseRegistrationRequestKeeperByRequestIdAndKeeperId(
+                        requestId,
+                        keeper.getKeeperId()
+                ).orElseThrow(DifferentKeeperException::new);
+        courseRegistrationRequestValidatorService.validateRejectionRequest(keeperResponse);
         return keeperRejectionRepository.save(
-                KeeperRejection.builder()
-                        .requestId(requestId)
-                        .reasonId(rejection.getReasonId())
-                        .build()
+                new KeeperRejection(keeperResponse.getResponseId(), rejection.getReasonId())
         );
     }
 
