@@ -29,10 +29,10 @@ public class PersonService {
 
     public Person authenticatePerson(LoginRequest loginRequest) {
         AuthResponse response = sendAuthenticateRequest(loginRequest);
-        mmtrAuthorizationHeaderRepository.setAuthorizationHeader(
-                "Bearer " + response.getObject().getUserToken().getTokenInfo());
         if (!response.getIsSuccess())
             throw new PersonNotFoundException();
+        mmtrAuthorizationHeaderRepository.setAuthorizationHeader(
+                "Bearer " + response.getObject().getUserToken().getTokenInfo());
         return findPerson(response.getObject());
     }
 
