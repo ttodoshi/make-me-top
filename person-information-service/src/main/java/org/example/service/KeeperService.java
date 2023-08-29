@@ -26,7 +26,7 @@ public class KeeperService {
     }
 
     private PersonList getKeeperList() {
-        GalaxyInformationGetResponse[] galaxies = galaxyRepository.getGalaxies();
+        List<GalaxyInformationGetResponse> galaxies = galaxyRepository.getGalaxies();
         List<PersonWithRatingAndGalaxyDTO> keepers = new ArrayList<>();
         for (GalaxyInformationGetResponse galaxy : galaxies) {
             List<PersonWithRatingAndGalaxyDTO> keepersFromGalaxy = galaxy.getKeepers().stream()

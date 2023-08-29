@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.Duration;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -17,7 +18,7 @@ public class GalaxyRepositoryImpl implements GalaxyRepository {
     private final WebClient.Builder webClientBuilder;
 
     @Override
-    public GalaxyInformationGetResponse[] getGalaxies() {
+    public List<GalaxyInformationGetResponse> getGalaxies() {
         return webClientBuilder
                 .baseUrl("http://galaxy-service/galaxy-app/").build()
                 .get()
@@ -27,8 +28,9 @@ public class GalaxyRepositoryImpl implements GalaxyRepository {
                 .onStatus(HttpStatus::isError, response -> {
                     throw new ConnectException();
                 })
-                .bodyToMono(GalaxyInformationGetResponse[].class)
+                .bodyToFlux(GalaxyInformationGetResponse.class)
                 .timeout(Duration.ofSeconds(10))
+                .collectList()
                 .block();
     }
 

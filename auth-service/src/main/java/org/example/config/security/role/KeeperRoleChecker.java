@@ -11,7 +11,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.Arrays;
 
 @Component
 @RequiredArgsConstructor
@@ -23,7 +22,7 @@ public class KeeperRoleChecker implements RoleChecker {
 
     @Override
     public boolean isRoleAvailable(Integer personId) {
-        AuthResponseEmployee[] curators = webClientBuilder
+        return webClientBuilder
                 .baseUrl(MMTR_AUTH_URL).build()
                 .get()
                 .uri("ts-rest/coaching/getProgramsMentorsByFilters/")
@@ -31,14 +30,17 @@ public class KeeperRoleChecker implements RoleChecker {
                         .getAuthorizationHeader())
                 .acceptCharset(StandardCharsets.UTF_8)
                 .retrieve()
-                .bodyToMono(AuthResponseEmployee[].class)
+                .bodyToFlux(AuthResponseEmployee.class)
                 .timeout(Duration.ofSeconds(5))
                 .onErrorResume(throwable -> {
                     throw new ConnectException();
                 })
-                .blockOptional().orElseThrow(ConnectException::new);
-        return Arrays.stream(curators)
-                .anyMatch(c -> c.getEmployeeId().equals(personId));
+                .collectList()
+                .blockOptional()
+                .orElseThrow(ConnectException::new)
+                .stream().anyMatch(
+                        c -> c.getEmployeeId().equals(personId)
+                );
     }
 
     @Override

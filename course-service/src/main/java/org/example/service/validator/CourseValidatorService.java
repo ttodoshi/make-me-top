@@ -13,7 +13,7 @@ import org.example.repository.PersonRepository;
 import org.example.repository.StarSystemRepository;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -23,13 +23,15 @@ public class CourseValidatorService {
     private final StarSystemRepository starSystemRepository;
 
     public void validatePutRequest(Integer galaxyId, Integer courseId, Course course) {
-        StarSystemDTO[] systems = starSystemRepository.getSystemsByGalaxyId(galaxyId);
-        boolean courseNotFound = Arrays.stream(systems)
-                .noneMatch(s -> s.getSystemName().equals(course.getTitle()) && s.getSystemId().equals(courseId));
+        List<StarSystemDTO> systems = starSystemRepository.getSystemsByGalaxyId(galaxyId);
+        boolean courseNotFound = systems.stream()
+                .noneMatch(s -> s.getSystemName().equals(course.getTitle()) &&
+                        s.getSystemId().equals(courseId));
         if (courseNotFound)
             throw new CourseNotFoundInGalaxyException(courseId, galaxyId);
-        boolean courseTitleExists = Arrays.stream(systems)
-                .anyMatch(s -> s.getSystemName().equals(course.getTitle()) && !s.getSystemId().equals(courseId));
+        boolean courseTitleExists = systems.stream()
+                .anyMatch(s -> s.getSystemName().equals(course.getTitle()) &&
+                        !s.getSystemId().equals(courseId));
         if (courseTitleExists)
             throw new CourseAlreadyExistsException(course.getTitle());
     }

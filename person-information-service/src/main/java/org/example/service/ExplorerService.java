@@ -40,7 +40,7 @@ public class ExplorerService {
     }
 
     private PersonList getExplorerList() {
-        GalaxyInformationGetResponse[] galaxies = galaxyRepository.getGalaxies();
+        List<GalaxyInformationGetResponse> galaxies = galaxyRepository.getGalaxies();
         List<PersonWithRatingAndGalaxyDTO> explorers = new ArrayList<>();
         for (GalaxyInformationGetResponse galaxy : galaxies) {
             List<PersonWithRatingAndGalaxyDTO> explorersFromGalaxy = galaxy.getExplorers().stream()

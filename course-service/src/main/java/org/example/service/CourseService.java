@@ -25,7 +25,10 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -105,7 +108,8 @@ public class CourseService {
     }
 
     public List<Course> getCoursesByGalaxyId(Integer galaxyId) {
-        List<Integer> systems = Arrays.stream(starSystemRepository.getSystemsByGalaxyId(galaxyId))
+        List<Integer> systems = starSystemRepository.getSystemsByGalaxyId(galaxyId)
+                .stream()
                 .mapToInt(StarSystemDTO::getSystemId)
                 .boxed().collect(Collectors.toList());
         return courseRepository.findAll()

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.Duration;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -17,7 +18,7 @@ public class StarSystemRepositoryImpl implements StarSystemRepository {
 
     private final WebClient.Builder webClientBuilder;
 
-    public StarSystemDTO[] getSystemsByGalaxyId(Integer galaxyId) {
+    public List<StarSystemDTO> getSystemsByGalaxyId(Integer galaxyId) {
         return webClientBuilder
                 .baseUrl("http://galaxy-service/galaxy-app/").build()
                 .get()
@@ -30,8 +31,9 @@ public class StarSystemRepositoryImpl implements StarSystemRepository {
                 .onStatus(HttpStatus::isError, response -> {
                     throw new ConnectException();
                 })
-                .bodyToMono(StarSystemDTO[].class)
+                .bodyToFlux(StarSystemDTO.class)
                 .timeout(Duration.ofSeconds(5))
+                .collectList()
                 .block();
     }
 }
