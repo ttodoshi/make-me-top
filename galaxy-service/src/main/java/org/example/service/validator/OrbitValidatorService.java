@@ -13,7 +13,7 @@ import org.example.repository.OrbitRepository;
 import org.example.repository.StarSystemRepository;
 import org.springframework.stereotype.Component;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -34,7 +34,7 @@ public class OrbitValidatorService {
             throw new GalaxyNotFoundException(galaxyId);
         if (orbitExists(galaxyId, request.getOrbitLevel()))
             throw new OrbitCoordinatesException();
-        List<StarSystemCreateRequest> savingSystemsList = new LinkedList<>();
+        List<StarSystemCreateRequest> savingSystemsList = new ArrayList<>();
         for (StarSystemCreateRequest system : request.getSystemList()) {
             if (savingSystemsList.contains(system) || systemExists(galaxyId, system.getSystemName()))
                 throw new SystemAlreadyExistsException(system.getSystemName());

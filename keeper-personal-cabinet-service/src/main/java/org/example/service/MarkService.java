@@ -32,8 +32,9 @@ public class MarkService {
         markValidatorService.validateThemeMarkRequest(themeId, mark);
         return courseThemeCompletionRepository.save(
                 mapper.map(
-                        new CourseThemeProgressDTO(
-                                mark.getExplorerId(), themeId, mark.getValue()),
-                        CourseThemeCompletion.class));
+                        new CourseThemeProgressDTO(mark.getExplorerId(), themeId, mark.getValue()),
+                        CourseThemeCompletion.class
+                )
+        );
     }
 }

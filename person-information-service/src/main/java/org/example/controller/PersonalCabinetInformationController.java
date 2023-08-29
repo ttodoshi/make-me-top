@@ -5,7 +5,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.example.service.InformationService;
+import org.example.service.ExplorerCabinetInformationService;
+import org.example.service.KeeperCabinetInformationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,7 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/info/")
 @RequiredArgsConstructor
 public class PersonalCabinetInformationController {
-    private final InformationService informationService;
+    private final ExplorerCabinetInformationService explorerCabinetInformationService;
+    private final KeeperCabinetInformationService keeperCabinetInformationService;
 
     @GetMapping("explorer-cabinet")
     @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).EXPLORER)")
@@ -31,7 +33,7 @@ public class PersonalCabinetInformationController {
                     })
     })
     public ResponseEntity<?> getExplorerCabinetInformation() {
-        return ResponseEntity.ok(informationService.getExplorerCabinetInformation());
+        return ResponseEntity.ok(explorerCabinetInformationService.getExplorerCabinetInformation());
     }
 
     @GetMapping("keeper-cabinet")
@@ -47,6 +49,6 @@ public class PersonalCabinetInformationController {
                     })
     })
     public ResponseEntity<?> getKeeperCabinetInformation() {
-        return ResponseEntity.ok(informationService.getKeeperCabinetInformation());
+        return ResponseEntity.ok(keeperCabinetInformationService.getKeeperCabinetInformation());
     }
 }

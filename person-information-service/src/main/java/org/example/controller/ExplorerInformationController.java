@@ -5,8 +5,9 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.example.service.ExplorerService;
-import org.example.service.InformationService;
+import org.example.service.ExplorerListService;
+import org.example.service.ExplorerPublicInformationService;
+import org.example.service.RatingService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -17,8 +18,9 @@ import java.time.Period;
 @RequestMapping("/info/explorer/")
 @RequiredArgsConstructor
 public class ExplorerInformationController {
-    private final InformationService informationService;
-    private final ExplorerService explorerService;
+    private final ExplorerPublicInformationService explorerPublicInformationService;
+    private final ExplorerListService explorerListService;
+    private final RatingService ratingService;
 
     @GetMapping("{personId}")
     @PreAuthorize("isAuthenticated()")
@@ -33,7 +35,7 @@ public class ExplorerInformationController {
                     })
     })
     public ResponseEntity<?> getInformation(@PathVariable Integer personId) {
-        return ResponseEntity.ok(informationService.getExplorerPublicInformation(personId));
+        return ResponseEntity.ok(explorerPublicInformationService.getExplorerPublicInformation(personId));
     }
 
     @GetMapping("{personId}/rating")
@@ -49,7 +51,7 @@ public class ExplorerInformationController {
                     })
     })
     public ResponseEntity<?> getExplorerRating(@PathVariable("personId") Integer personId) {
-        return ResponseEntity.ok(informationService.getExplorerRating(personId));
+        return ResponseEntity.ok(ratingService.getExplorerRating(personId));
     }
 
     @GetMapping
@@ -67,6 +69,6 @@ public class ExplorerInformationController {
     public ResponseEntity<?> getKeepers(@RequestParam(required = false) String sort,
                                         @RequestParam(required = false) Period period,
                                         @RequestParam(required = false) Integer systemId) {
-        return ResponseEntity.ok(explorerService.getExplorers(sort, period, systemId));
+        return ResponseEntity.ok(explorerListService.getExplorers(sort, period, systemId));
     }
 }

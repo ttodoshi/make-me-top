@@ -2,11 +2,11 @@ package org.example.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.config.mapper.DependencyMapper;
+import org.example.dto.event.CourseCreateEvent;
 import org.example.dto.starsystem.StarSystemCreateRequest;
 import org.example.dto.starsystem.StarSystemDTO;
 import org.example.dto.starsystem.StarSystemWithDependenciesGetResponse;
 import org.example.dto.starsystem.SystemDependencyModel;
-import org.example.dto.event.CourseCreateEvent;
 import org.example.exception.classes.systemEX.SystemNotFoundException;
 import org.example.model.StarSystem;
 import org.example.repository.DependencyRepository;
@@ -18,8 +18,8 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -40,7 +40,7 @@ public class StarSystemService {
         starSystemValidatorService.validateGetSystemWithDependencies(systemId);
         StarSystemWithDependenciesGetResponse system = mapper.map(
                 starSystemRepository.getReferenceById(systemId), StarSystemWithDependenciesGetResponse.class);
-        List<SystemDependencyModel> dependencies = new LinkedList<>();
+        List<SystemDependencyModel> dependencies = new ArrayList<>();
         dependencyRepository.getSystemChildren(systemId)
                 .stream()
                 .map(dependencyMapper::dependencyToDependencyChildModel)

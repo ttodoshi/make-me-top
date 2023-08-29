@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.example.dto.orbit.OrbitDTO;
 import org.example.dto.orbit.OrbitWithStarSystemsCreateRequest;
 import org.example.dto.orbit.OrbitWithStarSystemsGetResponse;
-import org.example.dto.starsystem.StarSystemCreateRequest;
 import org.example.dto.starsystem.StarSystemWithDependenciesGetResponse;
 import org.example.exception.classes.orbitEX.OrbitNotFoundException;
 import org.example.model.Orbit;
@@ -17,8 +16,8 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -38,7 +37,7 @@ public class OrbitService {
         orbitValidatorService.validateGetWithSystemListRequest(orbitId);
         OrbitWithStarSystemsGetResponse orbit = mapper.map(
                 orbitRepository.getReferenceById(orbitId), OrbitWithStarSystemsGetResponse.class);
-        List<StarSystemWithDependenciesGetResponse> systemWithDependenciesList = new LinkedList<>();
+        List<StarSystemWithDependenciesGetResponse> systemWithDependenciesList = new ArrayList<>();
         starSystemRepository.findStarSystemsByOrbitId(orbitId).forEach(
                 s -> systemWithDependenciesList.add(
                         systemService.getStarSystemByIdWithDependencies(s.getSystemId())
@@ -60,12 +59,13 @@ public class OrbitService {
         Orbit orbit = mapper.map(orbitRequest, Orbit.class);
         orbit.setGalaxyId(galaxyId);
         Orbit savedOrbit = orbitRepository.save(orbit);
-        for (StarSystemCreateRequest currentSystem : orbitRequest.getSystemList()) {
-            StarSystem system = mapper.map(currentSystem, StarSystem.class);
-            system.setOrbitId(savedOrbit.getOrbitId());
-            StarSystem savedSystem = starSystemRepository.save(system);
-            systemService.createCourse(savedSystem.getSystemId(), currentSystem);
-        }
+        orbitRequest.getSystemList().forEach(s -> {
+                    StarSystem system = mapper.map(s, StarSystem.class);
+                    system.setOrbitId(savedOrbit.getOrbitId());
+                    StarSystem savedSystem = starSystemRepository.save(system);
+                    systemService.createCourse(savedSystem.getSystemId(), s);
+                }
+        );
         return getOrbitWithSystemList(savedOrbit.getOrbitId());
     }
 

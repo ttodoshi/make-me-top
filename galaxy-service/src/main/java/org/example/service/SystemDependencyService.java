@@ -12,8 +12,8 @@ import org.example.service.validator.SystemDependencyValidatorService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -27,7 +27,7 @@ public class SystemDependencyService {
 
     @Transactional
     public List<SystemDependency> addDependency(List<DependencyCreateRequest> systemDependency) {
-        List<SystemDependency> dependencies = new LinkedList<>();
+        List<SystemDependency> dependencies = new ArrayList<>();
         for (DependencyCreateRequest dependency : systemDependency) {
             systemDependencyValidatorService.validateDependency(dependency);
             dependencies.add(

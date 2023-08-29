@@ -18,7 +18,8 @@ import org.example.model.Person;
 import org.example.model.course.Course;
 import org.example.model.course.CourseTheme;
 import org.example.model.progress.CourseThemeCompletion;
-import org.example.repository.*;
+import org.example.repository.ExplorerRepository;
+import org.example.repository.KeeperRepository;
 import org.example.repository.course.CourseRepository;
 import org.example.repository.course.CourseThemeRepository;
 import org.example.repository.courseprogress.CourseThemeCompletionRepository;
@@ -26,7 +27,7 @@ import org.example.repository.homework.HomeworkRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -95,7 +96,7 @@ public class MarkValidatorService {
     private CourseWithThemesProgress getThemesProgress(Explorer explorer) {
         Course course = courseRepository.findById(explorer.getCourseId())
                 .orElseThrow(() -> new CourseNotFoundException(explorer.getCourseId()));
-        List<CourseThemeCompletionDTO> themesCompletion = new LinkedList<>();
+        List<CourseThemeCompletionDTO> themesCompletion = new ArrayList<>();
         for (CourseTheme ct : courseThemeRepository.findCourseThemesByCourseIdOrderByCourseThemeNumberAsc(explorer.getCourseId())) {
             Boolean themeCompleted = courseThemeCompletionRepository
                     .findCourseThemeProgressByExplorerIdAndCourseThemeId(explorer.getExplorerId(), ct.getCourseThemeId()).isPresent();

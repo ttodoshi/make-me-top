@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.dto.courserequest.CourseRegistrationRequestReply;
 import org.example.dto.courserequest.KeeperRejectionDTO;
 import org.example.service.CourseRegistrationRequestService;
+import org.example.service.KeeperRejectionService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +20,7 @@ import javax.validation.Valid;
 @RequiredArgsConstructor
 public class CourseRegistrationRequestController {
     private final CourseRegistrationRequestService courseRegistrationRequestService;
+    private final KeeperRejectionService keeperRejectionService;
 
     @PatchMapping("{requestId}")
     @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).KEEPER) && " +
@@ -88,7 +90,7 @@ public class CourseRegistrationRequestController {
     public ResponseEntity<?> sendKeeperRejection(@PathVariable("requestId") Integer requestId,
                                                  @Valid @RequestBody KeeperRejectionDTO rejection) {
         return ResponseEntity.ok(
-                courseRegistrationRequestService.sendRejection(requestId, rejection));
+                keeperRejectionService.sendRejection(requestId, rejection));
     }
 
     @GetMapping("rejection")
@@ -104,6 +106,6 @@ public class CourseRegistrationRequestController {
                     })
     })
     public ResponseEntity<?> getKeeperRejectionReasons() {
-        return ResponseEntity.ok(courseRegistrationRequestService.getRejectionReasons());
+        return ResponseEntity.ok(keeperRejectionService.getRejectionReasons());
     }
 }
