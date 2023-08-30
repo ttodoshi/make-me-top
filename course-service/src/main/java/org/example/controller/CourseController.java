@@ -53,7 +53,7 @@ public class CourseController {
     }
 
     @PutMapping("galaxy/{galaxyId}/course/{courseId}")
-    @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.role.GeneralRoleType).BIG_BROTHER)")
+    @PreAuthorize("@roleServiceImpl.hasAnyGeneralRole(T(org.example.model.role.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Update course by id", tags = "course")
     @ApiResponses(value = {
             @ApiResponse(
@@ -71,7 +71,7 @@ public class CourseController {
     }
 
     @PostMapping("course/{courseId}/keeper")
-    @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.role.GeneralRoleType).BIG_BROTHER)")
+    @PreAuthorize("@roleServiceImpl.hasAnyGeneralRole(T(org.example.model.role.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Add keeper on course", tags = "course")
     @ApiResponses(value = {
             @ApiResponse(

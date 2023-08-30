@@ -33,8 +33,8 @@ public class ExplorerCabinetInformationService {
     private final CourseMarkRepository courseMarkRepository;
     private final PersonRepository personRepository;
     private final KeeperFeedbackRepository keeperFeedbackRepository;
-    private final GalaxyRepository galaxyRepository;
     private final CourseRegistrationRequestKeeperRepository courseRegistrationRequestKeeperRepository;
+    private final GalaxyRepository galaxyRepository;
 
     private final RatingService ratingService;
     private final CourseProgressService courseProgressService;

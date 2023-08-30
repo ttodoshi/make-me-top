@@ -23,7 +23,7 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
-    private final JwtServiceImpl jwtService;
+    private final JwtService jwtService;
     private final PersonRepository personRepository;
 
     @Override

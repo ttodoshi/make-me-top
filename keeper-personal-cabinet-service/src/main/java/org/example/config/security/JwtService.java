@@ -12,5 +12,7 @@ public interface JwtService {
 
     <T> T extractClaim(String jwtToken, Function<Claims, T> claimsResolver);
 
+    String extractRole(String jwtToken);
+
     boolean isTokenValid(String jwtToken, Person person);
 }

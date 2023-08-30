@@ -10,9 +10,7 @@ import org.example.exception.classes.requestEX.StatusNotFoundException;
 import org.example.model.Explorer;
 import org.example.model.homework.HomeworkRequest;
 import org.example.model.homework.HomeworkRequestStatusType;
-import org.example.repository.course.CourseRepository;
 import org.example.repository.course.CourseThemeRepository;
-import org.example.repository.courseprogress.CourseThemeCompletionRepository;
 import org.example.repository.homework.HomeworkRequestStatusRepository;
 import org.example.service.CourseThemesProgressService;
 import org.springframework.stereotype.Component;
@@ -22,10 +20,8 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class HomeworkRequestValidatorService {
-    private final CourseRepository courseRepository;
     private final CourseThemeRepository courseThemeRepository;
     private final HomeworkRequestStatusRepository homeworkRequestStatusRepository;
-    private final CourseThemeCompletionRepository courseThemeCompletionRepository;
 
     private final CourseThemesProgressService courseThemesProgressService;
 

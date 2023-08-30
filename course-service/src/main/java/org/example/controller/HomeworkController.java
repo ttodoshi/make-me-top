@@ -21,9 +21,9 @@ public class HomeworkController {
     private final HomeworkService homeworkService;
 
     @GetMapping("theme/{themeId}/homework")
-    @PreAuthorize("@roleService.hasAnyCourseRoleByThemeId(#themeId, T(org.example.model.role.CourseRoleType).EXPLORER) ||" +
-            "@roleService.hasAnyCourseRoleByThemeId(#themeId, T(org.example.model.role.CourseRoleType).KEEPER) ||" +
-            "@roleService.hasAnyGeneralRole(T(org.example.model.role.GeneralRoleType).BIG_BROTHER)")
+    @PreAuthorize("@roleServiceImpl.hasAnyCourseRoleByThemeId(#themeId, T(org.example.model.role.CourseRoleType).EXPLORER) ||" +
+            "@roleServiceImpl.hasAnyCourseRoleByThemeId(#themeId, T(org.example.model.role.CourseRoleType).KEEPER) ||" +
+            "@roleServiceImpl.hasAnyGeneralRole(T(org.example.model.role.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Get homework by theme id", tags = "homework")
     @ApiResponses(value = {
             @ApiResponse(
@@ -39,8 +39,8 @@ public class HomeworkController {
     }
 
     @PostMapping("theme/{themeId}/homework")
-    @PreAuthorize("@roleService.hasAnyCourseRoleByThemeId(#themeId, T(org.example.model.role.CourseRoleType).KEEPER) ||" +
-            "@roleService.hasAnyGeneralRole(T(org.example.model.role.GeneralRoleType).BIG_BROTHER)")
+    @PreAuthorize("@roleServiceImpl.hasAnyCourseRoleByThemeId(#themeId, T(org.example.model.role.CourseRoleType).KEEPER) ||" +
+            "@roleServiceImpl.hasAnyGeneralRole(T(org.example.model.role.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Create homework for theme", tags = "homework")
     @ApiResponses(value = {
             @ApiResponse(
@@ -57,8 +57,8 @@ public class HomeworkController {
     }
 
     @PutMapping("homework/{homeworkId}")
-    @PreAuthorize("@roleService.hasAnyCourseRoleByHomeworkId(#homeworkId, T(org.example.model.role.CourseRoleType).KEEPER) ||" +
-            "@roleService.hasAnyGeneralRole(T(org.example.model.role.GeneralRoleType).BIG_BROTHER)")
+    @PreAuthorize("@roleServiceImpl.hasAnyCourseRoleByHomeworkId(#homeworkId, T(org.example.model.role.CourseRoleType).KEEPER) ||" +
+            "@roleServiceImpl.hasAnyGeneralRole(T(org.example.model.role.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Update homework by id", tags = "homework")
     @ApiResponses(value = {
             @ApiResponse(
@@ -75,8 +75,8 @@ public class HomeworkController {
     }
 
     @DeleteMapping("homework/{homeworkId}")
-    @PreAuthorize("@roleService.hasAnyCourseRoleByHomeworkId(#homeworkId, T(org.example.model.role.CourseRoleType).KEEPER) ||" +
-            "@roleService.hasAnyGeneralRole(T(org.example.model.role.GeneralRoleType).BIG_BROTHER)")
+    @PreAuthorize("@roleServiceImpl.hasAnyCourseRoleByHomeworkId(#homeworkId, T(org.example.model.role.CourseRoleType).KEEPER) ||" +
+            "@roleServiceImpl.hasAnyGeneralRole(T(org.example.model.role.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Delete homework by id", tags = "homework")
     @ApiResponses(value = {
             @ApiResponse(

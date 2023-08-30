@@ -20,9 +20,9 @@ public class CourseThemeController {
     private final CourseThemeService courseThemeService;
 
     @GetMapping("theme/{themeId}")
-    @PreAuthorize("@roleService.hasAnyCourseRoleByThemeId(#themeId, T(org.example.model.role.CourseRoleType).EXPLORER) ||" +
-            "@roleService.hasAnyCourseRoleByThemeId(#themeId, T(org.example.model.role.CourseRoleType).KEEPER) ||" +
-            "@roleService.hasAnyGeneralRole(T(org.example.model.role.GeneralRoleType).BIG_BROTHER)")
+    @PreAuthorize("@roleServiceImpl.hasAnyCourseRoleByThemeId(#themeId, T(org.example.model.role.CourseRoleType).EXPLORER) ||" +
+            "@roleServiceImpl.hasAnyCourseRoleByThemeId(#themeId, T(org.example.model.role.CourseRoleType).KEEPER) ||" +
+            "@roleServiceImpl.hasAnyGeneralRole(T(org.example.model.role.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Get theme by theme id", tags = "theme")
     @ApiResponses(value = {
             @ApiResponse(
@@ -38,9 +38,9 @@ public class CourseThemeController {
     }
 
     @GetMapping("course/{courseId}/theme")
-    @PreAuthorize("@roleService.hasAnyCourseRole(#courseId, T(org.example.model.role.CourseRoleType).EXPLORER) ||" +
-            "@roleService.hasAnyCourseRole(#courseId, T(org.example.model.role.CourseRoleType).KEEPER) ||" +
-            "@roleService.hasAnyGeneralRole(T(org.example.model.role.GeneralRoleType).BIG_BROTHER)")
+    @PreAuthorize("@roleServiceImpl.hasAnyCourseRole(#courseId, T(org.example.model.role.CourseRoleType).EXPLORER) ||" +
+            "@roleServiceImpl.hasAnyCourseRole(#courseId, T(org.example.model.role.CourseRoleType).KEEPER) ||" +
+            "@roleServiceImpl.hasAnyGeneralRole(T(org.example.model.role.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Get themes by course id", tags = "theme")
     @ApiResponses(value = {
             @ApiResponse(
@@ -56,7 +56,7 @@ public class CourseThemeController {
     }
 
     @PutMapping("theme/{themeId}")
-    @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.role.GeneralRoleType).BIG_BROTHER)")
+    @PreAuthorize("@roleServiceImpl.hasAnyGeneralRole(T(org.example.model.role.GeneralRoleType).BIG_BROTHER)")
     @Operation(summary = "Update theme by id", tags = "theme")
     @ApiResponses(value = {
             @ApiResponse(

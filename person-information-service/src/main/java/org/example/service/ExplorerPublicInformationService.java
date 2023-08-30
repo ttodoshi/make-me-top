@@ -44,7 +44,7 @@ public class ExplorerPublicInformationService {
     private final CourseRegistrationRequestKeeperRepository courseRegistrationRequestKeeperRepository;
 
     private final RatingService ratingService;
-    private final CourseProgressService courseProgressService;
+    private final CourseProgressServiceImpl courseProgressServiceImpl;
     private final RoleService roleService;
 
     @Transactional(readOnly = true)
@@ -59,7 +59,7 @@ public class ExplorerPublicInformationService {
                 .getExplorerCommentsByPersonId(personId);
         response.put("totalFeedback", feedback.size());
         response.put("totalSystems", explorerRepository.getExplorerSystemsCount(personId));
-        Optional<CurrentCourseProgressDTO> currentCourseOptional = courseProgressService
+        Optional<CurrentCourseProgressDTO> currentCourseOptional = courseProgressServiceImpl
                 .getCurrentCourseProgress(personId);
         if (currentCourseOptional.isEmpty()) {
             courseRegistrationRequestRepository.getStudyRequestByPersonId(personId).filter(

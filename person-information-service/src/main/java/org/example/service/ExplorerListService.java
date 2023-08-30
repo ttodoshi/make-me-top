@@ -23,7 +23,7 @@ import java.util.stream.Stream;
 public class ExplorerListService {
     private final GalaxyRepository galaxyRepository;
 
-    private final CourseProgressService courseProgressService;
+    private final CourseProgressServiceImpl courseProgressServiceImpl;
 
     private final ModelMapper mapper;
 
@@ -33,7 +33,7 @@ public class ExplorerListService {
         return explorerList.getPeople()
                 .stream()
                 .map(p -> {
-                    Optional<CurrentCourseProgressDTO> currentCourseProgress = courseProgressService
+                    Optional<CurrentCourseProgressDTO> currentCourseProgress = courseProgressServiceImpl
                             .getCurrentCourseProgress(p.getPersonId());
                     if (currentCourseProgress.isPresent()) {
                         CurrentCourseProgressDTO progress = currentCourseProgress.get();

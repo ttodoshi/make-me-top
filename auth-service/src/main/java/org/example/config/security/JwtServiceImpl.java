@@ -45,6 +45,7 @@ public class JwtServiceImpl implements JwtService {
         return claimsResolver.apply(claims);
     }
 
+    @Override
     public boolean isTokenValid(String jwtToken, Person person) {
         final String id = extractId(jwtToken);
         return id.equals(person.getPersonId().toString()) && !isTokenExpired(jwtToken);
@@ -58,6 +59,7 @@ public class JwtServiceImpl implements JwtService {
         return extractClaim(jwtToken, Claims::getExpiration);
     }
 
+    @Override
     public String extractRole(String jwtToken) {
         return extractAllClaims(jwtToken).get("role", String.class);
     }

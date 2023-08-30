@@ -21,7 +21,7 @@ public class PersonalCabinetInformationController {
     private final KeeperCabinetInformationService keeperCabinetInformationService;
 
     @GetMapping("explorer-cabinet")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).EXPLORER)")
+    @PreAuthorize("@roleServiceImpl.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).EXPLORER)")
     @Operation(summary = "Get explorer personal cabinet information", tags = "personal cabinet", hidden = true)
     @ApiResponses(value = {
             @ApiResponse(
@@ -37,7 +37,7 @@ public class PersonalCabinetInformationController {
     }
 
     @GetMapping("keeper-cabinet")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).KEEPER)")
+    @PreAuthorize("@roleServiceImpl.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).KEEPER)")
     @Operation(summary = "Get keeper personal cabinet information", tags = "personal cabinet", hidden = true)
     @ApiResponses(value = {
             @ApiResponse(
