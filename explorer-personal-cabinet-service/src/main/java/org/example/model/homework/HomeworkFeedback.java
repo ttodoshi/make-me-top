@@ -5,13 +5,15 @@ import lombok.Data;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "homework_response", schema = "course")
+@Table(name = "homework_feedback", schema = "course")
 @Data
-public class HomeworkResponse {
+public class HomeworkFeedback {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer responseId;
+    private Integer feedbackId;
     @JoinColumn(table = "homework_request", name = "request_id")
     private Integer requestId;
-    private String content;
+    private String comment;
+    @JoinColumn(table = "homework_feedback_status", name = "status_id")
+    private Integer statusId;
 }

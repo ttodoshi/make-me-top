@@ -19,4 +19,5 @@ public class HomeworkMark {
     @JoinColumn(table = "homework_request", name = "request_id")
     private Integer requestId;
     private Integer mark;
+    private String comment;
 }

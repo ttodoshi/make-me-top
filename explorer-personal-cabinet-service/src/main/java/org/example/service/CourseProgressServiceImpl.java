@@ -48,9 +48,9 @@ public class CourseProgressServiceImpl implements CourseProgressService {
                     .findExplorerByPersonIdAndCourseId(authenticatedPerson.getPersonId(), system.getSystemId());
             if (explorerOptional.isPresent()) {
                 Explorer explorer = explorerOptional.get();
-                studiedCourses.add(new CourseWithProgress(explorer.getCourseId(),
+                studiedCourses.add(new CourseWithProgress(system.getSystemId(),
                         courseThemeCompletionRepository.getCourseProgress(
-                                explorer.getExplorerId(), explorer.getCourseId())));
+                                explorer.getExplorerId(), system.getSystemId())));
             } else if (hasUncompletedParents(authenticatedPerson.getPersonId(), system.getSystemId())) {
                 closedCourses.add(system.getSystemId());
             } else {
@@ -88,7 +88,7 @@ public class CourseProgressServiceImpl implements CourseProgressService {
         for (SystemDependencyModel system : getParentDependencies(systemWithDependencies)) {
             Optional<Explorer> explorer = explorerRepository.findExplorerByPersonIdAndCourseId(personId, system.getSystemId());
             if (explorer.isEmpty() || courseThemeCompletionRepository.getCourseProgress(
-                    explorer.get().getExplorerId(), explorer.get().getCourseId()) < 100) {
+                    explorer.get().getExplorerId(), system.getSystemId()) < 100) {
                 return true;
             } else if (system.getIsAlternative())
                 return false;

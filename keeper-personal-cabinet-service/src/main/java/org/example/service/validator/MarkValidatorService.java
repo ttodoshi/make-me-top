@@ -18,6 +18,7 @@ import org.example.model.Person;
 import org.example.model.course.Course;
 import org.example.model.course.CourseTheme;
 import org.example.model.progress.CourseThemeCompletion;
+import org.example.repository.ExplorerGroupRepository;
 import org.example.repository.ExplorerRepository;
 import org.example.repository.KeeperRepository;
 import org.example.repository.course.CourseRepository;
@@ -35,6 +36,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class MarkValidatorService {
     private final ExplorerRepository explorerRepository;
+    private final ExplorerGroupRepository explorerGroupRepository;
     private final KeeperRepository keeperRepository;
     private final CourseRepository courseRepository;
     private final CourseThemeRepository courseThemeRepository;
@@ -55,7 +57,7 @@ public class MarkValidatorService {
     private boolean isNotKeeperForThisExplorer(Integer explorerId) {
         final Person authenticatedPerson = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Explorer explorer = explorerRepository.getReferenceById(explorerId);
-        Keeper keeper = keeperRepository.getKeeperForPersonOnCourse(explorer.getPersonId(), explorer.getCourseId());
+        Keeper keeper = keeperRepository.getKeeperForExplorer(explorer.getExplorerId());
         return !authenticatedPerson.getPersonId().equals(keeper.getPersonId());
     }
 
@@ -94,10 +96,12 @@ public class MarkValidatorService {
     }
 
     private CourseWithThemesProgress getThemesProgress(Explorer explorer) {
-        Course course = courseRepository.findById(explorer.getCourseId())
-                .orElseThrow(() -> new CourseNotFoundException(explorer.getCourseId()));
+        Integer courseId = explorerGroupRepository
+                .getReferenceById(explorer.getGroupId()).getCourseId();
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new CourseNotFoundException(courseId));
         List<CourseThemeCompletionDTO> themesCompletion = new ArrayList<>();
-        for (CourseTheme ct : courseThemeRepository.findCourseThemesByCourseIdOrderByCourseThemeNumberAsc(explorer.getCourseId())) {
+        for (CourseTheme ct : courseThemeRepository.findCourseThemesByCourseIdOrderByCourseThemeNumberAsc(courseId)) {
             Boolean themeCompleted = courseThemeCompletionRepository
                     .findCourseThemeProgressByExplorerIdAndCourseThemeId(explorer.getExplorerId(), ct.getCourseThemeId()).isPresent();
             themesCompletion.add(
@@ -105,7 +109,7 @@ public class MarkValidatorService {
             );
         }
         return CourseWithThemesProgress.builder()
-                .courseId(explorer.getCourseId())
+                .courseId(courseId)
                 .title(course.getTitle())
                 .themesWithProgress(themesCompletion)
                 .build();

@@ -8,8 +8,13 @@ import org.example.exception.classes.courseEX.CourseNotFoundException;
 import org.example.exception.classes.courseEX.CourseNotFoundInGalaxyException;
 import org.example.exception.classes.coursethemeEX.CourseThemeAlreadyExistsException;
 import org.example.exception.classes.coursethemeEX.CourseThemeNotFoundException;
+import org.example.exception.classes.explorerEX.ExplorerGroupIsNotOnCourseException;
+import org.example.exception.classes.explorerEX.ExplorerGroupNotFoundException;
+import org.example.exception.classes.explorerEX.ExplorerNotInGroupException;
 import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
 import org.example.exception.classes.homeworkEX.HomeworkNotFoundException;
+import org.example.exception.classes.keeperEX.KeeperNotForGroupException;
+import org.example.exception.classes.keeperEX.KeeperNotFoundException;
 import org.example.exception.classes.personEX.PersonNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -105,6 +110,36 @@ public class ErrorHandler {
     public ResponseEntity<ErrorResponse> handleCourseThemeNotFoundException(Exception e) {
         logWarning(e);
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(ExplorerGroupNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleExplorerGroupNotFoundException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(KeeperNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleKeeperNotFoundException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(KeeperNotForGroupException.class)
+    public ResponseEntity<ErrorResponse> handleKeeperNotForGroupException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(ExplorerGroupIsNotOnCourseException.class)
+    public ResponseEntity<ErrorResponse> handleExplorerGroupIsNotOnCourseException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(ExplorerNotInGroupException.class)
+    public ResponseEntity<ErrorResponse> handleExplorerNotInGroupException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(PersonNotFoundException.class)

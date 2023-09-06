@@ -5,9 +5,11 @@ import org.example.dto.courseprogress.CourseThemeCompletionDTO;
 import org.example.dto.courseprogress.CurrentCourseProgressDTO;
 import org.example.dto.keeper.KeeperDTO;
 import org.example.exception.classes.coursethemeEX.CourseThemeNotFoundException;
+import org.example.exception.classes.explorerEX.ExplorerGroupNotFoundException;
 import org.example.model.Explorer;
 import org.example.model.course.Course;
 import org.example.model.course.CourseTheme;
+import org.example.repository.ExplorerGroupRepository;
 import org.example.repository.ExplorerRepository;
 import org.example.repository.KeeperRepository;
 import org.example.repository.course.CourseRepository;
@@ -28,6 +30,7 @@ public class CourseProgressServiceImpl implements CourseProgressService {
     private final CourseThemeCompletionRepository courseThemeCompletionRepository;
     private final CourseThemeRepository courseThemeRepository;
     private final CourseRepository courseRepository;
+    private final ExplorerGroupRepository explorerGroupRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -45,7 +48,7 @@ public class CourseProgressServiceImpl implements CourseProgressService {
         Integer currentThemeId = getCurrentCourseThemeId(explorer);
         CourseTheme currentTheme = courseThemeRepository.findById(currentThemeId).orElseThrow(() -> new CourseThemeNotFoundException(currentThemeId));
         Course currentCourse = courseRepository.getReferenceById(currentSystemId);
-        KeeperDTO keeper = keeperRepository.getKeeperForPersonOnCourse(personId, currentSystemId);
+        KeeperDTO keeper = keeperRepository.getKeeperForExplorer(explorer.getExplorerId());
         return Optional.of(new CurrentCourseProgressDTO(explorer.getExplorerId(), currentTheme.getCourseThemeId(), currentTheme.getTitle(), currentCourse.getCourseId(), currentCourse.getTitle(), keeper, progress));
     }
 
@@ -59,8 +62,11 @@ public class CourseProgressServiceImpl implements CourseProgressService {
     }
 
     private List<CourseThemeCompletionDTO> getCourseWithThemesProgress(Explorer explorer) {
+        Integer courseId = explorerGroupRepository.findById(explorer.getGroupId())
+                .orElseThrow(() -> new ExplorerGroupNotFoundException(explorer.getGroupId()))
+                .getCourseId();
         return courseThemeRepository
-                .findCourseThemesByCourseIdOrderByCourseThemeNumberAsc(explorer.getCourseId())
+                .findCourseThemesByCourseIdOrderByCourseThemeNumberAsc(courseId)
                 .stream()
                 .map(t -> {
                             boolean planetCompleted = courseThemeCompletionRepository

@@ -64,7 +64,7 @@ public class CourseService {
                     .findAny()
                     .ifPresent(e -> {
                         response.put("you", e);
-                        KeeperWithRating yourKeeper = mapper.map(keeperRepository.getKeeperForPersonOnCourse(e.getPersonId(), courseId), KeeperWithRating.class);
+                        KeeperWithRating yourKeeper = mapper.map(keeperRepository.getKeeperForExplorer(e.getExplorerId()), KeeperWithRating.class);
                         yourKeeper.setRating(ratingRepository.getKeeperRating(yourKeeper.getPersonId()));
                         response.put("yourKeeper", yourKeeper);
                     });

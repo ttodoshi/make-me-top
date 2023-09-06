@@ -10,10 +10,16 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ExplorerRepository extends JpaRepository<Explorer, Integer> {
-    Optional<Explorer> findExplorerByPersonIdAndCourseId(Integer personId, Integer courseId);
+    Optional<Explorer> findExplorerByPersonIdAndGroupId(Integer personId, Integer groupId);
+
+    @Query(value = "SELECT e FROM Explorer e\n" +
+            "JOIN ExplorerGroup eg ON eg.groupId = e.groupId\n" +
+            " WHERE e.personId = :personId AND eg.courseId = :courseId")
+    Optional<Explorer> findExplorerByPersonIdAndCourseId(@Param("personId") Integer personId, @Param("courseId") Integer courseId);
 
     @Query(value = "SELECT new org.example.dto.explorer.ExplorerDTO(p.personId, p.firstName, p.lastName, p.patronymic, e.explorerId) FROM Explorer e\n" +
             "JOIN Person p ON p.personId = e.personId\n" +
-            "WHERE e.courseId = :courseId")
+            "JOIN ExplorerGroup eg ON eg.groupId = e.groupId\n" +
+            "WHERE eg.courseId = :courseId")
     List<ExplorerDTO> findExplorersByCourseId(@Param("courseId") Integer courseId);
 }

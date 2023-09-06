@@ -38,11 +38,11 @@ public class FeedbackValidatorService {
         Explorer explorer = explorerRepository
                 .findExplorerByPersonIdAndCourseId(personId, keeper.getCourseId())
                 .orElseThrow(() -> new ExplorerNotFoundException(keeper.getCourseId()));
-        Keeper actualKeeper = keeperRepository.getKeeperForPersonOnCourse(personId, explorer.getCourseId());
+        Keeper actualKeeper = keeperRepository.getKeeperForExplorer(explorer.getExplorerId());
         if (!actualKeeper.getKeeperId().equals(feedback.getKeeperId()))
             throw new DifferentKeeperException(actualKeeper.getKeeperId(), feedback.getKeeperId());
         if (!courseMarkRepository.existsById(explorer.getExplorerId()))
-            throw new CourseNotCompletedException(explorer.getCourseId());
+            throw new CourseNotCompletedException(keeper.getCourseId());
         if (explorerFeedbackRepository.existsById(explorer.getExplorerId()))
             throw new FeedbackAlreadyExists();
         if (feedback.getRating() < 1 || feedback.getRating() > 5)

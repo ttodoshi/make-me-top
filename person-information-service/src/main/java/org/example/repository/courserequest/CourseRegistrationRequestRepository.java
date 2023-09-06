@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CourseRegistrationRequestRepository extends JpaRepository<CourseRegistrationRequest, Integer> {
-    @Query(value = "SELECT new org.example.dto.courserequest.CourseRegistrationRequestForKeeper(" +
-            "\tcrr.requestId, p.personId, p.firstName, p.lastName, p.patronymic, c.courseId, c.title, crrk.keeperId" +
+    @Query(value = "SELECT new org.example.dto.courserequest.CourseRegistrationRequestForKeeper(\n" +
+            "   crr.requestId, p.personId, p.firstName, p.lastName, p.patronymic, c.courseId, c.title, crrk.keeperId\n" +
             ")\n" +
             "FROM CourseRegistrationRequest crr\n" +
             "JOIN CourseRegistrationRequestStatus crrs ON crrs.statusId = crr.statusId\n" +
@@ -25,8 +25,8 @@ public interface CourseRegistrationRequestRepository extends JpaRepository<Cours
             "WHERE k.personId = :personId AND crrks.status = 'PROCESSING'")
     List<CourseRegistrationRequestForKeeper> getStudyRequestsByKeeperPersonId(@Param("personId") Integer personId);
 
-    @Query(value = "SELECT new org.example.dto.courserequest.CourseRegistrationRequestForKeeperWithGalaxy(" +
-            "\tcrr.requestId, p.personId, p.firstName, p.lastName, p.patronymic, c.courseId, c.title" +
+    @Query(value = "SELECT new org.example.dto.courserequest.CourseRegistrationRequestForKeeperWithGalaxy(\n" +
+            "   crr.requestId, p.personId, p.firstName, p.lastName, p.patronymic, c.courseId, c.title\n" +
             ")\n" +
             "FROM CourseRegistrationRequest crr\n" +
             "JOIN CourseRegistrationRequestStatus crrs ON crrs.statusId = crr.statusId\n" +
@@ -35,8 +35,8 @@ public interface CourseRegistrationRequestRepository extends JpaRepository<Cours
             "WHERE crr.personId = :personId AND crrs.status = 'PROCESSING'")
     Optional<CourseRegistrationRequestForKeeperWithGalaxy> getStudyRequestByPersonId(@Param("personId") Integer personId);
 
-    @Query(value = "SELECT new org.example.dto.courserequest.CourseRegistrationRequestForExplorer(" +
-            "\tcrr.requestId, c.courseId, c.title" +
+    @Query(value = "SELECT new org.example.dto.courserequest.CourseRegistrationRequestForExplorer(\n" +
+            "   crr.requestId, c.courseId, c.title\n" +
             ") FROM CourseRegistrationRequest crr\n" +
             "JOIN CourseRegistrationRequestStatus crrs ON crrs.statusId = crr.statusId\n" +
             "JOIN Course c ON c.courseId = crr.courseId\n" +

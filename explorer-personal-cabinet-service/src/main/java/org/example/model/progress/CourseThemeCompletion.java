@@ -17,6 +17,7 @@ public class CourseThemeCompletion {
     private Integer courseThemeCompletionId;
     @JoinColumn(table = "explorer", name = "explorer_id")
     private Integer explorerId;
+    @JoinColumn(table = "course_theme", name = "course_theme_id")
     private Integer courseThemeId;
     private Integer mark;
 }

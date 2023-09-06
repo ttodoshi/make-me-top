@@ -11,4 +11,6 @@ public class HomeworkUpdateRequest {
     private Integer courseThemeId;
     @NotBlank
     private String content;
+    @NotNull
+    private Integer groupId;
 }

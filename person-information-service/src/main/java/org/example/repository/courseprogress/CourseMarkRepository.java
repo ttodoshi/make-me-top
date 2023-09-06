@@ -13,16 +13,15 @@ public interface CourseMarkRepository extends JpaRepository<CourseMark, Integer>
             "        c.courseId, c.title, COALESCE((\n" +
             "                SELECT ROUND(AVG(cr.rating),1) FROM CourseRating cr\n" +
             "                JOIN Explorer e1 ON e1.explorerId = cr.explorerId\n" +
-            "                WHERE e1.courseId = c.courseId\n" +
-            "        ), 0) as rating, crrk.keeperId\n" +
+            "                JOIN ExplorerGroup eg1 ON e1.groupId = eg1.groupId\n" +
+            "                WHERE eg1.courseId = c.courseId\n" +
+            "        ), 0), eg.keeperId\n" +
             ")\n" +
-            "FROM CourseRegistrationRequest crr\n" +
-            "JOIN CourseRegistrationRequestKeeper crrk ON crrk.requestId = crr.requestId\n" +
-            "JOIN CourseRegistrationRequestStatus crrs ON crrs.statusId = crr.statusId\n" +
-            "JOIN Course c ON c.courseId = crr.courseId\n" +
-            "JOIN Explorer e ON e.personId = crr.personId AND e.courseId = crr.courseId\n" +
+            "FROM Explorer e\n" +
+            "JOIN ExplorerGroup eg ON eg.groupId = e.groupId\n" +
             "JOIN CourseMark cm ON cm.explorerId = e.explorerId\n" +
-            "WHERE crr.personId = :personId AND crrs.status = 'ACCEPTED'\n" +
+            "JOIN Course c ON c.courseId = eg.courseId\n" +
+            "WHERE e.personId = :personId\n" +
             "ORDER BY cm.courseEndDate DESC")
     List<CourseWithRating> getInvestigatedSystemsByPersonId(@Param("personId") Integer personId);
 }

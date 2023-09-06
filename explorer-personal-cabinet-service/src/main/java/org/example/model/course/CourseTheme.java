@@ -3,16 +3,15 @@ package org.example.model.course;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "course_theme", schema = "course")
 @Data
+@EntityListeners(AuditingEntityListener.class)
 public class CourseTheme {
     @Id
     private Integer courseThemeId;

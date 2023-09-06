@@ -7,15 +7,16 @@ import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
 import org.example.exception.classes.requestEX.StatusNotFoundException;
 import org.example.model.Explorer;
 import org.example.model.Person;
+import org.example.model.homework.HomeworkFeedbackStatusType;
 import org.example.model.homework.HomeworkRequest;
 import org.example.model.homework.HomeworkRequestStatusType;
 import org.example.repository.ExplorerRepository;
-import org.example.repository.KeeperRepository;
 import org.example.repository.course.CourseRepository;
 import org.example.repository.course.CourseThemeRepository;
+import org.example.repository.homework.HomeworkFeedbackRepository;
+import org.example.repository.homework.HomeworkFeedbackStatusRepository;
 import org.example.repository.homework.HomeworkRequestRepository;
 import org.example.repository.homework.HomeworkRequestStatusRepository;
-import org.example.repository.homework.HomeworkResponseRepository;
 import org.example.service.validator.HomeworkRequestValidatorService;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -31,11 +32,11 @@ import java.util.stream.Collectors;
 public class HomeworkRequestService {
     private final HomeworkRequestRepository homeworkRequestRepository;
     private final ExplorerRepository explorerRepository;
-    private final KeeperRepository keeperRepository;
     private final CourseRepository courseRepository;
     private final CourseThemeRepository courseThemeRepository;
     private final HomeworkRequestStatusRepository homeworkRequestStatusRepository;
-    private final HomeworkResponseRepository homeworkResponseRepository;
+    private final HomeworkFeedbackRepository homeworkFeedbackRepository;
+    private final HomeworkFeedbackStatusRepository homeworkFeedbackStatusRepository;
 
     private final HomeworkRequestValidatorService homeworkRequestValidatorService;
 
@@ -55,6 +56,7 @@ public class HomeworkRequestService {
             homeworkRequestValidatorService.validateExistingRequest(homeworkRequest);
             homeworkRequest.setContent(request.getContent());
             homeworkRequest.setStatusId(checkingStatusId);
+            closeAllFeedbacks(homeworkRequest.getRequestId());
             return homeworkRequestRepository.save(homeworkRequest);
         } else {
             homeworkRequestValidatorService.validateNewRequest(themeId, explorer);
@@ -62,7 +64,6 @@ public class HomeworkRequestService {
                     HomeworkRequest.builder()
                             .homeworkId(homeworkId)
                             .content(request.getContent())
-                            .keeperId(getKeeperId(authenticatedPersonId, courseId))
                             .explorerId(explorer.getExplorerId())
                             .statusId(checkingStatusId)
                             .build()
@@ -80,15 +81,24 @@ public class HomeworkRequestService {
                 .orElseThrow(() -> new ExplorerNotFoundException(courseId));
     }
 
-    private Integer getKeeperId(Integer personId, Integer courseId) {
-        return keeperRepository.getKeeperForPersonOnCourse(personId, courseId).getKeeperId();
-    }
-
     private Integer getCheckingStatusId() {
         return homeworkRequestStatusRepository
                 .findHomeworkRequestStatusByStatus(HomeworkRequestStatusType.CHECKING)
                 .orElseThrow(() -> new StatusNotFoundException(HomeworkRequestStatusType.CHECKING))
                 .getStatusId();
+    }
+
+    private void closeAllFeedbacks(Integer requestId) {
+        Integer closedStatusId = homeworkFeedbackStatusRepository
+                .findHomeworkFeedbackStatusByStatus(HomeworkFeedbackStatusType.CLOSED)
+                .orElseThrow(() -> new StatusNotFoundException(HomeworkFeedbackStatusType.CLOSED))
+                .getStatusId();
+        homeworkFeedbackRepository
+                .findOpenedHomeworkFeedbacksByRequestId(requestId)
+                .forEach(f -> {
+                    f.setStatusId(closedStatusId);
+                    homeworkFeedbackRepository.save(f);
+                });
     }
 
     @Transactional(readOnly = true)
@@ -98,14 +108,16 @@ public class HomeworkRequestService {
         Integer courseId = courseRepository.getCourseIdByThemeId(themeId);
         Explorer explorer = explorerRepository.findExplorerByPersonIdAndCourseId(personId, courseId)
                 .orElseThrow(() -> new ExplorerNotFoundException(courseId));
-        return homeworkRequestRepository.findOpenedHomeworkRequestsByThemeId(themeId, explorer.getExplorerId()).stream()
+        return homeworkRequestRepository
+                .findOpenedHomeworkRequestsByThemeId(themeId, explorer.getExplorerId())
+                .stream()
                 .map(hr -> {
                     GetHomeworkRequest homeworkRequest = mapper.map(hr, GetHomeworkRequest.class);
                     homeworkRequest.setStatus(
                             homeworkRequestStatusRepository
                                     .getReferenceById(hr.getStatusId()).getStatus());
-                    homeworkRequest.setResponses(
-                            homeworkResponseRepository.findHomeworkResponsesByRequestId(hr.getRequestId())
+                    homeworkRequest.setFeedback(
+                            homeworkFeedbackRepository.findOpenedHomeworkFeedbacksByRequestId(hr.getRequestId())
                     );
                     return homeworkRequest;
                 })

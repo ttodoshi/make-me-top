@@ -9,6 +9,7 @@ import org.example.exception.classes.requestEX.RequestNotFoundException;
 import org.example.model.Person;
 import org.example.model.role.AuthenticationRoleType;
 import org.example.model.role.CourseRoleType;
+import org.example.repository.ExplorerGroupRepository;
 import org.example.repository.ExplorerRepository;
 import org.example.repository.KeeperRepository;
 import org.example.repository.course.CourseRepository;
@@ -18,12 +19,14 @@ import org.example.repository.homework.HomeworkRequestRepository;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class RoleService {
     private final KeeperRepository keeperRepository;
     private final ExplorerRepository explorerRepository;
+    private final ExplorerGroupRepository explorerGroupRepository;
     private final CourseRegistrationRequestRepository courseRegistrationRequestRepository;
     private final CourseRepository courseRepository;
     private final CourseThemeRepository courseThemeRepository;
@@ -53,10 +56,15 @@ public class RoleService {
         );
     }
 
+    @Transactional(readOnly = true)
     public boolean hasAnyCourseRoleByExplorerId(Integer explorerId, CourseRoleType role) {
         return hasAnyCourseRole(
-                explorerRepository.findById(explorerId)
-                        .orElseThrow(() -> new ExplorerNotFoundException(explorerId)).getCourseId(),
+                explorerGroupRepository.getReferenceById(
+                                explorerRepository.findById(explorerId)
+                                        .orElseThrow(() -> new ExplorerNotFoundException(explorerId))
+                                        .getGroupId()
+                        )
+                        .getCourseId(),
                 role
         );
     }

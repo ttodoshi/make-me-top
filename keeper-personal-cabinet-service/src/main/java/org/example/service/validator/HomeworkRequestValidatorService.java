@@ -7,25 +7,33 @@ import org.example.exception.classes.keeperEX.DifferentKeeperException;
 import org.example.exception.classes.keeperEX.KeeperNotFoundException;
 import org.example.exception.classes.requestEX.StatusNotFoundException;
 import org.example.model.Explorer;
+import org.example.model.ExplorerGroup;
 import org.example.model.Keeper;
 import org.example.model.Person;
 import org.example.model.homework.HomeworkRequest;
 import org.example.model.homework.HomeworkRequestStatusType;
-import org.example.repository.homework.HomeworkRequestStatusRepository;
+import org.example.repository.ExplorerGroupRepository;
 import org.example.repository.KeeperRepository;
+import org.example.repository.homework.HomeworkRequestStatusRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @RequiredArgsConstructor
 public class HomeworkRequestValidatorService {
     private final HomeworkRequestStatusRepository homeworkRequestStatusRepository;
+    private final ExplorerGroupRepository explorerGroupRepository;
     private final KeeperRepository keeperRepository;
 
+    @Transactional(readOnly = true)
     public void validateHomeworkRequest(Explorer explorer, HomeworkRequest homeworkRequest) {
-        Keeper keeper = keeperRepository.findKeeperByPersonIdAndCourseId(getAuthenticatedPersonId(), explorer.getCourseId())
+        ExplorerGroup explorerGroup = explorerGroupRepository
+                .getReferenceById(explorer.getGroupId());
+        Keeper keeper = keeperRepository
+                .findKeeperByPersonIdAndCourseId(getAuthenticatedPersonId(), explorerGroup.getCourseId())
                 .orElseThrow(KeeperNotFoundException::new);
-        if (!homeworkRequest.getKeeperId().equals(keeper.getKeeperId()))
+        if (!explorerGroup.getKeeperId().equals(keeper.getKeeperId()))
             throw new DifferentKeeperException();
         if (homeworkRequest.getStatusId().equals(getStatusId(HomeworkRequestStatusType.EDITING)))
             throw new HomeworkIsStillEditingException(homeworkRequest.getHomeworkId(), explorer.getExplorerId());

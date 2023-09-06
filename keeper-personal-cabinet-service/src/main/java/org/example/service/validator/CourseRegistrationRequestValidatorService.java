@@ -30,9 +30,7 @@ public class CourseRegistrationRequestValidatorService {
             throw new KeeperNotFoundException();
     }
 
-    public void validateStartTeachingRequest(Integer personId, Integer courseId) {
-        if (keeperRepository.findKeeperByPersonIdAndCourseId(personId, courseId).isEmpty())
-            throw new KeeperNotFoundException();
+    public void validateStartTeachingRequest(Integer personId) {
         int currentStudyingExplorersCount = explorerRepository
                 .getStudyingExplorersByKeeperPersonId(personId).size();
         if (currentStudyingExplorersCount > 0)

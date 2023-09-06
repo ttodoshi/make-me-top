@@ -19,7 +19,7 @@ public interface KeeperFeedbackRepository extends JpaRepository<KeeperFeedback, 
     Optional<Double> getExplorerRating(Integer personId);
 
     @Query(value = "SELECT new org.example.dto.feedback.PersonWithRating(\n" +
-            "\tp.personId, p.firstName, p.lastName, p.patronymic, COALESCE(ROUND(AVG(kf.rating), 1), 0) as rating\n" +
+            "   p.personId, p.firstName, p.lastName, p.patronymic, COALESCE(ROUND(AVG(kf.rating), 1), 0) AS rating\n" +
             ")\n" +
             "FROM Person p\n" +
             "LEFT JOIN Explorer e ON e.personId = p.personId\n" +
@@ -28,8 +28,8 @@ public interface KeeperFeedbackRepository extends JpaRepository<KeeperFeedback, 
             "ORDER BY rating DESC")
     List<PersonWithRating> getRatingTable();
 
-    @Query(value = "SELECT new org.example.dto.feedback.KeeperFeedbackDTO(" +
-            "\tp.personId, p.firstName, p.lastName, p.patronymic, k.keeperId, c.courseId, c.title, kf.rating, kf.comment" +
+    @Query(value = "SELECT new org.example.dto.feedback.KeeperFeedbackDTO(\n" +
+            "   p.personId, p.firstName, p.lastName, p.patronymic, k.keeperId, c.courseId, c.title, kf.rating, kf.comment\n" +
             ") FROM KeeperFeedback kf\n" +
             "JOIN Keeper k ON k.keeperId = kf.keeperId\n" +
             "JOIN Person p ON p.personId = k.personId\n" +

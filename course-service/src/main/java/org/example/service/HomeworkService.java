@@ -2,19 +2,16 @@ package org.example.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.dto.homework.HomeworkCreateRequest;
-import org.example.dto.homework.HomeworkDTO;
 import org.example.dto.homework.HomeworkUpdateRequest;
 import org.example.exception.classes.homeworkEX.HomeworkNotFoundException;
 import org.example.model.homework.Homework;
 import org.example.repository.HomeworkRepository;
 import org.example.service.validator.HomeworkValidatorService;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -23,27 +20,25 @@ public class HomeworkService {
 
     private final HomeworkValidatorService homeworkValidatorService;
 
-    private final ModelMapper mapper;
-
-    public List<HomeworkDTO> getHomeworkByThemeId(Integer themeId) {
-        homeworkValidatorService.validateGetRequest(themeId);
-        return homeworkRepository.findHomeworksByCourseThemeId(themeId)
-                .stream().map(h -> mapper.map(h, HomeworkDTO.class)).collect(Collectors.toList());
+    public List<Homework> getHomeworkByGroupId(Integer groupId) {
+        homeworkValidatorService.validateGetRequest(groupId);
+        return homeworkRepository.findHomeworksByGroupId(groupId);
     }
 
     public Homework addHomework(Integer themeId, HomeworkCreateRequest homework) {
-        homeworkValidatorService.validatePostRequest(themeId);
-        Homework createdHomework = new Homework();
-        createdHomework.setContent(homework.getContent());
-        createdHomework.setCourseThemeId(themeId);
-        return homeworkRepository.save(createdHomework);
+        homeworkValidatorService.validatePostRequest(themeId, homework.getGroupId());
+        return homeworkRepository.save(
+                new Homework(themeId, homework.getContent(), homework.getGroupId())
+        );
     }
 
     public Homework updateHomework(Integer homeworkId, HomeworkUpdateRequest homework) {
-        homeworkValidatorService.validatePutRequest(homework.getCourseThemeId());
-        Homework updatedHomework = homeworkRepository.findById(homeworkId).orElseThrow(() -> new HomeworkNotFoundException(homeworkId));
+        homeworkValidatorService.validatePutRequest(homework);
+        Homework updatedHomework = homeworkRepository.findById(homeworkId)
+                .orElseThrow(() -> new HomeworkNotFoundException(homeworkId));
         updatedHomework.setContent(homework.getContent());
         updatedHomework.setCourseThemeId(homework.getCourseThemeId());
+        updatedHomework.setGroupId(homework.getGroupId());
         return homeworkRepository.save(updatedHomework);
     }
 

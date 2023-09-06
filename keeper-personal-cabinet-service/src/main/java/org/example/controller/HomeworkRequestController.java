@@ -5,8 +5,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.example.dto.coursemark.MarkDTO;
-import org.example.dto.homework.CreateHomeworkResponse;
+import org.example.dto.homework.CreateHomeworkFeedback;
+import org.example.dto.homework.HomeworkMarkDTO;
 import org.example.service.HomeworkRequestService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -51,11 +51,11 @@ public class HomeworkRequestController {
                     })
     })
     public ResponseEntity<?> setHomeworkMark(@PathVariable("homeworkId") Integer homeworkId,
-                                             @Valid @RequestBody MarkDTO mark) {
+                                             @Valid @RequestBody HomeworkMarkDTO mark) {
         return ResponseEntity.ok(homeworkRequestService.setHomeworkMark(homeworkId, mark));
     }
 
-    @PostMapping("homework/{homeworkId}/response")
+    @PostMapping("homework/{homeworkId}/feedback")
     @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).KEEPER) && " +
             "@roleService.hasAnyCourseRoleByHomeworkId(#homeworkId, T(org.example.model.role.CourseRoleType).KEEPER)")
     @Operation(summary = "Send homework response", tags = "homework")
@@ -69,7 +69,7 @@ public class HomeworkRequestController {
                     })
     })
     public ResponseEntity<?> sendHomeworkResponse(@PathVariable("homeworkId") Integer homeworkId,
-                                                  @Valid @RequestBody CreateHomeworkResponse model) {
-        return ResponseEntity.ok(homeworkRequestService.sendHomeworkResponse(homeworkId, model));
+                                                  @Valid @RequestBody CreateHomeworkFeedback model) {
+        return ResponseEntity.ok(homeworkRequestService.sendHomeworkFeedback(homeworkId, model));
     }
 }

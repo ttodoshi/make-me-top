@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 public class HomeworkRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,8 +23,6 @@ public class HomeworkRequest {
     @JoinColumn(table = "homework", name = "homework_id")
     private Integer homeworkId;
     private String content;
-    @JoinColumn(table = "keeper", name = "keeper_id")
-    private Integer keeperId;
     @JoinColumn(table = "explorer", name = "explorer_id")
     private Integer explorerId;
     @CreatedDate

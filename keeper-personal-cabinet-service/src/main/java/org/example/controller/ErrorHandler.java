@@ -110,6 +110,12 @@ public class ErrorHandler {
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
     }
 
+    @ExceptionHandler(NoApprovedRequestsFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNoApprovedRequestsFoundException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
+    }
+
     @ExceptionHandler(RequestAlreadyClosedException.class)
     public ResponseEntity<ErrorResponse> handleRequestAlreadyClosedException(Exception e) {
         logWarning(e);

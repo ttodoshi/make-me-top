@@ -2,15 +2,21 @@ package org.example.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.dto.courserequest.CourseRegistrationRequestReply;
+import org.example.exception.classes.keeperEX.KeeperNotFoundException;
+import org.example.exception.classes.requestEX.NoApprovedRequestsFoundException;
 import org.example.exception.classes.requestEX.RequestNotFoundException;
 import org.example.exception.classes.requestEX.StatusNotFoundException;
 import org.example.model.Explorer;
+import org.example.model.ExplorerGroup;
+import org.example.model.Keeper;
 import org.example.model.Person;
 import org.example.model.courserequest.CourseRegistrationRequest;
 import org.example.model.courserequest.CourseRegistrationRequestKeeper;
 import org.example.model.courserequest.CourseRegistrationRequestKeeperStatusType;
 import org.example.model.courserequest.CourseRegistrationRequestStatusType;
+import org.example.repository.ExplorerGroupRepository;
 import org.example.repository.ExplorerRepository;
+import org.example.repository.KeeperRepository;
 import org.example.repository.courserequest.CourseRegistrationRequestRepository;
 import org.example.repository.courserequest.CourseRegistrationRequestStatusRepository;
 import org.example.service.validator.CourseRegistrationRequestValidatorService;
@@ -27,7 +33,9 @@ import java.util.stream.Collectors;
 public class CourseRegistrationRequestService {
     private final CourseRegistrationRequestRepository courseRegistrationRequestRepository;
     private final CourseRegistrationRequestStatusRepository courseRegistrationRequestStatusRepository;
+    private final ExplorerGroupRepository explorerGroupRepository;
     private final ExplorerRepository explorerRepository;
+    private final KeeperRepository keeperRepository;
 
     private final CourseRegistrationRequestKeeperService courseRegistrationRequestKeeperService;
 
@@ -72,10 +80,9 @@ public class CourseRegistrationRequestService {
         return authenticatedPerson.getPersonId();
     }
 
-    private void addExplorer(Integer personId, Integer courseId) {
-        sendGalaxyCacheRefreshMessage(courseId);
+    private void addExplorer(Integer personId, Integer groupId) {
         explorerRepository.save(
-                new Explorer(personId, courseId)
+                new Explorer(personId, groupId)
         );
     }
 
@@ -92,15 +99,25 @@ public class CourseRegistrationRequestService {
     @Transactional
     public List<CourseRegistrationRequest> startTeaching(Integer courseId) {
         final Person authenticatedPerson = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        courseRegistrationRequestValidatorService.validateStartTeachingRequest(authenticatedPerson.getPersonId(), courseId);
+        courseRegistrationRequestValidatorService.validateStartTeachingRequest(authenticatedPerson.getPersonId());
         Integer acceptedStatusId = courseRegistrationRequestStatusRepository
                 .findCourseRegistrationRequestStatusByStatus(CourseRegistrationRequestStatusType.ACCEPTED)
                 .orElseThrow(() -> new StatusNotFoundException(CourseRegistrationRequestStatusType.ACCEPTED))
                 .getStatusId();
-        return getApprovedRequests(courseId).stream()
+        List<CourseRegistrationRequest> approvedRequests = getApprovedRequests(courseId);
+        if (approvedRequests.isEmpty())
+            throw new NoApprovedRequestsFoundException();
+        Keeper keeper = keeperRepository
+                .findKeeperByPersonIdAndCourseId(authenticatedPerson.getPersonId(), courseId)
+                .orElseThrow(KeeperNotFoundException::new);
+        Integer groupId = explorerGroupRepository.save(
+                new ExplorerGroup(courseId, keeper.getKeeperId())
+        ).getGroupId();
+        sendGalaxyCacheRefreshMessage(courseId);
+        return approvedRequests.stream()
                 .limit(authenticatedPerson.getMaxExplorers())
                 .peek(r -> {
-                    addExplorer(r.getPersonId(), r.getCourseId());
+                    addExplorer(r.getPersonId(), groupId);
                     r.setStatusId(acceptedStatusId);
                 })
                 .collect(Collectors.toList());

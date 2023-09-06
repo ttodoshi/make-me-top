@@ -17,12 +17,13 @@ public interface ExplorerFeedbackRepository extends JpaRepository<ExplorerFeedba
             "GROUP BY person.person_id", nativeQuery = true)
     Optional<Double> getKeeperRating(Integer personId);
 
-    @Query(value = "SELECT new org.example.dto.feedback.ExplorerFeedbackDTO(" +
-            "\tp.personId, p.firstName, p.lastName, p.patronymic, e.explorerId, c.courseId, c.title, ef.rating, ef.comment" +
+    @Query(value = "SELECT new org.example.dto.feedback.ExplorerFeedbackDTO(\n" +
+            "   p.personId, p.firstName, p.lastName, p.patronymic, e.explorerId, c.courseId, c.title, ef.rating, ef.comment\n" +
             ") FROM ExplorerFeedback ef\n" +
             "JOIN Explorer e ON e.explorerId = ef.explorerId\n" +
             "JOIN Person p ON p.personId = e.personId\n" +
-            "JOIN Course c ON c.courseId = e.courseId\n" +
+            "JOIN ExplorerGroup eg ON eg.groupId = e.groupId\n" +
+            "JOIN Course c ON c.courseId = eg.courseId\n" +
             "JOIN Keeper k ON k.keeperId = ef.keeperId\n" +
             "WHERE k.personId = :personId")
     List<ExplorerFeedbackDTO> getKeeperCommentsByPersonId(@Param("personId") Integer personId);

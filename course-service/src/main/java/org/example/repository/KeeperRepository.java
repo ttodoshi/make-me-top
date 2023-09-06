@@ -17,12 +17,9 @@ public interface KeeperRepository extends JpaRepository<Keeper, Integer> {
 
     Optional<Keeper> findKeeperByPersonIdAndCourseId(Integer personId, Integer courseId);
 
-    @Query(value = "SELECT k FROM CourseRegistrationRequest crr\n" +
-            "JOIN CourseRegistrationRequestStatus crrs ON crrs.statusId = crr.statusId\n" +
-            "JOIN CourseRegistrationRequestKeeper crrk ON crrk.requestId = crr.requestId\n" +
-            "JOIN Keeper k ON k.keeperId = crrk.keeperId\n" +
-            "JOIN Person p ON p.personId = k.personId\n" +
-            "WHERE crr.personId = :personId AND crrs.status = 'ACCEPTED' AND crr.courseId = :courseId")
-    Keeper getKeeperForPersonOnCourse(@Param("personId") Integer personId,
-                                      @Param("courseId") Integer courseId);
+    @Query(value = "SELECT k FROM Explorer e\n" +
+            "JOIN ExplorerGroup eg ON eg.groupId = e.groupId\n" +
+            "JOIN Keeper k ON k.keeperId = eg.keeperId\n" +
+            "WHERE e.explorerId = :explorerId")
+    Keeper getKeeperForExplorer(@Param("explorerId") Integer explorerId);
 }
