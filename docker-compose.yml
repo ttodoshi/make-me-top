@@ -226,6 +226,19 @@ services:
     networks:
       postgres:
         ipv4_address: 10.10.0.5
+  app_homework:
+    container_name: app_homework_container
+    build: ./homework-service
+    ports:
+      - "8109:8109"
+    depends_on:
+      app_discovery_service:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    networks:
+      postgres:
+        ipv4_address: 10.10.0.18
 
   app_gateway:
     container_name: app_gateway_container

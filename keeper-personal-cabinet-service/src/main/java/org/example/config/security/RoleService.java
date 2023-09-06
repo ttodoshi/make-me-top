@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.example.exception.classes.coursethemeEX.CourseThemeNotFoundException;
 import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
 import org.example.exception.classes.homeworkEX.HomeworkNotFoundException;
-import org.example.exception.classes.homeworkEX.HomeworkRequestNotFound;
 import org.example.exception.classes.requestEX.RequestNotFoundException;
 import org.example.model.Person;
 import org.example.model.role.AuthenticationRoleType;
@@ -15,7 +14,6 @@ import org.example.repository.KeeperRepository;
 import org.example.repository.course.CourseRepository;
 import org.example.repository.course.CourseThemeRepository;
 import org.example.repository.courserequest.CourseRegistrationRequestRepository;
-import org.example.repository.homework.HomeworkRequestRepository;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -30,7 +28,6 @@ public class RoleService {
     private final CourseRegistrationRequestRepository courseRegistrationRequestRepository;
     private final CourseRepository courseRepository;
     private final CourseThemeRepository courseThemeRepository;
-    private final HomeworkRequestRepository homeworkRequestRepository;
 
     public boolean hasAnyAuthenticationRole(AuthenticationRoleType role) {
         for (GrantedAuthority authority : SecurityContextHolder.getContext().getAuthentication().getAuthorities()) {
@@ -81,15 +78,6 @@ public class RoleService {
         return hasAnyCourseRoleByThemeId(
                 courseThemeRepository.getCourseThemeIdByHomeworkId(homeworkId)
                         .orElseThrow(() -> new HomeworkNotFoundException(homeworkId)),
-                role
-        );
-    }
-
-    public boolean hasAnyCourseRoleByHomeworkRequestId(Integer homeworkRequestId, CourseRoleType role) {
-        return hasAnyCourseRoleByHomeworkId(
-                homeworkRequestRepository.findById(homeworkRequestId).orElseThrow(
-                        () -> new HomeworkRequestNotFound(homeworkRequestId)
-                ).getHomeworkId(),
                 role
         );
     }

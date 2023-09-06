@@ -40,6 +40,10 @@ spring:
           uri: lb://planet-service
           predicates:
             - Path=/planet-app/**
+        - id: homework-service
+          uri: lb://homework-service
+          predicates:
+            - Path=/homework-app/**
 
 management:
   endpoints:

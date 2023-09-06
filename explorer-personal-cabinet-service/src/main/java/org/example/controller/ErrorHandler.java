@@ -9,8 +9,6 @@ import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
 import org.example.exception.classes.feedbackEX.FeedbackAlreadyExists;
 import org.example.exception.classes.feedbackEX.UnexpectedRatingValue;
 import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
-import org.example.exception.classes.homeworkEX.HomeworkAlreadyCheckingException;
-import org.example.exception.classes.homeworkEX.HomeworkRequestAlreadyClosedException;
 import org.example.exception.classes.keeperEX.DifferentKeeperException;
 import org.example.exception.classes.keeperEX.KeeperNotFoundException;
 import org.example.exception.classes.keeperEX.KeeperNotOnCourseException;
@@ -147,18 +145,6 @@ public class ErrorHandler {
     public ResponseEntity<ErrorResponse> handleGalaxyNotFoundException(Exception e) {
         logWarning(e);
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(HomeworkAlreadyCheckingException.class)
-    public ResponseEntity<ErrorResponse> handleHomeworkAlreadyCheckingException(Exception e) {
-        logWarning(e);
-        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), e.getMessage()), HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(HomeworkRequestAlreadyClosedException.class)
-    public ResponseEntity<ErrorResponse> handleHomeworkRequestAlreadyClosedException(Exception e) {
-        logWarning(e);
-        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(CourseThemeNotFoundException.class)

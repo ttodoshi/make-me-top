@@ -9,7 +9,8 @@ import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
 import org.example.exception.classes.explorerEX.ExplorerNotStudyingWithKeeper;
 import org.example.exception.classes.feedbackEX.FeedbackAlreadyExists;
 import org.example.exception.classes.feedbackEX.UnexpectedRatingValue;
-import org.example.exception.classes.homeworkEX.*;
+import org.example.exception.classes.homeworkEX.HomeworkNotCompletedException;
+import org.example.exception.classes.homeworkEX.HomeworkNotFoundException;
 import org.example.exception.classes.keeperEX.DifferentKeeperException;
 import org.example.exception.classes.keeperEX.KeeperNotFoundException;
 import org.example.exception.classes.markEX.ExplorerDoesNotNeedMarkException;
@@ -192,24 +193,6 @@ public class ErrorHandler {
     public ResponseEntity<ErrorResponse> handleTimeoutException(Exception e) {
         logError(e);
         return handleConnectException(new ConnectException());
-    }
-
-    @ExceptionHandler(HomeworkRequestNotFound.class)
-    public ResponseEntity<ErrorResponse> handleHomeworkRequestNotFound(Exception e) {
-        logWarning(e);
-        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(HomeworkIsStillEditingException.class)
-    public ResponseEntity<ErrorResponse> handleHomeworkIsStillEditingException(Exception e) {
-        logWarning(e);
-        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
-    }
-
-    @ExceptionHandler(HomeworkRequestAlreadyClosedException.class)
-    public ResponseEntity<ErrorResponse> handleHomeworkRequestAlreadyClosedException(Exception e) {
-        logWarning(e);
-        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(HomeworkNotFoundException.class)

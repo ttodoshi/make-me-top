@@ -12,8 +12,4 @@ public interface RoleService {
     boolean hasAnyCourseRole(Integer courseId, CourseRoleType role);
 
     boolean hasAnyCourseRoleByThemeId(Integer themeId, CourseRoleType role);
-
-    boolean hasAnyCourseRoleByGroupId(Integer groupId, CourseRoleType role);
-
-    boolean hasAnyCourseRoleByHomeworkId(Integer homeworkId, CourseRoleType role);
 }

@@ -52,7 +52,7 @@ public class CourseRegistrationRequestValidatorService {
     }
 
     private boolean isCurrentlyStudying(Integer authenticatedPersonId) {
-        return courseThemeCompletionRepository.getCurrentInvestigatedCourseId(authenticatedPersonId) != null;
+        return courseThemeCompletionRepository.getCurrentInvestigatedCourseId(authenticatedPersonId).isPresent();
     }
 
     private boolean isPersonKeeperOnCourse(Integer authenticatedPersonId, Integer courseId) {

@@ -42,11 +42,4 @@ public class RoleService {
                 role
         );
     }
-
-    public boolean hasAnyCourseRoleByHomeworkId(Integer homeworkId, CourseRoleType role) {
-        return hasAnyCourseRoleByThemeId(
-                courseThemeRepository.getCourseThemeIdByHomeworkId(homeworkId),
-                role
-        );
-    }
 }

@@ -16,6 +16,7 @@
         <module>keeper-personal-cabinet-service</module>
         <module>course-service</module>
         <module>person-information-service</module>
+        <module>homework-service</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
