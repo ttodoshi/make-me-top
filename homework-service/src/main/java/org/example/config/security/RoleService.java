@@ -1,6 +1,7 @@
 package org.example.config.security;
 
 import lombok.RequiredArgsConstructor;
+import org.example.exception.classes.coursethemeEX.CourseThemeNotFoundException;
 import org.example.exception.classes.explorerEX.ExplorerGroupNotFoundException;
 import org.example.exception.classes.homeworkEX.HomeworkRequestNotFound;
 import org.example.model.Person;
@@ -44,7 +45,8 @@ public class RoleService {
 
     public boolean hasAnyCourseRoleByThemeId(Integer themeId, CourseRoleType role) {
         return hasAnyCourseRole(
-                courseRepository.getCourseIdByThemeId(themeId),
+                courseRepository.getCourseIdByThemeId(themeId)
+                        .orElseThrow(() -> new CourseThemeNotFoundException(themeId)),
                 role
         );
     }

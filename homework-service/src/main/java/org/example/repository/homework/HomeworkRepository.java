@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface HomeworkRepository extends JpaRepository<Homework, Integer> {
-    List<Homework> findHomeworksByGroupId(Integer groupId);
+    List<Homework> findHomeworksByCourseThemeIdAndGroupId(Integer themeId, Integer groupId);
 }

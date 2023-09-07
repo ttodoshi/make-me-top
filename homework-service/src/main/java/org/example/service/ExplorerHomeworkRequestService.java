@@ -3,6 +3,7 @@ package org.example.service;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.homework.CreateHomeworkRequest;
 import org.example.dto.homework.GetHomeworkRequest;
+import org.example.exception.classes.coursethemeEX.CourseThemeNotFoundException;
 import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
 import org.example.exception.classes.requestEX.StatusNotFoundException;
 import org.example.model.Explorer;
@@ -46,7 +47,8 @@ public class ExplorerHomeworkRequestService {
     public HomeworkRequest sendHomeworkRequest(Integer homeworkId, CreateHomeworkRequest request) {
         final Integer authenticatedPersonId = getAuthenticatedPersonId();
         final Integer themeId = courseThemeRepository.getCourseThemeIdByHomeworkId(homeworkId);
-        final Integer courseId = courseRepository.getCourseIdByThemeId(themeId);
+        final Integer courseId = courseRepository.getCourseIdByThemeId(themeId)
+                .orElseThrow(() -> new CourseThemeNotFoundException(themeId));
         final Explorer explorer = getExplorer(authenticatedPersonId, courseId);
         final Integer checkingStatusId = getCheckingStatusId();
         Optional<HomeworkRequest> homeworkRequestOptional = homeworkRequestRepository
@@ -105,7 +107,8 @@ public class ExplorerHomeworkRequestService {
     public List<GetHomeworkRequest> getHomeworkRequests(Integer themeId) {
         explorerHomeworkRequestValidatorService.validateGetHomeworkRequests(themeId);
         Integer personId = getAuthenticatedPersonId();
-        Integer courseId = courseRepository.getCourseIdByThemeId(themeId);
+        Integer courseId = courseRepository.getCourseIdByThemeId(themeId)
+                .orElseThrow(() -> new CourseThemeNotFoundException(themeId));
         Explorer explorer = explorerRepository.findExplorerByPersonIdAndCourseId(personId, courseId)
                 .orElseThrow(() -> new ExplorerNotFoundException(courseId));
         return homeworkRequestRepository

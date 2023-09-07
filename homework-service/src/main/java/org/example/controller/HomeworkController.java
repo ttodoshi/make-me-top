@@ -20,21 +20,22 @@ import javax.validation.Valid;
 public class HomeworkController {
     private final HomeworkService homeworkService;
 
-    @GetMapping("group/{groupId}/homework")
+    @GetMapping("theme/{themeId}/group/{groupId}/homework")
     @PreAuthorize("@roleService.hasAnyCourseRoleByGroupId(#groupId, T(org.example.model.role.CourseRoleType).EXPLORER) ||" +
             "@roleService.hasAnyCourseRoleByGroupId(#groupId, T(org.example.model.role.CourseRoleType).KEEPER)")
-    @Operation(summary = "Get homework by group id", tags = "homework")
+    @Operation(summary = "Get homework by theme id and group id", tags = "homework")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Requested group homework",
+                    description = "Requested homework",
                     content = {
                             @Content(
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> getHomeworkByGroupId(@PathVariable("groupId") Integer groupId) {
-        return ResponseEntity.ok(homeworkService.getHomeworkByGroupId(groupId));
+    public ResponseEntity<?> getHomeworkByThemeIdForGroup(@PathVariable("themeId") Integer themeId,
+                                                          @PathVariable("groupId") Integer groupId) {
+        return ResponseEntity.ok(homeworkService.getHomeworkByThemeIdForGroup(themeId, groupId));
     }
 
     @PostMapping("theme/{themeId}/homework")

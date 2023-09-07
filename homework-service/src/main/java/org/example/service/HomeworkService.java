@@ -8,6 +8,7 @@ import org.example.model.homework.Homework;
 import org.example.repository.homework.HomeworkRepository;
 import org.example.service.validator.HomeworkValidatorService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.List;
@@ -20,9 +21,10 @@ public class HomeworkService {
 
     private final HomeworkValidatorService homeworkValidatorService;
 
-    public List<Homework> getHomeworkByGroupId(Integer groupId) {
-        homeworkValidatorService.validateGetRequest(groupId);
-        return homeworkRepository.findHomeworksByGroupId(groupId);
+    @Transactional(readOnly = true)
+    public List<Homework> getHomeworkByThemeIdForGroup(Integer themeId, Integer groupId) {
+        homeworkValidatorService.validateGetRequest(themeId, groupId);
+        return homeworkRepository.findHomeworksByCourseThemeIdAndGroupId(themeId, groupId);
     }
 
     public Homework addHomework(Integer themeId, HomeworkCreateRequest homework) {
