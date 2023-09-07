@@ -1,8 +1,6 @@
 package org.example.model.homework;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -14,9 +12,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "homework_request", schema = "course")
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @EntityListeners(AuditingEntityListener.class)
 public class HomeworkRequest {
     @Id
@@ -32,4 +28,11 @@ public class HomeworkRequest {
     private LocalDateTime requestDate;
     @JoinColumn(table = "homework_request_status", name = "status_id")
     private Integer statusId;
+
+    public HomeworkRequest(Integer homeworkId, String content, Integer explorerId, Integer statusId) {
+        this.homeworkId = homeworkId;
+        this.content = content;
+        this.explorerId = explorerId;
+        this.statusId = statusId;
+    }
 }

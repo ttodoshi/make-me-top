@@ -46,7 +46,7 @@ public class CourseProgressController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> getSystemPlanetsProgress(@PathVariable("courseId") Integer courseId) {
+    public ResponseEntity<?> getThemesProgressByCourseId(@PathVariable("courseId") Integer courseId) {
         return ResponseEntity.ok(
                 courseProgressService.getThemesProgressByCourseId(courseId));
     }

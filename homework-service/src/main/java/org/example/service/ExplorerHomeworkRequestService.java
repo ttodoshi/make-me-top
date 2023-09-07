@@ -61,12 +61,12 @@ public class ExplorerHomeworkRequestService {
         } else {
             explorerHomeworkRequestValidatorService.validateNewRequest(themeId, explorer);
             return homeworkRequestRepository.save(
-                    HomeworkRequest.builder()
-                            .homeworkId(homeworkId)
-                            .content(request.getContent())
-                            .explorerId(explorer.getExplorerId())
-                            .statusId(checkingStatusId)
-                            .build()
+                    new HomeworkRequest(
+                            homeworkId,
+                            request.getContent(),
+                            explorer.getExplorerId(),
+                            checkingStatusId
+                    )
             );
         }
     }

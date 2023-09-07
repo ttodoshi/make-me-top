@@ -8,6 +8,7 @@ import org.example.exception.classes.courseEX.CourseNotFoundException;
 import org.example.exception.classes.courseEX.CourseNotFoundInGalaxyException;
 import org.example.exception.classes.coursethemeEX.CourseThemeAlreadyExistsException;
 import org.example.exception.classes.coursethemeEX.CourseThemeNotFoundException;
+import org.example.exception.classes.coursethemeEX.ThemeClosedException;
 import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
 import org.example.exception.classes.personEX.PersonNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -128,5 +129,11 @@ public class ErrorHandler {
     public ResponseEntity<ErrorResponse> handleCourseNotFoundInGalaxyException(Exception e) {
         logWarning(e);
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(ThemeClosedException.class)
+    public ResponseEntity<ErrorResponse> handleThemeClosedException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
     }
 }

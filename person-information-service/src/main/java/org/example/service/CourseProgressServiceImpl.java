@@ -44,12 +44,12 @@ public class CourseProgressServiceImpl implements CourseProgressService {
         if (explorerOptional.isEmpty())
             return currentCourseProgressOptional;
         Explorer explorer = explorerOptional.get();
-        Double progress = courseThemeCompletionRepository.getCourseProgress(explorer.getExplorerId(), currentSystemId);
+        double progress = Math.ceil(courseThemeCompletionRepository.getCourseProgress(explorer.getExplorerId(), currentSystemId) * 10) / 10;
         Integer currentThemeId = getCurrentCourseThemeId(explorer);
         CourseTheme currentTheme = courseThemeRepository.findById(currentThemeId).orElseThrow(() -> new CourseThemeNotFoundException(currentThemeId));
         Course currentCourse = courseRepository.getReferenceById(currentSystemId);
         KeeperDTO keeper = keeperRepository.getKeeperForExplorer(explorer.getExplorerId());
-        return Optional.of(new CurrentCourseProgressDTO(explorer.getExplorerId(), currentTheme.getCourseThemeId(), currentTheme.getTitle(), currentCourse.getCourseId(), currentCourse.getTitle(), keeper, progress));
+        return Optional.of(new CurrentCourseProgressDTO(explorer.getExplorerId(), explorer.getGroupId(), currentTheme.getCourseThemeId(), currentTheme.getTitle(), currentCourse.getCourseId(), currentCourse.getTitle(), keeper, progress));
     }
 
     private Integer getCurrentCourseThemeId(Explorer explorer) {

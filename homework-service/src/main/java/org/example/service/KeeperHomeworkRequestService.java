@@ -51,7 +51,7 @@ public class KeeperHomeworkRequestService {
 
     private HomeworkRequest changeRequestStatus(Integer homeworkId, Integer explorerId, HomeworkRequestStatusType status) {
         Explorer explorer = explorerRepository.findById(explorerId)
-                .orElseThrow(() -> new ExplorerNotFoundException(explorerId));
+                .orElseThrow(ExplorerNotFoundException::new);
         HomeworkRequest homeworkRequest = homeworkRequestRepository
                 .findHomeworkRequestByHomeworkIdAndExplorerId(homeworkId, explorerId)
                 .orElseThrow(() -> new HomeworkRequestNotFound(homeworkId, explorerId));

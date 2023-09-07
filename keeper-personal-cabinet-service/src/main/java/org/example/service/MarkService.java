@@ -10,6 +10,7 @@ import org.example.repository.courseprogress.CourseThemeCompletionRepository;
 import org.example.service.validator.MarkValidatorService;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +22,7 @@ public class MarkService {
 
     private final ModelMapper mapper;
 
+    @Transactional
     public CourseMark setCourseMark(MarkDTO courseMark) {
         markValidatorService.validateCourseMarkRequest(courseMark);
         return courseMarkRepository.save(
@@ -28,6 +30,7 @@ public class MarkService {
         );
     }
 
+    @Transactional
     public CourseThemeCompletion setThemeMark(Integer themeId, MarkDTO mark) {
         markValidatorService.validateThemeMarkRequest(themeId, mark);
         return courseThemeCompletionRepository.save(

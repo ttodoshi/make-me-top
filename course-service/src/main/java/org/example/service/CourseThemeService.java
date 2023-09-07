@@ -1,8 +1,9 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.theme.CourseThemeUpdateRequest;
 import org.example.dto.event.CourseThemeCreateEvent;
+import org.example.dto.theme.CourseThemeGetResponse;
+import org.example.dto.theme.CourseThemeUpdateRequest;
 import org.example.exception.classes.coursethemeEX.CourseThemeNotFoundException;
 import org.example.model.course.CourseTheme;
 import org.example.repository.CourseThemeRepository;
@@ -13,8 +14,10 @@ import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,13 +29,18 @@ public class CourseThemeService {
     private final ModelMapper mapper;
 
     public CourseTheme getCourseTheme(Integer courseThemeId) {
+        courseThemeValidatorService.validateGetThemeRequest(courseThemeId);
         return courseThemeRepository.findById(courseThemeId)
                 .orElseThrow(() -> new CourseThemeNotFoundException(courseThemeId));
     }
 
-    public List<CourseTheme> getCourseThemesByCourseId(Integer courseId) {
+    @Transactional(readOnly = true)
+    public List<CourseThemeGetResponse> getCourseThemesByCourseId(Integer courseId) {
         courseThemeValidatorService.validateGetThemesByCourseIdRequest(courseId);
-        return courseThemeRepository.findCourseThemesByCourseIdOrderByCourseThemeNumber(courseId);
+        return courseThemeRepository.findCourseThemesByCourseIdOrderByCourseThemeNumber(courseId)
+                .stream()
+                .map(t -> mapper.map(t, CourseThemeGetResponse.class))
+                .collect(Collectors.toList());
     }
 
     @KafkaListener(topics = "courseThemeTopic", containerFactory = "themeKafkaListenerContainerFactory")
@@ -43,6 +51,7 @@ public class CourseThemeService {
         return courseThemeRepository.save(theme);
     }
 
+    @Transactional
     public CourseTheme updateCourseTheme(Integer courseThemeId, CourseThemeUpdateRequest courseTheme) {
         CourseTheme updatedTheme = courseThemeRepository.findById(courseThemeId)
                 .orElseThrow(() -> new CourseThemeNotFoundException(courseThemeId));
