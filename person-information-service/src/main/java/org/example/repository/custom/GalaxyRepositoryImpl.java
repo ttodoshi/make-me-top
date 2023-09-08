@@ -1,8 +1,8 @@
 package org.example.repository.custom;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.galaxy.GalaxyDTO;
-import org.example.dto.galaxy.GalaxyInformationGetResponse;
+import org.example.dto.galaxy.GalaxyDto;
+import org.example.dto.galaxy.GetGalaxyInformationDto;
 import org.example.exception.classes.connectEX.ConnectException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -18,7 +18,7 @@ public class GalaxyRepositoryImpl implements GalaxyRepository {
     private final WebClient.Builder webClientBuilder;
 
     @Override
-    public List<GalaxyInformationGetResponse> getGalaxies() {
+    public List<GetGalaxyInformationDto> getGalaxies() {
         return webClientBuilder
                 .baseUrl("http://galaxy-service/galaxy-app/").build()
                 .get()
@@ -28,14 +28,14 @@ public class GalaxyRepositoryImpl implements GalaxyRepository {
                 .onStatus(HttpStatus::isError, response -> {
                     throw new ConnectException();
                 })
-                .bodyToFlux(GalaxyInformationGetResponse.class)
+                .bodyToFlux(GetGalaxyInformationDto.class)
                 .timeout(Duration.ofSeconds(10))
                 .collectList()
                 .block();
     }
 
     @Override
-    public GalaxyDTO getGalaxyBySystemId(Integer systemId) {
+    public GalaxyDto getGalaxyBySystemId(Integer systemId) {
         return webClientBuilder
                 .baseUrl("http://galaxy-service/galaxy-app/").build()
                 .get()
@@ -45,7 +45,7 @@ public class GalaxyRepositoryImpl implements GalaxyRepository {
                 .onStatus(HttpStatus::isError, response -> {
                     throw new ConnectException();
                 })
-                .bodyToMono(GalaxyDTO.class)
+                .bodyToMono(GalaxyDto.class)
                 .timeout(Duration.ofSeconds(5))
                 .block();
     }

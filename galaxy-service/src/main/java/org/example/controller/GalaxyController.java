@@ -6,8 +6,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.dto.galaxy.GalaxyCreateRequest;
-import org.example.dto.galaxy.GalaxyDTO;
+import org.example.dto.galaxy.CreateGalaxyDto;
+import org.example.dto.galaxy.GalaxyDto;
 import org.example.service.GalaxyService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -66,7 +66,7 @@ public class GalaxyController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> createGalaxy(@Valid @RequestBody GalaxyCreateRequest model) {
+    public ResponseEntity<?> createGalaxy(@Valid @RequestBody CreateGalaxyDto model) {
         return ResponseEntity.ok(galaxyService.createGalaxy(model));
     }
 
@@ -83,7 +83,7 @@ public class GalaxyController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> updateGalaxy(@Valid @RequestBody GalaxyDTO galaxy,
+    public ResponseEntity<?> updateGalaxy(@Valid @RequestBody GalaxyDto galaxy,
                                           @PathVariable("galaxyId") Integer id) {
         return ResponseEntity.ok(galaxyService.updateGalaxy(id, galaxy));
     }

@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.example.dto.homework.CreateHomeworkRequest;
+import org.example.dto.homework.CreateHomeworkRequestDto;
 import org.example.service.ExplorerHomeworkRequestService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -33,7 +33,7 @@ public class ExplorerHomeworkRequestController {
                     })
     })
     public ResponseEntity<?> sendRequest(@PathVariable("homeworkId") Integer homeworkId,
-                                         @Valid @RequestBody CreateHomeworkRequest request) {
+                                         @Valid @RequestBody CreateHomeworkRequestDto request) {
         return ResponseEntity.ok(explorerHomeworkRequestService.sendHomeworkRequest(homeworkId, request));
     }
 

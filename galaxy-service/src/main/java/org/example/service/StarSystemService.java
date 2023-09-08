@@ -3,10 +3,10 @@ package org.example.service;
 import lombok.RequiredArgsConstructor;
 import org.example.config.mapper.DependencyMapper;
 import org.example.dto.event.CourseCreateEvent;
-import org.example.dto.starsystem.StarSystemCreateRequest;
-import org.example.dto.starsystem.StarSystemDTO;
-import org.example.dto.starsystem.StarSystemWithDependenciesGetResponse;
-import org.example.dto.starsystem.SystemDependencyModel;
+import org.example.dto.starsystem.CreateStarSystemDto;
+import org.example.dto.starsystem.StarSystemDto;
+import org.example.dto.starsystem.GetStarSystemWithDependenciesDto;
+import org.example.dto.starsystem.SystemDependencyModelDto;
 import org.example.exception.classes.systemEX.SystemNotFoundException;
 import org.example.model.StarSystem;
 import org.example.repository.DependencyRepository;
@@ -36,11 +36,11 @@ public class StarSystemService {
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @Transactional(readOnly = true)
-    public StarSystemWithDependenciesGetResponse getStarSystemByIdWithDependencies(Integer systemId) {
+    public GetStarSystemWithDependenciesDto getStarSystemByIdWithDependencies(Integer systemId) {
         starSystemValidatorService.validateGetSystemWithDependencies(systemId);
-        StarSystemWithDependenciesGetResponse system = mapper.map(
-                starSystemRepository.getReferenceById(systemId), StarSystemWithDependenciesGetResponse.class);
-        List<SystemDependencyModel> dependencies = new ArrayList<>();
+        GetStarSystemWithDependenciesDto system = mapper.map(
+                starSystemRepository.getReferenceById(systemId), GetStarSystemWithDependenciesDto.class);
+        List<SystemDependencyModelDto> dependencies = new ArrayList<>();
         dependencyRepository.getSystemChildren(systemId)
                 .stream()
                 .map(dependencyMapper::dependencyToDependencyChildModel)
@@ -66,7 +66,7 @@ public class StarSystemService {
 
     @Transactional
     @CacheEvict(cacheNames = "galaxiesCache", key = "@orbitService.getOrbitById(#orbitId).galaxyId")
-    public StarSystem createSystem(Integer orbitId, StarSystemCreateRequest systemRequest) {
+    public StarSystem createSystem(Integer orbitId, CreateStarSystemDto systemRequest) {
         starSystemValidatorService.validatePostRequest(orbitId, systemRequest);
         StarSystem system = mapper.map(systemRequest, StarSystem.class);
         system.setOrbitId(orbitId);
@@ -75,11 +75,11 @@ public class StarSystemService {
         return savedSystem;
     }
 
-    public void createCourse(Integer courseId, StarSystemCreateRequest starSystem) {
+    public void createCourse(Integer courseId, CreateStarSystemDto starSystem) {
         kafkaTemplate.send("courseTopic", new CourseCreateEvent(courseId, starSystem.getSystemName(), starSystem.getDescription()));
     }
 
-    public StarSystem updateSystem(Integer systemId, StarSystemDTO starSystem) {
+    public StarSystem updateSystem(Integer systemId, StarSystemDto starSystem) {
         starSystemValidatorService.validatePutRequest(systemId, starSystem);
         StarSystem updatedStarSystem = starSystemRepository.getReferenceById(systemId);
         updatedStarSystem.setSystemName(starSystem.getSystemName());

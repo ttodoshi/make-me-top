@@ -1,8 +1,8 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.coursemark.MarkDTO;
-import org.example.dto.courseprogress.CourseThemeProgressDTO;
+import org.example.dto.coursemark.MarkDto;
+import org.example.dto.courseprogress.CourseThemeCompletionDto;
 import org.example.model.progress.CourseMark;
 import org.example.model.progress.CourseThemeCompletion;
 import org.example.repository.courseprogress.CourseMarkRepository;
@@ -23,7 +23,7 @@ public class MarkService {
     private final ModelMapper mapper;
 
     @Transactional
-    public CourseMark setCourseMark(MarkDTO courseMark) {
+    public CourseMark setCourseMark(MarkDto courseMark) {
         markValidatorService.validateCourseMarkRequest(courseMark);
         return courseMarkRepository.save(
                 mapper.map(courseMark, CourseMark.class)
@@ -31,11 +31,11 @@ public class MarkService {
     }
 
     @Transactional
-    public CourseThemeCompletion setThemeMark(Integer themeId, MarkDTO mark) {
+    public CourseThemeCompletion setThemeMark(Integer themeId, MarkDto mark) {
         markValidatorService.validateThemeMarkRequest(themeId, mark);
         return courseThemeCompletionRepository.save(
                 mapper.map(
-                        new CourseThemeProgressDTO(mark.getExplorerId(), themeId, mark.getValue()),
+                        new CourseThemeCompletionDto(themeId, mark.getExplorerId(), mark.getValue()),
                         CourseThemeCompletion.class
                 )
         );

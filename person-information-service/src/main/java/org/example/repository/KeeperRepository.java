@@ -1,6 +1,6 @@
 package org.example.repository;
 
-import org.example.dto.keeper.KeeperDTO;
+import org.example.dto.keeper.KeeperDto;
 import org.example.model.Keeper;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -11,7 +11,7 @@ public interface KeeperRepository extends JpaRepository<Keeper, Integer> {
             "WHERE person_id = ?1", nativeQuery = true)
     Integer getKeeperSystemsCount(Integer authenticatedPersonId);
 
-    @Query(value = "SELECT new org.example.dto.keeper.KeeperDTO(\n" +
+    @Query(value = "SELECT new org.example.dto.keeper.KeeperDto(\n" +
             "   p.personId, p.firstName, p.lastName, p.patronymic, k.keeperId\n" +
             ")" +
             "FROM Explorer e\n" +
@@ -19,5 +19,5 @@ public interface KeeperRepository extends JpaRepository<Keeper, Integer> {
             "JOIN Keeper k ON k.keeperId = eg.keeperId\n" +
             "JOIN Person p ON p.personId = k.personId\n" +
             "WHERE e.explorerId = :explorerId")
-    KeeperDTO getKeeperForExplorer(@Param("explorerId") Integer explorerId);
+    KeeperDto getKeeperForExplorer(@Param("explorerId") Integer explorerId);
 }

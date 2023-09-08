@@ -1,7 +1,7 @@
 package org.example.repository;
 
-import org.example.dto.course.CourseGetResponse;
+import org.example.dto.course.GetCourseDto;
 
 public interface CourseRepository {
-    CourseGetResponse getCourseById(Integer courseId);
+    GetCourseDto getCourseById(Integer courseId);
 }

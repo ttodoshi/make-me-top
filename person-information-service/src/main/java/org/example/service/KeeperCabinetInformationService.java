@@ -1,7 +1,7 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.courserequest.CourseRegistrationRequestForKeeper;
+import org.example.dto.courserequest.CourseRegistrationRequestForKeeperDto;
 import org.example.model.Person;
 import org.example.repository.ExplorerRepository;
 import org.example.repository.KeeperRepository;
@@ -42,7 +42,7 @@ public class KeeperCabinetInformationService {
         return response;
     }
 
-    private List<CourseRegistrationRequestForKeeper> getStudyRequestsForKeeper(Integer personId) {
+    private List<CourseRegistrationRequestForKeeperDto> getStudyRequestsForKeeper(Integer personId) {
         return courseRegistrationRequestRepository
                 .getStudyRequestsByKeeperPersonId(personId)
                 .stream()

@@ -1,7 +1,7 @@
 package org.example.repository;
 
-import org.example.dto.explorer.ExplorerDTO;
-import org.example.dto.explorer.ExplorerNeededFinalAssessment;
+import org.example.dto.explorer.ExplorerDto;
+import org.example.dto.explorer.ExplorerNeededFinalAssessmentDto;
 import org.example.model.Explorer;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -23,7 +23,7 @@ public interface ExplorerRepository extends JpaRepository<Explorer, Integer> {
             "WHERE k.personId = :personId")
     Integer getExplorersCountForKeeper(@Param("personId") Integer personId);
 
-    @Query(value = "SELECT new org.example.dto.explorer.ExplorerNeededFinalAssessment(\n" +
+    @Query(value = "SELECT new org.example.dto.explorer.ExplorerNeededFinalAssessmentDto(\n" +
             "   p.personId, p.firstName, p.lastName, p.patronymic, c.courseId, c.title, e.explorerId\n" +
             ")\n" +
             "FROM Explorer e\n" +
@@ -47,9 +47,9 @@ public interface ExplorerRepository extends JpaRepository<Explorer, Integer> {
             "   SELECT cm.explorerId FROM CourseMark cm\n" +
             ")\n" +
             "AND k.personId = :personId")
-    Set<ExplorerNeededFinalAssessment> getExplorersNeededFinalAssessmentByKeeperPersonId(@Param("personId") Integer personId);
+    Set<ExplorerNeededFinalAssessmentDto> getExplorersNeededFinalAssessmentByKeeperPersonId(@Param("personId") Integer personId);
 
-    @Query(value = "SELECT new org.example.dto.explorer.ExplorerDTO(\n" +
+    @Query(value = "SELECT new org.example.dto.explorer.ExplorerDto(\n" +
             "   p.personId, p.firstName, p.lastName, p.patronymic, e.explorerId, c.courseId, e.groupId\n" +
             ") FROM Explorer e\n" +
             "JOIN Person p ON e.personId = p.personId\n" +
@@ -59,7 +59,7 @@ public interface ExplorerRepository extends JpaRepository<Explorer, Integer> {
             "WHERE k.personId = :personId AND e.explorerId NOT IN (\n" +
             "   SELECT cm.explorerId FROM CourseMark cm\n" +
             ")")
-    List<ExplorerDTO> getStudyingPeopleByKeeperPersonId(@Param("personId") Integer personId);
+    List<ExplorerDto> getStudyingPeopleByKeeperPersonId(@Param("personId") Integer personId);
 
     @Query(value = "SELECT COUNT(*) FROM CourseMark cm\n" +
             "JOIN Explorer e ON e.explorerId = cm.explorerId\n" +

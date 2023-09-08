@@ -1,10 +1,10 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.orbit.OrbitDTO;
-import org.example.dto.orbit.OrbitWithStarSystemsCreateRequest;
-import org.example.dto.orbit.OrbitWithStarSystemsGetResponse;
-import org.example.dto.starsystem.StarSystemWithDependenciesGetResponse;
+import org.example.dto.orbit.OrbitDto;
+import org.example.dto.orbit.CreateOrbitWithStarSystemsDto;
+import org.example.dto.orbit.GetOrbitWithStarSystemsDto;
+import org.example.dto.starsystem.GetStarSystemWithDependenciesDto;
 import org.example.exception.classes.orbitEX.OrbitNotFoundException;
 import org.example.model.Orbit;
 import org.example.model.StarSystem;
@@ -33,11 +33,11 @@ public class OrbitService {
     private final ModelMapper mapper;
 
     @Transactional(readOnly = true)
-    public OrbitWithStarSystemsGetResponse getOrbitWithSystemList(Integer orbitId) {
+    public GetOrbitWithStarSystemsDto getOrbitWithSystemList(Integer orbitId) {
         orbitValidatorService.validateGetWithSystemListRequest(orbitId);
-        OrbitWithStarSystemsGetResponse orbit = mapper.map(
-                orbitRepository.getReferenceById(orbitId), OrbitWithStarSystemsGetResponse.class);
-        List<StarSystemWithDependenciesGetResponse> systemWithDependenciesList = new ArrayList<>();
+        GetOrbitWithStarSystemsDto orbit = mapper.map(
+                orbitRepository.getReferenceById(orbitId), GetOrbitWithStarSystemsDto.class);
+        List<GetStarSystemWithDependenciesDto> systemWithDependenciesList = new ArrayList<>();
         starSystemRepository.findStarSystemsByOrbitId(orbitId).forEach(
                 s -> systemWithDependenciesList.add(
                         systemService.getStarSystemByIdWithDependencies(s.getSystemId())
@@ -54,7 +54,7 @@ public class OrbitService {
 
     @Transactional
     @CacheEvict(cacheNames = "galaxiesCache", key = "#galaxyId")
-    public OrbitWithStarSystemsGetResponse createOrbit(Integer galaxyId, OrbitWithStarSystemsCreateRequest orbitRequest) {
+    public GetOrbitWithStarSystemsDto createOrbit(Integer galaxyId, CreateOrbitWithStarSystemsDto orbitRequest) {
         orbitValidatorService.validatePostRequest(galaxyId, orbitRequest);
         Orbit orbit = mapper.map(orbitRequest, Orbit.class);
         orbit.setGalaxyId(galaxyId);
@@ -69,7 +69,7 @@ public class OrbitService {
         return getOrbitWithSystemList(savedOrbit.getOrbitId());
     }
 
-    public Orbit updateOrbit(Integer orbitId, OrbitDTO orbit) {
+    public Orbit updateOrbit(Integer orbitId, OrbitDto orbit) {
         orbitValidatorService.validatePutRequest(orbitId, orbit);
         Orbit updatedOrbit = orbitRepository.findById(orbitId).orElseThrow(() -> new OrbitNotFoundException(orbitId));
         updatedOrbit.setOrbitLevel(orbit.getOrbitLevel());

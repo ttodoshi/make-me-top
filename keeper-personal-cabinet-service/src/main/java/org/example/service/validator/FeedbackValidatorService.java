@@ -1,7 +1,7 @@
 package org.example.service.validator;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.feedback.KeeperFeedbackCreateRequest;
+import org.example.dto.feedback.CreateKeeperFeedbackDto;
 import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
 import org.example.exception.classes.explorerEX.ExplorerNotStudyingWithKeeper;
 import org.example.exception.classes.feedbackEX.FeedbackAlreadyExists;
@@ -24,7 +24,7 @@ public class FeedbackValidatorService {
     private final KeeperFeedbackRepository keeperFeedbackRepository;
 
     @Transactional(readOnly = true)
-    public void validateFeedbackForExplorerRequest(Integer keeperId, KeeperFeedbackCreateRequest feedback) {
+    public void validateFeedbackForExplorerRequest(Integer keeperId, CreateKeeperFeedbackDto feedback) {
         Explorer explorer = explorerRepository.findById(feedback.getExplorerId())
                 .orElseThrow(() -> new ExplorerNotFoundException(feedback.getExplorerId()));
         boolean explorerNotOnCourse = explorerRepository.findExplorersForKeeper(keeperId)

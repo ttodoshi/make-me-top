@@ -1,10 +1,10 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.courserequest.CourseRegistrationRequestForExplorer;
-import org.example.dto.feedback.PersonWithRating;
-import org.example.dto.galaxy.GalaxyDTO;
-import org.example.dto.keeper.KeeperDTO;
+import org.example.dto.courserequest.CourseRegistrationRequestForExplorerDto;
+import org.example.dto.feedback.PersonWithRatingDto;
+import org.example.dto.galaxy.GalaxyDto;
+import org.example.dto.keeper.KeeperDto;
 import org.example.model.Keeper;
 import org.example.model.Person;
 import org.example.model.courserequest.CourseRegistrationRequestKeeper;
@@ -56,14 +56,14 @@ public class ExplorerCabinetInformationService {
         return response;
     }
 
-    private void setKeeperForStudyRequest(CourseRegistrationRequestForExplorer studyRequest) {
+    private void setKeeperForStudyRequest(CourseRegistrationRequestForExplorerDto studyRequest) {
         List<CourseRegistrationRequestKeeper> courseRegistrationRequestKeepers = courseRegistrationRequestKeeperRepository.findAllByRequestId(studyRequest.getRequestId());
         if (courseRegistrationRequestKeepers.size() == 1) {
             Integer keeperId = courseRegistrationRequestKeepers.get(0).getKeeperId();
             Keeper keeper = keeperRepository.getReferenceById(keeperId);
             Person person = personRepository.getReferenceById(keeper.getPersonId());
             studyRequest.setKeeper(
-                    new KeeperDTO(
+                    new KeeperDto(
                             person.getPersonId(),
                             person.getFirstName(),
                             person.getLastName(),
@@ -73,15 +73,15 @@ public class ExplorerCabinetInformationService {
         }
     }
 
-    private CourseRegistrationRequestForExplorer getStudyRequestForExplorer(CourseRegistrationRequestForExplorer request) {
+    private CourseRegistrationRequestForExplorerDto getStudyRequestForExplorer(CourseRegistrationRequestForExplorerDto request) {
         setKeeperForStudyRequest(request);
-        GalaxyDTO galaxy = galaxyRepository.getGalaxyBySystemId(request.getCourseId());
+        GalaxyDto galaxy = galaxyRepository.getGalaxyBySystemId(request.getCourseId());
         request.setGalaxyId(galaxy.getGalaxyId());
         request.setGalaxyName(galaxy.getGalaxyName());
         return request;
     }
 
-    private List<PersonWithRating> getRatingTable() {
+    private List<PersonWithRatingDto> getRatingTable() {
         return keeperFeedbackRepository.getRatingTable();
     }
 }

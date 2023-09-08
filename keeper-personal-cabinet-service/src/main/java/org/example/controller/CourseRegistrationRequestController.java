@@ -5,8 +5,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.example.dto.courserequest.CourseRegistrationRequestReply;
-import org.example.dto.courserequest.KeeperRejectionDTO;
+import org.example.dto.courserequest.CourseRegistrationRequestReplyDto;
+import org.example.dto.courserequest.KeeperRejectionDto;
 import org.example.service.CourseRegistrationRequestService;
 import org.example.service.KeeperRejectionService;
 import org.springframework.http.ResponseEntity;
@@ -36,7 +36,7 @@ public class CourseRegistrationRequestController {
                     })
     })
     public ResponseEntity<?> replyToRequest(@PathVariable("requestId") Integer requestId,
-                                            @Valid @RequestBody CourseRegistrationRequestReply reply) {
+                                            @Valid @RequestBody CourseRegistrationRequestReplyDto reply) {
         return ResponseEntity.ok(courseRegistrationRequestService.replyToRequest(requestId, reply));
     }
 
@@ -88,7 +88,7 @@ public class CourseRegistrationRequestController {
                     })
     })
     public ResponseEntity<?> sendKeeperRejection(@PathVariable("requestId") Integer requestId,
-                                                 @Valid @RequestBody KeeperRejectionDTO rejection) {
+                                                 @Valid @RequestBody KeeperRejectionDto rejection) {
         return ResponseEntity.ok(
                 keeperRejectionService.sendRejection(requestId, rejection));
     }

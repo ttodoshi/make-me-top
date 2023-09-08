@@ -1,7 +1,7 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.feedback.KeeperFeedbackCreateRequest;
+import org.example.dto.feedback.CreateKeeperFeedbackDto;
 import org.example.exception.classes.courseEX.CourseNotFoundException;
 import org.example.exception.classes.keeperEX.KeeperNotFoundException;
 import org.example.model.Keeper;
@@ -26,7 +26,7 @@ public class FeedbackService {
 
     private final ModelMapper mapper;
 
-    public KeeperFeedback sendFeedbackForExplorer(Integer courseId, KeeperFeedbackCreateRequest feedback) {
+    public KeeperFeedback sendFeedbackForExplorer(Integer courseId, CreateKeeperFeedbackDto feedback) {
         if (!courseRepository.existsById(courseId))
             throw new CourseNotFoundException(courseId);
         Integer personId = getAuthenticatedPersonId();

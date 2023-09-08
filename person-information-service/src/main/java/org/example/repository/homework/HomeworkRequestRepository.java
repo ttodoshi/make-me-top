@@ -1,6 +1,6 @@
 package org.example.repository.homework;
 
-import org.example.dto.homework.HomeworkRequestDTO;
+import org.example.dto.homework.HomeworkRequestDto;
 import org.example.model.homework.HomeworkRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface HomeworkRequestRepository extends JpaRepository<HomeworkRequest, Integer> {
-    @Query(value = "SELECT new org.example.dto.homework.HomeworkRequestDTO(\n" +
+    @Query(value = "SELECT new org.example.dto.homework.HomeworkRequestDto(\n" +
             "   hr.requestId, p.personId, p.firstName, p.lastName, p.patronymic, c.courseId, c.title, e.explorerId, ct.courseThemeId, ct.title, h.homeworkId\n" +
             ")\n" +
             "FROM HomeworkRequest hr\n" +
@@ -22,5 +22,5 @@ public interface HomeworkRequestRepository extends JpaRepository<HomeworkRequest
             "JOIN CourseTheme ct ON ct.courseThemeId = h.courseThemeId\n" +
             "JOIN Course c ON c.courseId = ct.courseId\n" +
             "WHERE k.personId = :personId AND hrs.status = 'CHECKING'")
-    List<HomeworkRequestDTO> getReviewRequestsByKeeperPersonId(@Param("personId") Integer personId);
+    List<HomeworkRequestDto> getReviewRequestsByKeeperPersonId(@Param("personId") Integer personId);
 }

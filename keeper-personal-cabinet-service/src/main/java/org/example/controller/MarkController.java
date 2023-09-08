@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.example.dto.coursemark.MarkDTO;
+import org.example.dto.coursemark.MarkDto;
 import org.example.service.MarkService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -32,7 +32,7 @@ public class MarkController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> setCourseMark(@Valid @RequestBody MarkDTO courseMark) {
+    public ResponseEntity<?> setCourseMark(@Valid @RequestBody MarkDto courseMark) {
         return ResponseEntity.ok(markService.setCourseMark(courseMark));
     }
 
@@ -50,7 +50,7 @@ public class MarkController {
                     })
     })
     public ResponseEntity<?> setThemeMark(@PathVariable("themeId") Integer themeId,
-                                          @Valid @RequestBody MarkDTO completeThemeRequest) {
+                                          @Valid @RequestBody MarkDto completeThemeRequest) {
         return ResponseEntity.ok(markService.setThemeMark(themeId, completeThemeRequest));
     }
 }

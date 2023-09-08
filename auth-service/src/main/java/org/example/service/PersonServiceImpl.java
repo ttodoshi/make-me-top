@@ -1,9 +1,9 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.AuthResponse;
-import org.example.dto.AuthResponseEmployee;
-import org.example.dto.LoginRequest;
+import org.example.dto.AuthResponseDto;
+import org.example.dto.AuthResponseEmployeeDto;
+import org.example.dto.LoginRequestDto;
 import org.example.exception.classes.connectEX.ConnectException;
 import org.example.exception.classes.personEX.PersonNotFoundException;
 import org.example.model.Person;
@@ -28,8 +28,8 @@ public class PersonServiceImpl implements PersonService {
     private String MMTR_AUTH_URL;
 
     @Override
-    public Person authenticatePerson(LoginRequest loginRequest) {
-        AuthResponse response = sendAuthenticateRequest(loginRequest);
+    public Person authenticatePerson(LoginRequestDto loginRequestDto) {
+        AuthResponseDto response = sendAuthenticateRequest(loginRequestDto);
         if (!response.getIsSuccess())
             throw new PersonNotFoundException();
         mmtrAuthorizationHeaderRepository.setAuthorizationHeader(
@@ -37,15 +37,15 @@ public class PersonServiceImpl implements PersonService {
         return findPerson(response.getObject());
     }
 
-    private AuthResponse sendAuthenticateRequest(LoginRequest loginRequest) {
+    private AuthResponseDto sendAuthenticateRequest(LoginRequestDto loginRequestDto) {
         return webClientBuilder.baseUrl(MMTR_AUTH_URL).build()
                 .post()
                 .uri("ts-rest/SingleSignOn/authorization/")
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(loginRequest)
+                .bodyValue(loginRequestDto)
                 .acceptCharset(StandardCharsets.UTF_8)
                 .retrieve()
-                .bodyToMono(AuthResponse.class)
+                .bodyToMono(AuthResponseDto.class)
                 .timeout(Duration.ofSeconds(5))
                 .onErrorResume(throwable -> {
                     throw new ConnectException();
@@ -53,7 +53,7 @@ public class PersonServiceImpl implements PersonService {
                 .block();
     }
 
-    private Person findPerson(AuthResponseEmployee employee) {
+    private Person findPerson(AuthResponseEmployeeDto employee) {
         return personRepository.findById(employee.getEmployeeId())
                 .orElseGet(
                         () -> personRepository.save(

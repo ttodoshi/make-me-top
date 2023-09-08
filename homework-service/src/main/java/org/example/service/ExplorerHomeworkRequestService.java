@@ -1,8 +1,8 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.homework.CreateHomeworkRequest;
-import org.example.dto.homework.GetHomeworkRequest;
+import org.example.dto.homework.CreateHomeworkRequestDto;
+import org.example.dto.homework.GetHomeworkRequestDto;
 import org.example.exception.classes.coursethemeEX.CourseThemeNotFoundException;
 import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
 import org.example.exception.classes.requestEX.StatusNotFoundException;
@@ -44,7 +44,7 @@ public class ExplorerHomeworkRequestService {
     private final ModelMapper mapper;
 
     @Transactional
-    public HomeworkRequest sendHomeworkRequest(Integer homeworkId, CreateHomeworkRequest request) {
+    public HomeworkRequest sendHomeworkRequest(Integer homeworkId, CreateHomeworkRequestDto request) {
         final Integer authenticatedPersonId = getAuthenticatedPersonId();
         final Integer themeId = courseThemeRepository.getCourseThemeIdByHomeworkId(homeworkId);
         final Integer courseId = courseRepository.getCourseIdByThemeId(themeId)
@@ -104,7 +104,7 @@ public class ExplorerHomeworkRequestService {
     }
 
     @Transactional(readOnly = true)
-    public List<GetHomeworkRequest> getHomeworkRequests(Integer themeId) {
+    public List<GetHomeworkRequestDto> getHomeworkRequests(Integer themeId) {
         explorerHomeworkRequestValidatorService.validateGetHomeworkRequests(themeId);
         Integer personId = getAuthenticatedPersonId();
         Integer courseId = courseRepository.getCourseIdByThemeId(themeId)
@@ -115,7 +115,7 @@ public class ExplorerHomeworkRequestService {
                 .findOpenedHomeworkRequestsByThemeId(themeId, explorer.getExplorerId())
                 .stream()
                 .map(hr -> {
-                    GetHomeworkRequest homeworkRequest = mapper.map(hr, GetHomeworkRequest.class);
+                    GetHomeworkRequestDto homeworkRequest = mapper.map(hr, GetHomeworkRequestDto.class);
                     homeworkRequest.setStatus(
                             homeworkRequestStatusRepository
                                     .getReferenceById(hr.getStatusId()).getStatus());

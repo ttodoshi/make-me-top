@@ -1,7 +1,7 @@
 package org.example.service.validator;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.courseprogress.CourseThemeCompletionDTO;
+import org.example.dto.courseprogress.CourseThemeCompletedDto;
 import org.example.exception.classes.coursethemeEX.CourseThemeNotFoundException;
 import org.example.exception.classes.homeworkEX.HomeworkAlreadyCheckingException;
 import org.example.exception.classes.homeworkEX.HomeworkRequestAlreadyClosedException;
@@ -39,9 +39,9 @@ public class ExplorerHomeworkRequestValidatorService {
     }
 
     private Integer getCurrentCourseThemeId(Explorer explorer) {
-        List<CourseThemeCompletionDTO> themesProgress = courseThemesProgressService
+        List<CourseThemeCompletedDto> themesProgress = courseThemesProgressService
                 .getThemesProgress(explorer).getThemesWithProgress();
-        for (CourseThemeCompletionDTO theme : themesProgress) {
+        for (CourseThemeCompletedDto theme : themesProgress) {
             if (!theme.getCompleted())
                 return theme.getCourseThemeId();
         }

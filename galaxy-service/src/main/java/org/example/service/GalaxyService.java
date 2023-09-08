@@ -1,11 +1,11 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.galaxy.GalaxyCreateRequest;
-import org.example.dto.galaxy.GalaxyDTO;
-import org.example.dto.galaxy.GalaxyGetResponse;
-import org.example.dto.galaxy.GalaxyInformationGetResponse;
-import org.example.dto.orbit.OrbitWithStarSystemsWithoutGalaxyIdGetResponse;
+import org.example.dto.galaxy.CreateGalaxyDto;
+import org.example.dto.galaxy.GalaxyDto;
+import org.example.dto.galaxy.GetGalaxyDto;
+import org.example.dto.galaxy.GetGalaxyInformationDto;
+import org.example.dto.orbit.GetOrbitWithStarSystemsWithoutGalaxyIdDto;
 import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
 import org.example.exception.classes.systemEX.SystemNotFoundException;
 import org.example.model.Galaxy;
@@ -38,7 +38,7 @@ public class GalaxyService {
     private final ModelMapper mapper;
 
     @Transactional(readOnly = true)
-    public List<GalaxyInformationGetResponse> getAllGalaxies() {
+    public List<GetGalaxyInformationDto> getAllGalaxies() {
         return galaxyRepository.findAll()
                 .stream()
                 .map(galaxyInformationService::getGalaxyInformation)
@@ -46,15 +46,15 @@ public class GalaxyService {
     }
 
     @Transactional(readOnly = true)
-    public GalaxyGetResponse getGalaxyById(Integer galaxyId) {
+    public GetGalaxyDto getGalaxyById(Integer galaxyId) {
         galaxyValidatorService.validateGetByIdRequest(galaxyId);
-        GalaxyGetResponse galaxy = mapper.map(galaxyRepository.getReferenceById(galaxyId), GalaxyGetResponse.class);
-        List<OrbitWithStarSystemsWithoutGalaxyIdGetResponse> orbitWithStarSystemsList = new ArrayList<>();
+        GetGalaxyDto galaxy = mapper.map(galaxyRepository.getReferenceById(galaxyId), GetGalaxyDto.class);
+        List<GetOrbitWithStarSystemsWithoutGalaxyIdDto> orbitWithStarSystemsList = new ArrayList<>();
         orbitRepository.findOrbitsByGalaxyId(galaxyId).forEach(
                 o -> orbitWithStarSystemsList.add(
                         mapper.map(
                                 orbitService.getOrbitWithSystemList(o.getOrbitId()),
-                                OrbitWithStarSystemsWithoutGalaxyIdGetResponse.class)
+                                GetOrbitWithStarSystemsWithoutGalaxyIdDto.class)
                 )
         );
         galaxy.setOrbitList(orbitWithStarSystemsList);
@@ -70,16 +70,16 @@ public class GalaxyService {
     }
 
     @Transactional
-    public GalaxyGetResponse createGalaxy(GalaxyCreateRequest galaxyCreateRequest) {
-        galaxyValidatorService.validatePostRequest(galaxyCreateRequest);
-        Galaxy galaxy = mapper.map(galaxyCreateRequest, Galaxy.class);
+    public GetGalaxyDto createGalaxy(CreateGalaxyDto createGalaxyDto) {
+        galaxyValidatorService.validatePostRequest(createGalaxyDto);
+        Galaxy galaxy = mapper.map(createGalaxyDto, Galaxy.class);
         Integer savedGalaxyId = galaxyRepository.save(galaxy).getGalaxyId();
-        galaxyCreateRequest.getOrbitList().forEach(o -> orbitService.createOrbit(savedGalaxyId, o));
+        createGalaxyDto.getOrbitList().forEach(o -> orbitService.createOrbit(savedGalaxyId, o));
         return getGalaxyById(savedGalaxyId);
     }
 
     @CacheEvict(cacheNames = "galaxiesCache", key = "#galaxyId")
-    public Galaxy updateGalaxy(Integer galaxyId, GalaxyDTO galaxy) {
+    public Galaxy updateGalaxy(Integer galaxyId, GalaxyDto galaxy) {
         galaxyValidatorService.validatePutRequest(galaxyId, galaxy);
         Galaxy updatedGalaxy = galaxyRepository.getReferenceById(galaxyId);
         updatedGalaxy.setGalaxyName(galaxy.getGalaxyName());

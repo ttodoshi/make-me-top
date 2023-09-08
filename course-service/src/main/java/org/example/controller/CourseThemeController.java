@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.example.dto.theme.CourseThemeUpdateRequest;
+import org.example.dto.theme.UpdateCourseThemeDto;
 import org.example.service.CourseThemeService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -67,7 +67,7 @@ public class CourseThemeController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> updateCourseTheme(@Valid @RequestBody CourseThemeUpdateRequest theme,
+    public ResponseEntity<?> updateCourseTheme(@Valid @RequestBody UpdateCourseThemeDto theme,
                                                @PathVariable Integer themeId) {
         return ResponseEntity.ok(courseThemeService.updateCourseTheme(themeId, theme));
     }

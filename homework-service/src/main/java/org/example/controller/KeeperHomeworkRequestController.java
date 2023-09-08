@@ -5,8 +5,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.example.dto.homework.CreateHomeworkFeedback;
-import org.example.dto.homework.HomeworkMarkDTO;
+import org.example.dto.homework.CreateHomeworkFeedbackDto;
+import org.example.dto.homework.HomeworkMarkDto;
 import org.example.service.KeeperHomeworkRequestService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -51,7 +51,7 @@ public class KeeperHomeworkRequestController {
                     })
     })
     public ResponseEntity<?> setHomeworkMark(@PathVariable("homeworkId") Integer homeworkId,
-                                             @Valid @RequestBody HomeworkMarkDTO mark) {
+                                             @Valid @RequestBody HomeworkMarkDto mark) {
         return ResponseEntity.ok(keeperHomeworkRequestService.setHomeworkMark(homeworkId, mark));
     }
 
@@ -69,7 +69,7 @@ public class KeeperHomeworkRequestController {
                     })
     })
     public ResponseEntity<?> sendHomeworkFeedback(@PathVariable("homeworkId") Integer homeworkId,
-                                                  @Valid @RequestBody CreateHomeworkFeedback model) {
+                                                  @Valid @RequestBody CreateHomeworkFeedbackDto model) {
         return ResponseEntity.ok(keeperHomeworkRequestService.sendHomeworkFeedback(homeworkId, model));
     }
 }

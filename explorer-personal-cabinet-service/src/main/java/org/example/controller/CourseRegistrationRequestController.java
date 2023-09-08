@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.example.dto.courserequest.CreateCourseRegistrationRequest;
+import org.example.dto.courserequest.CreateCourseRegistrationRequestDto;
 import org.example.service.CourseRegistrationRequestService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -31,7 +31,7 @@ public class CourseRegistrationRequestController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> sendRequest(@Valid @RequestBody CreateCourseRegistrationRequest request) {
+    public ResponseEntity<?> sendRequest(@Valid @RequestBody CreateCourseRegistrationRequestDto request) {
         return ResponseEntity.ok(courseRegistrationRequestService.sendRequest(request));
     }
 

@@ -5,8 +5,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.example.dto.orbit.OrbitWithStarSystemsCreateRequest;
-import org.example.dto.orbit.OrbitDTO;
+import org.example.dto.orbit.CreateOrbitWithStarSystemsDto;
+import org.example.dto.orbit.OrbitDto;
 import org.example.exception.classes.orbitEX.OrbitNotFoundException;
 import org.example.service.OrbitService;
 import org.springframework.http.ResponseEntity;
@@ -53,7 +53,7 @@ public class OrbitController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> createOrbit(@Valid @RequestBody OrbitWithStarSystemsCreateRequest orbit,
+    public ResponseEntity<?> createOrbit(@Valid @RequestBody CreateOrbitWithStarSystemsDto orbit,
                                          @PathVariable Integer galaxyId) {
         return ResponseEntity.ok(orbitService.createOrbit(galaxyId, orbit));
     }
@@ -71,7 +71,7 @@ public class OrbitController {
                     })
     })
     public ResponseEntity<?> updateOrbit(@PathVariable("orbitId") Integer orbitId,
-                                         @Valid @RequestBody OrbitDTO orbit) {
+                                         @Valid @RequestBody OrbitDto orbit) {
         return ResponseEntity.ok(orbitService.updateOrbit(orbitId, orbit));
     }
 

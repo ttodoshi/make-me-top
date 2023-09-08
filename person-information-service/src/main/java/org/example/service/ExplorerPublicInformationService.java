@@ -2,11 +2,11 @@ package org.example.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.config.security.RoleService;
-import org.example.dto.courseprogress.CurrentCourseProgressDTO;
-import org.example.dto.courserequest.CourseRegistrationRequestForKeeperWithGalaxy;
-import org.example.dto.feedback.KeeperFeedbackDTO;
-import org.example.dto.galaxy.GalaxyDTO;
-import org.example.dto.homework.HomeworkRequestDTO;
+import org.example.dto.courseprogress.CurrentCourseProgressDto;
+import org.example.dto.courserequest.CourseRegistrationRequestForKeeperWithGalaxyDto;
+import org.example.dto.feedback.KeeperFeedbackDto;
+import org.example.dto.galaxy.GalaxyDto;
+import org.example.dto.homework.HomeworkRequestDto;
 import org.example.exception.classes.personEX.PersonNotFoundException;
 import org.example.model.Keeper;
 import org.example.model.Person;
@@ -55,11 +55,11 @@ public class ExplorerPublicInformationService {
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("person", person);
         response.put("rating", ratingService.getExplorerRating(personId));
-        List<KeeperFeedbackDTO> feedback = keeperFeedbackRepository
+        List<KeeperFeedbackDto> feedback = keeperFeedbackRepository
                 .getExplorerCommentsByPersonId(personId);
         response.put("totalFeedback", feedback.size());
         response.put("totalSystems", explorerRepository.getExplorerSystemsCount(personId));
-        Optional<CurrentCourseProgressDTO> currentCourseOptional = courseProgressServiceImpl
+        Optional<CurrentCourseProgressDto> currentCourseOptional = courseProgressServiceImpl
                 .getCurrentCourseProgress(personId);
         if (currentCourseOptional.isEmpty()) {
             courseRegistrationRequestRepository.getStudyRequestByPersonId(personId).filter(
@@ -85,7 +85,7 @@ public class ExplorerPublicInformationService {
         return authenticatedPerson.getPersonId();
     }
 
-    private boolean requestIsForAuthenticatedKeeper(Integer personId, CourseRegistrationRequestForKeeperWithGalaxy studyRequest) {
+    private boolean requestIsForAuthenticatedKeeper(Integer personId, CourseRegistrationRequestForKeeperWithGalaxyDto studyRequest) {
         return courseRegistrationRequestKeeperRepository
                 .findAllByRequestId(studyRequest.getRequestId())
                 .stream().map(k -> keeperRepository.getReferenceById(k.getKeeperId()))
@@ -94,21 +94,21 @@ public class ExplorerPublicInformationService {
                 .contains(personId);
     }
 
-    private CourseRegistrationRequestForKeeperWithGalaxy getStudyRequestForKeeperWithGalaxy(CourseRegistrationRequestForKeeperWithGalaxy request) {
+    private CourseRegistrationRequestForKeeperWithGalaxyDto getStudyRequestForKeeperWithGalaxy(CourseRegistrationRequestForKeeperWithGalaxyDto request) {
         request.setRating(ratingService.getExplorerRating(request.getPersonId()));
-        GalaxyDTO galaxy = galaxyRepository.getGalaxyBySystemId(request.getCourseId());
+        GalaxyDto galaxy = galaxyRepository.getGalaxyBySystemId(request.getCourseId());
         request.setGalaxyId(galaxy.getGalaxyId());
         request.setGalaxyName(galaxy.getGalaxyName());
         return request;
     }
 
-    private Optional<HomeworkRequestDTO> getHomeworkRequestForKeeperFromPerson(Integer keeperPersonId, Integer personId) {
-        List<HomeworkRequestDTO> homeworkRequests = homeworkRequestRepository
+    private Optional<HomeworkRequestDto> getHomeworkRequestForKeeperFromPerson(Integer keeperPersonId, Integer personId) {
+        List<HomeworkRequestDto> homeworkRequests = homeworkRequestRepository
                 .getReviewRequestsByKeeperPersonId(keeperPersonId)
                 .stream()
                 .filter(h -> h.getPersonId().equals(personId))
                 .collect(Collectors.toList());
-        Optional<HomeworkRequestDTO> homeworkRequestOptional = Optional.empty();
+        Optional<HomeworkRequestDto> homeworkRequestOptional = Optional.empty();
         if (!homeworkRequests.isEmpty()) {
             homeworkRequestOptional = homeworkRequests
                     .stream()

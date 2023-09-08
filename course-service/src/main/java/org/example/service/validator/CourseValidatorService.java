@@ -1,8 +1,8 @@
 package org.example.service.validator;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.keeper.KeeperCreateRequest;
-import org.example.dto.starsystem.StarSystemDTO;
+import org.example.dto.keeper.CreateKeeperDto;
+import org.example.dto.starsystem.StarSystemDto;
 import org.example.exception.classes.courseEX.CourseAlreadyExistsException;
 import org.example.exception.classes.courseEX.CourseNotFoundException;
 import org.example.exception.classes.courseEX.CourseNotFoundInGalaxyException;
@@ -23,7 +23,7 @@ public class CourseValidatorService {
     private final StarSystemRepository starSystemRepository;
 
     public void validatePutRequest(Integer galaxyId, Integer courseId, Course course) {
-        List<StarSystemDTO> systems = starSystemRepository.getSystemsByGalaxyId(galaxyId);
+        List<StarSystemDto> systems = starSystemRepository.getSystemsByGalaxyId(galaxyId);
         boolean courseNotFound = systems.stream()
                 .noneMatch(s -> s.getSystemName().equals(course.getTitle()) &&
                         s.getSystemId().equals(courseId));
@@ -36,7 +36,7 @@ public class CourseValidatorService {
             throw new CourseAlreadyExistsException(course.getTitle());
     }
 
-    public void validateSetKeeperRequest(Integer courseId, KeeperCreateRequest request) {
+    public void validateSetKeeperRequest(Integer courseId, CreateKeeperDto request) {
         if (!courseRepository.existsById(courseId))
             throw new CourseNotFoundException(courseId);
         if (!personRepository.existsById(request.getPersonId()))

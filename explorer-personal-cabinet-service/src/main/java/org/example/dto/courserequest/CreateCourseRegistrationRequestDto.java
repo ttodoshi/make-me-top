@@ -1,0 +1,16 @@
+package org.example.dto.courserequest;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import javax.validation.constraints.NotNull;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class CreateCourseRegistrationRequestDto {
+    @NotNull
+    private Integer courseId;
+    private Integer keeperId;
+}

@@ -1,8 +1,8 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.dependency.DependencyCreateRequest;
-import org.example.dto.dependency.DependencyRequest;
+import org.example.dto.dependency.CreateDependencyDto;
+import org.example.dto.dependency.DependencyDto;
 import org.example.exception.classes.dependencyEX.DependencyNotFoundException;
 import org.example.exception.classes.systemEX.SystemNotFoundException;
 import org.example.model.SystemDependency;
@@ -26,9 +26,9 @@ public class SystemDependencyService {
     private final SystemDependencyValidatorService systemDependencyValidatorService;
 
     @Transactional
-    public List<SystemDependency> addDependency(List<DependencyCreateRequest> systemDependency) {
+    public List<SystemDependency> addDependency(List<CreateDependencyDto> systemDependency) {
         List<SystemDependency> dependencies = new ArrayList<>();
-        for (DependencyCreateRequest dependency : systemDependency) {
+        for (CreateDependencyDto dependency : systemDependency) {
             systemDependencyValidatorService.validateDependency(dependency);
             dependencies.add(
                     dependencyRepository.save(
@@ -43,7 +43,7 @@ public class SystemDependencyService {
         return dependencies;
     }
 
-    public Map<String, String> deleteDependency(DependencyRequest dependency) {
+    public Map<String, String> deleteDependency(DependencyDto dependency) {
         Integer dependencyId = getDependencyId(dependency);
         dependencyRepository.deleteById(dependencyId);
         Map<String, String> response = new HashMap<>();
@@ -51,12 +51,12 @@ public class SystemDependencyService {
         return response;
     }
 
-    private Integer getDependencyId(DependencyRequest dependencyRequest) {
+    private Integer getDependencyId(DependencyDto dependencyDto) {
         SystemDependency dependency;
-        if (dependencyRequest.getParentId() == null)
-            dependency = dependencyRepository.getSystemDependencyByChildIdAndParentNull(dependencyRequest.getChildId());
+        if (dependencyDto.getParentId() == null)
+            dependency = dependencyRepository.getSystemDependencyByChildIdAndParentNull(dependencyDto.getChildId());
         else
-            dependency = dependencyRepository.getSystemDependencyByChildIDAndParentId(dependencyRequest.getChildId(), dependencyRequest.getParentId());
+            dependency = dependencyRepository.getSystemDependencyByChildIDAndParentId(dependencyDto.getChildId(), dependencyDto.getParentId());
         if (dependency == null)
             throw new DependencyNotFoundException();
         return dependency.getDependencyId();

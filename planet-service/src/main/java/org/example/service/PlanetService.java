@@ -2,8 +2,8 @@ package org.example.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.dto.event.CourseThemeCreateEvent;
-import org.example.dto.planet.PlanetCreateRequest;
-import org.example.dto.planet.PlanetUpdateRequest;
+import org.example.dto.planet.CreatePlanetDto;
+import org.example.dto.planet.UpdatePlanetDto;
 import org.example.exception.classes.planetEX.PlanetNotFoundException;
 import org.example.model.Planet;
 import org.example.repository.PlanetRepository;
@@ -33,10 +33,10 @@ public class PlanetService {
     }
 
     @Transactional
-    public List<Planet> addPlanets(Integer systemId, List<PlanetCreateRequest> planets) {
+    public List<Planet> addPlanets(Integer systemId, List<CreatePlanetDto> planets) {
         planetValidatorService.validatePostRequest(systemId, planets);
         List<Planet> savedPlanets = new ArrayList<>();
-        for (PlanetCreateRequest currentPlanet : planets) {
+        for (CreatePlanetDto currentPlanet : planets) {
             Planet planet = mapper.map(currentPlanet, Planet.class);
             planet.setSystemId(systemId);
             Planet savedPlanet = planetRepository.save(planet);
@@ -46,14 +46,14 @@ public class PlanetService {
         return savedPlanets;
     }
 
-    private void addCourseTheme(Integer systemId, Integer courseThemeId, PlanetCreateRequest planet) {
+    private void addCourseTheme(Integer systemId, Integer courseThemeId, CreatePlanetDto planet) {
         kafkaTemplate.send("courseThemeTopic", systemId, new CourseThemeCreateEvent(
                 courseThemeId, planet.getPlanetName(),
                 planet.getDescription(), planet.getContent(), planet.getPlanetNumber()));
     }
 
     @Transactional
-    public Planet updatePlanet(Integer planetId, PlanetUpdateRequest planet) {
+    public Planet updatePlanet(Integer planetId, UpdatePlanetDto planet) {
         Planet updatedPlanet = planetRepository.findById(planetId)
                 .orElseThrow(() -> new PlanetNotFoundException(planetId));
         planetValidatorService.validatePutRequest(planetId, planet);

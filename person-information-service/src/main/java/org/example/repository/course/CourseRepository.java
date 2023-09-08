@@ -1,6 +1,6 @@
 package org.example.repository.course;
 
-import org.example.dto.course.CourseWithRating;
+import org.example.dto.course.CourseWithRatingDto;
 import org.example.model.course.Course;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface CourseRepository extends JpaRepository<Course, Integer> {
-    @Query(value = "SELECT new org.example.dto.course.CourseWithRating(\n" +
+    @Query(value = "SELECT new org.example.dto.course.CourseWithRatingDto(\n" +
             "   c.courseId, c.title, COALESCE(ROUND(AVG(cr.rating), 1), 0), k.keeperId\n" +
             ")\n" +
             "FROM Keeper k\n" +
@@ -19,5 +19,5 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
             "LEFT JOIN CourseRating cr ON cr.explorerId = e.explorerId\n " +
             "WHERE k.personId = :personId\n" +
             "GROUP BY c.courseId, k.keeperId")
-    List<CourseWithRating> findCoursesByKeeperPersonId(@Param("personId") Integer personId);
+    List<CourseWithRatingDto> findCoursesByKeeperPersonId(@Param("personId") Integer personId);
 }

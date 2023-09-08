@@ -1,7 +1,7 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.courserequest.CourseRegistrationRequestReply;
+import org.example.dto.courserequest.CourseRegistrationRequestReplyDto;
 import org.example.exception.classes.keeperEX.KeeperNotFoundException;
 import org.example.exception.classes.requestEX.NoApprovedRequestsFoundException;
 import org.example.exception.classes.requestEX.RequestNotFoundException;
@@ -43,7 +43,7 @@ public class CourseRegistrationRequestService {
     private final CourseRegistrationRequestValidatorService courseRegistrationRequestValidatorService;
 
     @Transactional
-    public CourseRegistrationRequestKeeper replyToRequest(Integer requestId, CourseRegistrationRequestReply requestReply) {
+    public CourseRegistrationRequestKeeper replyToRequest(Integer requestId, CourseRegistrationRequestReplyDto requestReply) {
         CourseRegistrationRequest request = courseRegistrationRequestRepository
                 .findById(requestId).orElseThrow(() -> new RequestNotFoundException(requestId));
         CourseRegistrationRequestKeeper keeperResponse = courseRegistrationRequestKeeperService

@@ -1,8 +1,8 @@
 package org.example.repository.custom;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.starsystem.StarSystemDTO;
-import org.example.dto.starsystem.StarSystemWithDependenciesGetResponse;
+import org.example.dto.starsystem.StarSystemDto;
+import org.example.dto.starsystem.GetStarSystemWithDependenciesDto;
 import org.example.exception.classes.connectEX.ConnectException;
 import org.example.exception.classes.courseEX.CourseNotFoundException;
 import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
@@ -19,7 +19,7 @@ public class StarSystemRepositoryImpl implements StarSystemRepository {
     private final AuthorizationHeaderRepository authorizationHeaderRepository;
     private final WebClient.Builder webClientBuilder;
 
-    public List<StarSystemDTO> getSystemsByGalaxyId(Integer galaxyId) {
+    public List<StarSystemDto> getSystemsByGalaxyId(Integer galaxyId) {
         return webClientBuilder
                 .baseUrl("http://galaxy-service/galaxy-app/").build()
                 .get()
@@ -32,14 +32,14 @@ public class StarSystemRepositoryImpl implements StarSystemRepository {
                 .onStatus(HttpStatus::isError, response -> {
                     throw new ConnectException();
                 })
-                .bodyToFlux(StarSystemDTO.class)
+                .bodyToFlux(StarSystemDto.class)
                 .timeout(Duration.ofSeconds(5))
                 .collectList()
                 .block();
     }
 
     @Override
-    public StarSystemWithDependenciesGetResponse getStarSystemWithDependencies(Integer systemId) {
+    public GetStarSystemWithDependenciesDto getStarSystemWithDependencies(Integer systemId) {
         return webClientBuilder
                 .baseUrl("http://galaxy-service/galaxy-app/").build()
                 .get()
@@ -52,7 +52,7 @@ public class StarSystemRepositoryImpl implements StarSystemRepository {
                 .onStatus(HttpStatus::isError, response -> {
                     throw new ConnectException();
                 })
-                .bodyToMono(StarSystemWithDependenciesGetResponse.class)
+                .bodyToMono(GetStarSystemWithDependenciesDto.class)
                 .timeout(Duration.ofSeconds(5))
                 .block();
     }

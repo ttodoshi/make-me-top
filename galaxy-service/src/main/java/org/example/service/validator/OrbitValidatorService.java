@@ -1,9 +1,9 @@
 package org.example.service.validator;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.orbit.OrbitDTO;
-import org.example.dto.orbit.OrbitWithStarSystemsCreateRequest;
-import org.example.dto.starsystem.StarSystemCreateRequest;
+import org.example.dto.orbit.OrbitDto;
+import org.example.dto.orbit.CreateOrbitWithStarSystemsDto;
+import org.example.dto.starsystem.CreateStarSystemDto;
 import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
 import org.example.exception.classes.orbitEX.OrbitCoordinatesException;
 import org.example.exception.classes.orbitEX.OrbitNotFoundException;
@@ -29,13 +29,13 @@ public class OrbitValidatorService {
             throw new OrbitNotFoundException(orbitId);
     }
 
-    public void validatePostRequest(Integer galaxyId, OrbitWithStarSystemsCreateRequest request) {
+    public void validatePostRequest(Integer galaxyId, CreateOrbitWithStarSystemsDto request) {
         if (!galaxyRepository.existsById(galaxyId))
             throw new GalaxyNotFoundException(galaxyId);
         if (orbitExists(galaxyId, request.getOrbitLevel()))
             throw new OrbitCoordinatesException();
-        List<StarSystemCreateRequest> savingSystemsList = new ArrayList<>();
-        for (StarSystemCreateRequest system : request.getSystemList()) {
+        List<CreateStarSystemDto> savingSystemsList = new ArrayList<>();
+        for (CreateStarSystemDto system : request.getSystemList()) {
             if (savingSystemsList.contains(system) || systemExists(galaxyId, system.getSystemName()))
                 throw new SystemAlreadyExistsException(system.getSystemName());
             savingSystemsList.add(system);
@@ -52,7 +52,7 @@ public class OrbitValidatorService {
                 .anyMatch(o -> o.getOrbitLevel().equals(orbitLevel));
     }
 
-    public void validatePutRequest(Integer orbitId, OrbitDTO orbit) {
+    public void validatePutRequest(Integer orbitId, OrbitDto orbit) {
         if (!galaxyRepository.existsById(orbit.getGalaxyId()))
             throw new GalaxyNotFoundException(orbit.getGalaxyId());
         if (orbitExists(orbit.getGalaxyId(), orbitId, orbit.getOrbitLevel()))

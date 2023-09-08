@@ -1,7 +1,7 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.courserequest.CreateCourseRegistrationRequest;
+import org.example.dto.courserequest.CreateCourseRegistrationRequestDto;
 import org.example.exception.classes.requestEX.RequestNotFoundException;
 import org.example.exception.classes.requestEX.StatusNotFoundException;
 import org.example.model.Keeper;
@@ -35,7 +35,7 @@ public class CourseRegistrationRequestService {
     private final CourseRegistrationRequestValidatorService courseRegistrationRequestValidatorService;
 
     @Transactional
-    public CourseRegistrationRequest sendRequest(CreateCourseRegistrationRequest request) {
+    public CourseRegistrationRequest sendRequest(CreateCourseRegistrationRequestDto request) {
         Integer authenticatedPersonId = getAuthenticatedPersonId();
         courseRegistrationRequestValidatorService.validateSendRequest(authenticatedPersonId, request);
         if (request.getKeeperId() == null)
@@ -58,7 +58,7 @@ public class CourseRegistrationRequestService {
         return request;
     }
 
-    private CourseRegistrationRequest sendRequestToKeeper(Integer personId, CreateCourseRegistrationRequest request) {
+    private CourseRegistrationRequest sendRequestToKeeper(Integer personId, CreateCourseRegistrationRequestDto request) {
         CourseRegistrationRequest sentRequest = sendRequest(personId, request.getCourseId());
         Integer processingStatusId = getRequestKeeperProcessingStatusId();
         courseRegistrationRequestKeeperRepository.save(

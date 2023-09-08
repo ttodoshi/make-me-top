@@ -5,8 +5,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.example.dto.homework.HomeworkCreateRequest;
-import org.example.dto.homework.HomeworkUpdateRequest;
+import org.example.dto.homework.CreateHomeworkDto;
+import org.example.dto.homework.UpdateHomeworkDto;
 import org.example.service.HomeworkService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -51,7 +51,7 @@ public class HomeworkController {
                     })
     })
     public ResponseEntity<?> addHomework(@PathVariable("themeId") Integer themeId,
-                                         @Valid @RequestBody HomeworkCreateRequest homework) {
+                                         @Valid @RequestBody CreateHomeworkDto homework) {
         return ResponseEntity.ok(homeworkService.addHomework(themeId, homework));
     }
 
@@ -68,7 +68,7 @@ public class HomeworkController {
                     })
     })
     public ResponseEntity<?> updateHomework(@PathVariable("homeworkId") Integer homeworkId,
-                                            @Valid @RequestBody HomeworkUpdateRequest homework) {
+                                            @Valid @RequestBody UpdateHomeworkDto homework) {
         return ResponseEntity.ok(homeworkService.updateHomework(homeworkId, homework));
     }
 

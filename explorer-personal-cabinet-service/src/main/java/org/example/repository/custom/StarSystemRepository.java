@@ -1,12 +1,12 @@
 package org.example.repository.custom;
 
-import org.example.dto.starsystem.StarSystemDTO;
-import org.example.dto.starsystem.StarSystemWithDependenciesGetResponse;
+import org.example.dto.starsystem.StarSystemDto;
+import org.example.dto.starsystem.GetStarSystemWithDependenciesDto;
 
 import java.util.List;
 
 public interface StarSystemRepository {
-    List<StarSystemDTO> getSystemsByGalaxyId(Integer galaxyId);
+    List<StarSystemDto> getSystemsByGalaxyId(Integer galaxyId);
 
-    StarSystemWithDependenciesGetResponse getStarSystemWithDependencies(Integer systemId);
+    GetStarSystemWithDependenciesDto getStarSystemWithDependencies(Integer systemId);
 }

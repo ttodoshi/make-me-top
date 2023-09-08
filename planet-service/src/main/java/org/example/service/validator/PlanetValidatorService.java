@@ -1,9 +1,9 @@
 package org.example.service.validator;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.planet.PlanetCreateRequest;
-import org.example.dto.planet.PlanetUpdateRequest;
-import org.example.dto.starsystem.StarSystemDTO;
+import org.example.dto.planet.CreatePlanetDto;
+import org.example.dto.planet.UpdatePlanetDto;
+import org.example.dto.starsystem.StarSystemDto;
 import org.example.exception.classes.connectEX.ConnectException;
 import org.example.exception.classes.planetEX.PlanetAlreadyExistsException;
 import org.example.exception.classes.planetEX.PlanetNotFoundException;
@@ -29,10 +29,10 @@ public class PlanetValidatorService {
         checkSystemExists(systemId);
     }
 
-    public void validatePostRequest(Integer systemId, List<PlanetCreateRequest> planets) {
+    public void validatePostRequest(Integer systemId, List<CreatePlanetDto> planets) {
         checkSystemExists(systemId);
-        List<PlanetCreateRequest> savingPlanetsList = new ArrayList<>();
-        for (PlanetCreateRequest planet : planets) {
+        List<CreatePlanetDto> savingPlanetsList = new ArrayList<>();
+        for (CreatePlanetDto planet : planets) {
             if (savingPlanetsList.contains(planet) || planetExists(systemId, planet.getPlanetName()))
                 throw new PlanetAlreadyExistsException(planet.getPlanetName());
             savingPlanetsList.add(planet);
@@ -45,7 +45,7 @@ public class PlanetValidatorService {
         );
     }
 
-    public void validatePutRequest(Integer planetId, PlanetUpdateRequest planet) {
+    public void validatePutRequest(Integer planetId, UpdatePlanetDto planet) {
         checkSystemExists(planet.getSystemId());
         if (planetExists(planet.getSystemId(), planetId, planet.getPlanetName()))
             throw new PlanetAlreadyExistsException(planet.getPlanetName());
@@ -64,7 +64,7 @@ public class PlanetValidatorService {
                 .onStatus(HttpStatus::isError, response -> {
                     throw new ConnectException();
                 })
-                .bodyToMono(StarSystemDTO.class)
+                .bodyToMono(StarSystemDto.class)
                 .timeout(Duration.ofSeconds(5))
                 .block();
     }

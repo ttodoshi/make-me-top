@@ -1,10 +1,10 @@
 package org.example.service;
 
-import org.example.dto.course.CourseGetResponse;
-import org.example.dto.keeper.KeeperWithSystemsDTO;
+import org.example.dto.course.GetCourseDto;
+import org.example.dto.person.PersonWithSystemsDto;
 
 import java.util.List;
 
 public interface KeeperService {
-    List<KeeperWithSystemsDTO> getKeepersWithSystems(List<CourseGetResponse> courses);
+    List<PersonWithSystemsDto> getKeepersWithSystems(List<GetCourseDto> courses);
 }

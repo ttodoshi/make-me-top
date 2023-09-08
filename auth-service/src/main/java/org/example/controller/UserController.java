@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.example.dto.LoginRequest;
+import org.example.dto.LoginRequestDto;
 import org.example.service.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,9 +33,9 @@ public class UserController {
                                     mediaType = "*")
                     })
     })
-    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest,
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequestDto loginRequestDto,
                                    HttpServletResponse response) {
-        return ResponseEntity.ok(authService.login(loginRequest, response));
+        return ResponseEntity.ok(authService.login(loginRequestDto, response));
     }
 
     @PostMapping("logout")

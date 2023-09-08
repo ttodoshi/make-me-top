@@ -1,10 +1,10 @@
 package org.example.service;
 
-import org.example.dto.course.CourseGetResponse;
-import org.example.dto.explorer.ExplorerWithSystemsDTO;
+import org.example.dto.course.GetCourseDto;
+import org.example.dto.person.PersonWithSystemsDto;
 
 import java.util.List;
 
 public interface ExplorerService {
-    List<ExplorerWithSystemsDTO> getExplorersWithSystems(List<CourseGetResponse> courses);
+    List<PersonWithSystemsDto> getExplorersWithSystems(List<GetCourseDto> courses);
 }

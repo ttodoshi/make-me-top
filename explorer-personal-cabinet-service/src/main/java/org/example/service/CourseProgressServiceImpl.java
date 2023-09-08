@@ -1,12 +1,12 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.courseprogress.CourseWithProgress;
-import org.example.dto.courseprogress.CourseWithThemesProgress;
-import org.example.dto.courseprogress.CoursesState;
-import org.example.dto.starsystem.StarSystemDTO;
-import org.example.dto.starsystem.StarSystemWithDependenciesGetResponse;
-import org.example.dto.starsystem.SystemDependencyModel;
+import org.example.dto.courseprogress.CourseWithProgressDto;
+import org.example.dto.courseprogress.CourseWithThemesProgressDto;
+import org.example.dto.courseprogress.CoursesStateDto;
+import org.example.dto.starsystem.StarSystemDto;
+import org.example.dto.starsystem.GetStarSystemWithDependenciesDto;
+import org.example.dto.starsystem.SystemDependencyModelDto;
 import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
 import org.example.model.Explorer;
 import org.example.model.Person;
@@ -38,17 +38,17 @@ public class CourseProgressServiceImpl implements CourseProgressService {
     private final KafkaTemplate<String, Integer> kafkaTemplate;
 
     @Override
-    public CoursesState getCoursesProgressForCurrentUser(Integer galaxyId) {
+    public CoursesStateDto getCoursesProgressForCurrentUser(Integer galaxyId) {
         Person authenticatedPerson = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Set<Integer> openedCourses = new LinkedHashSet<>();
-        Set<CourseWithProgress> studiedCourses = new LinkedHashSet<>();
+        Set<CourseWithProgressDto> studiedCourses = new LinkedHashSet<>();
         Set<Integer> closedCourses = new LinkedHashSet<>();
-        for (StarSystemDTO system : starSystemRepository.getSystemsByGalaxyId(galaxyId)) {
+        for (StarSystemDto system : starSystemRepository.getSystemsByGalaxyId(galaxyId)) {
             Optional<Explorer> explorerOptional = explorerRepository
                     .findExplorerByPersonIdAndCourseId(authenticatedPerson.getPersonId(), system.getSystemId());
             if (explorerOptional.isPresent()) {
                 Explorer explorer = explorerOptional.get();
-                studiedCourses.add(new CourseWithProgress(system.getSystemId(),
+                studiedCourses.add(new CourseWithProgressDto(system.getSystemId(),
                         courseThemeCompletionRepository.getCourseProgress(
                                 explorer.getExplorerId(), system.getSystemId())));
             } else if (hasUncompletedParents(authenticatedPerson.getPersonId(), system.getSystemId())) {
@@ -57,7 +57,7 @@ public class CourseProgressServiceImpl implements CourseProgressService {
                 openedCourses.add(system.getSystemId());
             }
         }
-        return CoursesState.builder()
+        return CoursesStateDto.builder()
                 .personId(authenticatedPerson.getPersonId())
                 .firstName(authenticatedPerson.getFirstName())
                 .lastName(authenticatedPerson.getLastName())
@@ -69,7 +69,7 @@ public class CourseProgressServiceImpl implements CourseProgressService {
     }
 
     @Override
-    public CourseWithThemesProgress getThemesProgressByCourseId(Integer courseId) {
+    public CourseWithThemesProgressDto getThemesProgressByCourseId(Integer courseId) {
         Explorer explorer = explorerRepository
                 .findExplorerByPersonIdAndCourseId(getAuthenticatedPersonId(), courseId)
                 .orElseThrow(() -> new ExplorerNotFoundException(courseId));
@@ -83,9 +83,9 @@ public class CourseProgressServiceImpl implements CourseProgressService {
 
     @Override
     public boolean hasUncompletedParents(Integer personId, Integer systemId) {
-        StarSystemWithDependenciesGetResponse systemWithDependencies = starSystemRepository
+        GetStarSystemWithDependenciesDto systemWithDependencies = starSystemRepository
                 .getStarSystemWithDependencies(systemId);
-        for (SystemDependencyModel system : getParentDependencies(systemWithDependencies)) {
+        for (SystemDependencyModelDto system : getParentDependencies(systemWithDependencies)) {
             Optional<Explorer> explorer = explorerRepository.findExplorerByPersonIdAndCourseId(personId, system.getSystemId());
             if (explorer.isEmpty() || courseThemeCompletionRepository.getCourseProgress(
                     explorer.get().getExplorerId(), system.getSystemId()) < 100) {
@@ -96,7 +96,7 @@ public class CourseProgressServiceImpl implements CourseProgressService {
         return false;
     }
 
-    private List<SystemDependencyModel> getParentDependencies(StarSystemWithDependenciesGetResponse systemWithDependencies) {
+    private List<SystemDependencyModelDto> getParentDependencies(GetStarSystemWithDependenciesDto systemWithDependencies) {
         return systemWithDependencies.getDependencyList()
                 .stream()
                 .filter(s -> s.getType().equals("parent"))

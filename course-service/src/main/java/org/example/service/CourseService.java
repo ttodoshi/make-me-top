@@ -2,12 +2,12 @@ package org.example.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.config.security.RoleService;
-import org.example.dto.course.CourseUpdateRequest;
+import org.example.dto.course.UpdateCourseDto;
 import org.example.dto.event.CourseCreateEvent;
-import org.example.dto.explorer.ExplorerWithRating;
-import org.example.dto.keeper.KeeperCreateRequest;
-import org.example.dto.keeper.KeeperWithRating;
-import org.example.dto.starsystem.StarSystemDTO;
+import org.example.dto.explorer.ExplorerWithRatingDto;
+import org.example.dto.keeper.CreateKeeperDto;
+import org.example.dto.keeper.KeeperWithRatingDto;
+import org.example.dto.starsystem.StarSystemDto;
 import org.example.exception.classes.courseEX.CourseNotFoundException;
 import org.example.model.Keeper;
 import org.example.model.Person;
@@ -53,9 +53,9 @@ public class CourseService {
         response.put("course", courseRepository.findById(courseId)
                 .orElseThrow(() -> new CourseNotFoundException(courseId)));
         Integer authenticatedPersonId = getAuthenticatedPersonId();
-        List<ExplorerWithRating> explorers = getExplorersForCourse(courseId);
+        List<ExplorerWithRatingDto> explorers = getExplorersForCourse(courseId);
         Collections.sort(explorers);
-        List<KeeperWithRating> keepers = getKeepersForCourse(courseId);
+        List<KeeperWithRatingDto> keepers = getKeepersForCourse(courseId);
         Collections.sort(keepers);
         if (roleService.hasAnyAuthenticationRole(AuthenticationRoleType.EXPLORER)) {
             explorers.stream()
@@ -64,7 +64,7 @@ public class CourseService {
                     .findAny()
                     .ifPresent(e -> {
                         response.put("you", e);
-                        KeeperWithRating yourKeeper = mapper.map(keeperRepository.getKeeperForExplorer(e.getExplorerId()), KeeperWithRating.class);
+                        KeeperWithRatingDto yourKeeper = mapper.map(keeperRepository.getKeeperForExplorer(e.getExplorerId()), KeeperWithRatingDto.class);
                         yourKeeper.setRating(ratingRepository.getKeeperRating(yourKeeper.getPersonId()));
                         response.put("yourKeeper", yourKeeper);
                     });
@@ -74,11 +74,11 @@ public class CourseService {
         return response;
     }
 
-    private List<ExplorerWithRating> getExplorersForCourse(Integer courseId) {
-        Flux<ExplorerWithRating> fluxExplorers = Flux.fromIterable(explorerRepository.findExplorersByCourseId(courseId))
+    private List<ExplorerWithRatingDto> getExplorersForCourse(Integer courseId) {
+        Flux<ExplorerWithRatingDto> fluxExplorers = Flux.fromIterable(explorerRepository.findExplorersByCourseId(courseId))
                 .flatMap(e -> Mono.fromCallable(
                                         () -> {
-                                            ExplorerWithRating explorer = mapper.map(e, ExplorerWithRating.class);
+                                            ExplorerWithRatingDto explorer = mapper.map(e, ExplorerWithRatingDto.class);
                                             explorer.setRating(ratingRepository.getExplorerRating(e.getPersonId()));
                                             return explorer;
                                         }
@@ -88,11 +88,11 @@ public class CourseService {
         return fluxExplorers.collectList().block();
     }
 
-    private List<KeeperWithRating> getKeepersForCourse(Integer courseId) {
-        Flux<KeeperWithRating> fluxKeepers = Flux.fromIterable(keeperRepository.findKeepersByCourseId(courseId))
+    private List<KeeperWithRatingDto> getKeepersForCourse(Integer courseId) {
+        Flux<KeeperWithRatingDto> fluxKeepers = Flux.fromIterable(keeperRepository.findKeepersByCourseId(courseId))
                 .flatMap(k -> Mono.fromCallable(
                                         () -> {
-                                            KeeperWithRating keeper = mapper.map(k, KeeperWithRating.class);
+                                            KeeperWithRatingDto keeper = mapper.map(k, KeeperWithRatingDto.class);
                                             keeper.setRating(ratingRepository.getExplorerRating(k.getPersonId()));
                                             return keeper;
                                         }
@@ -110,7 +110,7 @@ public class CourseService {
     public List<Course> getCoursesByGalaxyId(Integer galaxyId) {
         List<Integer> systems = starSystemRepository.getSystemsByGalaxyId(galaxyId)
                 .stream()
-                .mapToInt(StarSystemDTO::getSystemId)
+                .mapToInt(StarSystemDto::getSystemId)
                 .boxed().collect(Collectors.toList());
         return courseRepository.findAll()
                 .stream()
@@ -123,7 +123,7 @@ public class CourseService {
         courseRepository.save(mapper.map(course, Course.class));
     }
 
-    public Course updateCourse(Integer galaxyId, Integer courseId, CourseUpdateRequest course) {
+    public Course updateCourse(Integer galaxyId, Integer courseId, UpdateCourseDto course) {
         Course updatedCourse = courseRepository.findById(courseId)
                 .orElseThrow(() -> new CourseNotFoundException(courseId));
         courseValidatorService.validatePutRequest(galaxyId, courseId, updatedCourse);
@@ -135,14 +135,14 @@ public class CourseService {
     }
 
     @Transactional
-    public Keeper setKeeperToCourse(Integer courseId, KeeperCreateRequest keeperCreateRequest) {
-        courseValidatorService.validateSetKeeperRequest(courseId, keeperCreateRequest);
+    public Keeper setKeeperToCourse(Integer courseId, CreateKeeperDto createKeeperDto) {
+        courseValidatorService.validateSetKeeperRequest(courseId, createKeeperDto);
         sendGalaxyCacheRefreshMessage(courseId);
-        setDefaultExplorersValue(keeperCreateRequest.getPersonId());
+        setDefaultExplorersValue(createKeeperDto.getPersonId());
         return keeperRepository.save(
                 Keeper.builder()
                         .courseId(courseId)
-                        .personId(keeperCreateRequest.getPersonId())
+                        .personId(createKeeperDto.getPersonId())
                         .build());
     }
 

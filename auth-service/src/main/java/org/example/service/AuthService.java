@@ -2,7 +2,7 @@ package org.example.service;
 
 import org.example.config.security.JwtService;
 import org.example.config.security.role.RoleChecker;
-import org.example.dto.LoginRequest;
+import org.example.dto.LoginRequestDto;
 import org.example.exception.classes.personEX.RoleNotAvailableException;
 import org.example.model.Person;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -26,7 +26,7 @@ public class AuthService {
         this.roleCheckerMap = roleCheckerMap;
     }
 
-    public String login(LoginRequest request, HttpServletResponse response) {
+    public String login(LoginRequestDto request, HttpServletResponse response) {
         Person person = personService.authenticatePerson(request);
         if (!isRoleAvailable(person.getPersonId(), request.getRole()))
             throw new RoleNotAvailableException();

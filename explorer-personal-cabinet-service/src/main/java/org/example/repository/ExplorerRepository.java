@@ -8,7 +8,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 public interface ExplorerRepository extends JpaRepository<Explorer, Integer> {
-
     @Query(value = "SELECT e FROM Explorer e\n" +
             "JOIN ExplorerGroup eg ON eg.groupId = e.groupId\n" +
             "WHERE e.personId = :personId AND eg.courseId = :courseId")

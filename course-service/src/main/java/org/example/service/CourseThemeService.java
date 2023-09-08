@@ -2,8 +2,8 @@ package org.example.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.dto.event.CourseThemeCreateEvent;
-import org.example.dto.theme.CourseThemeGetResponse;
-import org.example.dto.theme.CourseThemeUpdateRequest;
+import org.example.dto.theme.GetCourseThemeDto;
+import org.example.dto.theme.UpdateCourseThemeDto;
 import org.example.exception.classes.coursethemeEX.CourseThemeNotFoundException;
 import org.example.model.course.CourseTheme;
 import org.example.repository.CourseThemeRepository;
@@ -35,11 +35,11 @@ public class CourseThemeService {
     }
 
     @Transactional(readOnly = true)
-    public List<CourseThemeGetResponse> getCourseThemesByCourseId(Integer courseId) {
+    public List<GetCourseThemeDto> getCourseThemesByCourseId(Integer courseId) {
         courseThemeValidatorService.validateGetThemesByCourseIdRequest(courseId);
         return courseThemeRepository.findCourseThemesByCourseIdOrderByCourseThemeNumber(courseId)
                 .stream()
-                .map(t -> mapper.map(t, CourseThemeGetResponse.class))
+                .map(t -> mapper.map(t, GetCourseThemeDto.class))
                 .collect(Collectors.toList());
     }
 
@@ -52,7 +52,7 @@ public class CourseThemeService {
     }
 
     @Transactional
-    public CourseTheme updateCourseTheme(Integer courseThemeId, CourseThemeUpdateRequest courseTheme) {
+    public CourseTheme updateCourseTheme(Integer courseThemeId, UpdateCourseThemeDto courseTheme) {
         CourseTheme updatedTheme = courseThemeRepository.findById(courseThemeId)
                 .orElseThrow(() -> new CourseThemeNotFoundException(courseThemeId));
         courseThemeValidatorService.validatePutRequest(courseThemeId, courseTheme);

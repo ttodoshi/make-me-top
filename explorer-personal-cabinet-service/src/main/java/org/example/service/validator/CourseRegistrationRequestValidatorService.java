@@ -1,7 +1,7 @@
 package org.example.service.validator;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.courserequest.CreateCourseRegistrationRequest;
+import org.example.dto.courserequest.CreateCourseRegistrationRequestDto;
 import org.example.exception.classes.courseEX.CourseNotFoundException;
 import org.example.exception.classes.keeperEX.KeeperNotFoundException;
 import org.example.exception.classes.progressEX.AlreadyStudyingException;
@@ -31,7 +31,7 @@ public class CourseRegistrationRequestValidatorService {
 
     private final CourseProgressService courseProgressService;
 
-    public void validateSendRequest(Integer personId, CreateCourseRegistrationRequest request) {
+    public void validateSendRequest(Integer personId, CreateCourseRegistrationRequestDto request) {
         if (!courseRepository.existsById(request.getCourseId()))
             throw new CourseNotFoundException(request.getCourseId());
         if (request.getKeeperId() != null && !keeperExistsOnCourse(request.getKeeperId(), request.getCourseId()))

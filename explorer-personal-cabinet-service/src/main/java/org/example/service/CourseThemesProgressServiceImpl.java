@@ -1,8 +1,8 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.courseprogress.CourseThemeCompletionDTO;
-import org.example.dto.courseprogress.CourseWithThemesProgress;
+import org.example.dto.courseprogress.CourseThemeCompletedDto;
+import org.example.dto.courseprogress.CourseWithThemesProgressDto;
 import org.example.exception.classes.courseEX.CourseNotFoundException;
 import org.example.model.Explorer;
 import org.example.model.course.Course;
@@ -26,21 +26,21 @@ public class CourseThemesProgressServiceImpl implements CourseThemesProgressServ
 
     @Override
     @Transactional(readOnly = true)
-    public CourseWithThemesProgress getThemesProgress(Explorer explorer) {
+    public CourseWithThemesProgressDto getThemesProgress(Explorer explorer) {
         Integer courseId = explorerGroupRepository
                 .getReferenceById(explorer.getGroupId()).getCourseId();
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new CourseNotFoundException(courseId));
-        List<CourseThemeCompletionDTO> themesProgress = courseThemeRepository
+        List<CourseThemeCompletedDto> themesProgress = courseThemeRepository
                 .findCourseThemesByCourseIdOrderByCourseThemeNumberAsc(courseId)
                 .stream()
                 .map(
                         t -> {
                             boolean completed = courseThemeCompletionRepository
                                     .findCourseThemeProgressByExplorerIdAndCourseThemeId(explorer.getExplorerId(), t.getCourseThemeId()).isPresent();
-                            return new CourseThemeCompletionDTO(t.getCourseThemeId(), t.getTitle(), completed);
+                            return new CourseThemeCompletedDto(t.getCourseThemeId(), t.getTitle(), completed);
                         }
                 ).collect(Collectors.toList());
-        return new CourseWithThemesProgress(courseId, course.getTitle(), themesProgress);
+        return new CourseWithThemesProgressDto(courseId, course.getTitle(), themesProgress);
     }
 }

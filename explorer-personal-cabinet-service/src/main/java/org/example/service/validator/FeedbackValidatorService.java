@@ -1,8 +1,8 @@
 package org.example.service.validator;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.feedback.CourseRatingCreateRequest;
-import org.example.dto.feedback.ExplorerFeedbackCreateRequest;
+import org.example.dto.feedback.CreateCourseRatingDto;
+import org.example.dto.feedback.CreateExplorerFeedbackDto;
 import org.example.exception.classes.courseEX.CourseNotFoundException;
 import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
 import org.example.exception.classes.feedbackEX.FeedbackAlreadyExists;
@@ -30,7 +30,7 @@ public class FeedbackValidatorService {
     private final ExplorerRepository explorerRepository;
     private final CourseRepository courseRepository;
 
-    public void validateFeedbackForKeeperRequest(Integer personId, ExplorerFeedbackCreateRequest feedback) {
+    public void validateFeedbackForKeeperRequest(Integer personId, CreateExplorerFeedbackDto feedback) {
         Keeper keeper = keeperRepository.findById(feedback.getKeeperId())
                 .orElseThrow(() -> new KeeperNotFoundException(feedback.getKeeperId()));
         if (!courseRepository.existsById(keeper.getCourseId()))
@@ -49,7 +49,7 @@ public class FeedbackValidatorService {
             throw new UnexpectedRatingValue();
     }
 
-    public void validateCourseRatingRequest(Integer personId, Integer courseId, CourseRatingCreateRequest request) {
+    public void validateCourseRatingRequest(Integer personId, Integer courseId, CreateCourseRatingDto request) {
         if (!courseRepository.existsById(courseId))
             throw new CourseNotFoundException(courseId);
         Explorer explorer = explorerRepository

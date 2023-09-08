@@ -1,10 +1,10 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.courseprogress.CurrentCourseProgressDTO;
-import org.example.dto.explorer.ExplorerWithCurrentSystem;
-import org.example.dto.galaxy.GalaxyInformationGetResponse;
-import org.example.dto.person.PersonWithRatingAndGalaxyDTO;
+import org.example.dto.courseprogress.CurrentCourseProgressDto;
+import org.example.dto.explorer.ExplorerWithCurrentSystemDto;
+import org.example.dto.galaxy.GetGalaxyInformationDto;
+import org.example.dto.person.PersonWithGalaxyAndSystemsDto;
 import org.example.repository.custom.GalaxyRepository;
 import org.example.service.sort.AllPersonList;
 import org.example.service.sort.PersonList;
@@ -28,16 +28,16 @@ public class ExplorerListService {
     private final ModelMapper mapper;
 
     @Transactional(readOnly = true)
-    public List<PersonWithRatingAndGalaxyDTO> getExplorers(String sort, Period period, Integer systemId) {
+    public List<PersonWithGalaxyAndSystemsDto> getExplorers(String sort, Period period, Integer systemId) {
         PersonList explorerList = getExplorerList();
         return explorerList.getPeople()
                 .stream()
                 .map(p -> {
-                    Optional<CurrentCourseProgressDTO> currentCourseProgress = courseProgressServiceImpl
+                    Optional<CurrentCourseProgressDto> currentCourseProgress = courseProgressServiceImpl
                             .getCurrentCourseProgress(p.getPersonId());
                     if (currentCourseProgress.isPresent()) {
-                        CurrentCourseProgressDTO progress = currentCourseProgress.get();
-                        return new ExplorerWithCurrentSystem(p, progress.getCourseId(), progress.getCourseTitle());
+                        CurrentCourseProgressDto progress = currentCourseProgress.get();
+                        return new ExplorerWithCurrentSystemDto(p, progress.getCourseId(), progress.getCourseTitle());
                     }
                     return p;
                 })
@@ -45,13 +45,13 @@ public class ExplorerListService {
     }
 
     private PersonList getExplorerList() {
-        List<GalaxyInformationGetResponse> galaxies = galaxyRepository.getGalaxies();
-        Stream<PersonWithRatingAndGalaxyDTO> explorersStream = galaxies.stream()
+        List<GetGalaxyInformationDto> galaxies = galaxyRepository.getGalaxies();
+        Stream<PersonWithGalaxyAndSystemsDto> explorersStream = galaxies.stream()
                 .flatMap(g -> g.getExplorers()
                         .stream()
                         .map(e -> {
-                                    PersonWithRatingAndGalaxyDTO explorer = mapper.map(
-                                            e, PersonWithRatingAndGalaxyDTO.class);
+                                    PersonWithGalaxyAndSystemsDto explorer = mapper.map(
+                                            e, PersonWithGalaxyAndSystemsDto.class);
                                     return explorer
                                             .withGalaxyId(g.getGalaxyId())
                                             .withGalaxyName(g.getGalaxyName());

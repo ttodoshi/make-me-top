@@ -1,7 +1,7 @@
 package org.example.repository;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.starsystem.StarSystemDTO;
+import org.example.dto.starsystem.StarSystemDto;
 import org.example.exception.classes.connectEX.ConnectException;
 import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -18,7 +18,7 @@ public class StarSystemRepositoryImpl implements StarSystemRepository {
 
     private final WebClient.Builder webClientBuilder;
 
-    public List<StarSystemDTO> getSystemsByGalaxyId(Integer galaxyId) {
+    public List<StarSystemDto> getSystemsByGalaxyId(Integer galaxyId) {
         return webClientBuilder
                 .baseUrl("http://galaxy-service/galaxy-app/").build()
                 .get()
@@ -31,7 +31,7 @@ public class StarSystemRepositoryImpl implements StarSystemRepository {
                 .onStatus(HttpStatus::isError, response -> {
                     throw new ConnectException();
                 })
-                .bodyToFlux(StarSystemDTO.class)
+                .bodyToFlux(StarSystemDto.class)
                 .timeout(Duration.ofSeconds(5))
                 .collectList()
                 .block();

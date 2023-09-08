@@ -1,7 +1,7 @@
 package org.example.repository;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.courseprogress.CourseWithThemesProgress;
+import org.example.dto.courseprogress.CourseWithThemesProgressDto;
 import org.example.exception.classes.connectEX.ConnectException;
 import org.example.exception.classes.courseEX.CourseNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -18,7 +18,7 @@ public class CourseProgressRepositoryImpl implements CourseProgressRepository {
     private final WebClient.Builder webClientBuilder;
 
     @Override
-    public CourseWithThemesProgress getCourseProgress(Integer courseId) {
+    public CourseWithThemesProgressDto getCourseProgress(Integer courseId) {
         return webClientBuilder
                 .baseUrl("http://explorer-personal-cabinet-service/explorer-cabinet/").build()
                 .get()
@@ -31,7 +31,7 @@ public class CourseProgressRepositoryImpl implements CourseProgressRepository {
                 .onStatus(HttpStatus::isError, response -> {
                     throw new ConnectException();
                 })
-                .bodyToMono(CourseWithThemesProgress.class)
+                .bodyToMono(CourseWithThemesProgressDto.class)
                 .timeout(Duration.ofSeconds(5))
                 .block();
     }

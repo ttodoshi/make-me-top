@@ -1,7 +1,7 @@
 package org.example.repository.custom;
 
-import org.example.dto.courseprogress.CourseWithThemesProgress;
+import org.example.dto.courseprogress.CourseWithThemesProgressDto;
 
 public interface CourseProgressRepository {
-    CourseWithThemesProgress getCourseProgress(Integer courseId);
+    CourseWithThemesProgressDto getCourseProgress(Integer courseId);
 }

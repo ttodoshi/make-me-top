@@ -1,6 +1,6 @@
 package org.example.repository;
 
-import org.example.dto.explorer.ExplorerNeededFinalAssessment;
+import org.example.dto.explorer.ExplorerNeededFinalAssessmentDto;
 import org.example.model.Explorer;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -30,7 +30,7 @@ public interface ExplorerRepository extends JpaRepository<Explorer, Integer> {
             ")")
     List<Explorer> getStudyingExplorersByKeeperPersonId(@Param("personId") Integer personId);
 
-    @Query(value = "SELECT new org.example.dto.explorer.ExplorerNeededFinalAssessment(\n" +
+    @Query(value = "SELECT new org.example.dto.explorer.ExplorerNeededFinalAssessmentDto(\n" +
             "   p.personId, p.firstName, p.lastName, p.patronymic, c.courseId, c.title, e.explorerId\n" +
             ")\n" +
             "FROM Explorer e\n" +
@@ -54,5 +54,5 @@ public interface ExplorerRepository extends JpaRepository<Explorer, Integer> {
             "   SELECT cm.explorerId FROM CourseMark cm\n" +
             ")\n" +
             "AND k.personId = :personId")
-    Set<ExplorerNeededFinalAssessment> getExplorersNeededFinalAssessmentByKeeperPersonId(@Param("personId") Integer personId);
+    Set<ExplorerNeededFinalAssessmentDto> getExplorersNeededFinalAssessmentByKeeperPersonId(@Param("personId") Integer personId);
 }

@@ -1,9 +1,9 @@
 package org.example.service.validator;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.coursemark.MarkDTO;
-import org.example.dto.courseprogress.CourseThemeCompletionDTO;
-import org.example.dto.courseprogress.CourseWithThemesProgress;
+import org.example.dto.coursemark.MarkDto;
+import org.example.dto.courseprogress.CourseThemeCompletedDto;
+import org.example.dto.courseprogress.CourseWithThemesProgressDto;
 import org.example.exception.classes.courseEX.CourseNotFoundException;
 import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
 import org.example.exception.classes.homeworkEX.HomeworkNotCompletedException;
@@ -43,7 +43,7 @@ public class MarkValidatorService {
     private final CourseThemeCompletionRepository courseThemeCompletionRepository;
     private final HomeworkRepository homeworkRepository;
 
-    public void validateCourseMarkRequest(MarkDTO courseMark) {
+    public void validateCourseMarkRequest(MarkDto courseMark) {
         if (!explorerRepository.existsById(courseMark.getExplorerId()))
             throw new ExplorerNotFoundException(courseMark.getExplorerId());
         if (isNotKeeperForThisExplorer(courseMark.getExplorerId()))
@@ -68,7 +68,7 @@ public class MarkValidatorService {
                 .anyMatch(e -> e.getExplorerId().equals(explorerId));
     }
 
-    public void validateThemeMarkRequest(Integer themeId, MarkDTO mark) {
+    public void validateThemeMarkRequest(Integer themeId, MarkDto mark) {
         Explorer explorer = explorerRepository.findById(mark.getExplorerId())
                 .orElseThrow(() -> new ExplorerNotFoundException(mark.getExplorerId()));
         if (isNotKeeperForThisExplorer(explorer.getExplorerId()))
@@ -87,28 +87,28 @@ public class MarkValidatorService {
     }
 
     private Integer getCurrentCourseThemeId(Explorer explorer) {
-        List<CourseThemeCompletionDTO> themesProgress = getThemesProgress(explorer).getThemesWithProgress();
-        for (CourseThemeCompletionDTO theme : themesProgress) {
+        List<CourseThemeCompletedDto> themesProgress = getThemesProgress(explorer).getThemesWithProgress();
+        for (CourseThemeCompletedDto theme : themesProgress) {
             if (!theme.getCompleted())
                 return theme.getCourseThemeId();
         }
         return themesProgress.get(themesProgress.size() - 1).getCourseThemeId();
     }
 
-    private CourseWithThemesProgress getThemesProgress(Explorer explorer) {
+    private CourseWithThemesProgressDto getThemesProgress(Explorer explorer) {
         Integer courseId = explorerGroupRepository
                 .getReferenceById(explorer.getGroupId()).getCourseId();
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new CourseNotFoundException(courseId));
-        List<CourseThemeCompletionDTO> themesCompletion = new ArrayList<>();
+        List<CourseThemeCompletedDto> themesCompletion = new ArrayList<>();
         for (CourseTheme ct : courseThemeRepository.findCourseThemesByCourseIdOrderByCourseThemeNumberAsc(courseId)) {
             Boolean themeCompleted = courseThemeCompletionRepository
                     .findCourseThemeProgressByExplorerIdAndCourseThemeId(explorer.getExplorerId(), ct.getCourseThemeId()).isPresent();
             themesCompletion.add(
-                    new CourseThemeCompletionDTO(ct.getCourseThemeId(), ct.getTitle(), themeCompleted)
+                    new CourseThemeCompletedDto(ct.getCourseThemeId(), ct.getTitle(), themeCompleted)
             );
         }
-        return CourseWithThemesProgress.builder()
+        return CourseWithThemesProgressDto.builder()
                 .courseId(courseId)
                 .title(course.getTitle())
                 .themesWithProgress(themesCompletion)

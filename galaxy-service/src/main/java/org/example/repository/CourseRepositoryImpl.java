@@ -1,7 +1,7 @@
 package org.example.repository;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.course.CourseGetResponse;
+import org.example.dto.course.GetCourseDto;
 import org.example.exception.classes.connectEX.ConnectException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -16,7 +16,7 @@ public class CourseRepositoryImpl implements CourseRepository {
     private final WebClient.Builder webClientBuilder;
 
     @Override
-    public CourseGetResponse getCourseById(Integer courseId) {
+    public GetCourseDto getCourseById(Integer courseId) {
         return webClientBuilder
                 .baseUrl("http://course-service/course-app/").build()
                 .get()
@@ -26,7 +26,7 @@ public class CourseRepositoryImpl implements CourseRepository {
                 .onStatus(HttpStatus::isError, response -> {
                     throw new ConnectException();
                 })
-                .bodyToMono(CourseGetResponse.class)
+                .bodyToMono(GetCourseDto.class)
                 .timeout(Duration.ofSeconds(5))
                 .block();
     }

@@ -2,8 +2,8 @@ package org.example.service.validator;
 
 import lombok.RequiredArgsConstructor;
 import org.example.config.security.RoleService;
-import org.example.dto.courseprogress.CourseThemeCompletionDTO;
-import org.example.dto.homework.HomeworkUpdateRequest;
+import org.example.dto.courseprogress.CourseThemeCompletedDto;
+import org.example.dto.homework.UpdateHomeworkDto;
 import org.example.exception.classes.coursethemeEX.CourseThemeNotFoundException;
 import org.example.exception.classes.coursethemeEX.ThemeClosedException;
 import org.example.exception.classes.coursethemeEX.ThemeFromDifferentCourseException;
@@ -64,10 +64,10 @@ public class HomeworkValidatorService {
     }
 
     private boolean isThemeOpened(Integer courseId, Integer themeId) {
-        List<CourseThemeCompletionDTO> themesProgress = courseProgressRepository
+        List<CourseThemeCompletedDto> themesProgress = courseProgressRepository
                 .getCourseProgress(courseId)
                 .getThemesWithProgress();
-        Optional<CourseThemeCompletionDTO> themeCompletion = themesProgress
+        Optional<CourseThemeCompletedDto> themeCompletion = themesProgress
                 .stream()
                 .filter(t -> t.getCourseThemeId().equals(themeId))
                 .findAny();
@@ -77,8 +77,8 @@ public class HomeworkValidatorService {
         return themeId.equals(getCurrentCourseThemeId(themesProgress)) || themeCompleted;
     }
 
-    private Integer getCurrentCourseThemeId(List<CourseThemeCompletionDTO> themesProgress) {
-        for (CourseThemeCompletionDTO planet : themesProgress) {
+    private Integer getCurrentCourseThemeId(List<CourseThemeCompletedDto> themesProgress) {
+        for (CourseThemeCompletedDto planet : themesProgress) {
             if (!planet.getCompleted())
                 return planet.getCourseThemeId();
         }
@@ -114,14 +114,14 @@ public class HomeworkValidatorService {
         isKeeperForGroup(getAuthenticatedPersonId(), explorerGroup);
     }
 
-    public void validatePutRequest(HomeworkUpdateRequest homeworkUpdateRequest) {
-        ExplorerGroup explorerGroup = explorerGroupRepository.findById(homeworkUpdateRequest.getGroupId())
-                .orElseThrow(() -> new ExplorerGroupNotFoundException(homeworkUpdateRequest.getGroupId()));
-        Integer courseId = courseThemeRepository.findById(homeworkUpdateRequest.getCourseThemeId())
-                .orElseThrow(() -> new CourseThemeNotFoundException(homeworkUpdateRequest.getCourseThemeId()))
+    public void validatePutRequest(UpdateHomeworkDto updateHomeworkDto) {
+        ExplorerGroup explorerGroup = explorerGroupRepository.findById(updateHomeworkDto.getGroupId())
+                .orElseThrow(() -> new ExplorerGroupNotFoundException(updateHomeworkDto.getGroupId()));
+        Integer courseId = courseThemeRepository.findById(updateHomeworkDto.getCourseThemeId())
+                .orElseThrow(() -> new CourseThemeNotFoundException(updateHomeworkDto.getCourseThemeId()))
                 .getCourseId();
         if (!explorerGroup.getCourseId().equals(courseId))
-            throw new ExplorerGroupIsNotOnCourseException(homeworkUpdateRequest.getGroupId(), courseId);
+            throw new ExplorerGroupIsNotOnCourseException(updateHomeworkDto.getGroupId(), courseId);
         isKeeperForGroup(getAuthenticatedPersonId(), explorerGroup);
     }
 

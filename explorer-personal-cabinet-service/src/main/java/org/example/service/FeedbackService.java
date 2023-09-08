@@ -1,8 +1,8 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.feedback.CourseRatingCreateRequest;
-import org.example.dto.feedback.ExplorerFeedbackCreateRequest;
+import org.example.dto.feedback.CreateCourseRatingDto;
+import org.example.dto.feedback.CreateExplorerFeedbackDto;
 import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
 import org.example.model.Explorer;
 import org.example.model.Person;
@@ -29,7 +29,7 @@ public class FeedbackService {
 
     private final ModelMapper mapper;
 
-    public ExplorerFeedback sendFeedbackForKeeper(Integer courseId, ExplorerFeedbackCreateRequest feedback) {
+    public ExplorerFeedback sendFeedbackForKeeper(Integer courseId, CreateExplorerFeedbackDto feedback) {
         Integer personId = getAuthenticatedPersonId();
         feedbackValidatorService.validateFeedbackForKeeperRequest(personId, feedback);
         Explorer explorer = explorerRepository
@@ -50,7 +50,7 @@ public class FeedbackService {
         kafkaTemplate.send("galaxyCacheTopic", courseId);
     }
 
-    public CourseRating rateCourse(Integer courseId, CourseRatingCreateRequest request) {
+    public CourseRating rateCourse(Integer courseId, CreateCourseRatingDto request) {
         Integer personId = getAuthenticatedPersonId();
         feedbackValidatorService.validateCourseRatingRequest(personId, courseId, request);
         Explorer explorer = explorerRepository

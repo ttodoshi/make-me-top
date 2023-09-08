@@ -1,8 +1,8 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.homework.HomeworkCreateRequest;
-import org.example.dto.homework.HomeworkUpdateRequest;
+import org.example.dto.homework.CreateHomeworkDto;
+import org.example.dto.homework.UpdateHomeworkDto;
 import org.example.exception.classes.homeworkEX.HomeworkNotFoundException;
 import org.example.model.homework.Homework;
 import org.example.repository.homework.HomeworkRepository;
@@ -27,14 +27,14 @@ public class HomeworkService {
         return homeworkRepository.findHomeworksByCourseThemeIdAndGroupId(themeId, groupId);
     }
 
-    public Homework addHomework(Integer themeId, HomeworkCreateRequest homework) {
+    public Homework addHomework(Integer themeId, CreateHomeworkDto homework) {
         homeworkValidatorService.validatePostRequest(themeId, homework.getGroupId());
         return homeworkRepository.save(
                 new Homework(themeId, homework.getContent(), homework.getGroupId())
         );
     }
 
-    public Homework updateHomework(Integer homeworkId, HomeworkUpdateRequest homework) {
+    public Homework updateHomework(Integer homeworkId, UpdateHomeworkDto homework) {
         homeworkValidatorService.validatePutRequest(homework);
         Homework updatedHomework = homeworkRepository.findById(homeworkId)
                 .orElseThrow(() -> new HomeworkNotFoundException(homeworkId));

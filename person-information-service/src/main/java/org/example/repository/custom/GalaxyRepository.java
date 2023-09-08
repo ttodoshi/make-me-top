@@ -1,12 +1,12 @@
 package org.example.repository.custom;
 
-import org.example.dto.galaxy.GalaxyDTO;
-import org.example.dto.galaxy.GalaxyInformationGetResponse;
+import org.example.dto.galaxy.GalaxyDto;
+import org.example.dto.galaxy.GetGalaxyInformationDto;
 
 import java.util.List;
 
 public interface GalaxyRepository {
-    List<GalaxyInformationGetResponse> getGalaxies();
+    List<GetGalaxyInformationDto> getGalaxies();
 
-    GalaxyDTO getGalaxyBySystemId(Integer systemId);
+    GalaxyDto getGalaxyBySystemId(Integer systemId);
 }

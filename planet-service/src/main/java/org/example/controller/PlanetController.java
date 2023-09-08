@@ -5,8 +5,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.example.dto.planet.PlanetCreateRequest;
-import org.example.dto.planet.PlanetUpdateRequest;
+import org.example.dto.planet.CreatePlanetDto;
+import org.example.dto.planet.UpdatePlanetDto;
 import org.example.service.PlanetService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -51,7 +51,7 @@ public class PlanetController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> addPlanets(@RequestBody List<@Valid PlanetCreateRequest> planetList,
+    public ResponseEntity<?> addPlanets(@RequestBody List<@Valid CreatePlanetDto> planetList,
                                         @PathVariable Integer systemId) {
         return ResponseEntity.ok(planetService.addPlanets(systemId, planetList));
     }
@@ -69,7 +69,7 @@ public class PlanetController {
                     })
     })
     public ResponseEntity<?> updatePlanetById(@PathVariable("planetId") Integer planetId,
-                                              @Valid @RequestBody PlanetUpdateRequest planet) {
+                                              @Valid @RequestBody UpdatePlanetDto planet) {
         return ResponseEntity.ok(planetService.updatePlanet(planetId, planet));
     }
 

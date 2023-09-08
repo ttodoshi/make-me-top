@@ -1,14 +1,14 @@
 package org.example.service;
 
-import org.example.dto.courseprogress.CourseWithThemesProgress;
-import org.example.dto.courseprogress.CoursesState;
+import org.example.dto.courseprogress.CourseWithThemesProgressDto;
+import org.example.dto.courseprogress.CoursesStateDto;
 
 import java.util.Map;
 
 public interface CourseProgressService {
-    CoursesState getCoursesProgressForCurrentUser(Integer galaxyId);
+    CoursesStateDto getCoursesProgressForCurrentUser(Integer galaxyId);
 
-    CourseWithThemesProgress getThemesProgressByCourseId(Integer courseId);
+    CourseWithThemesProgressDto getThemesProgressByCourseId(Integer courseId);
 
     boolean hasUncompletedParents(Integer personId, Integer systemId);
 

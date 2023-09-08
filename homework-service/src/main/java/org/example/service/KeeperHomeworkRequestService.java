@@ -1,8 +1,8 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.homework.CreateHomeworkFeedback;
-import org.example.dto.homework.HomeworkMarkDTO;
+import org.example.dto.homework.CreateHomeworkFeedbackDto;
+import org.example.dto.homework.HomeworkMarkDto;
 import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
 import org.example.exception.classes.homeworkEX.HomeworkRequestNotFound;
 import org.example.exception.classes.markEX.UnexpectedMarkValueException;
@@ -29,7 +29,7 @@ public class KeeperHomeworkRequestService {
 
     private final KeeperHomeworkRequestValidatorService keeperHomeworkRequestValidatorService;
 
-    public HomeworkMark setHomeworkMark(Integer homeworkId, HomeworkMarkDTO mark) {
+    public HomeworkMark setHomeworkMark(Integer homeworkId, HomeworkMarkDto mark) {
         HomeworkRequest homeworkRequest = changeRequestStatus(homeworkId, mark.getExplorerId(), HomeworkRequestStatusType.CLOSED);
         if (mark.getValue() < 1 || mark.getValue() > 5)
             throw new UnexpectedMarkValueException();
@@ -38,7 +38,7 @@ public class KeeperHomeworkRequestService {
         );
     }
 
-    public HomeworkFeedback sendHomeworkFeedback(Integer homeworkId, CreateHomeworkFeedback model) {
+    public HomeworkFeedback sendHomeworkFeedback(Integer homeworkId, CreateHomeworkFeedbackDto model) {
         HomeworkRequest homeworkRequest = changeRequestStatus(homeworkId, model.getExplorerId(), HomeworkRequestStatusType.EDITING);
         Integer openedStatusId = homeworkFeedbackStatusRepository
                 .findHomeworkFeedbackStatusByStatus(HomeworkFeedbackStatusType.OPENED)

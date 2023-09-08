@@ -5,8 +5,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.example.dto.course.CourseUpdateRequest;
-import org.example.dto.keeper.KeeperCreateRequest;
+import org.example.dto.course.UpdateCourseDto;
+import org.example.dto.keeper.CreateKeeperDto;
 import org.example.service.CourseService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -66,7 +66,7 @@ public class CourseController {
     })
     public ResponseEntity<?> updateCourse(@PathVariable("galaxyId") Integer galaxyId,
                                           @PathVariable Integer courseId,
-                                          @Valid @RequestBody CourseUpdateRequest course) {
+                                          @Valid @RequestBody UpdateCourseDto course) {
         return ResponseEntity.ok(courseService.updateCourse(galaxyId, courseId, course));
     }
 
@@ -83,7 +83,7 @@ public class CourseController {
                     })
     })
     public ResponseEntity<?> setKeeperToCourse(@PathVariable("courseId") Integer courseId,
-                                               @Valid @RequestBody KeeperCreateRequest keeperCreateRequest) {
-        return ResponseEntity.ok(courseService.setKeeperToCourse(courseId, keeperCreateRequest));
+                                               @Valid @RequestBody CreateKeeperDto createKeeperDto) {
+        return ResponseEntity.ok(courseService.setKeeperToCourse(courseId, createKeeperDto));
     }
 }

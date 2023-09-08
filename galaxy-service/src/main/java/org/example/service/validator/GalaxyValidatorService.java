@@ -1,8 +1,8 @@
 package org.example.service.validator;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.galaxy.GalaxyCreateRequest;
-import org.example.dto.galaxy.GalaxyDTO;
+import org.example.dto.galaxy.CreateGalaxyDto;
+import org.example.dto.galaxy.GalaxyDto;
 import org.example.exception.classes.galaxyEX.GalaxyAlreadyExistsException;
 import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
 import org.example.repository.GalaxyRepository;
@@ -18,7 +18,7 @@ public class GalaxyValidatorService {
             throw new GalaxyNotFoundException(galaxyId);
     }
 
-    public void validatePostRequest(GalaxyCreateRequest request) {
+    public void validatePostRequest(CreateGalaxyDto request) {
         if (galaxyExists(request.getGalaxyName()))
             throw new GalaxyAlreadyExistsException(request.getGalaxyName());
     }
@@ -28,7 +28,7 @@ public class GalaxyValidatorService {
                 .anyMatch(g -> g.getGalaxyName().equals(galaxyName));
     }
 
-    public void validatePutRequest(Integer galaxyId, GalaxyDTO galaxy) {
+    public void validatePutRequest(Integer galaxyId, GalaxyDto galaxy) {
         if (!galaxyRepository.existsById(galaxyId))
             throw new GalaxyNotFoundException(galaxyId);
         if (galaxyExists(galaxyId, galaxy.getGalaxyName()))

@@ -1,7 +1,7 @@
 package org.example.repository.feedback;
 
-import org.example.dto.feedback.KeeperFeedbackDTO;
-import org.example.dto.feedback.PersonWithRating;
+import org.example.dto.feedback.KeeperFeedbackDto;
+import org.example.dto.feedback.PersonWithRatingDto;
 import org.example.model.feedback.KeeperFeedback;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -18,7 +18,7 @@ public interface KeeperFeedbackRepository extends JpaRepository<KeeperFeedback, 
             "GROUP BY person.person_id", nativeQuery = true)
     Optional<Double> getExplorerRating(Integer personId);
 
-    @Query(value = "SELECT new org.example.dto.feedback.PersonWithRating(\n" +
+    @Query(value = "SELECT new org.example.dto.feedback.PersonWithRatingDto(\n" +
             "   p.personId, p.firstName, p.lastName, p.patronymic, COALESCE(ROUND(AVG(kf.rating), 1), 0) AS rating\n" +
             ")\n" +
             "FROM Person p\n" +
@@ -26,9 +26,9 @@ public interface KeeperFeedbackRepository extends JpaRepository<KeeperFeedback, 
             "LEFT JOIN KeeperFeedback kf ON kf.explorerId = e.explorerId\n" +
             "GROUP BY p.personId\n" +
             "ORDER BY rating DESC")
-    List<PersonWithRating> getRatingTable();
+    List<PersonWithRatingDto> getRatingTable();
 
-    @Query(value = "SELECT new org.example.dto.feedback.KeeperFeedbackDTO(\n" +
+    @Query(value = "SELECT new org.example.dto.feedback.KeeperFeedbackDto(\n" +
             "   p.personId, p.firstName, p.lastName, p.patronymic, k.keeperId, c.courseId, c.title, kf.rating, kf.comment\n" +
             ") FROM KeeperFeedback kf\n" +
             "JOIN Keeper k ON k.keeperId = kf.keeperId\n" +
@@ -36,5 +36,5 @@ public interface KeeperFeedbackRepository extends JpaRepository<KeeperFeedback, 
             "JOIN Course c ON c.courseId = k.courseId\n" +
             "JOIN Explorer e ON e.explorerId = kf.explorerId\n" +
             "WHERE e.personId = :personId")
-    List<KeeperFeedbackDTO> getExplorerCommentsByPersonId(@Param("personId") Integer personId);
+    List<KeeperFeedbackDto> getExplorerCommentsByPersonId(@Param("personId") Integer personId);
 }

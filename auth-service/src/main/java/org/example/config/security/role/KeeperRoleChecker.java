@@ -1,7 +1,7 @@
 package org.example.config.security.role;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.AuthResponseEmployee;
+import org.example.dto.AuthResponseEmployeeDto;
 import org.example.exception.classes.connectEX.ConnectException;
 import org.example.model.AuthenticationRoleType;
 import org.example.repository.AuthorizationHeaderRepository;
@@ -30,7 +30,7 @@ public class KeeperRoleChecker implements RoleChecker {
                         .getAuthorizationHeader())
                 .acceptCharset(StandardCharsets.UTF_8)
                 .retrieve()
-                .bodyToFlux(AuthResponseEmployee.class)
+                .bodyToFlux(AuthResponseEmployeeDto.class)
                 .timeout(Duration.ofSeconds(5))
                 .onErrorResume(throwable -> {
                     throw new ConnectException();

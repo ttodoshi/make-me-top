@@ -5,8 +5,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.example.dto.feedback.CourseRatingCreateRequest;
-import org.example.dto.feedback.ExplorerFeedbackCreateRequest;
+import org.example.dto.feedback.CreateCourseRatingDto;
+import org.example.dto.feedback.CreateExplorerFeedbackDto;
 import org.example.service.FeedbackService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -34,7 +34,7 @@ public class FeedbackController {
                     })
     })
     public ResponseEntity<?> sendFeedbackForKeeper(@PathVariable("courseId") Integer courseId,
-                                                   @Valid @RequestBody ExplorerFeedbackCreateRequest feedback) {
+                                                   @Valid @RequestBody CreateExplorerFeedbackDto feedback) {
         return ResponseEntity.ok(feedbackService.sendFeedbackForKeeper(courseId, feedback));
     }
 
@@ -52,7 +52,7 @@ public class FeedbackController {
                     })
     })
     public ResponseEntity<?> rateCourse(@PathVariable("courseId") Integer courseId,
-                                        @Valid @RequestBody CourseRatingCreateRequest request) {
+                                        @Valid @RequestBody CreateCourseRatingDto request) {
         return ResponseEntity.ok(feedbackService.rateCourse(courseId, request));
     }
 }

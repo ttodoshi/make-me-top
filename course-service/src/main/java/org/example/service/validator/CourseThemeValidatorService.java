@@ -1,8 +1,8 @@
 package org.example.service.validator;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.courseprogress.CourseThemeCompletionDTO;
-import org.example.dto.theme.CourseThemeUpdateRequest;
+import org.example.dto.courseprogress.CourseThemeCompletedDto;
+import org.example.dto.theme.UpdateCourseThemeDto;
 import org.example.exception.classes.courseEX.CourseNotFoundException;
 import org.example.exception.classes.coursethemeEX.CourseThemeAlreadyExistsException;
 import org.example.exception.classes.coursethemeEX.CourseThemeNotFoundException;
@@ -32,10 +32,10 @@ public class CourseThemeValidatorService {
     private boolean isThemeOpened(Integer themeId) {
         Integer courseId = courseRepository.getCourseIdByThemeId(themeId)
                 .orElseThrow(() -> new CourseThemeNotFoundException(themeId));
-        List<CourseThemeCompletionDTO> themesProgress = courseProgressRepository
+        List<CourseThemeCompletedDto> themesProgress = courseProgressRepository
                 .getCourseProgress(courseId)
                 .getThemesWithProgress();
-        Optional<CourseThemeCompletionDTO> themeCompletion = themesProgress
+        Optional<CourseThemeCompletedDto> themeCompletion = themesProgress
                 .stream()
                 .filter(t -> t.getCourseThemeId().equals(themeId))
                 .findAny();
@@ -45,8 +45,8 @@ public class CourseThemeValidatorService {
         return themeId.equals(getCurrentCourseThemeId(themesProgress)) || themeCompleted;
     }
 
-    private Integer getCurrentCourseThemeId(List<CourseThemeCompletionDTO> themesProgress) {
-        for (CourseThemeCompletionDTO planet : themesProgress) {
+    private Integer getCurrentCourseThemeId(List<CourseThemeCompletedDto> themesProgress) {
+        for (CourseThemeCompletedDto planet : themesProgress) {
             if (!planet.getCompleted())
                 return planet.getCourseThemeId();
         }
@@ -60,7 +60,7 @@ public class CourseThemeValidatorService {
     }
 
     @Transactional(readOnly = true)
-    public void validatePutRequest(Integer themeId, CourseThemeUpdateRequest theme) {
+    public void validatePutRequest(Integer themeId, UpdateCourseThemeDto theme) {
         if (!courseRepository.existsById(theme.getCourseId()))
             throw new CourseNotFoundException(theme.getCourseId());
         boolean themeTitleExists = courseThemeRepository.findCourseThemesByCourseIdOrderByCourseThemeNumber(

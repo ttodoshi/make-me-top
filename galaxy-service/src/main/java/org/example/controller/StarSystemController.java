@@ -5,8 +5,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.example.dto.starsystem.StarSystemCreateRequest;
-import org.example.dto.starsystem.StarSystemDTO;
+import org.example.dto.starsystem.CreateStarSystemDto;
+import org.example.dto.starsystem.StarSystemDto;
 import org.example.service.StarSystemService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -69,7 +69,7 @@ public class StarSystemController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> createSystem(@Valid @RequestBody StarSystemCreateRequest starSystem,
+    public ResponseEntity<?> createSystem(@Valid @RequestBody CreateStarSystemDto starSystem,
                                           @PathVariable("orbitId") Integer orbitId) {
         return ResponseEntity.ok(starSystemService.createSystem(orbitId, starSystem));
     }
@@ -87,7 +87,7 @@ public class StarSystemController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> updateSystem(@Valid @RequestBody StarSystemDTO starSystem,
+    public ResponseEntity<?> updateSystem(@Valid @RequestBody StarSystemDto starSystem,
                                           @PathVariable("systemId") Integer systemId) {
         return ResponseEntity.ok(starSystemService.updateSystem(systemId, starSystem));
     }
