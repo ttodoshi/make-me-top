@@ -27,6 +27,7 @@ import org.example.repository.courseprogress.CourseThemeCompletionRepository;
 import org.example.repository.homework.HomeworkRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +44,7 @@ public class MarkValidatorService {
     private final CourseThemeCompletionRepository courseThemeCompletionRepository;
     private final HomeworkRepository homeworkRepository;
 
+    @Transactional(readOnly = true)
     public void validateCourseMarkRequest(MarkDto courseMark) {
         if (!explorerRepository.existsById(courseMark.getExplorerId()))
             throw new ExplorerNotFoundException(courseMark.getExplorerId());
@@ -68,6 +70,7 @@ public class MarkValidatorService {
                 .anyMatch(e -> e.getExplorerId().equals(explorerId));
     }
 
+    @Transactional(readOnly = true)
     public void validateThemeMarkRequest(Integer themeId, MarkDto mark) {
         Explorer explorer = explorerRepository.findById(mark.getExplorerId())
                 .orElseThrow(() -> new ExplorerNotFoundException(mark.getExplorerId()));

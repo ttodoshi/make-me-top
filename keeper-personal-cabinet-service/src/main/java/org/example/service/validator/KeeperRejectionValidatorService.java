@@ -9,6 +9,7 @@ import org.example.model.courserequest.CourseRegistrationRequestKeeperStatusType
 import org.example.repository.courserequest.CourseRegistrationRequestKeeperStatusRepository;
 import org.example.repository.courserequest.KeeperRejectionRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -16,6 +17,7 @@ public class KeeperRejectionValidatorService {
     private final KeeperRejectionRepository keeperRejectionRepository;
     private final CourseRegistrationRequestKeeperStatusRepository courseRegistrationRequestKeeperStatusRepository;
 
+    @Transactional(readOnly = true)
     public void validateRejectionRequest(CourseRegistrationRequestKeeper keeperResponse) {
         CourseRegistrationRequestKeeperStatus currentStatus = courseRegistrationRequestKeeperStatusRepository
                 .getReferenceById(keeperResponse.getStatusId());

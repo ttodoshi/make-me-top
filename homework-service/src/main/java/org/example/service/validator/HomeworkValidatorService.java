@@ -23,8 +23,8 @@ import org.example.repository.ExplorerRepository;
 import org.example.repository.KeeperRepository;
 import org.example.repository.course.CourseRepository;
 import org.example.repository.course.CourseThemeRepository;
-import org.example.repository.custom.CourseProgressRepository;
 import org.example.repository.homework.HomeworkRepository;
+import org.example.service.CourseProgressService;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,8 +41,8 @@ public class HomeworkValidatorService {
     private final ExplorerGroupRepository explorerGroupRepository;
     private final ExplorerRepository explorerRepository;
     private final KeeperRepository keeperRepository;
-    private final CourseProgressRepository courseProgressRepository;
 
+    private final CourseProgressService courseProgressService;
     private final RoleService roleService;
 
     @Transactional(readOnly = true)
@@ -64,7 +64,7 @@ public class HomeworkValidatorService {
     }
 
     private boolean isThemeOpened(Integer courseId, Integer themeId) {
-        List<CourseThemeCompletedDto> themesProgress = courseProgressRepository
+        List<CourseThemeCompletedDto> themesProgress = courseProgressService
                 .getCourseProgress(courseId)
                 .getThemesWithProgress();
         Optional<CourseThemeCompletedDto> themeCompletion = themesProgress
@@ -103,6 +103,7 @@ public class HomeworkValidatorService {
         return authenticatedPerson.getPersonId();
     }
 
+    @Transactional(readOnly = true)
     public void validatePostRequest(Integer themeId, Integer groupId) {
         ExplorerGroup explorerGroup = explorerGroupRepository.findById(groupId)
                 .orElseThrow(() -> new ExplorerGroupNotFoundException(groupId));
@@ -114,6 +115,7 @@ public class HomeworkValidatorService {
         isKeeperForGroup(getAuthenticatedPersonId(), explorerGroup);
     }
 
+    @Transactional(readOnly = true)
     public void validatePutRequest(UpdateHomeworkDto updateHomeworkDto) {
         ExplorerGroup explorerGroup = explorerGroupRepository.findById(updateHomeworkDto.getGroupId())
                 .orElseThrow(() -> new ExplorerGroupNotFoundException(updateHomeworkDto.getGroupId()));
@@ -125,6 +127,7 @@ public class HomeworkValidatorService {
         isKeeperForGroup(getAuthenticatedPersonId(), explorerGroup);
     }
 
+    @Transactional(readOnly = true)
     public void validateDeleteRequest(Integer homeworkId) {
         Homework homework = homeworkRepository.findById(homeworkId)
                 .orElseThrow(() -> new HomeworkNotFoundException(homeworkId));

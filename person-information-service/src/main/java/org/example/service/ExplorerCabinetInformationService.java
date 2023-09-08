@@ -14,7 +14,6 @@ import org.example.repository.PersonRepository;
 import org.example.repository.courseprogress.CourseMarkRepository;
 import org.example.repository.courserequest.CourseRegistrationRequestKeeperRepository;
 import org.example.repository.courserequest.CourseRegistrationRequestRepository;
-import org.example.repository.custom.GalaxyRepository;
 import org.example.repository.feedback.KeeperFeedbackRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -34,8 +33,8 @@ public class ExplorerCabinetInformationService {
     private final PersonRepository personRepository;
     private final KeeperFeedbackRepository keeperFeedbackRepository;
     private final CourseRegistrationRequestKeeperRepository courseRegistrationRequestKeeperRepository;
-    private final GalaxyRepository galaxyRepository;
 
+    private final GalaxyService galaxyService;
     private final RatingService ratingService;
     private final CourseProgressService courseProgressService;
 
@@ -56,6 +55,14 @@ public class ExplorerCabinetInformationService {
         return response;
     }
 
+    private CourseRegistrationRequestForExplorerDto getStudyRequestForExplorer(CourseRegistrationRequestForExplorerDto request) {
+        setKeeperForStudyRequest(request);
+        GalaxyDto galaxy = galaxyService.getGalaxyBySystemId(request.getCourseId());
+        request.setGalaxyId(galaxy.getGalaxyId());
+        request.setGalaxyName(galaxy.getGalaxyName());
+        return request;
+    }
+
     private void setKeeperForStudyRequest(CourseRegistrationRequestForExplorerDto studyRequest) {
         List<CourseRegistrationRequestKeeper> courseRegistrationRequestKeepers = courseRegistrationRequestKeeperRepository.findAllByRequestId(studyRequest.getRequestId());
         if (courseRegistrationRequestKeepers.size() == 1) {
@@ -71,14 +78,6 @@ public class ExplorerCabinetInformationService {
                             keeperId)
             );
         }
-    }
-
-    private CourseRegistrationRequestForExplorerDto getStudyRequestForExplorer(CourseRegistrationRequestForExplorerDto request) {
-        setKeeperForStudyRequest(request);
-        GalaxyDto galaxy = galaxyRepository.getGalaxyBySystemId(request.getCourseId());
-        request.setGalaxyId(galaxy.getGalaxyId());
-        request.setGalaxyName(galaxy.getGalaxyName());
-        return request;
     }
 
     private List<PersonWithRatingDto> getRatingTable() {

@@ -27,6 +27,7 @@ public class HomeworkService {
         return homeworkRepository.findHomeworksByCourseThemeIdAndGroupId(themeId, groupId);
     }
 
+    @Transactional
     public Homework addHomework(Integer themeId, CreateHomeworkDto homework) {
         homeworkValidatorService.validatePostRequest(themeId, homework.getGroupId());
         return homeworkRepository.save(
@@ -34,6 +35,7 @@ public class HomeworkService {
         );
     }
 
+    @Transactional
     public Homework updateHomework(Integer homeworkId, UpdateHomeworkDto homework) {
         homeworkValidatorService.validatePutRequest(homework);
         Homework updatedHomework = homeworkRepository.findById(homeworkId)
@@ -44,6 +46,7 @@ public class HomeworkService {
         return homeworkRepository.save(updatedHomework);
     }
 
+    @Transactional
     public Map<String, String> deleteHomework(Integer homeworkId) {
         homeworkValidatorService.validateDeleteRequest(homeworkId);
         Map<String, String> response = new HashMap<>();

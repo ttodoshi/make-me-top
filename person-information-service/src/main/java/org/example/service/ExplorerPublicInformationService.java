@@ -17,7 +17,6 @@ import org.example.repository.PersonRepository;
 import org.example.repository.courseprogress.CourseMarkRepository;
 import org.example.repository.courserequest.CourseRegistrationRequestKeeperRepository;
 import org.example.repository.courserequest.CourseRegistrationRequestRepository;
-import org.example.repository.custom.GalaxyRepository;
 import org.example.repository.feedback.KeeperFeedbackRepository;
 import org.example.repository.homework.HomeworkRequestRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -40,11 +39,11 @@ public class ExplorerPublicInformationService {
     private final CourseMarkRepository courseMarkRepository;
     private final PersonRepository personRepository;
     private final KeeperFeedbackRepository keeperFeedbackRepository;
-    private final GalaxyRepository galaxyRepository;
     private final CourseRegistrationRequestKeeperRepository courseRegistrationRequestKeeperRepository;
 
     private final RatingService ratingService;
-    private final CourseProgressServiceImpl courseProgressServiceImpl;
+    private final GalaxyService galaxyService;
+    private final CourseProgressService courseProgressService;
     private final RoleService roleService;
 
     @Transactional(readOnly = true)
@@ -59,7 +58,7 @@ public class ExplorerPublicInformationService {
                 .getExplorerCommentsByPersonId(personId);
         response.put("totalFeedback", feedback.size());
         response.put("totalSystems", explorerRepository.getExplorerSystemsCount(personId));
-        Optional<CurrentCourseProgressDto> currentCourseOptional = courseProgressServiceImpl
+        Optional<CurrentCourseProgressDto> currentCourseOptional = courseProgressService
                 .getCurrentCourseProgress(personId);
         if (currentCourseOptional.isEmpty()) {
             courseRegistrationRequestRepository.getStudyRequestByPersonId(personId).filter(
@@ -96,7 +95,7 @@ public class ExplorerPublicInformationService {
 
     private CourseRegistrationRequestForKeeperWithGalaxyDto getStudyRequestForKeeperWithGalaxy(CourseRegistrationRequestForKeeperWithGalaxyDto request) {
         request.setRating(ratingService.getExplorerRating(request.getPersonId()));
-        GalaxyDto galaxy = galaxyRepository.getGalaxyBySystemId(request.getCourseId());
+        GalaxyDto galaxy = galaxyService.getGalaxyBySystemId(request.getCourseId());
         request.setGalaxyId(galaxy.getGalaxyId());
         request.setGalaxyName(galaxy.getGalaxyName());
         return request;

@@ -63,6 +63,7 @@ public class PlanetService {
         return planetRepository.save(updatedPlanet);
     }
 
+    @Transactional
     public Map<String, String> deletePlanetById(Integer planetId) {
         planetValidatorService.validateDeleteRequest(planetId);
         planetRepository.deleteById(planetId);

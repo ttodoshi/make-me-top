@@ -90,7 +90,7 @@ public class CourseRegistrationRequestService {
         kafkaTemplate.send("galaxyCacheTopic", courseId);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<CourseRegistrationRequest> getApprovedRequests(Integer courseId) {
         courseRegistrationRequestValidatorService.validateGetApprovedRequests(getAuthenticatedPersonId(), courseId);
         return courseRegistrationRequestRepository.findApprovedRequestsByKeeperPersonIdAndCourseId(getAuthenticatedPersonId(), courseId);

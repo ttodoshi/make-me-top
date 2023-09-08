@@ -14,6 +14,7 @@ import org.example.service.validator.FeedbackValidatorService;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +27,7 @@ public class FeedbackService {
 
     private final ModelMapper mapper;
 
+    @Transactional
     public KeeperFeedback sendFeedbackForExplorer(Integer courseId, CreateKeeperFeedbackDto feedback) {
         if (!courseRepository.existsById(courseId))
             throw new CourseNotFoundException(courseId);

@@ -7,9 +7,9 @@ import org.example.exception.classes.courseEX.CourseNotFoundException;
 import org.example.exception.classes.coursethemeEX.CourseThemeAlreadyExistsException;
 import org.example.exception.classes.coursethemeEX.CourseThemeNotFoundException;
 import org.example.exception.classes.coursethemeEX.ThemeClosedException;
-import org.example.repository.CourseProgressRepository;
-import org.example.repository.CourseRepository;
-import org.example.repository.CourseThemeRepository;
+import org.example.repository.course.CourseRepository;
+import org.example.repository.course.CourseThemeRepository;
+import org.example.service.CourseProgressService;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,7 +21,8 @@ import java.util.Optional;
 public class CourseThemeValidatorService {
     private final CourseRepository courseRepository;
     private final CourseThemeRepository courseThemeRepository;
-    private final CourseProgressRepository courseProgressRepository;
+
+    private final CourseProgressService courseProgressService;
 
     @Transactional(readOnly = true)
     public void validateGetThemeRequest(Integer courseThemeId) {
@@ -32,7 +33,7 @@ public class CourseThemeValidatorService {
     private boolean isThemeOpened(Integer themeId) {
         Integer courseId = courseRepository.getCourseIdByThemeId(themeId)
                 .orElseThrow(() -> new CourseThemeNotFoundException(themeId));
-        List<CourseThemeCompletedDto> themesProgress = courseProgressRepository
+        List<CourseThemeCompletedDto> themesProgress = courseProgressService
                 .getCourseProgress(courseId)
                 .getThemesWithProgress();
         Optional<CourseThemeCompletedDto> themeCompletion = themesProgress

@@ -6,7 +6,7 @@ import org.example.dto.theme.GetCourseThemeDto;
 import org.example.dto.theme.UpdateCourseThemeDto;
 import org.example.exception.classes.coursethemeEX.CourseThemeNotFoundException;
 import org.example.model.course.CourseTheme;
-import org.example.repository.CourseThemeRepository;
+import org.example.repository.course.CourseThemeRepository;
 import org.example.service.validator.CourseThemeValidatorService;
 import org.modelmapper.ModelMapper;
 import org.springframework.kafka.annotation.KafkaListener;

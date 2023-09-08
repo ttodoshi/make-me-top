@@ -13,7 +13,10 @@ import org.example.model.Keeper;
 import org.example.model.Person;
 import org.example.model.course.Course;
 import org.example.model.role.AuthenticationRoleType;
-import org.example.repository.*;
+import org.example.repository.ExplorerRepository;
+import org.example.repository.KeeperRepository;
+import org.example.repository.PersonRepository;
+import org.example.repository.course.CourseRepository;
 import org.example.service.validator.CourseValidatorService;
 import org.modelmapper.ModelMapper;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -37,10 +40,10 @@ public class CourseService {
     private final CourseRepository courseRepository;
     private final KeeperRepository keeperRepository;
     private final ExplorerRepository explorerRepository;
-    private final StarSystemRepository starSystemRepository;
-    private final RatingRepository ratingRepository;
     private final PersonRepository personRepository;
 
+    private final StarSystemService starSystemService;
+    private final RatingService ratingService;
     private final CourseValidatorService courseValidatorService;
     private final RoleService roleService;
 
@@ -65,7 +68,7 @@ public class CourseService {
                     .ifPresent(e -> {
                         response.put("you", e);
                         KeeperWithRatingDto yourKeeper = mapper.map(keeperRepository.getKeeperForExplorer(e.getExplorerId()), KeeperWithRatingDto.class);
-                        yourKeeper.setRating(ratingRepository.getKeeperRating(yourKeeper.getPersonId()));
+                        yourKeeper.setRating(ratingService.getKeeperRating(yourKeeper.getPersonId()));
                         response.put("yourKeeper", yourKeeper);
                     });
         }
@@ -79,7 +82,7 @@ public class CourseService {
                 .flatMap(e -> Mono.fromCallable(
                                         () -> {
                                             ExplorerWithRatingDto explorer = mapper.map(e, ExplorerWithRatingDto.class);
-                                            explorer.setRating(ratingRepository.getExplorerRating(e.getPersonId()));
+                                            explorer.setRating(ratingService.getExplorerRating(e.getPersonId()));
                                             return explorer;
                                         }
                                 )
@@ -93,7 +96,7 @@ public class CourseService {
                 .flatMap(k -> Mono.fromCallable(
                                         () -> {
                                             KeeperWithRatingDto keeper = mapper.map(k, KeeperWithRatingDto.class);
-                                            keeper.setRating(ratingRepository.getExplorerRating(k.getPersonId()));
+                                            keeper.setRating(ratingService.getExplorerRating(k.getPersonId()));
                                             return keeper;
                                         }
                                 )
@@ -108,7 +111,7 @@ public class CourseService {
     }
 
     public List<Course> getCoursesByGalaxyId(Integer galaxyId) {
-        List<Integer> systems = starSystemRepository.getSystemsByGalaxyId(galaxyId)
+        List<Integer> systems = starSystemService.getSystemsByGalaxyId(galaxyId)
                 .stream()
                 .mapToInt(StarSystemDto::getSystemId)
                 .boxed().collect(Collectors.toList());

@@ -3,7 +3,6 @@ package org.example.service;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.galaxy.GetGalaxyInformationDto;
 import org.example.dto.person.PersonWithGalaxyAndSystemsDto;
-import org.example.repository.custom.GalaxyRepository;
 import org.example.service.sort.AllPersonList;
 import org.example.service.sort.PersonList;
 import org.modelmapper.ModelMapper;
@@ -16,7 +15,7 @@ import java.util.stream.Stream;
 @Service
 @RequiredArgsConstructor
 public class KeeperListService {
-    private final GalaxyRepository galaxyRepository;
+    private final GalaxyService galaxyService;
 
     private final ModelMapper mapper;
 
@@ -26,7 +25,7 @@ public class KeeperListService {
     }
 
     private PersonList getKeeperList() {
-        List<GetGalaxyInformationDto> galaxies = galaxyRepository.getGalaxies();
+        List<GetGalaxyInformationDto> galaxies = galaxyService.getGalaxies();
         Stream<PersonWithGalaxyAndSystemsDto> keepersStream = galaxies.stream()
                 .flatMap(g -> g.getKeepers()
                         .stream()

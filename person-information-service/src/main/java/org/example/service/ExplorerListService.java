@@ -5,12 +5,10 @@ import org.example.dto.courseprogress.CurrentCourseProgressDto;
 import org.example.dto.explorer.ExplorerWithCurrentSystemDto;
 import org.example.dto.galaxy.GetGalaxyInformationDto;
 import org.example.dto.person.PersonWithGalaxyAndSystemsDto;
-import org.example.repository.custom.GalaxyRepository;
 import org.example.service.sort.AllPersonList;
 import org.example.service.sort.PersonList;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Period;
 import java.util.List;
@@ -21,19 +19,17 @@ import java.util.stream.Stream;
 @Service
 @RequiredArgsConstructor
 public class ExplorerListService {
-    private final GalaxyRepository galaxyRepository;
-
-    private final CourseProgressServiceImpl courseProgressServiceImpl;
+    private final GalaxyService galaxyService;
+    private final CourseProgressService courseProgressService;
 
     private final ModelMapper mapper;
 
-    @Transactional(readOnly = true)
     public List<PersonWithGalaxyAndSystemsDto> getExplorers(String sort, Period period, Integer systemId) {
         PersonList explorerList = getExplorerList();
         return explorerList.getPeople()
                 .stream()
                 .map(p -> {
-                    Optional<CurrentCourseProgressDto> currentCourseProgress = courseProgressServiceImpl
+                    Optional<CurrentCourseProgressDto> currentCourseProgress = courseProgressService
                             .getCurrentCourseProgress(p.getPersonId());
                     if (currentCourseProgress.isPresent()) {
                         CurrentCourseProgressDto progress = currentCourseProgress.get();
@@ -45,7 +41,7 @@ public class ExplorerListService {
     }
 
     private PersonList getExplorerList() {
-        List<GetGalaxyInformationDto> galaxies = galaxyRepository.getGalaxies();
+        List<GetGalaxyInformationDto> galaxies = galaxyService.getGalaxies();
         Stream<PersonWithGalaxyAndSystemsDto> explorersStream = galaxies.stream()
                 .flatMap(g -> g.getExplorers()
                         .stream()

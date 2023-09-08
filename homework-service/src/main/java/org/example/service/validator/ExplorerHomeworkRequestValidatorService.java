@@ -14,6 +14,7 @@ import org.example.repository.course.CourseThemeRepository;
 import org.example.repository.homework.HomeworkRequestStatusRepository;
 import org.example.service.CourseThemesProgressService;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -25,6 +26,7 @@ public class ExplorerHomeworkRequestValidatorService {
 
     private final CourseThemesProgressService courseThemesProgressService;
 
+    @Transactional(readOnly = true)
     public void validateExistingRequest(HomeworkRequest request) {
         if (request.getStatusId().equals(getStatusId(HomeworkRequestStatusType.CHECKING)))
             throw new HomeworkAlreadyCheckingException(request.getHomeworkId());
@@ -32,6 +34,7 @@ public class ExplorerHomeworkRequestValidatorService {
             throw new HomeworkRequestAlreadyClosedException(request.getRequestId());
     }
 
+    @Transactional(readOnly = true)
     public void validateNewRequest(Integer themeId, Explorer explorer) {
         Integer currentThemeId = getCurrentCourseThemeId(explorer);
         if (!currentThemeId.equals(themeId))
@@ -55,6 +58,7 @@ public class ExplorerHomeworkRequestValidatorService {
                 .getStatusId();
     }
 
+    @Transactional(readOnly = true)
     public void validateGetHomeworkRequests(Integer themeId) {
         if (!courseThemeRepository.existsById(themeId))
             throw new CourseThemeNotFoundException(themeId);

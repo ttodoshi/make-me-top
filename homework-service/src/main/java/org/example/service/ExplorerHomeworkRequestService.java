@@ -50,24 +50,16 @@ public class ExplorerHomeworkRequestService {
         final Integer courseId = courseRepository.getCourseIdByThemeId(themeId)
                 .orElseThrow(() -> new CourseThemeNotFoundException(themeId));
         final Explorer explorer = getExplorer(authenticatedPersonId, courseId);
-        final Integer checkingStatusId = getCheckingStatusId();
         Optional<HomeworkRequest> homeworkRequestOptional = homeworkRequestRepository
                 .findHomeworkRequestByHomeworkIdAndExplorerId(homeworkId, explorer.getExplorerId());
         if (homeworkRequestOptional.isPresent()) {
-            HomeworkRequest homeworkRequest = homeworkRequestOptional.get();
-            explorerHomeworkRequestValidatorService.validateExistingRequest(homeworkRequest);
-            homeworkRequest.setContent(request.getContent());
-            homeworkRequest.setStatusId(checkingStatusId);
-            closeAllFeedbacks(homeworkRequest.getRequestId());
-            return homeworkRequestRepository.save(homeworkRequest);
+            return editExistingRequest(homeworkRequestOptional.get(), request.getContent());
         } else {
             explorerHomeworkRequestValidatorService.validateNewRequest(themeId, explorer);
             return homeworkRequestRepository.save(
                     new HomeworkRequest(
-                            homeworkId,
-                            request.getContent(),
-                            explorer.getExplorerId(),
-                            checkingStatusId
+                            homeworkId, request.getContent(),
+                            explorer.getExplorerId(), getCheckingStatusId()
                     )
             );
         }
@@ -88,6 +80,14 @@ public class ExplorerHomeworkRequestService {
                 .findHomeworkRequestStatusByStatus(HomeworkRequestStatusType.CHECKING)
                 .orElseThrow(() -> new StatusNotFoundException(HomeworkRequestStatusType.CHECKING))
                 .getStatusId();
+    }
+
+    private HomeworkRequest editExistingRequest(HomeworkRequest homeworkRequest, String newContent) {
+        explorerHomeworkRequestValidatorService.validateExistingRequest(homeworkRequest);
+        homeworkRequest.setContent(newContent);
+        homeworkRequest.setStatusId(getCheckingStatusId());
+        closeAllFeedbacks(homeworkRequest.getRequestId());
+        return homeworkRequestRepository.save(homeworkRequest);
     }
 
     private void closeAllFeedbacks(Integer requestId) {
@@ -120,8 +120,7 @@ public class ExplorerHomeworkRequestService {
                             homeworkRequestStatusRepository
                                     .getReferenceById(hr.getStatusId()).getStatus());
                     homeworkRequest.setFeedback(
-                            homeworkFeedbackRepository.findOpenedHomeworkFeedbacksByRequestId(hr.getRequestId())
-                    );
+                            homeworkFeedbackRepository.findOpenedHomeworkFeedbacksByRequestId(hr.getRequestId()));
                     return homeworkRequest;
                 })
                 .collect(Collectors.toList());
