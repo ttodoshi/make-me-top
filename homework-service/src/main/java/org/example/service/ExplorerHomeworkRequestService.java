@@ -53,7 +53,7 @@ public class ExplorerHomeworkRequestService {
         Optional<HomeworkRequest> homeworkRequestOptional = homeworkRequestRepository
                 .findHomeworkRequestByHomeworkIdAndExplorerId(homeworkId, explorer.getExplorerId());
         if (homeworkRequestOptional.isPresent()) {
-            return editExistingRequest(homeworkRequestOptional.get(), request.getContent());
+            return updateExistingRequest(homeworkRequestOptional.get(), request.getContent());
         } else {
             explorerHomeworkRequestValidatorService.validateNewRequest(themeId, explorer);
             return homeworkRequestRepository.save(
@@ -82,7 +82,7 @@ public class ExplorerHomeworkRequestService {
                 .getStatusId();
     }
 
-    private HomeworkRequest editExistingRequest(HomeworkRequest homeworkRequest, String newContent) {
+    private HomeworkRequest updateExistingRequest(HomeworkRequest homeworkRequest, String newContent) {
         explorerHomeworkRequestValidatorService.validateExistingRequest(homeworkRequest);
         homeworkRequest.setContent(newContent);
         homeworkRequest.setStatusId(getCheckingStatusId());

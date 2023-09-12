@@ -9,9 +9,6 @@ spring:
         url: http://admin-service/
         username: admin
         password: admin
-  jpa:
-    hibernate:
-      ddl-auto: update
 management:
   endpoints:
     web:
