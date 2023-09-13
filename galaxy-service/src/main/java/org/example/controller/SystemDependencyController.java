@@ -1,6 +1,5 @@
 package org.example.controller;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -20,7 +19,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/galaxy-app/dependency/")
 @RequiredArgsConstructor
-@JsonIgnoreProperties({"trace"})
 @Validated
 public class SystemDependencyController {
     private final SystemDependencyService systemDependencyService;

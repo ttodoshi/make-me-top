@@ -7,7 +7,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.orbit.CreateOrbitWithStarSystemsDto;
 import org.example.dto.orbit.OrbitDto;
-import org.example.exception.classes.orbitEX.OrbitNotFoundException;
 import org.example.service.OrbitService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -87,7 +86,7 @@ public class OrbitController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> deleteOrbit(@PathVariable("orbitId") Integer orbitId) throws OrbitNotFoundException {
+    public ResponseEntity<?> deleteOrbit(@PathVariable("orbitId") Integer orbitId) {
         return ResponseEntity.ok(orbitService.deleteOrbit(orbitId));
     }
 }
