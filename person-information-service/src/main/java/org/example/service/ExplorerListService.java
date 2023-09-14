@@ -48,9 +48,9 @@ public class ExplorerListService {
                         .map(e -> {
                                     PersonWithGalaxyAndSystemsDto explorer = mapper.map(
                                             e, PersonWithGalaxyAndSystemsDto.class);
-                                    return explorer
-                                            .withGalaxyId(g.getGalaxyId())
-                                            .withGalaxyName(g.getGalaxyName());
+                                    explorer.setGalaxyId(g.getGalaxyId());
+                                    explorer.setGalaxyName(g.getGalaxyName());
+                                    return explorer;
                                 }
                         )
                 );

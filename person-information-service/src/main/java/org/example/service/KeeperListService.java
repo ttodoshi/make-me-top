@@ -32,9 +32,9 @@ public class KeeperListService {
                         .map(k -> {
                                     PersonWithGalaxyAndSystemsDto keeper = mapper.map(
                                             k, PersonWithGalaxyAndSystemsDto.class);
-                                    return keeper
-                                            .withGalaxyId(g.getGalaxyId())
-                                            .withGalaxyName(g.getGalaxyName());
+                                    keeper.setGalaxyId(g.getGalaxyId());
+                                    keeper.setGalaxyName(g.getGalaxyName());
+                                    return keeper;
                                 }
                         )
                 );

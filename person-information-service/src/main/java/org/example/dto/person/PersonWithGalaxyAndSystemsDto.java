@@ -1,13 +1,15 @@
 package org.example.dto.person;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import org.example.dto.explorer.PersonWithSystemsDto;
 
 import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-@With
 @AllArgsConstructor
 @NoArgsConstructor
 public class PersonWithGalaxyAndSystemsDto extends PersonWithSystemsDto {
