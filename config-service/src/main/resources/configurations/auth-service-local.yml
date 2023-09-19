@@ -1,9 +1,17 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/mmt
+    url: jdbc:postgresql://localhost:5432/auth_db
     username: postgres
     password: pass
     driver-class-name: org.postgresql.Driver
+  kafka:
+    bootstrap-servers: http://localhost:9092
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
 eureka:
   client:
     service-url:

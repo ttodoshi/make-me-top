@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.example.dto.explorer.ExplorerDto;
-import org.example.dto.keeper.KeeperDto;
+import org.example.dto.explorer.ExplorerBaseInfoDto;
+import org.example.dto.keeper.KeeperBaseInfoDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -16,11 +16,11 @@ import java.util.List;
 public class CourseWithInfoDto {
     private Integer courseId;
     private String title;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime creationDate;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime lastModified;
     private String description;
-    private List<ExplorerDto> explorers;
-    private List<KeeperDto> keepers;
+    private List<ExplorerBaseInfoDto> explorers;
+    private List<KeeperBaseInfoDto> keepers;
 }

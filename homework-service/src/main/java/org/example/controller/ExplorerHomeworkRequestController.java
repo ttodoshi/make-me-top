@@ -14,14 +14,14 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 
 @RestController
-@RequestMapping("/homework-app")
+@RequestMapping("/api/v1/homework-app")
 @RequiredArgsConstructor
 public class ExplorerHomeworkRequestController {
     private final ExplorerHomeworkRequestService explorerHomeworkRequestService;
 
-    @PostMapping("homework/{homeworkId}")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).EXPLORER) &&" +
-            "@roleService.hasAnyCourseRoleByHomeworkId(#homeworkId, T(org.example.model.role.CourseRoleType).EXPLORER)")
+    @PostMapping("/homework/{homeworkId}")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).EXPLORER) &&" +
+            "@roleService.hasAnyCourseRoleByHomeworkId(#homeworkId, T(org.example.config.security.role.CourseRoleType).EXPLORER)")
     @Operation(summary = "Send homework review request", tags = "explorer homework request")
     @ApiResponses(value = {
             @ApiResponse(
@@ -37,9 +37,9 @@ public class ExplorerHomeworkRequestController {
         return ResponseEntity.ok(explorerHomeworkRequestService.sendHomeworkRequest(homeworkId, request));
     }
 
-    @GetMapping("theme/{themeId}/homework")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.model.role.AuthenticationRoleType).EXPLORER) && " +
-            "@roleService.hasAnyCourseRoleByThemeId(#themeId, T(org.example.model.role.CourseRoleType).EXPLORER)")
+    @GetMapping("/theme/{themeId}/homework")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).EXPLORER) && " +
+            "@roleService.hasAnyCourseRoleByThemeId(#themeId, T(org.example.config.security.role.CourseRoleType).EXPLORER)")
     @Operation(summary = "Get opened requests by theme id", tags = "explorer homework request")
     @ApiResponses(value = {
             @ApiResponse(

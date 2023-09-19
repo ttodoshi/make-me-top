@@ -6,7 +6,7 @@ import lombok.*;
 @EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
 @NoArgsConstructor
-public class KeeperWithRatingDto extends KeeperDto implements Comparable<KeeperWithRatingDto> {
+public class KeeperWithRatingDto extends KeeperBaseInfoDto implements Comparable<KeeperWithRatingDto> {
     private Double rating;
 
     @Override

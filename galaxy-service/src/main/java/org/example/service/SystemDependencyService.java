@@ -3,6 +3,7 @@ package org.example.service;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.dependency.CreateDependencyDto;
 import org.example.dto.dependency.DependencyDto;
+import org.example.dto.message.MessageDto;
 import org.example.exception.classes.dependencyEX.DependencyNotFoundException;
 import org.example.exception.classes.systemEX.SystemNotFoundException;
 import org.example.model.SystemDependency;
@@ -13,9 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -43,12 +42,10 @@ public class SystemDependencyService {
         return dependencies;
     }
 
-    public Map<String, String> deleteDependency(DependencyDto dependency) {
+    public MessageDto deleteDependency(DependencyDto dependency) {
         Integer dependencyId = getDependencyId(dependency);
         dependencyRepository.deleteById(dependencyId);
-        Map<String, String> response = new HashMap<>();
-        response.put("message", "Зависимость " + dependencyId + " удалена");
-        return response;
+        return new MessageDto("Зависимость " + dependencyId + " удалена");
     }
 
     private Integer getDependencyId(DependencyDto dependencyDto) {

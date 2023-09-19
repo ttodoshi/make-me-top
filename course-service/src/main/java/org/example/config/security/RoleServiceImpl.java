@@ -1,17 +1,18 @@
 package org.example.config.security;
 
 import lombok.RequiredArgsConstructor;
+import org.example.config.security.role.AuthenticationRoleType;
+import org.example.config.security.role.CourseRoleType;
 import org.example.exception.classes.coursethemeEX.CourseThemeNotFoundException;
-import org.example.model.Person;
-import org.example.model.role.AuthenticationRoleType;
-import org.example.model.role.CourseRoleType;
-import org.example.model.role.GeneralRoleType;
-import org.example.repository.course.CourseRepository;
+import org.example.dto.person.PersonDto;
 import org.example.repository.ExplorerRepository;
 import org.example.repository.KeeperRepository;
+import org.example.repository.CourseRepository;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -19,15 +20,6 @@ public class RoleServiceImpl implements RoleService {
     private final ExplorerRepository explorerRepository;
     private final KeeperRepository keeperRepository;
     private final CourseRepository courseRepository;
-
-    @Override
-    public boolean hasAnyGeneralRole(GeneralRoleType role) {
-        for (GrantedAuthority authority : SecurityContextHolder.getContext().getAuthentication().getAuthorities()) {
-            if (authority.getAuthority().equals(role.name()))
-                return true;
-        }
-        return false;
-    }
 
     @Override
     public boolean hasAnyAuthenticationRole(AuthenticationRoleType role) {
@@ -40,9 +32,9 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public boolean hasAnyCourseRole(Integer courseId, CourseRoleType role) {
-        Person person = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        PersonDto person = (PersonDto) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (role.equals(CourseRoleType.EXPLORER))
-            return explorerRepository.findExplorerByPersonIdAndCourseId(person.getPersonId(), courseId).isPresent();
+            return explorerRepository.findExplorerByPersonIdAndGroup_CourseId(person.getPersonId(), courseId).isPresent();
         else
             return keeperRepository.findKeeperByPersonIdAndCourseId(person.getPersonId(), courseId).isPresent();
     }
@@ -54,5 +46,11 @@ public class RoleServiceImpl implements RoleService {
                         .orElseThrow(() -> new CourseThemeNotFoundException(themeId)),
                 role
         );
+    }
+
+    @Override
+    public boolean hasAnyCourseRoleByThemeIds(List<Integer> themeIds, CourseRoleType role) {
+        return themeIds.stream()
+                .allMatch(tId -> hasAnyCourseRoleByThemeId(tId, role));
     }
 }

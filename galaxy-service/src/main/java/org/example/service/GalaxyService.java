@@ -5,6 +5,7 @@ import org.example.dto.galaxy.CreateGalaxyDto;
 import org.example.dto.galaxy.GalaxyDto;
 import org.example.dto.galaxy.GetGalaxyDto;
 import org.example.dto.galaxy.GetGalaxyInformationDto;
+import org.example.dto.message.MessageDto;
 import org.example.dto.orbit.GetOrbitWithStarSystemsWithoutGalaxyIdDto;
 import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
 import org.example.exception.classes.systemEX.SystemNotFoundException;
@@ -19,9 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,7 +37,12 @@ public class GalaxyService {
     private final ModelMapper mapper;
 
     @Transactional(readOnly = true)
-    public List<GetGalaxyInformationDto> getAllGalaxies() {
+    public List<Galaxy> getAllGalaxies() {
+        return galaxyRepository.findAll();
+    }
+
+    @Transactional(readOnly = true)
+    public List<GetGalaxyInformationDto> getAllGalaxiesDetailed() {
         return galaxyRepository.findAll()
                 .stream()
                 .map(galaxyInformationService::getGalaxyInformation)
@@ -88,11 +92,9 @@ public class GalaxyService {
     }
 
     @CacheEvict(cacheNames = "galaxiesCache", key = "#galaxyId")
-    public Map<String, String> deleteGalaxy(Integer galaxyId) {
+    public MessageDto deleteGalaxy(Integer galaxyId) {
         galaxyValidatorService.validateDeleteRequest(galaxyId);
         galaxyRepository.deleteById(galaxyId);
-        Map<String, String> response = new HashMap<>();
-        response.put("message", "Галактика " + galaxyId + " была уничтожена квазаром");
-        return response;
+        return new MessageDto("Галактика " + galaxyId + " была уничтожена квазаром");
     }
 }

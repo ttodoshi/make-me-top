@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.dto.orbit.CreateOrbitWithStarSystemsDto;
 import org.example.dto.orbit.OrbitDto;
 import org.example.service.OrbitService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -15,12 +16,12 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 
 @RestController
-@RequestMapping("/galaxy-app/")
+@RequestMapping("/api/v1/galaxy-app")
 @RequiredArgsConstructor
 public class OrbitController {
     private final OrbitService orbitService;
 
-    @GetMapping("orbit/{orbitId}")
+    @GetMapping("/orbit/{orbitId}")
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get orbit by id", tags = "orbit")
     @ApiResponses(value = {
@@ -40,8 +41,8 @@ public class OrbitController {
             return ResponseEntity.ok(orbitService.getOrbitById(orbitId));
     }
 
-    @PostMapping("galaxy/{galaxyId}/orbit")
-    @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
+    @PostMapping("/galaxy/{galaxyId}/orbit")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).BIG_BROTHER)")
     @Operation(summary = "Create orbit", tags = "orbit")
     @ApiResponses(value = {
             @ApiResponse(
@@ -54,11 +55,15 @@ public class OrbitController {
     })
     public ResponseEntity<?> createOrbit(@Valid @RequestBody CreateOrbitWithStarSystemsDto orbit,
                                          @PathVariable Integer galaxyId) {
-        return ResponseEntity.ok(orbitService.createOrbit(galaxyId, orbit));
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(
+                        orbitService.createOrbit(galaxyId, orbit)
+                );
     }
 
-    @PutMapping("orbit/{orbitId}")
-    @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
+    @PutMapping("/orbit/{orbitId}")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).BIG_BROTHER)")
     @Operation(summary = "Update orbit by id", tags = "orbit")
     @ApiResponses(value = {
             @ApiResponse(
@@ -74,8 +79,8 @@ public class OrbitController {
         return ResponseEntity.ok(orbitService.updateOrbit(orbitId, orbit));
     }
 
-    @DeleteMapping("orbit/{orbitId}")
-    @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
+    @DeleteMapping("/orbit/{orbitId}")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).BIG_BROTHER)")
     @Operation(summary = "Delete orbit by id", tags = "orbit")
     @ApiResponses(value = {
             @ApiResponse(

@@ -3,7 +3,7 @@ package org.example.service.implementations;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.course.GetCourseDto;
 import org.example.exception.classes.connectEX.ConnectException;
-import org.example.repository.custom.AuthorizationHeaderRepository;
+import org.example.repository.AuthorizationHeaderRepository;
 import org.example.service.CourseService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -20,9 +20,13 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public GetCourseDto getCourseById(Integer courseId) {
         return webClientBuilder
-                .baseUrl("http://course-service/course-app/").build()
+                .baseUrl("http://course-service/api/v1/course-app/").build()
                 .get()
-                .uri("course/" + courseId + "/")
+                .uri(uri -> uri
+                        .path("course/{courseId}/")
+                        .queryParam("detailed", true)
+                        .build(courseId)
+                )
                 .header("Authorization", authorizationHeaderRepository.getAuthorizationHeader())
                 .retrieve()
                 .onStatus(HttpStatus::isError, response -> {

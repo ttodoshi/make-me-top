@@ -1,5 +1,0 @@
-spring:
-  application:
-    name: person-information-service
-  profiles:
-    default: local

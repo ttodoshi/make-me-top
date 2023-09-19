@@ -9,12 +9,6 @@ spring:
         url: http://admin-service/
         username: admin
         password: admin
-  kafka:
-    producer:
-      value-serializer: org.apache.kafka.common.serialization.IntegerSerializer
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-    template:
-      default-topic: galaxyCacheTopic
   jpa:
     properties:
       hibernate:

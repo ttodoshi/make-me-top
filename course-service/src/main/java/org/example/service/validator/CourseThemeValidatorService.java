@@ -6,10 +6,12 @@ import org.example.dto.theme.UpdateCourseThemeDto;
 import org.example.exception.classes.courseEX.CourseNotFoundException;
 import org.example.exception.classes.coursethemeEX.CourseThemeAlreadyExistsException;
 import org.example.exception.classes.coursethemeEX.CourseThemeNotFoundException;
-import org.example.exception.classes.coursethemeEX.ThemeClosedException;
-import org.example.repository.course.CourseRepository;
-import org.example.repository.course.CourseThemeRepository;
+import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
+import org.example.repository.CourseRepository;
+import org.example.repository.CourseThemeRepository;
+import org.example.repository.ExplorerRepository;
 import org.example.service.CourseProgressService;
+import org.example.service.PersonService;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,19 +24,27 @@ public class CourseThemeValidatorService {
     private final CourseRepository courseRepository;
     private final CourseThemeRepository courseThemeRepository;
 
+    private final ExplorerRepository explorerRepository;
     private final CourseProgressService courseProgressService;
+    private final PersonService personService;
 
     @Transactional(readOnly = true)
-    public void validateGetThemeRequest(Integer courseThemeId) {
-        if (!isThemeOpened(courseThemeId))
-            throw new ThemeClosedException(courseThemeId);
+    public void validateGetThemeRequest(Integer courseThemeId) { // TODO
+//        if (!isThemeOpened(courseThemeId))
+//            throw new ThemeClosedException(courseThemeId);
     }
 
     private boolean isThemeOpened(Integer themeId) {
         Integer courseId = courseRepository.getCourseIdByThemeId(themeId)
                 .orElseThrow(() -> new CourseThemeNotFoundException(themeId));
         List<CourseThemeCompletedDto> themesProgress = courseProgressService
-                .getCourseProgress(courseId)
+                .getCourseProgress(
+                        explorerRepository.findExplorerByPersonIdAndGroup_CourseId(
+                                        personService.getAuthenticatedPersonId(),
+                                        courseId
+                                ).orElseThrow(ExplorerNotFoundException::new)
+                                .getExplorerId()
+                )
                 .getThemesWithProgress();
         Optional<CourseThemeCompletedDto> themeCompletion = themesProgress
                 .stream()
@@ -45,6 +55,7 @@ public class CourseThemeValidatorService {
         ).getCompleted();
         return themeId.equals(getCurrentCourseThemeId(themesProgress)) || themeCompleted;
     }
+
 
     private Integer getCurrentCourseThemeId(List<CourseThemeCompletedDto> themesProgress) {
         for (CourseThemeCompletedDto planet : themesProgress) {

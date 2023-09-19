@@ -1,6 +1,5 @@
 package org.example.config.security.role;
 
-import org.example.model.AuthenticationRoleType;
 import org.springframework.stereotype.Component;
 
 @Component

@@ -18,12 +18,9 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
-import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -40,12 +37,10 @@ public class GalaxyInformationServiceImpl implements GalaxyInformationService {
     @Transactional(readOnly = true)
     public GetGalaxyInformationDto getGalaxyInformation(Galaxy galaxy) {
         List<StarSystem> systems = starSystemRepository.findSystemsByGalaxyId(galaxy.getGalaxyId());
-        Flux<GetCourseDto> fluxCourses = Flux.fromIterable(systems)
-                .flatMap(s -> Mono.fromCallable(
-                                () -> courseService.getCourseById(s.getSystemId()))
-                        .subscribeOn(Schedulers.boundedElastic())
-                );
-        List<GetCourseDto> courses = Objects.requireNonNull(fluxCourses.collectList().block());
+        List<GetCourseDto> courses = systems.stream()
+                .map(
+                        s -> courseService.getCourseById(s.getSystemId())
+                ).collect(Collectors.toList());
         List<PersonWithSystemsDto> explorers = explorerService.getExplorersWithSystems(courses);
         List<PersonWithSystemsDto> keepers = keeperService.getKeepersWithSystems(courses);
         return new GetGalaxyInformationDto(

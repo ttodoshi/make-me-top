@@ -1,20 +1,21 @@
 package org.example.service.validator;
 
 import lombok.RequiredArgsConstructor;
+import org.example.dto.explorer.ExplorerDto;
+import org.example.dto.explorer.ExplorerGroupDto;
+import org.example.dto.keeper.KeeperDto;
+import org.example.dto.person.PersonDto;
+import org.example.exception.classes.explorerEX.ExplorerGroupNotFoundException;
 import org.example.exception.classes.homeworkEX.HomeworkIsStillEditingException;
 import org.example.exception.classes.homeworkEX.HomeworkRequestAlreadyClosedException;
 import org.example.exception.classes.keeperEX.DifferentKeeperException;
 import org.example.exception.classes.keeperEX.KeeperNotFoundException;
 import org.example.exception.classes.requestEX.StatusNotFoundException;
-import org.example.model.Explorer;
-import org.example.model.ExplorerGroup;
-import org.example.model.Keeper;
-import org.example.model.Person;
-import org.example.model.homework.HomeworkRequest;
-import org.example.model.homework.HomeworkRequestStatusType;
+import org.example.model.HomeworkRequest;
+import org.example.model.HomeworkRequestStatusType;
 import org.example.repository.ExplorerGroupRepository;
+import org.example.repository.HomeworkRequestStatusRepository;
 import org.example.repository.KeeperRepository;
-import org.example.repository.homework.HomeworkRequestStatusRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,10 +28,10 @@ public class KeeperHomeworkRequestValidatorService {
     private final KeeperRepository keeperRepository;
 
     @Transactional(readOnly = true)
-    public void validateHomeworkRequest(Explorer explorer, HomeworkRequest homeworkRequest) {
-        ExplorerGroup explorerGroup = explorerGroupRepository
-                .getReferenceById(explorer.getGroupId());
-        Keeper keeper = keeperRepository
+    public void validateHomeworkRequest(ExplorerDto explorer, HomeworkRequest homeworkRequest) {
+        ExplorerGroupDto explorerGroup = explorerGroupRepository.findById(explorer.getGroupId())
+                .orElseThrow(() -> new ExplorerGroupNotFoundException(explorer.getGroupId()));
+        KeeperDto keeper = keeperRepository
                 .findKeeperByPersonIdAndCourseId(getAuthenticatedPersonId(), explorerGroup.getCourseId())
                 .orElseThrow(KeeperNotFoundException::new);
         if (!explorerGroup.getKeeperId().equals(keeper.getKeeperId()))
@@ -42,7 +43,7 @@ public class KeeperHomeworkRequestValidatorService {
     }
 
     private Integer getAuthenticatedPersonId() {
-        Person authenticatedPerson = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        PersonDto authenticatedPerson = (PersonDto) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return authenticatedPerson.getPersonId();
     }
 

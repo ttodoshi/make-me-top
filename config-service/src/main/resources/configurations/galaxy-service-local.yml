@@ -3,7 +3,13 @@ spring:
     password: pass
     driver-class-name: org.postgresql.Driver
     username: postgres
-    url: jdbc:postgresql://localhost:5432/mmt
+    url: jdbc:postgresql://localhost:5432/galaxy_db
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
   kafka:
     bootstrap-servers: http://localhost:9092
 eureka:

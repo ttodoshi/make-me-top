@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface PlanetRepository extends JpaRepository<Planet, Integer> {
     List<Planet> findPlanetsBySystemId(Integer systemId);
+
+    void deletePlanetsBySystemId(Integer systemId);
 }

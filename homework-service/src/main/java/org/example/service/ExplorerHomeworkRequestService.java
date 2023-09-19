@@ -1,23 +1,18 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.dto.explorer.ExplorerDto;
 import org.example.dto.homework.CreateHomeworkRequestDto;
 import org.example.dto.homework.GetHomeworkRequestDto;
+import org.example.dto.person.PersonDto;
 import org.example.exception.classes.coursethemeEX.CourseThemeNotFoundException;
 import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
+import org.example.exception.classes.homeworkEX.HomeworkNotFoundException;
 import org.example.exception.classes.requestEX.StatusNotFoundException;
-import org.example.model.Explorer;
-import org.example.model.Person;
-import org.example.model.homework.HomeworkFeedbackStatusType;
-import org.example.model.homework.HomeworkRequest;
-import org.example.model.homework.HomeworkRequestStatusType;
-import org.example.repository.ExplorerRepository;
-import org.example.repository.course.CourseRepository;
-import org.example.repository.course.CourseThemeRepository;
-import org.example.repository.homework.HomeworkFeedbackRepository;
-import org.example.repository.homework.HomeworkFeedbackStatusRepository;
-import org.example.repository.homework.HomeworkRequestRepository;
-import org.example.repository.homework.HomeworkRequestStatusRepository;
+import org.example.model.HomeworkFeedbackStatusType;
+import org.example.model.HomeworkRequest;
+import org.example.model.HomeworkRequestStatusType;
+import org.example.repository.*;
 import org.example.service.validator.ExplorerHomeworkRequestValidatorService;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -31,9 +26,9 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class ExplorerHomeworkRequestService {
+    private final HomeworkRepository homeworkRepository;
     private final HomeworkRequestRepository homeworkRequestRepository;
     private final ExplorerRepository explorerRepository;
-    private final CourseRepository courseRepository;
     private final CourseThemeRepository courseThemeRepository;
     private final HomeworkRequestStatusRepository homeworkRequestStatusRepository;
     private final HomeworkFeedbackRepository homeworkFeedbackRepository;
@@ -45,11 +40,14 @@ public class ExplorerHomeworkRequestService {
 
     @Transactional
     public HomeworkRequest sendHomeworkRequest(Integer homeworkId, CreateHomeworkRequestDto request) {
-        final Integer authenticatedPersonId = getAuthenticatedPersonId();
-        final Integer themeId = courseThemeRepository.getCourseThemeIdByHomeworkId(homeworkId);
-        final Integer courseId = courseRepository.getCourseIdByThemeId(themeId)
-                .orElseThrow(() -> new CourseThemeNotFoundException(themeId));
-        final Explorer explorer = getExplorer(authenticatedPersonId, courseId);
+        Integer authenticatedPersonId = getAuthenticatedPersonId();
+        Integer themeId = homeworkRepository.findById(homeworkId)
+                .orElseThrow(() -> new HomeworkNotFoundException(homeworkId))
+                .getCourseThemeId();
+        Integer courseId = courseThemeRepository.findById(themeId)
+                .orElseThrow(() -> new CourseThemeNotFoundException(themeId))
+                .getCourseId();
+        ExplorerDto explorer = getExplorer(authenticatedPersonId, courseId);
         Optional<HomeworkRequest> homeworkRequestOptional = homeworkRequestRepository
                 .findHomeworkRequestByHomeworkIdAndExplorerId(homeworkId, explorer.getExplorerId());
         if (homeworkRequestOptional.isPresent()) {
@@ -66,12 +64,12 @@ public class ExplorerHomeworkRequestService {
     }
 
     private Integer getAuthenticatedPersonId() {
-        final Person authenticatedPerson = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        final PersonDto authenticatedPerson = (PersonDto) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return authenticatedPerson.getPersonId();
     }
 
-    private Explorer getExplorer(Integer personId, Integer courseId) {
-        return explorerRepository.findExplorerByPersonIdAndCourseId(personId, courseId)
+    private ExplorerDto getExplorer(Integer personId, Integer courseId) {
+        return explorerRepository.findExplorerByPersonIdAndGroup_CourseId(personId, courseId)
                 .orElseThrow(() -> new ExplorerNotFoundException(courseId));
     }
 
@@ -107,9 +105,10 @@ public class ExplorerHomeworkRequestService {
     public List<GetHomeworkRequestDto> getHomeworkRequests(Integer themeId) {
         explorerHomeworkRequestValidatorService.validateGetHomeworkRequests(themeId);
         Integer personId = getAuthenticatedPersonId();
-        Integer courseId = courseRepository.getCourseIdByThemeId(themeId)
-                .orElseThrow(() -> new CourseThemeNotFoundException(themeId));
-        Explorer explorer = explorerRepository.findExplorerByPersonIdAndCourseId(personId, courseId)
+        Integer courseId = courseThemeRepository.findById(themeId)
+                .orElseThrow(() -> new CourseThemeNotFoundException(themeId))
+                .getCourseId();
+        ExplorerDto explorer = explorerRepository.findExplorerByPersonIdAndGroup_CourseId(personId, courseId)
                 .orElseThrow(() -> new ExplorerNotFoundException(courseId));
         return homeworkRequestRepository
                 .findOpenedHomeworkRequestsByThemeId(themeId, explorer.getExplorerId())

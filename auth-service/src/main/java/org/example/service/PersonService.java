@@ -1,8 +1,7 @@
 package org.example.service;
 
-import org.example.dto.LoginRequestDto;
-import org.example.model.Person;
+import org.example.dto.AuthResponseEmployeeDto;
 
 public interface PersonService {
-    Person authenticatePerson(LoginRequestDto loginRequestDto);
+    void savePersonIfNotExists(AuthResponseEmployeeDto authResponseEmployee);
 }

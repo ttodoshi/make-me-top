@@ -6,7 +6,7 @@ import lombok.*;
 @EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
 @NoArgsConstructor
-public class ExplorerWithRatingDto extends ExplorerDto implements Comparable<ExplorerWithRatingDto> {
+public class ExplorerWithRatingDto extends ExplorerBaseInfoDto implements Comparable<ExplorerWithRatingDto> {
     private Double rating;
 
     @Override

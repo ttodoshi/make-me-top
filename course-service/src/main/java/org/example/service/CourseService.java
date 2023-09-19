@@ -1,65 +1,69 @@
 package org.example.service;
 
-import lombok.RequiredArgsConstructor;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.example.config.security.RoleService;
+import org.example.config.security.role.AuthenticationRoleType;
 import org.example.dto.course.UpdateCourseDto;
 import org.example.dto.event.CourseCreateEvent;
 import org.example.dto.explorer.ExplorerWithRatingDto;
-import org.example.dto.keeper.CreateKeeperDto;
 import org.example.dto.keeper.KeeperWithRatingDto;
 import org.example.dto.starsystem.StarSystemDto;
 import org.example.exception.classes.courseEX.CourseNotFoundException;
-import org.example.model.Keeper;
-import org.example.model.Person;
-import org.example.model.course.Course;
-import org.example.model.role.AuthenticationRoleType;
-import org.example.repository.ExplorerRepository;
-import org.example.repository.KeeperRepository;
-import org.example.repository.PersonRepository;
-import org.example.repository.course.CourseRepository;
+import org.example.model.Course;
+import org.example.repository.CourseRepository;
+import org.example.repository.StarSystemRepository;
 import org.example.service.validator.CourseValidatorService;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class CourseService {
     private final CourseRepository courseRepository;
-    private final KeeperRepository keeperRepository;
-    private final ExplorerRepository explorerRepository;
-    private final PersonRepository personRepository;
+    private final StarSystemRepository starSystemRepository;
 
-    private final StarSystemService starSystemService;
-    private final RatingService ratingService;
+    private final ExplorerService explorerService;
+    private final KeeperService keeperService;
     private final CourseValidatorService courseValidatorService;
     private final RoleService roleService;
+    private final PersonService personService;
 
-    private final KafkaTemplate<String, Integer> kafkaTemplate;
     private final ModelMapper mapper;
 
+    private final KafkaTemplate<Integer, String> updateSystemKafkaTemplate;
+
+    public CourseService(CourseRepository courseRepository, StarSystemRepository starSystemRepository, ExplorerService explorerService, KeeperService keeperService, CourseValidatorService courseValidatorService, RoleService roleService, PersonService personService, ModelMapper mapper, @Qualifier("updateSystemKafkaTemplate") KafkaTemplate<Integer, String> updateSystemKafkaTemplate) {
+        this.courseRepository = courseRepository;
+        this.starSystemRepository = starSystemRepository;
+        this.explorerService = explorerService;
+        this.keeperService = keeperService;
+        this.courseValidatorService = courseValidatorService;
+        this.roleService = roleService;
+        this.personService = personService;
+        this.mapper = mapper;
+        this.updateSystemKafkaTemplate = updateSystemKafkaTemplate;
+    }
+
+    public Course getCourse(Integer courseId) {
+        return courseRepository.findById(courseId)
+                .orElseThrow(() -> new CourseNotFoundException(courseId));
+    }
+
     @Transactional(readOnly = true)
-    public Map<String, Object> getCourse(Integer courseId) {
+    public Map<String, Object> getDetailedCourseInfo(Integer courseId) {
         Map<String, Object> response = new LinkedHashMap<>();
-        response.put("course", courseRepository.findById(courseId)
-                .orElseThrow(() -> new CourseNotFoundException(courseId)));
-        Integer authenticatedPersonId = getAuthenticatedPersonId();
-        List<ExplorerWithRatingDto> explorers = getExplorersForCourse(courseId);
-        Collections.sort(explorers);
-        List<KeeperWithRatingDto> keepers = getKeepersForCourse(courseId);
-        Collections.sort(keepers);
+        response.put("course", getCourse(courseId));
+        Integer authenticatedPersonId = personService.getAuthenticatedPersonId();
+        List<ExplorerWithRatingDto> explorers = explorerService.getExplorersForCourse(courseId);
+        List<KeeperWithRatingDto> keepers = keeperService.getKeepersForCourse(courseId);
         if (roleService.hasAnyAuthenticationRole(AuthenticationRoleType.EXPLORER)) {
             explorers.stream()
                     // if person is studying on course
@@ -67,9 +71,12 @@ public class CourseService {
                     .findAny()
                     .ifPresent(e -> {
                         response.put("you", e);
-                        KeeperWithRatingDto yourKeeper = mapper.map(keeperRepository.getKeeperForExplorer(e.getExplorerId()), KeeperWithRatingDto.class);
-                        yourKeeper.setRating(ratingService.getKeeperRating(yourKeeper.getPersonId()));
-                        response.put("yourKeeper", yourKeeper);
+                        response.put("yourKeeper",
+                                keeperService
+                                        .getKeeperForExplorer(
+                                                e.getExplorerId(),
+                                                keepers
+                                        ).orElse(null));
                     });
         }
         response.put("explorers", explorers);
@@ -77,41 +84,17 @@ public class CourseService {
         return response;
     }
 
-    private List<ExplorerWithRatingDto> getExplorersForCourse(Integer courseId) {
-        Flux<ExplorerWithRatingDto> fluxExplorers = Flux.fromIterable(explorerRepository.findExplorersByCourseId(courseId))
-                .flatMap(e -> Mono.fromCallable(
-                                        () -> {
-                                            ExplorerWithRatingDto explorer = mapper.map(e, ExplorerWithRatingDto.class);
-                                            explorer.setRating(ratingService.getExplorerRating(e.getPersonId()));
-                                            return explorer;
-                                        }
-                                )
-                                .subscribeOn(Schedulers.boundedElastic())
-                );
-        return fluxExplorers.collectList().block();
-    }
-
-    private List<KeeperWithRatingDto> getKeepersForCourse(Integer courseId) {
-        Flux<KeeperWithRatingDto> fluxKeepers = Flux.fromIterable(keeperRepository.findKeepersByCourseId(courseId))
-                .flatMap(k -> Mono.fromCallable(
-                                        () -> {
-                                            KeeperWithRatingDto keeper = mapper.map(k, KeeperWithRatingDto.class);
-                                            keeper.setRating(ratingService.getExplorerRating(k.getPersonId()));
-                                            return keeper;
-                                        }
-                                )
-                                .subscribeOn(Schedulers.boundedElastic())
-                );
-        return fluxKeepers.collectList().block();
-    }
-
-    private Integer getAuthenticatedPersonId() {
-        final Person authenticatedPerson = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return authenticatedPerson.getPersonId();
+    public Map<Integer, Course> findCoursesByCourseIdIn(List<Integer> courseIds) {
+        return courseRepository.findCoursesByCourseIdIn(courseIds)
+                .stream()
+                .collect(Collectors.toMap(
+                        Course::getCourseId,
+                        c -> c
+                ));
     }
 
     public List<Course> getCoursesByGalaxyId(Integer galaxyId) {
-        List<Integer> systems = starSystemService.getSystemsByGalaxyId(galaxyId)
+        List<Integer> systems = starSystemRepository.getSystemsByGalaxyId(galaxyId)
                 .stream()
                 .mapToInt(StarSystemDto::getSystemId)
                 .boxed().collect(Collectors.toList());
@@ -121,39 +104,35 @@ public class CourseService {
                 .collect(Collectors.toList());
     }
 
-    @KafkaListener(topics = "courseTopic", containerFactory = "courseKafkaListenerContainerFactory")
+    @KafkaListener(topics = "createCourseTopic", containerFactory = "createCourseKafkaListenerContainerFactory")
     public void createCourse(CourseCreateEvent course) {
         courseRepository.save(mapper.map(course, Course.class));
+    }
+
+    @KafkaListener(topics = "updateCourseTopic", containerFactory = "updateCourseKafkaListenerContainerFactory")
+    public void updateCourseTitle(ConsumerRecord<Integer, String> record) {
+        Course course = courseRepository.findById(record.key())
+                .orElseThrow(() -> new CourseNotFoundException(record.key()));
+        course.setTitle(record.value());
+        courseRepository.save(course);
     }
 
     public Course updateCourse(Integer galaxyId, Integer courseId, UpdateCourseDto course) {
         Course updatedCourse = courseRepository.findById(courseId)
                 .orElseThrow(() -> new CourseNotFoundException(courseId));
         courseValidatorService.validatePutRequest(galaxyId, courseId, updatedCourse);
-        return courseRepository.save(
-                updatedCourse
-                        .withTitle(course.getTitle())
-                        .withDescription(course.getDescription())
-        );
+        updatedCourse.setTitle(course.getTitle());
+        updatedCourse.setDescription(course.getDescription());
+        updateSystemName(courseId, course.getTitle());
+        return courseRepository.save(updatedCourse);
     }
 
-    @Transactional
-    public Keeper setKeeperToCourse(Integer courseId, CreateKeeperDto createKeeperDto) {
-        courseValidatorService.validateSetKeeperRequest(courseId, createKeeperDto);
-        sendGalaxyCacheRefreshMessage(courseId);
-        setDefaultExplorersValue(createKeeperDto.getPersonId());
-        return keeperRepository.save(
-                Keeper.builder()
-                        .courseId(courseId)
-                        .personId(createKeeperDto.getPersonId())
-                        .build());
+    private void updateSystemName(Integer courseId, String title) {
+        updateSystemKafkaTemplate.send("updateSystemTopic", courseId, title);
     }
 
-    private void setDefaultExplorersValue(Integer personId) {
-        personRepository.getReferenceById(personId).setMaxExplorers(3);
-    }
-
-    private void sendGalaxyCacheRefreshMessage(Integer courseId) {
-        kafkaTemplate.send("galaxyCacheTopic", courseId);
+    @KafkaListener(topics = "deleteCourseTopic", containerFactory = "deleteCourseKafkaListenerContainerFactory")
+    public void deleteCourse(Integer courseId) {
+        courseRepository.deleteById(courseId);
     }
 }

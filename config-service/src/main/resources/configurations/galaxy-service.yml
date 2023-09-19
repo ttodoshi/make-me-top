@@ -9,12 +9,6 @@ spring:
         url: http://admin-service/
         username: admin
         password: admin
-  kafka:
-    producer:
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-    template:
-      default-topic: courseTopic
   jpa:
     properties:
       hibernate:

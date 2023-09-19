@@ -9,13 +9,13 @@ import java.util.List;
 public interface DependencyRepository extends JpaRepository<SystemDependency, Integer> {
     @Query(value = "WITH RECURSIVE r AS (\n" +
             "   SELECT dependency_id,child_id, parent_id, is_alternative\n" +
-            "   FROM galaxy.system_dependency\n" +
+            "   FROM system_dependency\n" +
             "   WHERE parent_id = ?1\n" +
             "\n" +
             "   UNION\n" +
             "\n" +
             "   SELECT system_dependency.dependency_id, system_dependency.child_id, system_dependency.parent_id, system_dependency.is_alternative\n" +
-            "   FROM galaxy.system_dependency\n" +
+            "   FROM system_dependency\n" +
             "      JOIN r\n" +
             "          ON system_dependency.child_id = r.parent_id\n" +
             ")\n" +
@@ -27,13 +27,13 @@ public interface DependencyRepository extends JpaRepository<SystemDependency, In
 
     @Query(value = "WITH RECURSIVE r AS (\n" +
             "   SELECT dependency_id,child_id, parent_id, is_alternative\n" +
-            "   FROM galaxy.system_dependency\n" +
+            "   FROM system_dependency\n" +
             "   WHERE child_id = ?1\n" +
             "\n" +
             "   UNION\n" +
             "\n" +
             "   SELECT system_dependency.dependency_id, system_dependency.child_id, system_dependency.parent_id, system_dependency.is_alternative\n" +
-            "   FROM galaxy.system_dependency\n" +
+            "   FROM system_dependency\n" +
             "      JOIN r\n" +
             "          ON system_dependency.child_id = r.parent_id\n" +
             ")\n" +
@@ -42,9 +42,9 @@ public interface DependencyRepository extends JpaRepository<SystemDependency, In
             "WHERE child_id = ?1", nativeQuery = true)
     List<SystemDependency> getSystemParents(Integer id);
 
-    @Query(value = "SELECT * FROM galaxy.system_dependency WHERE child_id=?1 and parent_id = ?2", nativeQuery = true)
+    @Query(value = "SELECT * FROM system_dependency WHERE child_id=?1 and parent_id = ?2", nativeQuery = true)
     SystemDependency getSystemDependencyByChildIDAndParentId(Integer childId, Integer parentId);
 
-    @Query(value = "SELECT * FROM galaxy.system_dependency WHERE child_id=?1 and parent_id ISNULL", nativeQuery = true)
+    @Query(value = "SELECT * FROM system_dependency WHERE child_id=?1 and parent_id ISNULL", nativeQuery = true)
     SystemDependency getSystemDependencyByChildIdAndParentNull(Integer childId);
 }

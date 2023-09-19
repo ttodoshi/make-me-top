@@ -61,6 +61,7 @@ services:
       - .:/docker-entrypoint-initdb.d
     depends_on:
       - kafka
+    command: postgres -c 'max_connections=1000'
     ports:
       - "5432:5432"
     networks:
@@ -82,8 +83,8 @@ services:
         ipv4_address: 10.10.0.13
     restart: unless-stopped
 
-  app_discovery_service:
-    container_name: app_discovery_service_container
+  discovery_server:
+    container_name: discovery_server_container
     build: ./discovery-service
     ports:
       - "8761:8761"
@@ -94,7 +95,7 @@ services:
       retries: 5
       start_period: 10s
     depends_on:
-      app_config_service:
+      config_server:
         condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: docker
@@ -102,8 +103,8 @@ services:
       postgres:
         ipv4_address: 10.10.0.12
 
-  app_config_service:
-    container_name: app_config_service_container
+  config_server:
+    container_name: config_server_container
     build: ./config-service
     ports:
       - "8888:8888"
@@ -118,13 +119,13 @@ services:
     networks:
       postgres:
         ipv4_address: 10.10.0.11
-  app_admin_service:
-    container_name: app_admin_service_container
+  admin_service:
+    container_name: admin_service_container
     build: ./admin-service
     ports:
       - "8108:8108"
     depends_on:
-      app_discovery_service:
+      discovery_server:
         condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: docker
@@ -132,26 +133,67 @@ services:
       postgres:
         ipv4_address: 10.10.0.17
 
-  app_galaxy:
-    container_name: app_galaxy_container
+  person_service:
+    container_name: person_service_container
+    build: ./person-service
+    ports:
+      - "8110:8110"
+    depends_on:
+      discovery_server:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    networks:
+      postgres:
+        ipv4_address: 10.10.0.19
+
+  explorer_service:
+    container_name: explorer_service_container
+    build: ./explorer-service
+    ports:
+      - "8104:8104"
+    depends_on:
+      discovery_server:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    networks:
+      postgres:
+        ipv4_address: 10.10.0.4
+  keeper_service:
+    container_name: keeper_service_container
+    build: ./keeper-service
+    ports:
+      - "8105:8105"
+    depends_on:
+      discovery_server:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    networks:
+      postgres:
+        ipv4_address: 10.10.0.5
+
+  galaxy_service:
+    container_name: galaxy_service_container
     build: ./galaxy-service
     ports:
       - "8101:8101"
     depends_on:
-      app_discovery_service:
+      discovery_server:
         condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: docker
     networks:
       postgres:
         ipv4_address: 10.10.0.8
-  app_planet:
-    container_name: app_planet_container
+  planet_service:
+    container_name: planet_service_container
     build: ./planet-service
     ports:
       - "8102:8102"
     depends_on:
-      app_discovery_service:
+      discovery_server:
         condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: docker
@@ -159,13 +201,13 @@ services:
       postgres:
         ipv4_address: 10.10.0.7
 
-  app_auth:
-    container_name: app_auth_container
+  auth_service:
+    container_name: auth_service_container
     build: ./auth-service
     ports:
       - "8103:8103"
     depends_on:
-      app_discovery_service:
+      discovery_server:
         condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: docker
@@ -173,13 +215,13 @@ services:
       postgres:
         ipv4_address: 10.10.0.6
 
-  app_course:
-    container_name: app_course_container
+  course_service:
+    container_name: course_service_container
     build: ./course-service
     ports:
       - "8106:8106"
     depends_on:
-      app_discovery_service:
+      discovery_server:
         condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: docker
@@ -187,52 +229,27 @@ services:
       postgres:
         ipv4_address: 10.10.0.9
 
-  app_person_information:
-    container_name: app_person_information_container
-    build: ./person-information-service
+  course_registration_service:
+    container_name: course_registration_service_container
+    build: ./course-registration-service
     ports:
       - "8107:8107"
     depends_on:
-      app_discovery_service:
+      discovery_server:
         condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: docker
     networks:
       postgres:
         ipv4_address: 10.10.0.10
-  app_explorer_personal_cabinet:
-    container_name: app_explorer_personal_cabinet_container
-    build: ./explorer-personal-cabinet-service
-    ports:
-      - "8104:8104"
-    depends_on:
-      app_discovery_service:
-        condition: service_healthy
-    environment:
-      SPRING_PROFILES_ACTIVE: docker
-    networks:
-      postgres:
-        ipv4_address: 10.10.0.4
-  app_keeper_personal_cabinet:
-    container_name: app_keeper_personal_cabinet_container
-    build: ./keeper-personal-cabinet-service
-    ports:
-      - "8105:8105"
-    depends_on:
-      app_discovery_service:
-        condition: service_healthy
-    environment:
-      SPRING_PROFILES_ACTIVE: docker
-    networks:
-      postgres:
-        ipv4_address: 10.10.0.5
-  app_homework:
-    container_name: app_homework_container
+
+  homework_service:
+    container_name: homework_service_container
     build: ./homework-service
     ports:
       - "8109:8109"
     depends_on:
-      app_discovery_service:
+      discovery_server:
         condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: docker
@@ -240,13 +257,41 @@ services:
       postgres:
         ipv4_address: 10.10.0.18
 
-  app_gateway:
-    container_name: app_gateway_container
+  progress_service:
+    container_name: progress_service_container
+    build: ./progress-service
+    ports:
+      - "8111:8111"
+    depends_on:
+      discovery_server:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    networks:
+      postgres:
+        ipv4_address: 10.10.0.20
+
+  feedback_service:
+    container_name: feedback_service_container
+    build: ./feedback-service
+    ports:
+      - "8112:8112"
+    depends_on:
+      discovery_server:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    networks:
+      postgres:
+        ipv4_address: 10.10.0.21
+
+  gateway:
+    container_name: gateway_container
     build: ./gateway-service
     ports:
       - "4401:4401"
     depends_on:
-      app_discovery_service:
+      discovery_server:
         condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: docker

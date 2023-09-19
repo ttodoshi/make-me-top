@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: person-service
+  profiles:
+    default: local

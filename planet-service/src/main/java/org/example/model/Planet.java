@@ -6,7 +6,7 @@ import lombok.Data;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "planet", schema = "galaxy")
+@Table(name = "planet")
 @Data
 public class Planet {
     @Id
@@ -14,7 +14,5 @@ public class Planet {
     private Integer planetId;
     private String planetName;
     private Integer planetNumber;
-    @JoinTable(name = "star_system")
-    @JoinColumn(name = "system_id")
     private Integer systemId;
 }

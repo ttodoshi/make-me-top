@@ -1,13 +1,17 @@
 package org.example.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.ToString;
-import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
-@Table(name = "star_system", schema = "galaxy")
+@Table(name = "star_system")
 @Data
 @ToString
 public class StarSystem {
@@ -17,8 +21,18 @@ public class StarSystem {
     private String systemName;
     private Integer systemLevel;
     private Integer systemPosition;
-    @JoinColumn(table = "orbit", name = "orbit_id")
-    @Cascade(org.hibernate.annotations.CascadeType.ALL)
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "orbit_id", nullable = false, insertable = false, updatable = false)
+    @JsonIgnore
+    private Orbit orbit;
+    @Column(name = "orbit_id")
     private Integer orbitId;
-
+    @OneToMany(mappedBy = "child", cascade = CascadeType.ALL)
+    @JsonBackReference
+    @ToString.Exclude
+    private List<SystemDependency> children;
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
+    @JsonBackReference
+    @ToString.Exclude
+    private List<SystemDependency> parents;
 }

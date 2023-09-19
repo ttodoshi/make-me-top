@@ -1,9 +1,10 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.orbit.OrbitDto;
+import org.example.dto.message.MessageDto;
 import org.example.dto.orbit.CreateOrbitWithStarSystemsDto;
 import org.example.dto.orbit.GetOrbitWithStarSystemsDto;
+import org.example.dto.orbit.OrbitDto;
 import org.example.dto.starsystem.GetStarSystemWithDependenciesDto;
 import org.example.exception.classes.orbitEX.OrbitNotFoundException;
 import org.example.model.Orbit;
@@ -17,9 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -79,11 +78,9 @@ public class OrbitService {
     }
 
     @CacheEvict(cacheNames = "galaxiesCache", key = "@orbitService.getOrbitById(#orbitId).galaxyId", beforeInvocation = true)
-    public Map<String, String> deleteOrbit(Integer orbitId) {
+    public MessageDto deleteOrbit(Integer orbitId) {
         orbitValidatorService.validateDeleteRequest(orbitId);
         orbitRepository.deleteById(orbitId);
-        Map<String, String> response = new HashMap<>();
-        response.put("message", "Орбита " + orbitId + " была уничтожена неизвестным оружием инопланетной цивилизации");
-        return response;
+        return new MessageDto("Орбита " + orbitId + " была уничтожена неизвестным оружием инопланетной цивилизации");
     }
 }

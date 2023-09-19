@@ -1,7 +1,10 @@
 package org.example.service;
 
-public interface RatingService {
-    Double getExplorerRating(Integer personId);
+import java.util.List;
+import java.util.Map;
 
-    Double getKeeperRating(Integer personId);
+public interface RatingService {
+    Map<Integer, Double> getPeopleRatingAsKeeperByPersonIdIn(List<Integer> personIds);
+
+    Map<Integer, Double> getPeopleRatingAsExplorerByPersonIdIn(List<Integer> personIds);
 }

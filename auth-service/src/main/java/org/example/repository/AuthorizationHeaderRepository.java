@@ -3,5 +3,5 @@ package org.example.repository;
 public interface AuthorizationHeaderRepository {
     String getAuthorizationHeader();
 
-    void setAuthorizationHeader(String header);
+    void setAuthorizationHeader(String token);
 }

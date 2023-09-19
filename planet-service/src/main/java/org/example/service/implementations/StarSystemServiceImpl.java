@@ -21,9 +21,12 @@ public class StarSystemServiceImpl implements StarSystemService {
     @Override
     public void checkSystemExists(Integer systemId) {
         webClientBuilder
-                .baseUrl("http://galaxy-service/galaxy-app/").build()
+                .baseUrl("http://galaxy-service/api/v1/galaxy-app/").build()
                 .get()
-                .uri("system/" + systemId)
+                .uri(uri -> uri
+                        .path("system/{systemId}/")
+                        .build(systemId)
+                )
                 .header("Authorization", authorizationHeaderRepository.getAuthorizationHeader())
                 .retrieve()
                 .onStatus(HttpStatus.NOT_FOUND::equals, response -> {

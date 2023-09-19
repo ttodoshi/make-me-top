@@ -7,13 +7,9 @@ import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
 import org.example.exception.classes.homeworkEX.HomeworkRequestNotFound;
 import org.example.exception.classes.markEX.UnexpectedMarkValueException;
 import org.example.exception.classes.requestEX.StatusNotFoundException;
-import org.example.model.Explorer;
-import org.example.model.homework.*;
-import org.example.repository.ExplorerRepository;
-import org.example.repository.homework.HomeworkFeedbackRepository;
-import org.example.repository.homework.HomeworkFeedbackStatusRepository;
-import org.example.repository.homework.HomeworkRequestRepository;
-import org.example.repository.homework.HomeworkRequestStatusRepository;
+import org.example.dto.explorer.ExplorerDto;
+import org.example.model.*;
+import org.example.repository.*;
 import org.example.service.validator.KeeperHomeworkRequestValidatorService;
 import org.springframework.stereotype.Service;
 
@@ -50,7 +46,7 @@ public class KeeperHomeworkRequestService {
     }
 
     private HomeworkRequest changeRequestStatus(Integer homeworkId, Integer explorerId, HomeworkRequestStatusType status) {
-        Explorer explorer = explorerRepository.findById(explorerId)
+        ExplorerDto explorer = explorerRepository.findById(explorerId)
                 .orElseThrow(ExplorerNotFoundException::new);
         HomeworkRequest homeworkRequest = homeworkRequestRepository
                 .findHomeworkRequestByHomeworkIdAndExplorerId(homeworkId, explorerId)

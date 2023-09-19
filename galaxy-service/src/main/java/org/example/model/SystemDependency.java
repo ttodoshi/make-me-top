@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "system_dependency", schema = "galaxy")
+@Table(name = "system_dependency")
 @Data
 @NoArgsConstructor
 public class SystemDependency {

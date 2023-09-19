@@ -6,7 +6,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
-import org.example.model.Person;
+import org.example.dto.PersonDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -20,8 +20,8 @@ public class JwtServiceImpl implements JwtService {
     private String SECRET_KEY;
 
     @Override
-    public String generateToken(Person person, String role) {
-        Claims claims = Jwts.claims().setSubject(person.getPersonId().toString());
+    public String generateToken(Integer personId, String role) {
+        Claims claims = Jwts.claims().setSubject(String.valueOf(personId));
         claims.put("role", role);
         Date now = new Date();
         Date kill = new Date(now.getTime() + 43200 * 1000);
@@ -46,7 +46,7 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public boolean isTokenValid(String jwtToken, Person person) {
+    public boolean isTokenValid(String jwtToken, PersonDto person) {
         final String id = extractId(jwtToken);
         return id.equals(person.getPersonId().toString()) && !isTokenExpired(jwtToken);
     }
