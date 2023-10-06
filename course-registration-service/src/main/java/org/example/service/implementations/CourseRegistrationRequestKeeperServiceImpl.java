@@ -106,9 +106,10 @@ public class CourseRegistrationRequestKeeperServiceImpl implements CourseRegistr
 
     @Override
     public List<CourseRegistrationRequestKeeper> findCourseRegistrationRequestKeepersByRequestId(Integer requestId) {
-        if (courseRegistrationRequestRepository.existsById(requestId))
-            courseRegistrationRequestKeeperRepository.findCourseRegistrationRequestKeepersByRequestId(requestId);
-        throw new RequestNotFoundException(requestId);
+        if (!courseRegistrationRequestRepository.existsById(requestId)) {
+                throw new RequestNotFoundException(requestId);
+        }
+        return courseRegistrationRequestKeeperRepository.findCourseRegistrationRequestKeepersByRequestId(requestId);
     }
 
     @Override

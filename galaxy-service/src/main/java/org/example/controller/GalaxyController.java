@@ -33,7 +33,7 @@ public class GalaxyController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> getAllGalaxies(@RequestParam Boolean detailed) {
+    public ResponseEntity<?> getAllGalaxies(@RequestParam(required = false) Boolean detailed) {
         if (detailed != null && detailed)
             return ResponseEntity.ok(galaxyService.getAllGalaxiesDetailed());
         return ResponseEntity.ok(galaxyService.getAllGalaxies());

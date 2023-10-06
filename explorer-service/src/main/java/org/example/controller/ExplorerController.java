@@ -124,7 +124,7 @@ public class ExplorerController {
         return ResponseEntity.ok(explorerService.findExplorersByGroup_CourseIdIn(courseIds));
     }
 
-    @DeleteMapping("/explorer/{explorerId}")
+    @DeleteMapping("/explorers/{explorerId}")
     @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).EXPLORER) && " +
             "@roleService.isPersonExplorer(#explorerId)")
     @Operation(summary = "Delete explorer by id", tags = "explorer")
