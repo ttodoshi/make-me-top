@@ -8,8 +8,9 @@ import org.example.exception.classes.courseEX.CourseNotFoundException;
 import org.example.exception.classes.courseEX.CourseNotFoundInGalaxyException;
 import org.example.exception.classes.coursethemeEX.CourseThemeAlreadyExistsException;
 import org.example.exception.classes.coursethemeEX.CourseThemeNotFoundException;
+import org.example.exception.classes.coursethemeEX.ThemeClosedException;
+import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
 import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
-import org.example.exception.classes.homeworkEX.HomeworkNotFoundException;
 import org.example.exception.classes.personEX.PersonNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -125,14 +126,20 @@ public class ErrorHandler {
         return handleConnectException(new ConnectException());
     }
 
-    @ExceptionHandler(HomeworkNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleHomeworkNotFoundException(Exception e) {
+    @ExceptionHandler(CourseNotFoundInGalaxyException.class)
+    public ResponseEntity<ErrorResponse> handleCourseNotFoundInGalaxyException(Exception e) {
         logWarning(e);
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(CourseNotFoundInGalaxyException.class)
-    public ResponseEntity<ErrorResponse> handleCourseNotFoundInGalaxyException(Exception e) {
+    @ExceptionHandler(ThemeClosedException.class)
+    public ResponseEntity<ErrorResponse> handleThemeClosedException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(ExplorerNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleExplorerNotFoundException(Exception e) {
         logWarning(e);
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
     }

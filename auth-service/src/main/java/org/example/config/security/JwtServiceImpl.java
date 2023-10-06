@@ -6,15 +6,8 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
-import org.example.exception.classes.personEX.RoleNotAvailableException;
-import org.example.model.AuthenticationRoleType;
-import org.example.model.GeneralRole;
-import org.example.model.GeneralRoleType;
-import org.example.model.Person;
-import org.example.repository.GeneralRoleRepository;
+import org.example.dto.PersonDto;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -22,16 +15,13 @@ import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor
-public class JwtServiceImpl implements JwtServiceInterface {
-    private final GeneralRoleRepository generalRoleRepository;
+public class JwtServiceImpl implements JwtService {
     @Value("${secret-key}")
     private String SECRET_KEY;
 
     @Override
-    public String generateToken(Person person, String role) {
-        Claims claims = Jwts.claims().setSubject(person.getPersonId().toString());
-        if (!isRoleAvailable(person, role))
-            throw new RoleNotAvailableException();
+    public String generateToken(Integer personId, String role) {
+        Claims claims = Jwts.claims().setSubject(String.valueOf(personId));
         claims.put("role", role);
         Date now = new Date();
         Date kill = new Date(now.getTime() + 43200 * 1000);
@@ -42,29 +32,6 @@ public class JwtServiceImpl implements JwtServiceInterface {
                 .signWith(Keys.hmacShaKeyFor(
                         Decoders.BASE64.decode(SECRET_KEY)))
                 .compact();
-    }
-
-    private boolean isRoleAvailable(Person person, String role) {
-        if (role.equals(AuthenticationRoleType.EXPLORER.name()))
-            return true;
-        else if (role.equals(AuthenticationRoleType.KEEPER.name()) &&
-                canBeKeeper(person.getPersonId()))
-            return true;
-        else return role.equals(GeneralRoleType.BIG_BROTHER.name()) &&
-                    isBigBrother(person.getPersonId());
-    }
-
-    // TODO
-    private boolean canBeKeeper(Integer personId) {
-        return true;
-    }
-
-    private boolean isBigBrother(Integer personId) {
-        for (GeneralRole role : generalRoleRepository.getRolesForPerson(personId)) {
-            if (role.getName().equals(GeneralRoleType.BIG_BROTHER))
-                return true;
-        }
-        return false;
     }
 
     @Override
@@ -78,7 +45,8 @@ public class JwtServiceImpl implements JwtServiceInterface {
         return claimsResolver.apply(claims);
     }
 
-    public boolean isTokenValid(String jwtToken, Person person) {
+    @Override
+    public boolean isTokenValid(String jwtToken, PersonDto person) {
         final String id = extractId(jwtToken);
         return id.equals(person.getPersonId().toString()) && !isTokenExpired(jwtToken);
     }
@@ -91,6 +59,7 @@ public class JwtServiceImpl implements JwtServiceInterface {
         return extractClaim(jwtToken, Claims::getExpiration);
     }
 
+    @Override
     public String extractRole(String jwtToken) {
         return extractAllClaims(jwtToken).get("role", String.class);
     }

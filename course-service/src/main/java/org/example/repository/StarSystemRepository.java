@@ -1,7 +1,9 @@
 package org.example.repository;
 
-import org.example.dto.starsystem.StarSystemDTO;
+import org.example.dto.starsystem.StarSystemDto;
+
+import java.util.List;
 
 public interface StarSystemRepository {
-    StarSystemDTO[] getSystemsByGalaxyId(Integer galaxyId);
+    List<StarSystemDto> getSystemsByGalaxyId(Integer galaxyId);
 }

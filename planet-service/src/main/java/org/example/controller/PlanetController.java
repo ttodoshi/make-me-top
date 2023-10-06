@@ -5,9 +5,10 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.example.dto.planet.PlanetCreateRequest;
-import org.example.dto.planet.PlanetUpdateRequest;
+import org.example.dto.planet.CreatePlanetDto;
+import org.example.dto.planet.UpdatePlanetDto;
 import org.example.service.PlanetService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -17,13 +18,29 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("/planet-app/")
+@RequestMapping("/api/v1/planet-app")
 @RequiredArgsConstructor
 @Validated
 public class PlanetController {
     private final PlanetService planetService;
 
-    @GetMapping("system/{systemId}/planet")
+    @GetMapping("/planet")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Get planets by system id in", tags = "planet")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Requested planets",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json")
+                    })
+    })
+    public ResponseEntity<?> findPlanetsBySystemIdIn(@RequestParam List<Integer> systemIds) {
+        return ResponseEntity.ok(planetService.findPlanetsBySystemIdIn(systemIds));
+    }
+
+    @GetMapping("/systems/{systemId}/planets")
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get planets by system id", tags = "planet")
     @ApiResponses(value = {
@@ -39,8 +56,8 @@ public class PlanetController {
         return ResponseEntity.ok(planetService.getPlanetsListBySystemId(systemId));
     }
 
-    @PostMapping("system/{systemId}/planet")
-    @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
+    @PostMapping("/system/{systemId}/planet")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).BIG_BROTHER)")
     @Operation(summary = "Create planets", tags = "planet")
     @ApiResponses(value = {
             @ApiResponse(
@@ -51,13 +68,17 @@ public class PlanetController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> addPlanets(@RequestBody List<@Valid PlanetCreateRequest> planetList,
+    public ResponseEntity<?> addPlanets(@RequestBody List<@Valid CreatePlanetDto> planetList,
                                         @PathVariable Integer systemId) {
-        return ResponseEntity.ok(planetService.addPlanets(systemId, planetList));
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(
+                        planetService.addPlanets(systemId, planetList)
+                );
     }
 
-    @PutMapping("planet/{planetId}")
-    @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
+    @PutMapping("/planet/{planetId}")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).BIG_BROTHER)")
     @Operation(summary = "Update planet", tags = "planet")
     @ApiResponses(value = {
             @ApiResponse(
@@ -69,12 +90,12 @@ public class PlanetController {
                     })
     })
     public ResponseEntity<?> updatePlanetById(@PathVariable("planetId") Integer planetId,
-                                              @Valid @RequestBody PlanetUpdateRequest planet) {
+                                              @Valid @RequestBody UpdatePlanetDto planet) {
         return ResponseEntity.ok(planetService.updatePlanet(planetId, planet));
     }
 
-    @DeleteMapping("planet/{planetId}")
-    @PreAuthorize("@roleService.hasAnyGeneralRole(T(org.example.model.GeneralRoleType).BIG_BROTHER)")
+    @DeleteMapping("/planet/{planetId}")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).BIG_BROTHER)")
     @Operation(summary = "Delete planet", tags = "planet")
     @ApiResponses(value = {
             @ApiResponse(

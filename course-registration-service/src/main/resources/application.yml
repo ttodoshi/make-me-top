@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: course-registration-service
+  profiles:
+    default: local

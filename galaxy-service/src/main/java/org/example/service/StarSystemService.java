@@ -1,30 +1,30 @@
 package org.example.service;
 
-import lombok.RequiredArgsConstructor;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.example.config.mapper.DependencyMapper;
-import org.example.dto.starsystem.StarSystemCreateRequest;
-import org.example.dto.starsystem.StarSystemDTO;
-import org.example.dto.starsystem.StarSystemWithDependenciesGetResponse;
-import org.example.dto.starsystem.SystemDependencyModel;
 import org.example.dto.event.CourseCreateEvent;
+import org.example.dto.message.MessageDto;
+import org.example.dto.starsystem.CreateStarSystemDto;
+import org.example.dto.starsystem.GetStarSystemWithDependenciesDto;
+import org.example.dto.starsystem.StarSystemDto;
+import org.example.dto.starsystem.SystemDependencyModelDto;
 import org.example.exception.classes.systemEX.SystemNotFoundException;
 import org.example.model.StarSystem;
 import org.example.repository.DependencyRepository;
 import org.example.repository.StarSystemRepository;
 import org.example.service.validator.StarSystemValidatorService;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Service
-@RequiredArgsConstructor
 public class StarSystemService {
     private final StarSystemRepository starSystemRepository;
     private final DependencyRepository dependencyRepository;
@@ -33,14 +33,29 @@ public class StarSystemService {
     private final ModelMapper mapper;
     private final DependencyMapper dependencyMapper;
 
-    private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final KafkaTemplate<String, Object> createCourseKafkaTemplate;
+    private final KafkaTemplate<Integer, String> updateCourseKafkaTemplate;
+    private final KafkaTemplate<Integer, Integer> deleteCourseKafkaTemplate;
+    private final KafkaTemplate<Integer, Integer> deletePlanetsKafkaTemplate;
+
+    public StarSystemService(StarSystemRepository starSystemRepository, DependencyRepository dependencyRepository, StarSystemValidatorService starSystemValidatorService, ModelMapper mapper, DependencyMapper dependencyMapper, KafkaTemplate<String, Object> createCourseKafkaTemplate, KafkaTemplate<Integer, String> updateCourseKafkaTemplate, @Qualifier("deleteCourseKafkaTemplate") KafkaTemplate<Integer, Integer> deleteCourseKafkaTemplate, @Qualifier("deletePlanetsKafkaTemplate") KafkaTemplate<Integer, Integer> deletePlanetsKafkaTemplate) {
+        this.starSystemRepository = starSystemRepository;
+        this.dependencyRepository = dependencyRepository;
+        this.starSystemValidatorService = starSystemValidatorService;
+        this.mapper = mapper;
+        this.dependencyMapper = dependencyMapper;
+        this.createCourseKafkaTemplate = createCourseKafkaTemplate;
+        this.updateCourseKafkaTemplate = updateCourseKafkaTemplate;
+        this.deleteCourseKafkaTemplate = deleteCourseKafkaTemplate;
+        this.deletePlanetsKafkaTemplate = deletePlanetsKafkaTemplate;
+    }
 
     @Transactional(readOnly = true)
-    public StarSystemWithDependenciesGetResponse getStarSystemByIdWithDependencies(Integer systemId) {
+    public GetStarSystemWithDependenciesDto getStarSystemByIdWithDependencies(Integer systemId) {
         starSystemValidatorService.validateGetSystemWithDependencies(systemId);
-        StarSystemWithDependenciesGetResponse system = mapper.map(
-                starSystemRepository.getReferenceById(systemId), StarSystemWithDependenciesGetResponse.class);
-        List<SystemDependencyModel> dependencies = new LinkedList<>();
+        GetStarSystemWithDependenciesDto system = mapper.map(
+                starSystemRepository.getReferenceById(systemId), GetStarSystemWithDependenciesDto.class);
+        List<SystemDependencyModelDto> dependencies = new ArrayList<>();
         dependencyRepository.getSystemChildren(systemId)
                 .stream()
                 .map(dependencyMapper::dependencyToDependencyChildModel)
@@ -66,7 +81,7 @@ public class StarSystemService {
 
     @Transactional
     @CacheEvict(cacheNames = "galaxiesCache", key = "@orbitService.getOrbitById(#orbitId).galaxyId")
-    public StarSystem createSystem(Integer orbitId, StarSystemCreateRequest systemRequest) {
+    public StarSystem createSystem(Integer orbitId, CreateStarSystemDto systemRequest) {
         starSystemValidatorService.validatePostRequest(orbitId, systemRequest);
         StarSystem system = mapper.map(systemRequest, StarSystem.class);
         system.setOrbitId(orbitId);
@@ -75,26 +90,48 @@ public class StarSystemService {
         return savedSystem;
     }
 
-    public void createCourse(Integer courseId, StarSystemCreateRequest starSystem) {
-        kafkaTemplate.send("courseTopic", new CourseCreateEvent(courseId, starSystem.getSystemName(), starSystem.getDescription()));
+    public void createCourse(Integer courseId, CreateStarSystemDto starSystem) {
+        createCourseKafkaTemplate.send("createCourseTopic", new CourseCreateEvent(courseId, starSystem.getSystemName(), starSystem.getDescription()));
     }
 
-    public StarSystem updateSystem(Integer systemId, StarSystemDTO starSystem) {
+    @Transactional
+    public StarSystem updateSystem(Integer systemId, StarSystemDto starSystem) {
         starSystemValidatorService.validatePutRequest(systemId, starSystem);
         StarSystem updatedStarSystem = starSystemRepository.getReferenceById(systemId);
         updatedStarSystem.setSystemName(starSystem.getSystemName());
         updatedStarSystem.setSystemPosition(starSystem.getSystemPosition());
         updatedStarSystem.setOrbitId(starSystem.getOrbitId());
         updatedStarSystem.setSystemLevel(starSystem.getSystemLevel());
+        updateCourseTitle(systemId, starSystem.getSystemName());
         return starSystemRepository.save(updatedStarSystem);
     }
 
+    @KafkaListener(topics = "updateSystemTopic", containerFactory = "updateSystemKafkaListenerContainerFactory")
+    public void updateSystemName(ConsumerRecord<Integer, String> record) {
+        StarSystem starSystem = starSystemRepository.findById(record.key())
+                .orElseThrow(() -> new SystemNotFoundException(record.key()));
+        starSystem.setSystemName(record.value());
+        starSystemRepository.save(starSystem);
+    }
+
+    private void updateCourseTitle(Integer systemId, String systemName) {
+        updateCourseKafkaTemplate.send("updateCourseTopic", systemId, systemName);
+    }
+
     @CacheEvict(cacheNames = "galaxiesCache", key = "@orbitService.getOrbitById(@starSystemService.getStarSystemById(#systemId).orbitId).galaxyId", beforeInvocation = true)
-    public Map<String, String> deleteSystem(Integer systemId) {
+    public MessageDto deleteSystem(Integer systemId) {
         starSystemValidatorService.validateDeleteRequest(systemId);
         starSystemRepository.deleteById(systemId);
-        Map<String, String> response = new HashMap<>();
-        response.put("message", "Система " + systemId + " была уничтожена чёрной дырой");
-        return response;
+        deletePlanetsBySystemId(systemId);
+        deleteCourse(systemId);
+        return new MessageDto("Система " + systemId + " была уничтожена чёрной дырой");
+    }
+
+    private void deletePlanetsBySystemId(Integer systemId) {
+        deletePlanetsKafkaTemplate.send("deletePlanetsTopic", systemId);
+    }
+
+    private void deleteCourse(Integer systemId) {
+        deleteCourseKafkaTemplate.send("deleteCourseTopic", systemId);
     }
 }

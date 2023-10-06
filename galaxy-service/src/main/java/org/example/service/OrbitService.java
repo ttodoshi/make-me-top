@@ -1,11 +1,11 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.orbit.OrbitDTO;
-import org.example.dto.orbit.OrbitWithStarSystemsCreateRequest;
-import org.example.dto.orbit.OrbitWithStarSystemsGetResponse;
-import org.example.dto.starsystem.StarSystemCreateRequest;
-import org.example.dto.starsystem.StarSystemWithDependenciesGetResponse;
+import org.example.dto.message.MessageDto;
+import org.example.dto.orbit.CreateOrbitWithStarSystemsDto;
+import org.example.dto.orbit.GetOrbitWithStarSystemsDto;
+import org.example.dto.orbit.OrbitDto;
+import org.example.dto.starsystem.GetStarSystemWithDependenciesDto;
 import org.example.exception.classes.orbitEX.OrbitNotFoundException;
 import org.example.model.Orbit;
 import org.example.model.StarSystem;
@@ -17,10 +17,8 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -34,11 +32,11 @@ public class OrbitService {
     private final ModelMapper mapper;
 
     @Transactional(readOnly = true)
-    public OrbitWithStarSystemsGetResponse getOrbitWithSystemList(Integer orbitId) {
+    public GetOrbitWithStarSystemsDto getOrbitWithSystemList(Integer orbitId) {
         orbitValidatorService.validateGetWithSystemListRequest(orbitId);
-        OrbitWithStarSystemsGetResponse orbit = mapper.map(
-                orbitRepository.getReferenceById(orbitId), OrbitWithStarSystemsGetResponse.class);
-        List<StarSystemWithDependenciesGetResponse> systemWithDependenciesList = new LinkedList<>();
+        GetOrbitWithStarSystemsDto orbit = mapper.map(
+                orbitRepository.getReferenceById(orbitId), GetOrbitWithStarSystemsDto.class);
+        List<GetStarSystemWithDependenciesDto> systemWithDependenciesList = new ArrayList<>();
         starSystemRepository.findStarSystemsByOrbitId(orbitId).forEach(
                 s -> systemWithDependenciesList.add(
                         systemService.getStarSystemByIdWithDependencies(s.getSystemId())
@@ -55,21 +53,22 @@ public class OrbitService {
 
     @Transactional
     @CacheEvict(cacheNames = "galaxiesCache", key = "#galaxyId")
-    public OrbitWithStarSystemsGetResponse createOrbit(Integer galaxyId, OrbitWithStarSystemsCreateRequest orbitRequest) {
+    public GetOrbitWithStarSystemsDto createOrbit(Integer galaxyId, CreateOrbitWithStarSystemsDto orbitRequest) {
         orbitValidatorService.validatePostRequest(galaxyId, orbitRequest);
         Orbit orbit = mapper.map(orbitRequest, Orbit.class);
         orbit.setGalaxyId(galaxyId);
         Orbit savedOrbit = orbitRepository.save(orbit);
-        for (StarSystemCreateRequest currentSystem : orbitRequest.getSystemList()) {
-            StarSystem system = mapper.map(currentSystem, StarSystem.class);
-            system.setOrbitId(savedOrbit.getOrbitId());
-            StarSystem savedSystem = starSystemRepository.save(system);
-            systemService.createCourse(savedSystem.getSystemId(), currentSystem);
-        }
+        orbitRequest.getSystemList().forEach(s -> {
+                    StarSystem system = mapper.map(s, StarSystem.class);
+                    system.setOrbitId(savedOrbit.getOrbitId());
+                    StarSystem savedSystem = starSystemRepository.save(system);
+                    systemService.createCourse(savedSystem.getSystemId(), s);
+                }
+        );
         return getOrbitWithSystemList(savedOrbit.getOrbitId());
     }
 
-    public Orbit updateOrbit(Integer orbitId, OrbitDTO orbit) {
+    public Orbit updateOrbit(Integer orbitId, OrbitDto orbit) {
         orbitValidatorService.validatePutRequest(orbitId, orbit);
         Orbit updatedOrbit = orbitRepository.findById(orbitId).orElseThrow(() -> new OrbitNotFoundException(orbitId));
         updatedOrbit.setOrbitLevel(orbit.getOrbitLevel());
@@ -79,11 +78,9 @@ public class OrbitService {
     }
 
     @CacheEvict(cacheNames = "galaxiesCache", key = "@orbitService.getOrbitById(#orbitId).galaxyId", beforeInvocation = true)
-    public Map<String, String> deleteOrbit(Integer orbitId) {
+    public MessageDto deleteOrbit(Integer orbitId) {
         orbitValidatorService.validateDeleteRequest(orbitId);
         orbitRepository.deleteById(orbitId);
-        Map<String, String> response = new HashMap<>();
-        response.put("message", "Орбита " + orbitId + " была уничтожена неизвестным оружием инопланетной цивилизации");
-        return response;
+        return new MessageDto("Орбита " + orbitId + " была уничтожена неизвестным оружием инопланетной цивилизации");
     }
 }

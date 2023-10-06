@@ -1,18 +1,20 @@
 package org.example.repository;
 
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+import javax.servlet.http.HttpServletRequest;
 
 @Component
 public class AuthorizationHeaderRepositoryImpl implements AuthorizationHeaderRepository {
-    private String authorizationHeader;
-
     @Override
     public String getAuthorizationHeader() {
-        return authorizationHeader;
-    }
-
-    @Override
-    public void setAuthorizationHeader(String authorizationHeader) {
-        this.authorizationHeader = authorizationHeader;
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (attributes != null) {
+            HttpServletRequest request = attributes.getRequest();
+            return request.getHeader("Authorization");
+        }
+        return "";
     }
 }

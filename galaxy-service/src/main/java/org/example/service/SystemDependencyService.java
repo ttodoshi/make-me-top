@@ -1,8 +1,9 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.dependency.DependencyCreateRequest;
-import org.example.dto.dependency.DependencyRequest;
+import org.example.dto.dependency.CreateDependencyDto;
+import org.example.dto.dependency.DependencyDto;
+import org.example.dto.message.MessageDto;
 import org.example.exception.classes.dependencyEX.DependencyNotFoundException;
 import org.example.exception.classes.systemEX.SystemNotFoundException;
 import org.example.model.SystemDependency;
@@ -12,10 +13,8 @@ import org.example.service.validator.SystemDependencyValidatorService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -26,9 +25,9 @@ public class SystemDependencyService {
     private final SystemDependencyValidatorService systemDependencyValidatorService;
 
     @Transactional
-    public List<SystemDependency> addDependency(List<DependencyCreateRequest> systemDependency) {
-        List<SystemDependency> dependencies = new LinkedList<>();
-        for (DependencyCreateRequest dependency : systemDependency) {
+    public List<SystemDependency> addDependency(List<CreateDependencyDto> systemDependency) {
+        List<SystemDependency> dependencies = new ArrayList<>();
+        for (CreateDependencyDto dependency : systemDependency) {
             systemDependencyValidatorService.validateDependency(dependency);
             dependencies.add(
                     dependencyRepository.save(
@@ -43,20 +42,18 @@ public class SystemDependencyService {
         return dependencies;
     }
 
-    public Map<String, String> deleteDependency(DependencyRequest dependency) {
+    public MessageDto deleteDependency(DependencyDto dependency) {
         Integer dependencyId = getDependencyId(dependency);
         dependencyRepository.deleteById(dependencyId);
-        Map<String, String> response = new HashMap<>();
-        response.put("message", "Зависимость " + dependencyId + " удалена");
-        return response;
+        return new MessageDto("Зависимость " + dependencyId + " удалена");
     }
 
-    private Integer getDependencyId(DependencyRequest dependencyRequest) {
+    private Integer getDependencyId(DependencyDto dependencyDto) {
         SystemDependency dependency;
-        if (dependencyRequest.getParentId() == null)
-            dependency = dependencyRepository.getSystemDependencyByChildIdAndParentNull(dependencyRequest.getChildId());
+        if (dependencyDto.getParentId() == null)
+            dependency = dependencyRepository.getSystemDependencyByChildIdAndParentNull(dependencyDto.getChildId());
         else
-            dependency = dependencyRepository.getSystemDependencyByChildIDAndParentId(dependencyRequest.getChildId(), dependencyRequest.getParentId());
+            dependency = dependencyRepository.getSystemDependencyByChildIDAndParentId(dependencyDto.getChildId(), dependencyDto.getParentId());
         if (dependency == null)
             throw new DependencyNotFoundException();
         return dependency.getDependencyId();

@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: explorer-service
+  profiles:
+    default: local

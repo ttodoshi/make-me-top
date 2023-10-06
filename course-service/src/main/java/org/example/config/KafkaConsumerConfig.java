@@ -22,42 +22,107 @@ public class KafkaConsumerConfig {
     private String bootstrapAddress;
 
     @Bean
-    public ConsumerFactory<String, Object> courseFactory() {
+    public ConsumerFactory<String, Object> createCourseFactory() {
         Map<String, Object> properties = objectProperties();
         properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
         properties.put(JsonDeserializer.TYPE_MAPPINGS, "course:org.example.dto.event.CourseCreateEvent");
         return new DefaultKafkaConsumerFactory<>(properties);
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, Object> courseKafkaListenerContainerFactory() {
+    public ConcurrentKafkaListenerContainerFactory<String, Object> createCourseKafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, Object> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(courseFactory());
+        factory.setConsumerFactory(createCourseFactory());
         return factory;
     }
 
     @Bean
-    public ConsumerFactory<String, Object> themeFactory() {
+    public ConsumerFactory<Integer, String> updateCourseFactory() {
         Map<String, Object> properties = objectProperties();
         properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, IntegerDeserializer.class);
+        properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        return new DefaultKafkaConsumerFactory<>(properties);
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<Integer, String> updateCourseKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<Integer, String> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(updateCourseFactory());
+        return factory;
+    }
+
+    @Bean
+    public ConsumerFactory<Integer, Integer> deleteCourseFactory() {
+        Map<String, Object> properties = objectProperties();
+        properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, IntegerDeserializer.class);
+        properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, IntegerDeserializer.class);
+        return new DefaultKafkaConsumerFactory<>(properties);
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<Integer, Integer> deleteCourseKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<Integer, Integer> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(deleteCourseFactory());
+        return factory;
+    }
+
+    @Bean
+    public ConsumerFactory<String, Object> createThemeFactory() {
+        Map<String, Object> properties = objectProperties();
+        properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, IntegerDeserializer.class);
+        properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
         properties.put(JsonDeserializer.TYPE_MAPPINGS, "theme:org.example.dto.event.CourseThemeCreateEvent");
         return new DefaultKafkaConsumerFactory<>(properties);
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, Object> createThemeKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, Object> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(createThemeFactory());
+        return factory;
+    }
+
+    @Bean
+    public ConsumerFactory<Integer, String> updateThemeFactory() {
+        Map<String, Object> properties = objectProperties();
+        properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, IntegerDeserializer.class);
+        properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        return new DefaultKafkaConsumerFactory<>(properties);
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<Integer, String> updateThemeKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<Integer, String> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(updateThemeFactory());
+        return factory;
+    }
+
+    @Bean
+    public ConsumerFactory<Integer, Integer> deleteThemeFactory() {
+        Map<String, Object> properties = objectProperties();
+        properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, IntegerDeserializer.class);
+        properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, IntegerDeserializer.class);
+        return new DefaultKafkaConsumerFactory<>(properties);
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<Integer, Integer> deleteThemeKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<Integer, Integer> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(deleteThemeFactory());
+        return factory;
     }
 
     private Map<String, Object> objectProperties() {
         Map<String, Object> properties = new HashMap<>();
         properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
         properties.put(ConsumerConfig.GROUP_ID_CONFIG, "course");
-        properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
         return properties;
-    }
-
-    @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, Object> themeKafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, Object> factory =
-                new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(themeFactory());
-        return factory;
     }
 }

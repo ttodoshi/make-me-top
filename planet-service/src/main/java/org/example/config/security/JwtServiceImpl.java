@@ -6,9 +6,8 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
-import org.example.model.Person;
+import org.example.dto.person.PersonDto;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -16,8 +15,7 @@ import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor
-@ConfigurationProperties("config")
-public class JwtServiceImpl implements JwtServiceInterface {
+public class JwtServiceImpl implements JwtService {
     @Value("${secret-key}")
     private String SECRET_KEY;
 
@@ -32,7 +30,8 @@ public class JwtServiceImpl implements JwtServiceInterface {
         return claimsResolver.apply(claims);
     }
 
-    public boolean isTokenValid(String jwtToken, Person person) {
+    @Override
+    public boolean isTokenValid(String jwtToken, PersonDto person) {
         final String id = extractId(jwtToken);
         return id.equals(person.getPersonId().toString()) && !isTokenExpired(jwtToken);
     }
@@ -45,6 +44,7 @@ public class JwtServiceImpl implements JwtServiceInterface {
         return extractClaim(jwtToken, Claims::getExpiration);
     }
 
+    @Override
     public String extractRole(String jwtToken) {
         return extractAllClaims(jwtToken).get("role", String.class);
     }
