@@ -1,5 +1,6 @@
 package org.example.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -11,7 +12,11 @@ import javax.persistence.*;
 public class PersonRole {
     @Id
     private Integer personId;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "role_id", nullable = false, insertable = false, updatable = false)
+    @JsonIgnore
+    private GeneralRole role;
     @Id
-    @JoinColumn(table = "role", name = "role_id")
+    @Column(name = "role_id")
     private Integer roleId;
 }
