@@ -1,5 +1,6 @@
 package org.example.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -13,11 +14,19 @@ public class HomeworkFeedback {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer feedbackId;
-    @JoinColumn(table = "homework_request", name = "request_id")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "request_id", nullable = false, insertable = false, updatable = false)
+    @JsonIgnore
+    private HomeworkRequest request;
+    @Column(name = "request_id")
     private Integer requestId;
     @Column(columnDefinition = "TEXT")
     private String comment;
-    @JoinColumn(table = "homework_feedback_status", name = "status_id")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "status_id", nullable = false, insertable = false, updatable = false)
+    @JsonIgnore
+    private HomeworkFeedbackStatus status;
+    @Column(name = "status_id")
     private Integer statusId;
 
     public HomeworkFeedback(Integer requestId, String comment, Integer statusId) {
