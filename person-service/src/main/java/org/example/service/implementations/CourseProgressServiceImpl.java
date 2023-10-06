@@ -49,7 +49,7 @@ public class CourseProgressServiceImpl implements CourseProgressService {
             return currentCourseProgressOptional;
         ExplorerDto currentSystemExplorer = currentSystemExplorerOptional.get();
         CourseWithThemesProgressDto courseProgress = getCourseProgress(currentSystemExplorer.getExplorerId());
-        double progress = Math.ceil(getCourseProgressValue(courseProgress) * 10) / 10;
+        double progress = getCourseProgressValue(courseProgress);
         Integer currentThemeId = getCurrentCourseThemeId(courseProgress);
         CourseThemeDto currentTheme = courseThemeRepository.getReferenceById(currentThemeId);
         CourseDto currentCourse = courseRepository.getReferenceById(courseProgress.getCourseId());
@@ -111,7 +111,7 @@ public class CourseProgressServiceImpl implements CourseProgressService {
         List<CourseThemeCompletedDto> themesWithProgress = courseProgress.getThemesWithProgress();
         int totalThemes = themesWithProgress.size();
         long completedThemes = themesWithProgress.stream().filter(CourseThemeCompletedDto::getCompleted).count();
-        return Math.ceil((double) completedThemes / totalThemes * 10) / 10;
+        return Math.ceil((double) completedThemes / totalThemes * 10) / 10 * 100;
     }
 
     private Integer getCurrentCourseThemeId(CourseWithThemesProgressDto courseProgress) {

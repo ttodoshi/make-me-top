@@ -6,5 +6,4 @@ public interface ExplorerValidatorService {
     void validateGetExplorersByCourseIdRequest(Integer courseId);
 
     void validateDeleteExplorerByIdRequest(Integer explorerId);
-
 }

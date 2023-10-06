@@ -4,7 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -12,5 +15,6 @@ import javax.validation.constraints.NotNull;
 public class CreateCourseRegistrationRequestDto {
     @NotNull
     private Integer courseId;
-    private Integer keeperId;
+    @NotEmpty
+    private List<@Valid Integer> keeperIds;
 }

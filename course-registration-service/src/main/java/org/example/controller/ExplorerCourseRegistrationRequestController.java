@@ -10,6 +10,7 @@ import org.example.service.ExplorerCourseRegistrationRequestService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -17,6 +18,7 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping("/api/v1/course-registration-app/course-request")
 @RequiredArgsConstructor
+@Validated
 public class ExplorerCourseRegistrationRequestController {
     private final ExplorerCourseRegistrationRequestService explorerCourseRegistrationRequestService;
 

@@ -2,7 +2,6 @@ package org.example.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.dto.courserequest.CreateCourseRegistrationRequestDto;
-import org.example.dto.keeper.KeeperDto;
 import org.example.dto.message.MessageDto;
 import org.example.exception.classes.requestEX.RequestNotFoundException;
 import org.example.exception.classes.requestEX.StatusNotFoundException;
@@ -10,7 +9,10 @@ import org.example.model.CourseRegistrationRequest;
 import org.example.model.CourseRegistrationRequestKeeper;
 import org.example.model.CourseRegistrationRequestKeeperStatusType;
 import org.example.model.CourseRegistrationRequestStatusType;
-import org.example.repository.*;
+import org.example.repository.CourseRegistrationRequestKeeperRepository;
+import org.example.repository.CourseRegistrationRequestKeeperStatusRepository;
+import org.example.repository.CourseRegistrationRequestRepository;
+import org.example.repository.CourseRegistrationRequestStatusRepository;
 import org.example.service.validator.ExplorerCourseRegistrationRequestValidatorService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,7 +24,6 @@ public class ExplorerCourseRegistrationRequestService {
     private final CourseRegistrationRequestStatusRepository courseRegistrationRequestStatusRepository;
     private final CourseRegistrationRequestKeeperRepository courseRegistrationRequestKeeperRepository;
     private final CourseRegistrationRequestKeeperStatusRepository courseRegistrationRequestKeeperStatusRepository;
-    private final KeeperRepository keeperRepository;
 
     private final PersonService personService;
     private final ExplorerCourseRegistrationRequestValidatorService explorerCourseRegistrationRequestValidatorService;
@@ -31,36 +32,20 @@ public class ExplorerCourseRegistrationRequestService {
     public CourseRegistrationRequest sendRequest(CreateCourseRegistrationRequestDto request) {
         Integer authenticatedPersonId = personService.getAuthenticatedPersonId();
         explorerCourseRegistrationRequestValidatorService.validateSendRequest(authenticatedPersonId, request);
-        if (request.getKeeperId() == null)
-            return sendRequestToAllKeepers(authenticatedPersonId, request.getCourseId());
-        return sendRequestToKeeper(authenticatedPersonId, request);
+        return sendRequestToKeepers(authenticatedPersonId, request);
     }
 
-    private CourseRegistrationRequest sendRequestToAllKeepers(Integer personId, Integer courseId) {
-        CourseRegistrationRequest request = sendRequest(personId, courseId);
-        Integer processingStatusId = getRequestKeeperProcessingStatus();
-        for (KeeperDto keeper : keeperRepository.findKeepersByCourseId(courseId)) {
-            courseRegistrationRequestKeeperRepository.save(
-                    new CourseRegistrationRequestKeeper(
-                            request.getRequestId(),
-                            keeper.getKeeperId(),
-                            processingStatusId
-                    )
-            );
-        }
-        return request;
-    }
-
-    private CourseRegistrationRequest sendRequestToKeeper(Integer personId, CreateCourseRegistrationRequestDto request) {
+    private CourseRegistrationRequest sendRequestToKeepers(Integer personId, CreateCourseRegistrationRequestDto request) {
         CourseRegistrationRequest sentRequest = sendRequest(personId, request.getCourseId());
         Integer processingStatusId = getRequestKeeperProcessingStatus();
-        courseRegistrationRequestKeeperRepository.save(
-                new CourseRegistrationRequestKeeper(
-                        sentRequest.getRequestId(),
-                        request.getKeeperId(),
-                        processingStatusId
-                )
-        );
+        request.getKeeperIds().forEach(kId ->
+                courseRegistrationRequestKeeperRepository.save(
+                        new CourseRegistrationRequestKeeper(
+                                sentRequest.getRequestId(),
+                                kId,
+                                processingStatusId
+                        )
+                ));
         return sentRequest;
     }
 
