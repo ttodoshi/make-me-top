@@ -24,7 +24,7 @@ public class CourseRepositoryImpl implements CourseRepository {
                 .baseUrl("http://course-service/api/v1/course-app/").build()
                 .get()
                 .uri(uri -> uri
-                        .path("course/{courseId}/")
+                        .path("courses/{courseId}/")
                         .build(courseId)
                 )
                 .header("Authorization", authorizationHeaderRepository.getAuthorizationHeader())

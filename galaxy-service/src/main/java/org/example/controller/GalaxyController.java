@@ -21,7 +21,7 @@ import javax.validation.Valid;
 public class GalaxyController {
     private final GalaxyService galaxyService;
 
-    @GetMapping("/galaxy")
+    @GetMapping("/galaxies")
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get all galaxies", tags = "galaxy")
     @ApiResponses(value = {
@@ -39,7 +39,7 @@ public class GalaxyController {
         return ResponseEntity.ok(galaxyService.getAllGalaxies());
     }
 
-    @GetMapping("/galaxy/{galaxyId}")
+    @GetMapping("/galaxies/{galaxyId}")
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get galaxy by id", tags = "galaxy")
     @ApiResponses(value = {
@@ -108,7 +108,7 @@ public class GalaxyController {
         return ResponseEntity.ok(galaxyService.deleteGalaxy(galaxyId));
     }
 
-    @GetMapping("/system/{systemId}/galaxy")
+    @GetMapping("/systems/{systemId}/galaxies")
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get galaxy by system id", tags = "galaxy")
     @ApiResponses(value = {

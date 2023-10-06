@@ -22,7 +22,7 @@ import javax.validation.Valid;
 public class StarSystemController {
     private final StarSystemService starSystemService;
 
-    @GetMapping("/system/{systemId}")
+    @GetMapping("/systems/{systemId}")
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get system by id", tags = "system")
     @ApiResponses(value = {
@@ -42,7 +42,7 @@ public class StarSystemController {
             return ResponseEntity.ok(starSystemService.getStarSystemById(systemId));
     }
 
-    @GetMapping("/galaxy/{galaxyId}/system")
+    @GetMapping("/galaxies/{galaxyId}/systems")
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get systems by galaxy id", tags = "system")
     @ApiResponses(value = {
@@ -58,7 +58,7 @@ public class StarSystemController {
         return ResponseEntity.ok(starSystemService.getStarSystemsByGalaxyId(galaxyId));
     }
 
-    @PostMapping("/orbit/{orbitId}/system")
+    @PostMapping("/orbits/{orbitId}/systems")
     @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).BIG_BROTHER)")
     @Operation(summary = "Create system", tags = "system")
     @ApiResponses(value = {
@@ -80,7 +80,7 @@ public class StarSystemController {
     }
 
 
-    @PutMapping("/system/{systemId}")
+    @PutMapping("/systems/{systemId}")
     @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).BIG_BROTHER)")
     @Operation(summary = "Update system by id", tags = "system")
     @ApiResponses(value = {
@@ -97,7 +97,7 @@ public class StarSystemController {
         return ResponseEntity.ok(starSystemService.updateSystem(systemId, starSystem));
     }
 
-    @DeleteMapping("/system/{systemId}")
+    @DeleteMapping("/systems/{systemId}")
     @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).BIG_BROTHER)")
     @Operation(summary = "Delete system by id", tags = "system")
     @ApiResponses(value = {

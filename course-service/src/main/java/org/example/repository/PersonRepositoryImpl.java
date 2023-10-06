@@ -48,7 +48,7 @@ public class PersonRepositoryImpl implements PersonRepository {
                 .baseUrl("http://person-service/api/v1/person-app/").build()
                 .get()
                 .uri(uri -> uri
-                        .path("people/")
+                        .path("person/")
                         .queryParam("personIds", personIds)
                         .build()
                 )

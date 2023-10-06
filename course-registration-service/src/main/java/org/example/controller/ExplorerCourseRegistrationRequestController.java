@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 
 @RestController
-@RequestMapping("/api/v1/course-registration-app/course-request")
+@RequestMapping("/api/v1/course-registration-app/course-requests")
 @RequiredArgsConstructor
 @Validated
 public class ExplorerCourseRegistrationRequestController {

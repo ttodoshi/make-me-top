@@ -23,7 +23,7 @@ public class CourseServiceImpl implements CourseService {
                 .baseUrl("http://course-service/api/v1/course-app/").build()
                 .get()
                 .uri(uri -> uri
-                        .path("course/{courseId}/")
+                        .path("courses/{courseId}/")
                         .queryParam("detailed", true)
                         .build(courseId)
                 )

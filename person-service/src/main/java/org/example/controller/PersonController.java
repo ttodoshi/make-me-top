@@ -36,7 +36,7 @@ public class PersonController {
         return ResponseEntity.ok(personService.findPersonById(personId));
     }
 
-    @GetMapping("/people")
+    @GetMapping("/person")
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Find people by person id in", tags = "person")
     @ApiResponses(value = {

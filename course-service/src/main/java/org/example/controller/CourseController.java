@@ -20,7 +20,7 @@ import java.util.List;
 public class CourseController {
     private final CourseService courseService;
 
-    @GetMapping("/course/{courseId}")
+    @GetMapping("/courses/{courseId}")
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get course by course id", tags = "course")
     @ApiResponses(value = {

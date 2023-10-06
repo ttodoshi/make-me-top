@@ -44,7 +44,7 @@ public class GalaxyRepositoryImpl implements GalaxyRepository {
                 .baseUrl("http://galaxy-service/api/v1/galaxy-app/").build()
                 .get()
                 .uri(uri -> uri
-                        .path("system/{systemId}/galaxy/")
+                        .path("systems/{systemId}/galaxies/")
                         .build(systemId)
                 )
                 .header("Authorization", authorizationHeaderRepository.getAuthorizationHeader())

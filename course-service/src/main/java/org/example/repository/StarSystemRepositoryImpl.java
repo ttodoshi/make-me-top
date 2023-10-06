@@ -25,7 +25,7 @@ public class StarSystemRepositoryImpl implements StarSystemRepository {
                 .baseUrl("http://galaxy-service/api/v1/galaxy-app/").build()
                 .get()
                 .uri(uri -> uri
-                        .path("galaxy/{galaxyId}/system/")
+                        .path("galaxies/{galaxyId}/systems/")
                         .build(galaxyId)
                 )
                 .header("Authorization", authorizationHeaderRepository.getAuthorizationHeader())

@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/person-app/person")
+@RequestMapping("/api/v1/person-app/people")
 @RequiredArgsConstructor
 public class PersonListController {
     private final ExplorerListService explorerListService;

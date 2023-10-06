@@ -40,7 +40,7 @@ public class PlanetController {
         return ResponseEntity.ok(planetService.findPlanetsBySystemIdIn(systemIds));
     }
 
-    @GetMapping("/system/{systemId}/planet")
+    @GetMapping("/systems/{systemId}/planets")
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get planets by system id", tags = "planet")
     @ApiResponses(value = {
