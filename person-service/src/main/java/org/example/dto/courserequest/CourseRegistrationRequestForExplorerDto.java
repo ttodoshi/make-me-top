@@ -16,5 +16,5 @@ public class CourseRegistrationRequestForExplorerDto {
     private String courseTitle;
     private Integer galaxyId;
     private String galaxyName;
-    private List<KeeperBasicInfoDto> keeper;
+    private List<KeeperBasicInfoDto> keepers;
 }
