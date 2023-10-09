@@ -1,9 +1,9 @@
-package org.example.dto;
+package org.example.dto.mmtr;
 
 import lombok.Data;
 
 @Data
-public class TokenInfoDto {
+public class MmtrTokenInfoDto {
     private Long expiration;
     private Boolean isDeleted;
     private Integer employeeId;

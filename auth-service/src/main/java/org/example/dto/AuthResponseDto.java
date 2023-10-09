@@ -1,11 +1,17 @@
 package org.example.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.example.config.security.role.AuthenticationRoleType;
+import org.example.dto.token.AccessTokenDto;
+import org.example.dto.token.RefreshTokenDto;
 
 @Data
-@JsonIgnoreProperties(ignoreUnknown = true)
+@AllArgsConstructor
+@NoArgsConstructor
 public class AuthResponseDto {
-    private Boolean isSuccess;
-    private AuthResponseEmployeeDto object;
+    private AccessTokenDto accessToken;
+    private RefreshTokenDto refreshToken;
+    private String role;
 }

@@ -1,7 +1,7 @@
 package org.example.service;
 
-import org.example.dto.AuthResponseEmployeeDto;
+import org.example.dto.mmtr.MmtrAuthResponseEmployeeDto;
 
 public interface PersonService {
-    void savePersonIfNotExists(AuthResponseEmployeeDto authResponseEmployee);
+    void savePersonIfNotExists(MmtrAuthResponseEmployeeDto authResponseEmployee);
 }

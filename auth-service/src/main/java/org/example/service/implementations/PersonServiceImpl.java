@@ -1,7 +1,7 @@
 package org.example.service.implementations;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.AuthResponseEmployeeDto;
+import org.example.dto.mmtr.MmtrAuthResponseEmployeeDto;
 import org.example.dto.PersonDto;
 import org.example.dto.event.PersonCreateEvent;
 import org.example.repository.PersonRepository;
@@ -19,13 +19,13 @@ public class PersonServiceImpl implements PersonService {
     private final KafkaTemplate<Integer, Object> kafkaTemplate;
 
     @Override
-    public void savePersonIfNotExists(AuthResponseEmployeeDto employee) {
+    public void savePersonIfNotExists(MmtrAuthResponseEmployeeDto employee) {
         Optional<PersonDto> personOptional = personRepository.findById(employee.getEmployeeId());
         if (personOptional.isEmpty())
             createPerson(employee);
     }
 
-    private void createPerson(AuthResponseEmployeeDto employee) {
+    private void createPerson(MmtrAuthResponseEmployeeDto employee) {
         kafkaTemplate.send(
                 "personTopic",
                 employee.getEmployeeId(),

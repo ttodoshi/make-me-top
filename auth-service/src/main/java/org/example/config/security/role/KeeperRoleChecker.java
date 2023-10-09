@@ -1,6 +1,6 @@
 package org.example.config.security.role;
 
-import org.example.dto.AuthResponseEmployeeDto;
+import org.example.dto.mmtr.MmtrAuthResponseEmployeeDto;
 import org.example.exception.classes.connectEX.ConnectException;
 import org.example.repository.AuthorizationHeaderRepository;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -34,7 +34,7 @@ public class KeeperRoleChecker implements RoleChecker {
                         .getAuthorizationHeader())
                 .acceptCharset(StandardCharsets.UTF_8)
                 .retrieve()
-                .bodyToFlux(AuthResponseEmployeeDto.class)
+                .bodyToFlux(MmtrAuthResponseEmployeeDto.class)
                 .timeout(Duration.ofSeconds(5))
                 .onErrorResume(throwable -> {
                     throw new ConnectException();

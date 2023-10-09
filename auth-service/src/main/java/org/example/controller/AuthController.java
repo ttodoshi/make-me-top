@@ -8,10 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.dto.LoginRequestDto;
 import org.example.service.AuthService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -49,7 +46,22 @@ public class AuthController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> logout(HttpServletResponse response) {
-        return ResponseEntity.ok(authService.logout(response));
+    public ResponseEntity<?> logout(HttpServletResponse response, @CookieValue String refreshToken) {
+        return ResponseEntity.ok(authService.logout(response, refreshToken));
+    }
+
+    @PostMapping("/refresh")
+    @Operation(summary = "Refresh", tags = "authentication")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Refresh successful",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json")
+                    })
+    })
+    public ResponseEntity<?> refresh(HttpServletResponse response, @CookieValue String refreshToken) {
+        return ResponseEntity.ok(authService.refresh(response, refreshToken));
     }
 }

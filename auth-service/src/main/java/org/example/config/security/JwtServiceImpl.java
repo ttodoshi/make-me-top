@@ -7,6 +7,8 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.PersonDto;
+import org.example.dto.token.AccessTokenDto;
+import org.example.dto.token.RefreshTokenDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -16,22 +18,46 @@ import java.util.function.Function;
 @Service
 @RequiredArgsConstructor
 public class JwtServiceImpl implements JwtService {
-    @Value("${secret-key}")
-    private String SECRET_KEY;
+    @Value("${access-token-life-time-seconds}")
+    private Integer ACCESS_TOKEN_LIFE_TIME;
+    @Value("${refresh-token-life-time-seconds}")
+    private Integer REFRESH_TOKEN_LIFE_TIME;
+    @Value("${access-token-secret-key}")
+    private String ACCESS_TOKEN_SECRET_KEY;
+    @Value("${refresh-token-secret-key}")
+    private String REFRESH_TOKEN_SECRET_KEY;
 
     @Override
-    public String generateToken(Integer personId, String role) {
+    public AccessTokenDto generateAccessToken(Integer personId, String role) {
         Claims claims = Jwts.claims().setSubject(String.valueOf(personId));
         claims.put("role", role);
         Date now = new Date();
-        Date kill = new Date(now.getTime() + 43200 * 1000);
-        return Jwts.builder()
-                .setClaims(claims)
-                .setIssuedAt(now)
-                .setExpiration(kill)
-                .signWith(Keys.hmacShaKeyFor(
-                        Decoders.BASE64.decode(SECRET_KEY)))
-                .compact();
+        Date kill = new Date(now.getTime() + ACCESS_TOKEN_LIFE_TIME * 1000);
+        return new AccessTokenDto(
+                Jwts.builder()
+                        .setClaims(claims)
+                        .setIssuedAt(now)
+                        .setExpiration(kill)
+                        .signWith(Keys.hmacShaKeyFor(
+                                Decoders.BASE64.decode(ACCESS_TOKEN_SECRET_KEY)))
+                        .compact(),
+                kill
+        );
+    }
+
+    @Override
+    public RefreshTokenDto generateRefreshToken() {
+        Date now = new Date();
+        Date kill = new Date(now.getTime() + REFRESH_TOKEN_LIFE_TIME * 1000);
+        return new RefreshTokenDto(
+                Jwts.builder()
+                        .setIssuedAt(now)
+                        .setExpiration(kill)
+                        .signWith(Keys.hmacShaKeyFor(
+                                Decoders.BASE64.decode(REFRESH_TOKEN_SECRET_KEY)))
+                        .compact(),
+                kill
+        );
     }
 
     @Override
@@ -46,9 +72,14 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public boolean isTokenValid(String jwtToken, PersonDto person) {
+    public boolean isAccessTokenValid(String jwtToken, PersonDto person) {
         final String id = extractId(jwtToken);
         return id.equals(person.getPersonId().toString()) && !isTokenExpired(jwtToken);
+    }
+
+    @Override
+    public boolean isRefreshTokenValid(String jwtToken) {
+        return !isTokenExpired(jwtToken);
     }
 
     private boolean isTokenExpired(String jwtToken) {
@@ -67,7 +98,7 @@ public class JwtServiceImpl implements JwtService {
     private Claims extractAllClaims(String jwtToken) {
         return Jwts.parserBuilder()
                 .setSigningKey(Keys.hmacShaKeyFor(
-                        Decoders.BASE64.decode(SECRET_KEY)))
+                        Decoders.BASE64.decode(ACCESS_TOKEN_SECRET_KEY)))
                 .build()
                 .parseClaimsJws(jwtToken)
                 .getBody();

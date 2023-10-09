@@ -5,6 +5,7 @@ import org.example.exception.ErrorResponse;
 import org.example.exception.classes.connectEX.ConnectException;
 import org.example.exception.classes.personEX.PersonNotFoundException;
 import org.example.exception.classes.personEX.RoleNotAvailableException;
+import org.example.exception.classes.tokenEX.FailedRefreshException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -93,5 +94,11 @@ public class ErrorHandler {
     public ResponseEntity<ErrorResponse> handleTimeoutException(Exception e) {
         logError(e);
         return handleConnectException(new ConnectException());
+    }
+
+    @ExceptionHandler(FailedRefreshException.class)
+    public ResponseEntity<ErrorResponse> handleFailedRefreshException(Exception e) {
+        logError(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.UNAUTHORIZED.getReasonPhrase(), e.getMessage()), HttpStatus.UNAUTHORIZED);
     }
 }

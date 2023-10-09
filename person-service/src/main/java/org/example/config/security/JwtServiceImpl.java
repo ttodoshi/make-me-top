@@ -16,7 +16,7 @@ import java.util.function.Function;
 @Service
 @RequiredArgsConstructor
 public class JwtServiceImpl implements JwtService {
-    @Value("${secret-key}")
+    @Value("${access-token-secret-key}")
     private String SECRET_KEY;
 
     @Override

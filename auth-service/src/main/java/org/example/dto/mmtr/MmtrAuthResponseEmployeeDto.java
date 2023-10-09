@@ -1,12 +1,12 @@
-package org.example.dto;
+package org.example.dto.mmtr;
 
 import lombok.Data;
 
 @Data
-public class AuthResponseEmployeeDto {
+public class MmtrAuthResponseEmployeeDto {
     private String firstName;
     private String lastName;
     private String patronymic;
     private Integer employeeId;
-    private TokenInfoDto userToken;
+    private MmtrTokenInfoDto userToken;
 }
