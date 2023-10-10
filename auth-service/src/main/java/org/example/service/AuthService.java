@@ -17,13 +17,11 @@ import org.example.repository.AuthorizationHeaderRepository;
 import org.example.repository.RefreshTokenInfoRepository;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.MediaType;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Date;
@@ -42,8 +40,6 @@ public class AuthService {
 
     @Value("${mmtr-auth-url}")
     private String MMTR_AUTH_URL;
-    @Value("${refresh-token-life-time-seconds}")
-    private Integer REFRESH_TOKEN_LIFE_TIME;
 
     public AuthService(RefreshTokenInfoRepository refreshTokenInfoRepository, PersonService personService,
                        @Qualifier("authorizationHeaderRepository") AuthorizationHeaderRepository authorizationHeaderRepository,
@@ -59,7 +55,7 @@ public class AuthService {
         this.roleCheckerMap = roleCheckerMap;
     }
 
-    public AuthResponseDto login(LoginRequestDto request, HttpServletResponse response) {
+    public AuthResponseDto login(LoginRequestDto request) {
         MmtrAuthResponseDto authResponse = authenticatePerson(request);
         if (!isRoleAvailable(authResponse.getObject().getEmployeeId(), request.getRole()))
             throw new RoleNotAvailableException();
@@ -79,7 +75,6 @@ public class AuthService {
         );
         authorizationHeaderRepository.setAuthorizationHeader("Bearer " + accessToken.getAccessToken());
         personService.savePersonIfNotExists(authResponse.getObject());
-        response.addCookie(generateRefreshTokenCookie(refreshToken.getRefreshToken()));
         return new AuthResponseDto(
                 accessToken,
                 refreshToken,
@@ -121,28 +116,16 @@ public class AuthService {
         return roleCheckerMap.containsKey(role) && roleCheckerMap.get(role).isRoleAvailable(personId);
     }
 
-    private Cookie generateRefreshTokenCookie(String refreshToken) {
-        Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
-        refreshTokenCookie.setMaxAge(REFRESH_TOKEN_LIFE_TIME);
-        refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setPath("/");
-        return refreshTokenCookie;
-    }
-
     @Transactional
-    public AuthResponseDto refresh(HttpServletResponse response, String refreshTokenValue) {
+    public AuthResponseDto refresh(String refreshTokenValue) {
         if (refreshTokenValue == null || !jwtGenerator.isRefreshTokenValid(refreshTokenValue))
             throw new FailedRefreshException();
         RefreshTokenInfo refreshTokenInfo = refreshTokenInfoRepository
                 .findRefreshTokenInfoByRefreshToken(refreshTokenValue)
-                .orElseThrow(() -> {
-                    deleteRefreshTokenCookie(response);
-                    return new FailedRefreshException();
-                });
+                .orElseThrow(FailedRefreshException::new);
         RefreshTokenDto newRefreshToken = jwtGenerator.generateRefreshToken();
         refreshTokenInfo.setRefreshToken(newRefreshToken.getRefreshToken());
         refreshTokenInfo.setExpirationTime(newRefreshToken.getExpirationTime());
-        response.addCookie(generateRefreshTokenCookie(newRefreshToken.getRefreshToken()));
         return new AuthResponseDto(
                 jwtGenerator.generateAccessToken(
                         refreshTokenInfo.getPersonId(),
@@ -153,17 +136,8 @@ public class AuthService {
         );
     }
 
-    public MessageDto logout(HttpServletResponse response, String refreshToken) {
-        deleteRefreshTokenCookie(response);
+    public MessageDto logout(String refreshToken) {
         refreshTokenInfoRepository.deleteRefreshTokenInfoByRefreshToken(refreshToken);
         return new MessageDto("Выход успешный");
-    }
-
-    private void deleteRefreshTokenCookie(HttpServletResponse response) {
-        Cookie refreshTokenCookie = new Cookie("refreshToken", "");
-        refreshTokenCookie.setMaxAge(0);
-        refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setHttpOnly(true);
-        response.addCookie(refreshTokenCookie);
     }
 }

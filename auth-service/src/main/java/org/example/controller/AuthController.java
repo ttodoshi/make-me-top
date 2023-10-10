@@ -10,7 +10,6 @@ import org.example.service.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 @RestController
@@ -30,9 +29,8 @@ public class AuthController {
                                     mediaType = "*")
                     })
     })
-    public ResponseEntity<?> login(@Valid @RequestBody LoginRequestDto loginRequestDto,
-                                   HttpServletResponse response) {
-        return ResponseEntity.ok(authService.login(loginRequestDto, response));
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequestDto loginRequestDto) {
+        return ResponseEntity.ok(authService.login(loginRequestDto));
     }
 
     @PostMapping("/logout")
@@ -46,8 +44,8 @@ public class AuthController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> logout(HttpServletResponse response, @CookieValue String refreshToken) {
-        return ResponseEntity.ok(authService.logout(response, refreshToken));
+    public ResponseEntity<?> logout(@RequestBody String refreshToken) {
+        return ResponseEntity.ok(authService.logout(refreshToken));
     }
 
     @PostMapping("/refresh")
@@ -61,7 +59,7 @@ public class AuthController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> refresh(HttpServletResponse response, @CookieValue String refreshToken) {
-        return ResponseEntity.ok(authService.refresh(response, refreshToken));
+    public ResponseEntity<?> refresh(@RequestBody String refreshToken) {
+        return ResponseEntity.ok(authService.refresh(refreshToken));
     }
 }
