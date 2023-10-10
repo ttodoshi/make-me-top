@@ -136,6 +136,7 @@ public class AuthService {
         );
     }
 
+    @Transactional
     public MessageDto logout(String refreshToken) {
         refreshTokenInfoRepository.deleteRefreshTokenInfoByRefreshToken(refreshToken);
         return new MessageDto("Выход успешный");
