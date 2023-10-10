@@ -142,6 +142,7 @@ public class AuthService {
         RefreshTokenDto newRefreshToken = jwtGenerator.generateRefreshToken();
         refreshTokenInfo.setRefreshToken(newRefreshToken.getRefreshToken());
         refreshTokenInfo.setExpirationTime(newRefreshToken.getExpirationTime());
+        response.addCookie(generateRefreshTokenCookie(newRefreshToken.getRefreshToken()));
         return new AuthResponseDto(
                 jwtGenerator.generateAccessToken(
                         refreshTokenInfo.getPersonId(),
