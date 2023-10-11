@@ -15,47 +15,39 @@ spring:
         - id: auth-service
           uri: lb://auth-service
           predicates:
-            - Path=/auth/**
+            - Path=/api/v1/auth/**
         - id: person-service
           uri: lb://person-service
           predicates:
-            - Path=/person-app/**
-        - id: explorer-service
-          uri: lb://explorer-service
-          predicates:
-            - Path=/explorer-app/**
-        - id: keeper-service
-          uri: lb://keeper-service
-          predicates:
-            - Path=/keeper-app/**
+            - Path=/api/v1/person-app/**
         - id: galaxy-service
           uri: lb://galaxy-service
           predicates:
-            - Path=/galaxy-app/**
+            - Path=/api/v1/galaxy-app/**
         - id: planet-service
           uri: lb://planet-service
           predicates:
-            - Path=/planet-app/**
+            - Path=/api/v1/planet-app/**
         - id: course-service
           uri: lb://course-service
           predicates:
-            - Path=/course-app/**
+            - Path=/api/v1/course-app/**
         - id: course-registration-service
           uri: lb://course-registration-service
           predicates:
-            - Path=/course-registration-app/**
+            - Path=/api/v1/course-registration-app/**
         - id: progress-service
           uri: lb://progress-service
           predicates:
-            - Path=/progress-app/**
+            - Path=/api/v1/progress-app/**
         - id: homework-service
           uri: lb://homework-service
           predicates:
-            - Path=/homework-app/**
+            - Path=/api/v1/homework-app/**
         - id: feedback-service
           uri: lb://feedback-service
           predicates:
-            - Path=/feedback-app/**
+            - Path=/api/v1/feedback-app/**
 
 management:
   endpoints:

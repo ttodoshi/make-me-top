@@ -8,12 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.example.dto.LoginRequestDto;
 import org.example.service.AuthService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 @RestController
@@ -33,9 +29,8 @@ public class AuthController {
                                     mediaType = "*")
                     })
     })
-    public ResponseEntity<?> login(@Valid @RequestBody LoginRequestDto loginRequestDto,
-                                   HttpServletResponse response) {
-        return ResponseEntity.ok(authService.login(loginRequestDto, response));
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequestDto loginRequestDto) {
+        return ResponseEntity.ok(authService.login(loginRequestDto));
     }
 
     @PostMapping("/logout")
@@ -49,7 +44,22 @@ public class AuthController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> logout(HttpServletResponse response) {
-        return ResponseEntity.ok(authService.logout(response));
+    public ResponseEntity<?> logout(@RequestBody String refreshToken) {
+        return ResponseEntity.ok(authService.logout(refreshToken));
+    }
+
+    @PostMapping("/refresh")
+    @Operation(summary = "Refresh", tags = "authentication")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Refresh successful",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json")
+                    })
+    })
+    public ResponseEntity<?> refresh(@RequestBody String refreshToken) {
+        return ResponseEntity.ok(authService.refresh(refreshToken));
     }
 }

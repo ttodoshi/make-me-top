@@ -1,7 +1,7 @@
 package org.example.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -30,7 +30,7 @@ public class CourseTheme {
     private Integer courseThemeNumber;
     @ManyToOne(optional = false)
     @JoinColumn(name = "course_id", nullable = false, insertable = false, updatable = false)
-    @JsonIgnore
+    @JsonBackReference
     private Course course;
     @Column(name = "course_id")
     private Integer courseId;

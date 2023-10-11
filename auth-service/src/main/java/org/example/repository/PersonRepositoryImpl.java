@@ -24,6 +24,7 @@ public class PersonRepositoryImpl implements PersonRepository {
     }
 
     public Optional<PersonDto> findById(Integer personId) {
+        String authorizationHeader = authorizationHeaderRepository.getAuthorizationHeader();
         return webClientBuilder
                 .baseUrl("http://person-service/api/v1/person-app/").build()
                 .get()

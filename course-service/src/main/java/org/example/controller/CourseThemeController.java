@@ -73,7 +73,7 @@ public class CourseThemeController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> getCourseThemesByCourseId(@PathVariable("courseId") Integer courseId) {
+    public ResponseEntity<?> getCourseThemesByCourseId(@PathVariable Integer courseId) {
         return ResponseEntity.ok(courseThemeService.getCourseThemesByCourseId(courseId));
     }
 

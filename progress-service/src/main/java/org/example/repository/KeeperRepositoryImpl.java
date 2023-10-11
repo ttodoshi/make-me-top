@@ -20,7 +20,7 @@ public class KeeperRepositoryImpl implements KeeperRepository {
 
     public Optional<KeeperDto> findKeeperByPersonIdAndCourseId(Integer personId, Integer courseId) {
         return webClientBuilder
-                .baseUrl("http://keeper-service/api/v1/keeper-app/").build()
+                .baseUrl("http://person-service/api/v1/person-app/").build()
                 .get()
                 .uri(uri -> uri
                         .path("keeper/")

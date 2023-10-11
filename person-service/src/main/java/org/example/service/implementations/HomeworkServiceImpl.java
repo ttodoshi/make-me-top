@@ -3,8 +3,8 @@ package org.example.service.implementations;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.course.CourseDto;
 import org.example.dto.course.CourseThemeDto;
-import org.example.dto.explorer.ExplorerDto;
-import org.example.dto.explorer.ExplorerGroupDto;
+import org.example.model.Explorer;
+import org.example.model.ExplorerGroup;
 import org.example.dto.homework.GetHomeworkRequestDto;
 import org.example.dto.homework.HomeworkDto;
 import org.example.dto.homework.HomeworkRequestDto;
@@ -32,16 +32,16 @@ public class HomeworkServiceImpl implements HomeworkService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<GetHomeworkRequestDto> getHomeworkRequestsFromExplorersByGroups(Map<Integer, ExplorerGroupDto> explorerGroups) {
-        Map<Integer, ExplorerDto> explorers = explorerGroups.values()
+    public List<GetHomeworkRequestDto> getHomeworkRequestsFromExplorersByGroups(Map<Integer, ExplorerGroup> explorerGroups) {
+        Map<Integer, Explorer> explorers = explorerGroups.values()
                 .stream()
                 .flatMap(g -> g.getExplorers().stream())
-                .collect(Collectors.toMap(ExplorerDto::getExplorerId, e -> e));
+                .collect(Collectors.toMap(Explorer::getExplorerId, e -> e));
         Map<Integer, CourseDto> courses = courseRepository.findCoursesByCourseIdIn(
-                explorerGroups.values().stream().map(ExplorerGroupDto::getCourseId).collect(Collectors.toList())
+                explorerGroups.values().stream().map(ExplorerGroup::getCourseId).collect(Collectors.toList())
         );
         List<HomeworkRequestDto> homeworkRequests = homeworkRequestRepository.findOpenedHomeworkRequestsByExplorerIdIn(
-                explorers.values().stream().map(ExplorerDto::getExplorerId).collect(Collectors.toList())
+                explorers.values().stream().map(Explorer::getExplorerId).collect(Collectors.toList())
         );
         Map<Integer, HomeworkDto> homeworks = homeworkRepository.findHomeworksByHomeworkIdIn(
                 homeworkRequests.stream().map(HomeworkRequestDto::getHomeworkId).collect(Collectors.toList())
@@ -51,7 +51,7 @@ public class HomeworkServiceImpl implements HomeworkService {
         );
         return homeworkRequests.stream()
                 .map(hr -> {
-                    ExplorerDto currentRequestExplorer = explorers.get(hr.getExplorerId());
+                    Explorer currentRequestExplorer = explorers.get(hr.getExplorerId());
                     Person person = personRepository.getReferenceById(
                             currentRequestExplorer.getPersonId()
                     );
@@ -80,14 +80,15 @@ public class HomeworkServiceImpl implements HomeworkService {
     }
 
     @Override
-    public Optional<GetHomeworkRequestDto> getHomeworkRequestForKeeperFromPerson(Integer keeperPersonId, List<ExplorerDto> personExplorers) {
+    @Transactional(readOnly = true)
+    public Optional<GetHomeworkRequestDto> getHomeworkRequestForKeeperFromPerson(Integer keeperPersonId, List<Explorer> personExplorers) {
         List<HomeworkRequestDto> openedHomeworkRequests = homeworkRequestRepository.findOpenedHomeworkRequestsByExplorerIdIn(
-                personExplorers.stream().map(ExplorerDto::getExplorerId).collect(Collectors.toList())
+                personExplorers.stream().map(Explorer::getExplorerId).collect(Collectors.toList())
         );
         return openedHomeworkRequests.stream()
                 .findAny()
                 .map(hr -> {
-                    ExplorerDto explorer = explorerRepository.getReferenceById(hr.getExplorerId());
+                    Explorer explorer = explorerRepository.getReferenceById(hr.getExplorerId());
                     Person person = personRepository.getReferenceById(explorer.getPersonId());
                     Integer courseId = explorerGroupRepository.getReferenceById(
                             explorer.getGroupId()

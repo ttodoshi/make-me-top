@@ -2,16 +2,20 @@ package org.example.service.implementations;
 
 import lombok.RequiredArgsConstructor;
 import org.example.dto.course.CourseDto;
-import org.example.dto.explorer.ExplorerDto;
-import org.example.dto.explorer.ExplorerGroupDto;
 import org.example.dto.feedback.ExplorerCommentDto;
 import org.example.dto.feedback.ExplorerFeedbackDto;
 import org.example.dto.feedback.KeeperCommentDto;
 import org.example.dto.feedback.KeeperFeedbackDto;
-import org.example.dto.keeper.KeeperDto;
+import org.example.model.Explorer;
+import org.example.model.ExplorerGroup;
+import org.example.model.Keeper;
 import org.example.model.Person;
-import org.example.repository.*;
+import org.example.repository.CourseRepository;
+import org.example.repository.ExplorerFeedbackRepository;
+import org.example.repository.KeeperFeedbackRepository;
+import org.example.repository.PersonRepository;
 import org.example.service.FeedbackService;
+import org.example.service.KeeperService;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,23 +27,24 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class FeedbackServiceImpl implements FeedbackService {
     private final PersonRepository personRepository;
-    private final KeeperRepository keeperRepository;
     private final KeeperFeedbackRepository keeperFeedbackRepository;
     private final ExplorerFeedbackRepository explorerFeedbackRepository;
     private final CourseRepository courseRepository;
 
+    private final KeeperService keeperService;
+
     @Override
     @Transactional(readOnly = true)
-    public List<KeeperCommentDto> getFeedbackForPersonAsExplorer(List<ExplorerDto> personExplorers) {
+    public List<KeeperCommentDto> getFeedbackForPersonAsExplorer(List<Explorer> personExplorers) {
         List<KeeperFeedbackDto> feedbacks = keeperFeedbackRepository
                 .findKeeperFeedbacksByExplorerIdIn(
-                        personExplorers.stream().map(ExplorerDto::getExplorerId).collect(Collectors.toList())
+                        personExplorers.stream().map(Explorer::getExplorerId).collect(Collectors.toList())
                 );
-        Map<Integer, KeeperDto> keepers = keeperRepository.findKeepersByKeeperIdIn(
+        Map<Integer, Keeper> keepers = keeperService.findKeepersByKeeperIdIn(
                 feedbacks.stream().map(KeeperFeedbackDto::getKeeperId).collect(Collectors.toList())
         );
         Map<Integer, CourseDto> courses = courseRepository.findCoursesByCourseIdIn(
-                keepers.values().stream().map(KeeperDto::getCourseId).collect(Collectors.toList())
+                keepers.values().stream().map(Keeper::getCourseId).collect(Collectors.toList())
         );
         return feedbacks.stream()
                 .map(f -> {
@@ -63,23 +68,23 @@ public class FeedbackServiceImpl implements FeedbackService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ExplorerCommentDto> getFeedbackForPersonAsKeeper(List<ExplorerGroupDto> groups) {
+    public List<ExplorerCommentDto> getFeedbackForPersonAsKeeper(List<ExplorerGroup> groups) {
         List<ExplorerFeedbackDto> feedbacks = explorerFeedbackRepository.findExplorerFeedbacksByKeeperIdIn(
-                groups.stream().map(ExplorerGroupDto::getKeeperId).collect(Collectors.toList())
+                groups.stream().map(ExplorerGroup::getKeeperId).collect(Collectors.toList())
         );
-        Map<Integer, KeeperDto> keepers = keeperRepository.findKeepersByKeeperIdIn(
+        Map<Integer, Keeper> keepers = keeperService.findKeepersByKeeperIdIn(
                 feedbacks.stream().map(ExplorerFeedbackDto::getKeeperId).collect(Collectors.toList())
         );
         Map<Integer, CourseDto> courses = courseRepository.findCoursesByCourseIdIn(
-                groups.stream().map(ExplorerGroupDto::getCourseId).collect(Collectors.toList())
+                groups.stream().map(ExplorerGroup::getCourseId).collect(Collectors.toList())
         );
-        Map<Integer, ExplorerDto> explorers = groups.stream().flatMap(
+        Map<Integer, Explorer> explorers = groups.stream().flatMap(
                 g -> g.getExplorers().stream()
         ).filter(e -> feedbacks.stream()
                 .map(ExplorerFeedbackDto::getExplorerId)
                 .collect(Collectors.toList())
                 .contains(e.getExplorerId())
-        ).collect(Collectors.toMap(ExplorerDto::getExplorerId, e -> e));
+        ).collect(Collectors.toMap(Explorer::getExplorerId, e -> e));
         return feedbacks.stream()
                 .map(f -> {
                     Person person = personRepository.getReferenceById(

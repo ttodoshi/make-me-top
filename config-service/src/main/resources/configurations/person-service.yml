@@ -1,5 +1,5 @@
 server:
-  port: 8110
+  port: 8104
 spring:
   application:
     name: person-service
@@ -28,4 +28,4 @@ management:
 logging:
   file:
     name: logs/info.log
-secret-key: secretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecret
+access-token-secret-key: secretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecret

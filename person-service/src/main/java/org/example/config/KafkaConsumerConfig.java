@@ -2,6 +2,7 @@ package org.example.config;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.IntegerDeserializer;
+import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -36,6 +37,25 @@ public class KafkaConsumerConfig {
         ConcurrentKafkaListenerContainerFactory<String, Object> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(personFactory());
+        return factory;
+    }
+
+    @Bean
+    public ConsumerFactory<String, Object> explorerFactory() {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
+        properties.put(ConsumerConfig.GROUP_ID_CONFIG, "explorer");
+        properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
+        properties.put(JsonDeserializer.TYPE_MAPPINGS, "explorer:org.example.dto.event.ExplorerCreateEvent");
+        return new DefaultKafkaConsumerFactory<>(properties);
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, Object> explorerKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, Object> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(explorerFactory());
         return factory;
     }
 }

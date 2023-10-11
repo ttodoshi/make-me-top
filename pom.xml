@@ -15,8 +15,6 @@
         <module>course-service</module>
         <module>homework-service</module>
         <module>person-service</module>
-        <module>explorer-service</module>
-        <module>keeper-service</module>
         <module>course-registration-service</module>
         <module>progress-service</module>
         <module>feedback-service</module>

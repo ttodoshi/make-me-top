@@ -1,7 +1,7 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.explorer.ExplorerDto;
+import org.example.model.Explorer;
 import org.example.model.Person;
 import org.example.repository.ExplorerRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -30,7 +30,7 @@ public class ExplorerProfileInformationService {
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("person", authenticatedPerson);
         response.put("rating", ratingService.getPersonRatingAsExplorer(authenticatedPersonId));
-        List<ExplorerDto> personExplorers = explorerRepository.findExplorersByPersonId(authenticatedPersonId);
+        List<Explorer> personExplorers = explorerRepository.findExplorersByPersonId(authenticatedPersonId);
         response.put("totalSystems", personExplorers.size());
         courseProgressService.getCurrentCourseProgress(authenticatedPersonId)
                 .ifPresent(p -> response.put("currentSystem", p));

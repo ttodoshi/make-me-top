@@ -32,7 +32,7 @@ public class CourseRegistrationRequest {
     private LocalDateTime requestDate;
     @ManyToOne(optional = false)
     @JoinColumn(name = "status_id", nullable = false, insertable = false, updatable = false)
-    @JsonIgnore
+    @JsonBackReference
     private CourseRegistrationRequestStatus status;
     @Column(name = "status_id")
     private Integer statusId;

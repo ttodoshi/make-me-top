@@ -1,6 +1,6 @@
 package org.example.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -16,7 +16,7 @@ public class HomeworkMark {
     private Integer requestId;
     @ManyToOne(optional = false)
     @JoinColumn(name = "request_id", nullable = false, insertable = false, updatable = false)
-    @JsonIgnore
+    @JsonBackReference
     private HomeworkRequest request;
     private Integer mark;
     @Column(columnDefinition = "TEXT")

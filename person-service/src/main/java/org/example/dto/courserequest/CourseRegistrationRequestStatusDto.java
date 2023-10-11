@@ -4,8 +4,6 @@ import lombok.Data;
 
 import javax.persistence.*;
 
-@Entity
-@Table(name = "course_registration_request_status")
 @Data
 public class CourseRegistrationRequestStatusDto {
     @Id

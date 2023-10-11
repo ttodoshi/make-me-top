@@ -34,7 +34,7 @@ public class CourseRegistrationRequestKeeper {
     private LocalDateTime responseDate;
     @ManyToOne(optional = false)
     @JoinColumn(name = "status_id", nullable = false, insertable = false, updatable = false)
-    @JsonIgnore
+    @JsonBackReference
     private CourseRegistrationRequestKeeperStatus status;
     @Column(name = "status_id")
     private Integer statusId;

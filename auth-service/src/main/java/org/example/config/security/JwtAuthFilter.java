@@ -45,7 +45,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             if (personOptional.isEmpty())
                 throw new PersonNotFoundException();
             PersonDto person = personOptional.get();
-            if (jwtService.isTokenValid(jwtToken, person)) {
+            if (jwtService.isAccessTokenValid(jwtToken, person)) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         person,
                         null,

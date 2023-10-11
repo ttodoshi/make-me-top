@@ -32,7 +32,7 @@ public class CourseController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> getCourseById(@PathVariable("courseId") Integer courseId,
+    public ResponseEntity<?> getCourseById(@PathVariable Integer courseId,
                                            @RequestParam(required = false) Boolean detailed) {
         if (detailed != null && detailed)
             return ResponseEntity.ok(courseService.getDetailedCourseInfo(courseId));

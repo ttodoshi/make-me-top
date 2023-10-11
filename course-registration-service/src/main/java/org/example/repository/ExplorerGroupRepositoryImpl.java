@@ -19,7 +19,7 @@ public class ExplorerGroupRepositoryImpl implements ExplorerGroupRepository {
     @Override
     public ExplorerGroupDto save(CreateExplorerGroupDto explorerGroup) {
         return webClientBuilder
-                .baseUrl("http://explorer-service/api/v1/explorer-app/").build()
+                .baseUrl("http://person-service/api/v1/person-app/").build()
                 .post()
                 .uri(uri -> uri
                         .path("groups/")

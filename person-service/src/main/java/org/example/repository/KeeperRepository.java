@@ -1,14 +1,17 @@
 package org.example.repository;
 
-import org.example.dto.keeper.KeeperDto;
+import org.example.model.Keeper;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 
-public interface KeeperRepository {
-    List<KeeperDto> findKeepersByPersonId(Integer personId);
+public interface KeeperRepository extends JpaRepository<Keeper, Integer> {
+    Optional<Keeper> findKeeperByPersonIdAndCourseId(Integer personId, Integer courseId);
 
-    Map<Integer, KeeperDto> findKeepersByKeeperIdIn(List<Integer> collect);
+    List<Keeper> findKeepersByPersonId(Integer personId);
 
-    KeeperDto getReferenceById(Integer keeperId);
+    List<Keeper> findKeepersByCourseId(Integer courseId);
+
+    List<Keeper> findKeepersByKeeperIdIn(List<Integer> keeperIds);
 }

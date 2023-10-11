@@ -29,4 +29,4 @@ management:
 logging:
   file:
     name: logs/info.log
-secret-key: secretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecret
+access-token-secret-key: secretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecret

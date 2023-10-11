@@ -53,7 +53,7 @@ public class ExplorerServiceImpl implements ExplorerService {
 
     private List<ExplorerBaseInfoDto> findExplorersByCourseId(Integer courseId) {
         List<ExplorerDto> explorers = webClientBuilder
-                .baseUrl("http://explorer-service/api/v1/explorer-app/").build()
+                .baseUrl("http://person-service/api/v1/person-app/").build()
                 .get()
                 .uri(uri -> uri
                         .path("course/{courseId}/explorer/")

@@ -34,4 +34,7 @@ management:
 logging:
   file:
     name: logs/info.log
-secret-key: secretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecret
+access-token-secret-key: secretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecret
+refresh-token-secret-key: secretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecret
+access-token-life-time-seconds: 900  # 15 minutes
+refresh-token-life-time-seconds: 1209600  # 2 weeks

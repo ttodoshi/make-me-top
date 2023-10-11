@@ -5,12 +5,14 @@ import org.example.dto.course.CourseDto;
 import org.example.dto.courserequest.*;
 import org.example.dto.galaxy.GalaxyDto;
 import org.example.dto.keeper.KeeperBasicInfoDto;
-import org.example.dto.keeper.KeeperDto;
+import org.example.model.Keeper;
 import org.example.model.Person;
 import org.example.repository.*;
 import org.example.service.CourseRegistrationRequestService;
+import org.example.service.KeeperService;
 import org.example.service.RatingService;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -25,15 +27,16 @@ public class CourseRegistrationRequestServiceImpl implements CourseRegistrationR
     private final CourseRepository courseRepository;
     private final CourseRegistrationRequestRepository courseRegistrationRequestRepository;
     private final CourseRegistrationRequestKeeperRepository courseRegistrationRequestKeeperRepository;
-
-    private final RatingService ratingService;
     private final GalaxyRepository galaxyRepository;
 
+    private final KeeperService keeperService;
+    private final RatingService ratingService;
+
     @Override
-    public List<CourseRegistrationRequestForKeeperDto> getStudyRequestsForKeeper(List<KeeperDto> keepers) {
+    public List<CourseRegistrationRequestForKeeperDto> getStudyRequestsForKeeper(List<Keeper> keepers) {
         List<CourseRegistrationRequestKeeperDto> openedRequests = courseRegistrationRequestKeeperRepository
                 .findProcessingCourseRegistrationRequestKeepersByKeeperIdIn(
-                        keepers.stream().map(KeeperDto::getKeeperId).collect(Collectors.toList())
+                        keepers.stream().map(Keeper::getKeeperId).collect(Collectors.toList())
                 );
         Map<Integer, CourseRegistrationRequestDto> requests = courseRegistrationRequestRepository.findCourseRegistrationRequestsByRequestIdIn(
                 openedRequests.stream().map(CourseRegistrationRequestKeeperDto::getRequestId).collect(Collectors.toList())
@@ -63,6 +66,7 @@ public class CourseRegistrationRequestServiceImpl implements CourseRegistrationR
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<CourseRegistrationRequestForExplorerDto> getStudyRequestForExplorerByPersonId(Integer personId) {
         return courseRegistrationRequestRepository
                 .findProcessingCourseRegistrationRequestByPersonId(personId)
@@ -74,7 +78,7 @@ public class CourseRegistrationRequestServiceImpl implements CourseRegistrationR
                             .stream()
                             .map(CourseRegistrationRequestKeeperDto::getKeeperId)
                             .collect(Collectors.toList());
-                    List<KeeperBasicInfoDto> keepers = keeperRepository
+                    List<KeeperBasicInfoDto> keepers = keeperService
                             .findKeepersByKeeperIdIn(keeperIds)
                             .entrySet()
                             .stream()
