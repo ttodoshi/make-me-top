@@ -2,7 +2,6 @@ package org.example.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -24,7 +23,7 @@ public class HomeworkRequest {
     private Integer requestId;
     @ManyToOne(optional = false)
     @JoinColumn(name = "homework_id", nullable = false, insertable = false, updatable = false)
-    @JsonIgnore
+    @JsonBackReference
     private Homework homework;
     @Column(name = "homework_id")
     private Integer homeworkId;
@@ -36,7 +35,7 @@ public class HomeworkRequest {
     private LocalDateTime requestDate;
     @ManyToOne(optional = false)
     @JoinColumn(name = "status_id", nullable = false, insertable = false, updatable = false)
-    @JsonIgnore
+    @JsonBackReference
     private HomeworkRequestStatus status;
     @Column(name = "status_id")
     private Integer statusId;

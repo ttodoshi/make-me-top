@@ -3,7 +3,10 @@ package org.example.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.example.exception.ErrorResponse;
 import org.example.exception.classes.connectEX.ConnectException;
+import org.example.exception.classes.courseEX.CourseNotFoundException;
+import org.example.exception.classes.explorerEX.ExplorerGroupNotFoundException;
 import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
+import org.example.exception.classes.keeperEX.KeeperNotFoundException;
 import org.example.exception.classes.personEX.PersonNotFoundException;
 import org.example.exception.classes.requestEX.RequestNotFoundException;
 import org.example.exception.classes.roleEX.RoleNotAvailableException;
@@ -105,6 +108,24 @@ public class ErrorHandler {
 
     @ExceptionHandler(ExplorerNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleExplorerNotFoundException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(ExplorerGroupNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleExplorerGroupNotFoundException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(KeeperNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleKeeperNotFoundException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(CourseNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleCourseNotFoundException(Exception e) {
         logWarning(e);
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
     }

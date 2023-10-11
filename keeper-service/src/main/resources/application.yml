@@ -1,5 +1,0 @@
-spring:
-  application:
-    name: keeper-service
-  profiles:
-    default: local

@@ -53,4 +53,11 @@ public class PersonService {
         updatedPerson.setMaxExplorers(personDto.getMaxExplorers());
         return personRepository.save(updatedPerson);
     }
+
+    public void setDefaultExplorersValueForPerson(Integer personId) {
+        setMaxExplorersValueForPerson(
+                personId,
+                new UpdatePersonDto(3)
+        );
+    }
 }

@@ -3,7 +3,7 @@ package org.example.service;
 import lombok.RequiredArgsConstructor;
 import org.example.config.security.RoleService;
 import org.example.config.security.role.AuthenticationRoleType;
-import org.example.dto.explorer.ExplorerDto;
+import org.example.model.Explorer;
 import org.example.dto.feedback.KeeperCommentDto;
 import org.example.dto.progress.CurrentCourseProgressDto;
 import org.example.exception.classes.personEX.PersonNotFoundException;
@@ -42,7 +42,7 @@ public class ExplorerPublicInformationService {
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("person", person);
         response.put("rating", ratingService.getPersonRatingAsExplorer(personId));
-        List<ExplorerDto> personExplorers = explorerRepository.findExplorersByPersonId(personId);
+        List<Explorer> personExplorers = explorerRepository.findExplorersByPersonId(personId);
         List<KeeperCommentDto> feedback = feedbackService.getFeedbackForPersonAsExplorer(personExplorers);
         response.put("totalFeedback", feedback.size());
         response.put("totalSystems", personExplorers.size());

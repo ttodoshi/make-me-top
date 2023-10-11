@@ -1,14 +1,12 @@
 package org.example.repository;
 
-import org.example.dto.explorer.ExplorerGroupDto;
+import org.example.model.ExplorerGroup;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
-import java.util.Map;
 
-public interface ExplorerGroupRepository {
-    List<ExplorerGroupDto> findExplorerGroupsByKeeperIdIn(List<Integer> keeperIds);
+public interface ExplorerGroupRepository extends JpaRepository<ExplorerGroup, Integer> {
+    List<ExplorerGroup> findExplorerGroupsByGroupIdIn(List<Integer> groupIds);
 
-    ExplorerGroupDto getReferenceById(Integer groupId);
-
-    Map<Integer, Integer> findExplorerGroupsCourseIdByGroupIdIn(List<Integer> groupIds);
+    List<ExplorerGroup> findExplorerGroupsByKeeperIdIn(List<Integer> keeperIds);
 }

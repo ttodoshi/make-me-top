@@ -23,7 +23,7 @@ public class Orbit {
     private Integer systemCount;
     @ManyToOne(optional = false)
     @JoinColumn(name = "galaxy_id", nullable = false, insertable = false, updatable = false)
-    @JsonIgnore
+    @JsonBackReference
     private Galaxy galaxy;
     @Column(name = "galaxy_id")
     private Integer galaxyId;

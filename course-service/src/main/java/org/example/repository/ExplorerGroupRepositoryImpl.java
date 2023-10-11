@@ -21,7 +21,7 @@ public class ExplorerGroupRepositoryImpl implements ExplorerGroupRepository {
     @Override
     public List<ExplorerGroupDto> findExplorerGroupsByKeeperIdIn(List<Integer> keeperIds) {
         return webClientBuilder
-                .baseUrl("http://explorer-service/api/v1/explorer-app/").build()
+                .baseUrl("http://person-service/api/v1/person-app/").build()
                 .get()
                 .uri(uri -> uri
                         .path("group/")
@@ -42,7 +42,7 @@ public class ExplorerGroupRepositoryImpl implements ExplorerGroupRepository {
     @Override
     public ExplorerGroupDto getReferenceById(Integer groupId) {
         return webClientBuilder
-                .baseUrl("http://explorer-service/api/v1/explorer-app/").build()
+                .baseUrl("http://person-service/api/v1/person-app/").build()
                 .get()
                 .uri(uri -> uri
                         .path("group/{groupId}/")
@@ -61,7 +61,7 @@ public class ExplorerGroupRepositoryImpl implements ExplorerGroupRepository {
     @Override
     public Map<Integer, Integer> findExplorerGroupsCourseIdByGroupIdIn(List<Integer> groupIds) {
         return webClientBuilder
-                .baseUrl("http://explorer-service/api/v1/explorer-app/").build()
+                .baseUrl("http://person-service/api/v1/person-app/").build()
                 .get()
                 .uri(uri -> uri
                         .path("groups/")

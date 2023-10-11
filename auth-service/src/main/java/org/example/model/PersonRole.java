@@ -1,6 +1,6 @@
 package org.example.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -14,7 +14,7 @@ public class PersonRole {
     private Integer personId;
     @ManyToOne(optional = false)
     @JoinColumn(name = "role_id", nullable = false, insertable = false, updatable = false)
-    @JsonIgnore
+    @JsonBackReference
     private GeneralRole role;
     @Id
     @Column(name = "role_id")

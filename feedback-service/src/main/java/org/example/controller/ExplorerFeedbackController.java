@@ -51,7 +51,7 @@ public class ExplorerFeedbackController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> sendFeedbackForKeeper(@PathVariable("courseId") Integer courseId,
+    public ResponseEntity<?> sendFeedbackForKeeper(@PathVariable Integer courseId,
                                                    @Valid @RequestBody CreateExplorerFeedbackDto feedback) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -73,7 +73,7 @@ public class ExplorerFeedbackController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> rateCourse(@PathVariable("courseId") Integer courseId,
+    public ResponseEntity<?> rateCourse(@PathVariable Integer courseId,
                                         @Valid @RequestBody CreateCourseRatingDto request) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)

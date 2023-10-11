@@ -23,7 +23,7 @@ public class StarSystem {
     private Integer systemPosition;
     @ManyToOne(optional = false)
     @JoinColumn(name = "orbit_id", nullable = false, insertable = false, updatable = false)
-    @JsonIgnore
+    @JsonBackReference
     private Orbit orbit;
     @Column(name = "orbit_id")
     private Integer orbitId;

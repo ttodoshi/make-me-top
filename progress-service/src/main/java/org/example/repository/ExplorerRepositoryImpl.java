@@ -24,7 +24,7 @@ public class ExplorerRepositoryImpl implements ExplorerRepository {
     @Override
     public Optional<ExplorerDto> findById(Integer explorerId) {
         return webClientBuilder
-                .baseUrl("http://explorer-service/api/v1/explorer-app/").build()
+                .baseUrl("http://person-service/api/v1/person-app/").build()
                 .get()
                 .uri(uri -> uri
                         .path("explorer/{explorerId}/")
@@ -44,7 +44,7 @@ public class ExplorerRepositoryImpl implements ExplorerRepository {
     @Override
     public Optional<ExplorerDto> findExplorerByPersonIdAndGroup_CourseId(Integer personId, Integer courseId) {
         return webClientBuilder
-                .baseUrl("http://explorer-service/api/v1/explorer-app/").build()
+                .baseUrl("http://person-service/api/v1/person-app/").build()
                 .get()
                 .uri(uri -> uri
                         .path("explorer/")
@@ -66,7 +66,7 @@ public class ExplorerRepositoryImpl implements ExplorerRepository {
     @Override
     public Map<Integer, ExplorerDto> findExplorersByExplorerIdIn(List<Integer> explorerIds) {
         return webClientBuilder
-                .baseUrl("http://explorer-service/api/v1/explorer-app/").build()
+                .baseUrl("http://person-service/api/v1/person-app/").build()
                 .get()
                 .uri(uri -> uri
                         .path("explorers/")

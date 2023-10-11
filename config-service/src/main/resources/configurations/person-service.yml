@@ -1,5 +1,5 @@
 server:
-  port: 8110
+  port: 8104
 spring:
   application:
     name: person-service

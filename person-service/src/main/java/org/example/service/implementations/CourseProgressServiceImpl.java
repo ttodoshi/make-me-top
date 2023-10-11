@@ -4,19 +4,20 @@ import lombok.RequiredArgsConstructor;
 import org.example.dto.course.CourseDto;
 import org.example.dto.course.CourseThemeDto;
 import org.example.dto.explorer.ExplorerBasicInfoDto;
-import org.example.dto.explorer.ExplorerDto;
-import org.example.dto.explorer.ExplorerGroupDto;
 import org.example.dto.explorer.ExplorerNeededFinalAssessmentDto;
 import org.example.dto.keeper.KeeperBasicInfoDto;
-import org.example.dto.keeper.KeeperDto;
 import org.example.dto.progress.CourseThemeCompletedDto;
 import org.example.dto.progress.CourseWithThemesProgressDto;
 import org.example.dto.progress.CurrentCourseProgressDto;
 import org.example.exception.classes.connectEX.ConnectException;
 import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
+import org.example.model.Explorer;
+import org.example.model.ExplorerGroup;
+import org.example.model.Keeper;
 import org.example.model.Person;
 import org.example.repository.*;
 import org.example.service.CourseProgressService;
+import org.example.service.ExplorerGroupService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,19 +42,22 @@ public class CourseProgressServiceImpl implements CourseProgressService {
     private final CourseRepository courseRepository;
     private final CourseThemeRepository courseThemeRepository;
 
+    private final ExplorerGroupService explorerGroupService;
+
     @Override
+    @Transactional(readOnly = true)
     public Optional<CurrentCourseProgressDto> getCurrentCourseProgress(Integer personId) {
         Optional<CurrentCourseProgressDto> currentCourseProgressOptional = Optional.empty();
-        Optional<ExplorerDto> currentSystemExplorerOptional = getCurrentSystemExplorer(personId);
+        Optional<Explorer> currentSystemExplorerOptional = getCurrentSystemExplorer(personId);
         if (currentSystemExplorerOptional.isEmpty())
             return currentCourseProgressOptional;
-        ExplorerDto currentSystemExplorer = currentSystemExplorerOptional.get();
+        Explorer currentSystemExplorer = currentSystemExplorerOptional.get();
         CourseWithThemesProgressDto courseProgress = getCourseProgress(currentSystemExplorer.getExplorerId());
         double progress = getCourseProgressValue(courseProgress);
         Integer currentThemeId = getCurrentCourseThemeId(courseProgress);
         CourseThemeDto currentTheme = courseThemeRepository.getReferenceById(currentThemeId);
         CourseDto currentCourse = courseRepository.getReferenceById(courseProgress.getCourseId());
-        KeeperDto keeper = keeperRepository.getReferenceById(
+        Keeper keeper = keeperRepository.getReferenceById(
                 explorerGroupRepository.getReferenceById(currentSystemExplorer.getGroupId()).getKeeperId()
         );
         Person keeperPerson = personRepository.getReferenceById(keeper.getPersonId());
@@ -78,10 +82,10 @@ public class CourseProgressServiceImpl implements CourseProgressService {
         );
     }
 
-    private Optional<ExplorerDto> getCurrentSystemExplorer(Integer personId) {
-        List<ExplorerDto> personExplorers = explorerRepository.findExplorersByPersonId(personId);
+    private Optional<Explorer> getCurrentSystemExplorer(Integer personId) {
+        List<Explorer> personExplorers = explorerRepository.findExplorersByPersonId(personId);
         List<Integer> explorersWithFinalAssessment = getExplorersWithFinalAssessment(
-                personExplorers.stream().map(ExplorerDto::getExplorerId).collect(Collectors.toList())
+                personExplorers.stream().map(Explorer::getExplorerId).collect(Collectors.toList())
         );
         return personExplorers.stream()
                 .filter(e -> !explorersWithFinalAssessment.contains(e.getExplorerId()))
@@ -125,10 +129,10 @@ public class CourseProgressServiceImpl implements CourseProgressService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ExplorerNeededFinalAssessmentDto> getExplorersNeededFinalAssessment(List<ExplorerGroupDto> keeperGroups) {
+    public List<ExplorerNeededFinalAssessmentDto> getExplorersNeededFinalAssessment(List<ExplorerGroup> keeperGroups) {
         List<Integer> explorerIds = keeperGroups.stream()
                 .flatMap(g -> g.getExplorers().stream())
-                .map(ExplorerDto::getExplorerId)
+                .map(Explorer::getExplorerId)
                 .collect(Collectors.toList());
         List<Integer> explorerNeededFinalAssessment = webClientBuilder
                 .baseUrl("http://progress-service/api/v1/progress-app/").build()
@@ -150,7 +154,7 @@ public class CourseProgressServiceImpl implements CourseProgressService {
         if (explorerNeededFinalAssessment == null)
             return Collections.emptyList();
         Map<Integer, CourseDto> courses = courseRepository.findCoursesByCourseIdIn(
-                keeperGroups.stream().map(ExplorerGroupDto::getCourseId).collect(Collectors.toList())
+                keeperGroups.stream().map(ExplorerGroup::getCourseId).collect(Collectors.toList())
         );
         return keeperGroups.stream()
                 .flatMap(g -> g.getExplorers().stream()
@@ -172,28 +176,29 @@ public class CourseProgressServiceImpl implements CourseProgressService {
     }
 
     @Override
-    public List<Integer> getInvestigatedSystemIds(List<ExplorerDto> personExplorers) {
+    @Transactional(readOnly = true)
+    public List<Integer> getInvestigatedSystemIds(List<Explorer> personExplorers) {
         List<Integer> explorersWithFinalAssessment = getExplorersWithFinalAssessment(
                 personExplorers.stream()
-                        .map(ExplorerDto::getExplorerId)
+                        .map(Explorer::getExplorerId)
                         .collect(Collectors.toList())
         );
         return new ArrayList<>(
-                explorerGroupRepository.findExplorerGroupsCourseIdByGroupIdIn(
+                explorerGroupService.findExplorerGroupsCourseIdByGroupIdIn(
                         personExplorers.stream().filter(e ->
                                 explorersWithFinalAssessment.contains(e.getExplorerId())
-                        ).map(ExplorerDto::getGroupId).collect(Collectors.toList())
+                        ).map(Explorer::getGroupId).collect(Collectors.toList())
                 ).values()
         );
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<ExplorerBasicInfoDto> getStudyingExplorersByKeeperPersonId(List<ExplorerGroupDto> keeperGroups) {
+    public List<ExplorerBasicInfoDto> getStudyingExplorersByKeeperPersonId(List<ExplorerGroup> keeperGroups) {
         List<Integer> explorersWithFinalAssessment = getExplorersWithFinalAssessment(
                 keeperGroups.stream()
                         .flatMap(g -> g.getExplorers().stream())
-                        .map(ExplorerDto::getExplorerId)
+                        .map(Explorer::getExplorerId)
                         .collect(Collectors.toList())
         );
         return keeperGroups.stream()

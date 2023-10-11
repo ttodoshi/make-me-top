@@ -20,14 +20,6 @@ spring:
           uri: lb://person-service
           predicates:
             - Path=/api/v1/person-app/**
-        - id: explorer-service
-          uri: lb://explorer-service
-          predicates:
-            - Path=/api/v1/explorer-app/**
-        - id: keeper-service
-          uri: lb://keeper-service
-          predicates:
-            - Path=/api/v1/keeper-app/**
         - id: galaxy-service
           uri: lb://galaxy-service
           predicates:

@@ -1,5 +1,5 @@
 server:
-  port: 8109
+  port: 8107
 spring:
   application:
     name: homework-service

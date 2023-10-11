@@ -1,8 +1,8 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.explorer.ExplorerGroupDto;
-import org.example.dto.keeper.KeeperDto;
+import org.example.model.ExplorerGroup;
+import org.example.model.Keeper;
 import org.example.model.Person;
 import org.example.repository.ExplorerGroupRepository;
 import org.example.repository.KeeperRepository;
@@ -33,17 +33,17 @@ public class KeeperProfileInformationService {
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("person", authenticatedPerson);
         response.put("rating", ratingService.getPersonRatingAsKeeper(authenticatedPersonId));
-        List<KeeperDto> keepers = keeperRepository.findKeepersByPersonId(authenticatedPersonId);
+        List<Keeper> keepers = keeperRepository.findKeepersByPersonId(authenticatedPersonId);
         response.put("totalSystems", keepers.size());
-        List<ExplorerGroupDto> explorerGroups = explorerGroupRepository.findExplorerGroupsByKeeperIdIn(
-                keepers.stream().map(KeeperDto::getKeeperId).collect(Collectors.toList())
+        List<ExplorerGroup> explorerGroups = explorerGroupRepository.findExplorerGroupsByKeeperIdIn(
+                keepers.stream().map(Keeper::getKeeperId).collect(Collectors.toList())
         );
         response.put("totalExplorers", explorerGroups.stream().mapToLong(g -> g.getExplorers().size()).sum());
         response.put("studyingExplorers", courseProgressService.getStudyingExplorersByKeeperPersonId(explorerGroups));
         response.put("studyRequests", courseRegistrationRequestService.getStudyRequestsForKeeper(keepers));
         response.put("finalAssessments", courseProgressService.getExplorersNeededFinalAssessment(explorerGroups));
         response.put("reviewRequests", homeworkService.getHomeworkRequestsFromExplorersByGroups(
-                explorerGroups.stream().collect(Collectors.toMap(ExplorerGroupDto::getGroupId, g -> g))
+                explorerGroups.stream().collect(Collectors.toMap(ExplorerGroup::getGroupId, g -> g))
         ));
         return response;
     }

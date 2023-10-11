@@ -137,20 +137,6 @@ services:
     container_name: person_service_container
     build: ./person-service
     ports:
-      - "8110:8110"
-    depends_on:
-      discovery_server:
-        condition: service_healthy
-    environment:
-      SPRING_PROFILES_ACTIVE: docker
-    networks:
-      postgres:
-        ipv4_address: 10.10.0.19
-
-  explorer_service:
-    container_name: explorer_service_container
-    build: ./explorer-service
-    ports:
       - "8104:8104"
     depends_on:
       discovery_server:
@@ -159,20 +145,7 @@ services:
       SPRING_PROFILES_ACTIVE: docker
     networks:
       postgres:
-        ipv4_address: 10.10.0.4
-  keeper_service:
-    container_name: keeper_service_container
-    build: ./keeper-service
-    ports:
-      - "8105:8105"
-    depends_on:
-      discovery_server:
-        condition: service_healthy
-    environment:
-      SPRING_PROFILES_ACTIVE: docker
-    networks:
-      postgres:
-        ipv4_address: 10.10.0.5
+        ipv4_address: 10.10.0.19
 
   galaxy_service:
     container_name: galaxy_service_container
@@ -233,7 +206,7 @@ services:
     container_name: course_registration_service_container
     build: ./course-registration-service
     ports:
-      - "8107:8107"
+      - "8105:8105"
     depends_on:
       discovery_server:
         condition: service_healthy
@@ -247,7 +220,7 @@ services:
     container_name: homework_service_container
     build: ./homework-service
     ports:
-      - "8109:8109"
+      - "8107:8107"
     depends_on:
       discovery_server:
         condition: service_healthy
@@ -261,7 +234,7 @@ services:
     container_name: progress_service_container
     build: ./progress-service
     ports:
-      - "8111:8111"
+      - "8109:8109"
     depends_on:
       discovery_server:
         condition: service_healthy
@@ -275,7 +248,7 @@ services:
     container_name: feedback_service_container
     build: ./feedback-service
     ports:
-      - "8112:8112"
+      - "8110:8110"
     depends_on:
       discovery_server:
         condition: service_healthy

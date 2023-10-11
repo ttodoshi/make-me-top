@@ -50,7 +50,7 @@ public class KeeperFeedbackController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> sendFeedbackForExplorer(@PathVariable("courseId") Integer courseId,
+    public ResponseEntity<?> sendFeedbackForExplorer(@PathVariable Integer courseId,
                                                      @Valid @RequestBody CreateKeeperFeedbackDto feedback) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
