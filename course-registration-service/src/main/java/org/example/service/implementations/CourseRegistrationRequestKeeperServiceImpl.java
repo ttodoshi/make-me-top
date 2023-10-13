@@ -75,39 +75,9 @@ public class CourseRegistrationRequestKeeperServiceImpl implements CourseRegistr
     }
 
     @Override
-    @Transactional
-    public boolean isRequestPersonallyForKeeper(CourseRegistrationRequest request) {
-        List<KeeperDto> keepersOnCourse = keeperRepository.findKeepersByCourseId(request.getCourseId());
-        Integer keepersReceivedRequestCount = courseRegistrationRequestKeeperRepository
-                .findCourseRegistrationRequestKeepersByRequestId(request.getRequestId()).size();
-        return keepersReceivedRequestCount.equals(1) &&
-                !keepersReceivedRequestCount.equals(keepersOnCourse.size());
-    }
-
-    @Override
-    @Transactional
-    public void openRequestToOtherKeepersOnCourse(CourseRegistrationRequest request) {
-        Integer processingStatusId = findCourseRegistrationRequestKeeperStatusId(
-                CourseRegistrationRequestKeeperStatusType.PROCESSING);
-        keeperRepository.findKeepersByCourseId(request.getCourseId())
-                .stream()
-                .filter(
-                        k -> !k.getPersonId().equals(personService.getAuthenticatedPersonId())
-                ).forEach(k ->
-                        courseRegistrationRequestKeeperRepository.save(
-                                new CourseRegistrationRequestKeeper(
-                                        request.getRequestId(),
-                                        k.getKeeperId(),
-                                        processingStatusId
-                                )
-                        )
-                );
-    }
-
-    @Override
     public List<CourseRegistrationRequestKeeper> findCourseRegistrationRequestKeepersByRequestId(Integer requestId) {
         if (!courseRegistrationRequestRepository.existsById(requestId)) {
-                throw new RequestNotFoundException(requestId);
+            throw new RequestNotFoundException(requestId);
         }
         return courseRegistrationRequestKeeperRepository.findCourseRegistrationRequestKeepersByRequestId(requestId);
     }

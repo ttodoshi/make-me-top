@@ -15,7 +15,9 @@ import javax.persistence.Table;
 public class KeeperFeedback {
     @Id
     private Integer explorerId;
+    @Column(nullable = false)
     private Integer keeperId;
+    @Column(nullable = false)
     private Integer rating;
     @Column(length = 1000)
     private String comment;

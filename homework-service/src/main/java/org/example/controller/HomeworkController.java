@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.apache.kafka.common.annotation.InterfaceStability;
 import org.example.dto.homework.CreateHomeworkDto;
 import org.example.dto.homework.UpdateHomeworkDto;
 import org.example.service.HomeworkService;
@@ -54,6 +55,25 @@ public class HomeworkController {
     public ResponseEntity<?> getHomeworkByThemeIdForGroup(@PathVariable("themeId") Integer themeId,
                                                           @PathVariable("groupId") Integer groupId) {
         return ResponseEntity.ok(homeworkService.getHomeworkByThemeIdForGroup(themeId, groupId));
+    }
+
+    @GetMapping("/theme/{themeId}/group/{groupId}/homework/completed")
+    @PreAuthorize("@roleService.hasAnyCourseRoleByGroupId(#groupId, T(org.example.config.security.role.CourseRoleType).EXPLORER) ||" +
+            "@roleService.hasAnyCourseRoleByGroupId(#groupId, T(org.example.config.security.role.CourseRoleType).KEEPER)")
+    @Operation(summary = "Get completed homework by theme id and group id", tags = "homework")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Requested homework",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json")
+                    })
+    })
+    public ResponseEntity<?> getCompletedHomeworkByThemeIdForGroup(@PathVariable("themeId") Integer themeId,
+                                                                   @PathVariable("groupId") Integer groupId,
+                                                                   @RequestParam Integer explorerId) {
+        return ResponseEntity.ok(homeworkService.getCompletedHomeworkByThemeIdForGroup(themeId, groupId, explorerId));
     }
 
     @GetMapping("/homework")

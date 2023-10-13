@@ -107,4 +107,24 @@ public class ExplorerRepositoryImpl implements ExplorerRepository {
                 .timeout(Duration.ofSeconds(5))
                 .blockLast();
     }
+
+    @Override
+    public Optional<ExplorerDto> findById(Integer explorerId) {
+        return webClientBuilder
+                .baseUrl("http://person-service/api/v1/person-app/").build()
+                .get()
+                .uri(uri -> uri
+                        .path("explorer/{explorerId}/")
+                        .build(explorerId)
+                )
+                .header("Authorization", authorizationHeaderRepository.getAuthorizationHeader())
+                .retrieve()
+                .onStatus(httpStatus -> httpStatus.isError() && !httpStatus.equals(HttpStatus.NOT_FOUND), response -> {
+                    throw new ConnectException();
+                })
+                .bodyToMono(ExplorerDto.class)
+                .timeout(Duration.ofSeconds(5))
+                .onErrorResume(WebClientResponseException.NotFound.class, error -> Mono.empty())
+                .blockOptional();
+    }
 }

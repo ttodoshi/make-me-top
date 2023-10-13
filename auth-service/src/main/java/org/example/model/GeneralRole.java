@@ -14,6 +14,7 @@ public class GeneralRole {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer roleId;
+    @Column(nullable = false, unique = true)
     @Enumerated(EnumType.STRING)
     private GeneralRoleType name;
     @OneToMany(mappedBy = "role", cascade = CascadeType.ALL)

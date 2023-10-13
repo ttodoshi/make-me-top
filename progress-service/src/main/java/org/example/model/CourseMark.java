@@ -16,11 +16,12 @@ import java.time.LocalDateTime;
 @EntityListeners(AuditingEntityListener.class)
 public class CourseMark {
     @Id
-    @JoinColumn(table = "explorer", name = "explorer_id")
     private Integer explorerId;
     @CreatedDate
+    @Column(nullable = false)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime courseEndDate;
+    @Column(nullable = false)
     private Integer value;
 
     public CourseMark(Integer explorerId, Integer value) {

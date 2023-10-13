@@ -12,4 +12,6 @@ public interface ExplorerRepository {
     Optional<ExplorerDto> findById(Integer explorerId);
 
     Map<Integer, ExplorerDto> findExplorersByExplorerIdIn(List<Integer> explorerIds);
+
+    Boolean existsById(Integer explorerId);
 }

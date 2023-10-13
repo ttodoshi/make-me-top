@@ -20,7 +20,7 @@ public class HomeworkFeedback {
     private HomeworkRequest request;
     @Column(name = "request_id")
     private Integer requestId;
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String comment;
     @ManyToOne(optional = false)
     @JoinColumn(name = "status_id", nullable = false, insertable = false, updatable = false)

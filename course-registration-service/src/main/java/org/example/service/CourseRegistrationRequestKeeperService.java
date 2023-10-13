@@ -16,10 +16,6 @@ public interface CourseRegistrationRequestKeeperService {
 
     void closeRequestToOtherKeepersOnCourse(CourseRegistrationRequest request);
 
-    boolean isRequestPersonallyForKeeper(CourseRegistrationRequest request);
-
-    void openRequestToOtherKeepersOnCourse(CourseRegistrationRequest request);
-
     List<CourseRegistrationRequestKeeper> findCourseRegistrationRequestKeepersByRequestId(Integer requestId);
 
     List<CourseRegistrationRequestKeeper> findProcessingCourseRegistrationRequestKeepersByKeeperIdIn(List<Integer> keeperIds);

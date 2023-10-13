@@ -20,6 +20,22 @@ import javax.validation.Valid;
 public class MarkController {
     private final MarkService markService;
 
+    @GetMapping("/explorer/{explorerId}/mark")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Get course mark by explorer id", tags = "mark")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Requested mark",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json")
+                    })
+    })
+    public ResponseEntity<?> getCourseMark(@PathVariable Integer explorerId) {
+        return ResponseEntity.ok(markService.getCourseMark(explorerId));
+    }
+
     @PostMapping("/mark")
     @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).KEEPER) && " +
             "@roleService.hasAnyCourseRoleByExplorerId(#courseMark.explorerId, T(org.example.config.security.role.CourseRoleType).KEEPER)")

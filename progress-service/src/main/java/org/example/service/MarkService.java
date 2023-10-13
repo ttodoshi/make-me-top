@@ -2,6 +2,7 @@ package org.example.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.dto.mark.MarkDto;
+import org.example.exception.classes.markEX.CourseMarkNotFoundException;
 import org.example.model.CourseMark;
 import org.example.model.CourseThemeCompletion;
 import org.example.repository.CourseMarkRepository;
@@ -17,6 +18,11 @@ public class MarkService {
     private final CourseThemeCompletionRepository courseThemeCompletionRepository;
 
     private final MarkValidatorService markValidatorService;
+
+    public CourseMark getCourseMark(Integer explorerId) {
+        return courseMarkRepository.findById(explorerId)
+                .orElseThrow(() -> new CourseMarkNotFoundException(explorerId));
+    }
 
     @Transactional
     public CourseMark setCourseMark(MarkDto mark) {

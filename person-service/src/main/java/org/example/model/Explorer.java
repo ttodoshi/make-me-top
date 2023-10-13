@@ -34,6 +34,7 @@ public class Explorer {
     @Column(name = "group_id")
     private Integer groupId;
     @CreatedDate
+    @Column(nullable = false)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime startDate;
 }

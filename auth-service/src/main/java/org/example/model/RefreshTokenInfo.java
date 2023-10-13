@@ -17,9 +17,13 @@ public class RefreshTokenInfo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer tokenId;
+    @Column(nullable = false, unique = true)
     private String refreshToken;
+    @Column(nullable = false)
     private Integer personId;
+    @Column(nullable = false)
     private String role;
+    @Column(nullable = false)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
     private Date expirationTime;
 

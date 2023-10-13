@@ -33,6 +33,14 @@ public class HomeworkService {
         return homeworkRepository.findHomeworksByCourseThemeIdAndGroupId(themeId, groupId);
     }
 
+    @Transactional(readOnly = true)
+    public List<Homework> getCompletedHomeworkByThemeIdForGroup(Integer themeId, Integer groupId, Integer explorerId) {
+        homeworkValidatorService.validateGetCompletedRequest(themeId, groupId, explorerId);
+        return homeworkRepository.findAllCompletedByCourseThemeIdAndGroupIdForExplorer(
+                themeId, groupId, explorerId
+        );
+    }
+
     @Transactional
     public Homework addHomework(Integer themeId, CreateHomeworkDto homework) {
         homeworkValidatorService.validatePostRequest(themeId, homework.getGroupId());

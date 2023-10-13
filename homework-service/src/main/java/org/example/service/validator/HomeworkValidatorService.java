@@ -105,6 +105,13 @@ public class HomeworkValidatorService {
     }
 
     @Transactional(readOnly = true)
+    public void validateGetCompletedRequest(Integer themeId, Integer groupId, Integer explorerId) {
+        if (!explorerRepository.existsById(explorerId))
+            throw new ExplorerNotFoundException(explorerId);
+        validateGetRequest(themeId, groupId);
+    }
+
+    @Transactional(readOnly = true)
     public void validatePostRequest(Integer themeId, Integer groupId) {
         ExplorerGroupDto explorerGroup = explorerGroupRepository.findById(groupId)
                 .orElseThrow(() -> new ExplorerGroupNotFoundException(groupId));

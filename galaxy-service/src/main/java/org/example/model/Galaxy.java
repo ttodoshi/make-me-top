@@ -14,8 +14,9 @@ public class Galaxy {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer galaxyId;
+    @Column(nullable = false, unique = true)
     private String galaxyName;
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String galaxyDescription;
     @OneToMany(mappedBy = "galaxy", cascade = CascadeType.ALL)
     @JsonBackReference

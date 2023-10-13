@@ -27,10 +27,12 @@ public class HomeworkRequest {
     private Homework homework;
     @Column(name = "homework_id")
     private Integer homeworkId;
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
+    @Column(nullable = false)
     private Integer explorerId;
     @CreatedDate
+    @Column(nullable = false)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime requestDate;
     @ManyToOne(optional = false)

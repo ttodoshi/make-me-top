@@ -7,7 +7,14 @@ import org.example.exception.classes.courseEX.CourseNotFoundException;
 import org.example.exception.classes.courseEX.CourseThemeNotFoundException;
 import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
 import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
+import org.example.exception.classes.keeperEX.DifferentKeeperException;
+import org.example.exception.classes.markEX.CourseMarkNotFoundException;
+import org.example.exception.classes.markEX.ExplorerDoesNotNeedMarkException;
+import org.example.exception.classes.markEX.UnexpectedMarkValueException;
 import org.example.exception.classes.personEX.PersonNotFoundException;
+import org.example.exception.classes.progressEX.HomeworkNotCompletedException;
+import org.example.exception.classes.progressEX.ThemeAlreadyCompletedException;
+import org.example.exception.classes.progressEX.UnexpectedCourseThemeException;
 import org.example.exception.classes.systemEX.SystemNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -119,6 +126,48 @@ public class ErrorHandler {
 
     @ExceptionHandler(SystemNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleSystemNotFoundException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(DifferentKeeperException.class)
+    public ResponseEntity<ErrorResponse> handleDifferentKeeperException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), e.getMessage()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(UnexpectedMarkValueException.class)
+    public ResponseEntity<ErrorResponse> handleUnexpectedMarkValueException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), e.getMessage()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ExplorerDoesNotNeedMarkException.class)
+    public ResponseEntity<ErrorResponse> handleExplorerDoesNotNeedMarkException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), e.getMessage()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ThemeAlreadyCompletedException.class)
+    public ResponseEntity<ErrorResponse> handlePlanetAlreadyCompletedException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), e.getMessage()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(UnexpectedCourseThemeException.class)
+    public ResponseEntity<ErrorResponse> handleUnexpectedCourseThemeException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), e.getMessage()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(HomeworkNotCompletedException.class)
+    public ResponseEntity<ErrorResponse> handleHomeworkNotCompletedException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(CourseMarkNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleCourseMarkNotFoundException(Exception e) {
         logWarning(e);
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
     }

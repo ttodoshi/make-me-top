@@ -22,6 +22,5 @@ public class ExplorerGroupValidatorServiceImpl implements ExplorerGroupValidator
             throw new KeeperNotFoundException(group.getKeeperId());
         if (!courseRepository.existsById(group.getCourseId()))
             throw new CourseNotFoundException(group.getCourseId());
-        // TODO у хранителя никто не учится в данный момент
     }
 }

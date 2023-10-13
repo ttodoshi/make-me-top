@@ -19,6 +19,7 @@ public class Keeper {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer keeperId;
+    @Column(nullable = false)
     private Integer courseId;
     @ManyToOne(optional = false)
     @JoinColumn(name = "person_id", nullable = false, insertable = false, updatable = false)
@@ -27,6 +28,7 @@ public class Keeper {
     @Column(name = "person_id")
     private Integer personId;
     @CreatedDate
+    @Column(nullable = false)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime startDate;
 

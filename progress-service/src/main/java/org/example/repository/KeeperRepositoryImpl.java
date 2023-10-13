@@ -38,4 +38,23 @@ public class KeeperRepositoryImpl implements KeeperRepository {
                 .onErrorResume(WebClientResponseException.NotFound.class, error -> Mono.empty())
                 .blockOptional();
     }
+
+    @Override
+    public KeeperDto getReferenceById(Integer keeperId) {
+        return webClientBuilder
+                .baseUrl("http://person-service/api/v1/person-app/").build()
+                .get()
+                .uri(uri -> uri
+                        .path("keeper/{keeperId}/")
+                        .build(keeperId)
+                )
+                .header("Authorization", authorizationHeaderRepository.getAuthorizationHeader())
+                .retrieve()
+                .onStatus(httpStatus -> httpStatus.isError() && !httpStatus.equals(HttpStatus.NOT_FOUND), response -> {
+                    throw new ConnectException();
+                })
+                .bodyToMono(KeeperDto.class)
+                .timeout(Duration.ofSeconds(5))
+                .block();
+    }
 }

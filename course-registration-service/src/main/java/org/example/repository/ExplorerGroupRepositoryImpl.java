@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.Duration;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -32,6 +33,27 @@ public class ExplorerGroupRepositoryImpl implements ExplorerGroupRepository {
                 })
                 .bodyToMono(ExplorerGroupDto.class)
                 .timeout(Duration.ofSeconds(5))
+                .block();
+    }
+
+    @Override
+    public List<ExplorerGroupDto> findExplorerGroupsByKeeperIdIn(List<Integer> keeperIds) {
+        return webClientBuilder
+                .baseUrl("http://person-service/api/v1/person-app/").build()
+                .get()
+                .uri(uri -> uri
+                        .path("group/")
+                        .queryParam("keeperIds", keeperIds)
+                        .build()
+                )
+                .header("Authorization", authorizationHeaderRepository.getAuthorizationHeader())
+                .retrieve()
+                .onStatus(HttpStatus::isError, response -> {
+                    throw new ConnectException();
+                })
+                .bodyToFlux(ExplorerGroupDto.class)
+                .timeout(Duration.ofSeconds(5))
+                .collectList()
                 .block();
     }
 }
