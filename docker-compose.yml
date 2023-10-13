@@ -125,7 +125,7 @@ services:
     ports:
       - "8108:8108"
     depends_on:
-      discovery_server:
+      gateway:
         condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: docker
@@ -138,6 +138,12 @@ services:
     build: ./person-service
     ports:
       - "8104:8104"
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "http://localhost:8104/actuator/health" ]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     depends_on:
       discovery_server:
         condition: service_healthy
@@ -152,8 +158,14 @@ services:
     build: ./galaxy-service
     ports:
       - "8101:8101"
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "http://localhost:8101/actuator/health" ]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     depends_on:
-      discovery_server:
+      auth_service:
         condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: docker
@@ -165,8 +177,14 @@ services:
     build: ./planet-service
     ports:
       - "8102:8102"
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "http://localhost:8102/actuator/health" ]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     depends_on:
-      discovery_server:
+      galaxy_service:
         condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: docker
@@ -179,8 +197,14 @@ services:
     build: ./auth-service
     ports:
       - "8103:8103"
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "http://localhost:8103/actuator/health" ]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     depends_on:
-      discovery_server:
+      person_service:
         condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: docker
@@ -193,8 +217,14 @@ services:
     build: ./course-service
     ports:
       - "8106:8106"
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "http://localhost:8106/actuator/health" ]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     depends_on:
-      discovery_server:
+      planet_service:
         condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: docker
@@ -207,8 +237,14 @@ services:
     build: ./course-registration-service
     ports:
       - "8105:8105"
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "http://localhost:8105/actuator/health" ]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     depends_on:
-      discovery_server:
+      course_service:
         condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: docker
@@ -221,8 +257,14 @@ services:
     build: ./homework-service
     ports:
       - "8107:8107"
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "http://localhost:8107/actuator/health" ]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     depends_on:
-      discovery_server:
+      course_registration_service:
         condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: docker
@@ -235,8 +277,14 @@ services:
     build: ./progress-service
     ports:
       - "8109:8109"
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "http://localhost:8109/actuator/health" ]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     depends_on:
-      discovery_server:
+      homework_service:
         condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: docker
@@ -249,8 +297,14 @@ services:
     build: ./feedback-service
     ports:
       - "8110:8110"
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "http://localhost:8110/actuator/health" ]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     depends_on:
-      discovery_server:
+      progress_service:
         condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: docker
@@ -263,8 +317,14 @@ services:
     build: ./gateway-service
     ports:
       - "4401:4401"
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "http://localhost:4401/actuator/health" ]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     depends_on:
-      discovery_server:
+      feedback_service:
         condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: docker
