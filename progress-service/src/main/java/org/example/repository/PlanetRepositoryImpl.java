@@ -48,7 +48,7 @@ public class PlanetRepositoryImpl implements PlanetRepository {
                 .baseUrl("http://planet-service/api/v1/planet-app/").build()
                 .get()
                 .uri(uri -> uri
-                        .path("planet/")
+                        .path("planets/")
                         .queryParam("systemIds", systemIds)
                         .build()
                 )

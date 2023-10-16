@@ -55,7 +55,7 @@ public class GalaxyController {
         return ResponseEntity.ok(galaxyService.getGalaxyById(galaxyId));
     }
 
-    @PostMapping("/galaxy")
+    @PostMapping("/galaxies")
     @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).BIG_BROTHER)")
     @Operation(summary = "Create galaxy", tags = "galaxy")
     @ApiResponses(value = {
@@ -75,7 +75,7 @@ public class GalaxyController {
                 );
     }
 
-    @PutMapping("/galaxy/{galaxyId}")
+    @PutMapping("/galaxies/{galaxyId}")
     @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).BIG_BROTHER)")
     @Operation(summary = "Update galaxy", tags = "galaxy")
     @ApiResponses(value = {
@@ -92,7 +92,7 @@ public class GalaxyController {
         return ResponseEntity.ok(galaxyService.updateGalaxy(id, galaxy));
     }
 
-    @DeleteMapping("/galaxy/{galaxyId}")
+    @DeleteMapping("/galaxies/{galaxyId}")
     @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).BIG_BROTHER)")
     @Operation(summary = "Delete galaxy", tags = "galaxy")
     @ApiResponses(value = {
