@@ -44,7 +44,7 @@ public class CourseProgressServiceImpl implements CourseProgressService {
                 .baseUrl("http://progress-service/api/v1/progress-app/").build()
                 .get()
                 .uri(uri -> uri
-                        .path("galaxy/{galaxyId}/")
+                        .path("galaxies/{galaxyId}/")
                         .build(galaxyId)
                 )
                 .header("Authorization", authorizationHeaderRepository.getAuthorizationHeader())

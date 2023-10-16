@@ -21,7 +21,7 @@ import java.util.List;
 public class HomeworkRequestController {
     private final HomeworkRequestService homeworkRequestService;
 
-    @GetMapping("/homework-request")
+    @GetMapping("/homework-requests")
     @PreAuthorize("isAuthenticated()") // TODO
 //    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).KEEPER) && " +
 //            "@roleService.hasAnyCourseRoleByExplorerIds(#explorerIds, T(org.example.config.security.role.CourseRoleType).KEEPER)")

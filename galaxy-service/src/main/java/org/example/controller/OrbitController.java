@@ -34,8 +34,8 @@ public class OrbitController {
                     })
     })
     public ResponseEntity<?> getOrbitById(@PathVariable("orbitId") Integer orbitId,
-                                          @RequestParam(name = "withSystemList", required = false) Boolean withSystemsList) {
-        if (withSystemsList != null && withSystemsList)
+                                          @RequestParam(required = false) Boolean withSystemList) {
+        if (withSystemList != null && withSystemList)
             return ResponseEntity.ok(orbitService.getOrbitWithSystemList(orbitId));
         else
             return ResponseEntity.ok(orbitService.getOrbitById(orbitId));

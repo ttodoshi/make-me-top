@@ -26,7 +26,7 @@ public class CourseProgressServiceImpl implements CourseProgressService {
                 .baseUrl("http://progress-service/api/v1/progress-app/").build()
                 .get()
                 .uri(uri -> uri
-                        .path("explorer/{explorerId}/")
+                        .path("explorers/{explorerId}/")
                         .build(explorerId)
                 )
                 .header("Authorization", authorizationHeaderRepository.getAuthorizationHeader())

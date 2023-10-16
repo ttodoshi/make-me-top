@@ -73,7 +73,7 @@ public class KeeperCourseRegistrationRequestValidatorService {
                 .baseUrl("http://progress-service/api/v1/progress-app/").build()
                 .get()
                 .uri(uri -> uri
-                        .path("explorer/completed/")
+                        .path("explorers/completed/")
                         .queryParam("explorerIds", explorerIds)
                         .build()
                 ).header("Authorization", authorizationHeaderRepository.getAuthorizationHeader())

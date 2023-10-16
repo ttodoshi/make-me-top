@@ -18,7 +18,7 @@ import java.util.List;
 public class ProgressController {
     private final ProgressService progressService;
 
-    @GetMapping("/explorer/final-assessment")
+    @GetMapping("/explorers/final-assessments")
     @PreAuthorize("isAuthenticated()") // TODO
     @Operation(summary = "Get explorer ids needed final assessment", tags = "explorer")
     @ApiResponses(value = {
@@ -36,7 +36,7 @@ public class ProgressController {
         );
     }
 
-    @GetMapping("/explorer/completed")
+    @GetMapping("/explorers/completed")
     @PreAuthorize("isAuthenticated()") // TODO
     @Operation(summary = "Get explorer ids with final assessment", tags = "explorer")
     @ApiResponses(value = {
@@ -53,7 +53,7 @@ public class ProgressController {
                 progressService.getExplorerIdsWithFinalAssessment(explorerIds));
     }
 
-    @GetMapping("/galaxy/{galaxyId}")
+    @GetMapping("/galaxies/{galaxyId}")
     @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).EXPLORER)")
     @Operation(summary = "Get courses progress by galaxy id", tags = "system progress")
     @ApiResponses(value = {
@@ -70,7 +70,7 @@ public class ProgressController {
                 progressService.getCoursesProgressForCurrentUser(galaxyId));
     }
 
-    @GetMapping("/explorer/{explorerId}")
+    @GetMapping("/explorers/{explorerId}")
     @PreAuthorize("isAuthenticated()")
 //    @PreAuthorize("(@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).EXPLORER) && " +
 //            "@roleService.hasAnyCourseRoleByExplorerId(#explorerId, T(org.example.config.security.role.CourseRoleType).EXPLORER)) || " +

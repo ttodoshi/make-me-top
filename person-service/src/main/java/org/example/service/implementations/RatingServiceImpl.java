@@ -28,7 +28,7 @@ public class RatingServiceImpl implements RatingService {
                 .baseUrl("http://feedback-service/api/v1/feedback-app/").build()
                 .get()
                 .uri(uri -> uri
-                        .path("person/{personId}/rating/")
+                        .path("people/{personId}/ratings/")
                         .queryParam("as", "keeper")
                         .build(personId)
                 )
@@ -49,7 +49,7 @@ public class RatingServiceImpl implements RatingService {
                 .baseUrl("http://feedback-service/api/v1/feedback-app/").build()
                 .get()
                 .uri(uri -> uri
-                        .path("person/{personId}/rating/")
+                        .path("people/{personId}/ratings/")
                         .queryParam("as", "explorer")
                         .build(personId)
                 )
@@ -70,7 +70,7 @@ public class RatingServiceImpl implements RatingService {
                 .baseUrl("http://feedback-service/api/v1/feedback-app/").build()
                 .get()
                 .uri(uri -> uri
-                        .path("person/rating/")
+                        .path("people/ratings/")
                         .queryParam("personIds", personIds)
                         .queryParam("as", "explorer")
                         .build()

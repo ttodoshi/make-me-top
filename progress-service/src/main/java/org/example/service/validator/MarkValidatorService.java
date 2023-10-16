@@ -75,7 +75,7 @@ public class MarkValidatorService {
                 .baseUrl("http://progress-service/api/v1/progress-app/").build()
                 .get()
                 .uri(uri -> uri
-                        .path("explorer/final-assessment/")
+                        .path("explorers/final-assessments/")
                         .queryParam("explorerIds", Collections.singletonList(explorerId))
                         .build()
                 )

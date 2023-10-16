@@ -21,7 +21,7 @@ import javax.validation.Valid;
 public class KeeperHomeworkRequestController {
     private final KeeperHomeworkRequestService keeperHomeworkRequestService;
 
-    @GetMapping("/homework-request/{requestId}")
+    @GetMapping("/homework-requests/{requestId}")
     @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).KEEPER) && " +
             "@roleService.hasAnyCourseRoleByHomeworkRequestId(#requestId, T(org.example.config.security.role.CourseRoleType).KEEPER)")
     @Operation(summary = "Get homework request", tags = "keeper homework request")
@@ -38,7 +38,7 @@ public class KeeperHomeworkRequestController {
         return ResponseEntity.ok(keeperHomeworkRequestService.getHomeworkRequest(requestId));
     }
 
-    @PostMapping("/homework/{homeworkId}/mark")
+    @PostMapping("/homeworks/{homeworkId}/marks")
     @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).KEEPER) && " +
             "@roleService.hasAnyCourseRoleByHomeworkId(#homeworkId, T(org.example.config.security.role.CourseRoleType).KEEPER)")
     @Operation(summary = "Set homework mark from 1 to 5", tags = "keeper homework request")
@@ -60,7 +60,7 @@ public class KeeperHomeworkRequestController {
                 );
     }
 
-    @PostMapping("/homework/{homeworkId}/feedback")
+    @PostMapping("/homeworks/{homeworkId}/feedbacks")
     @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).KEEPER) && " +
             "@roleService.hasAnyCourseRoleByHomeworkId(#homeworkId, T(org.example.config.security.role.CourseRoleType).KEEPER)")
     @Operation(summary = "Send homework feedback", tags = "keeper homework request")

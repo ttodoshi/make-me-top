@@ -21,7 +21,7 @@ public class CourseMarkRepositoryImpl implements CourseMarkRepository {
                 .baseUrl("http://progress-service/api/v1/progress-app/").build()
                 .get()
                 .uri(uri -> uri
-                        .path("explorer/{explorerId}/mark/")
+                        .path("explorers/{explorerId}/mark/")
                         .build(explorerId)
                 )
                 .header("Authorization", authorizationHeaderRepository.getAuthorizationHeader())

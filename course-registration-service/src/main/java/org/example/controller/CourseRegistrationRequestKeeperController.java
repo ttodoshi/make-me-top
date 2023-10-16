@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/course-registration-app/course-request")
+@RequestMapping("/api/v1/course-registration-app/course-requests")
 @RequiredArgsConstructor
 public class CourseRegistrationRequestKeeperController {
     private final CourseRegistrationRequestKeeperService courseRegistrationRequestKeeperService;

@@ -19,7 +19,7 @@ import javax.validation.Valid;
 public class ExplorerHomeworkRequestController {
     private final ExplorerHomeworkRequestService explorerHomeworkRequestService;
 
-    @PostMapping("/homework/{homeworkId}")
+    @PostMapping("/homeworks/{homeworkId}")
     @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).EXPLORER) &&" +
             "@roleService.hasAnyCourseRoleByHomeworkId(#homeworkId, T(org.example.config.security.role.CourseRoleType).EXPLORER)")
     @Operation(summary = "Send homework review request", tags = "explorer homework request")
@@ -37,7 +37,7 @@ public class ExplorerHomeworkRequestController {
         return ResponseEntity.ok(explorerHomeworkRequestService.sendHomeworkRequest(homeworkId, request));
     }
 
-    @GetMapping("/theme/{themeId}/homework")
+    @GetMapping("/themes/{themeId}/homeworks")
     @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).EXPLORER) && " +
             "@roleService.hasAnyCourseRoleByThemeId(#themeId, T(org.example.config.security.role.CourseRoleType).EXPLORER)")
     @Operation(summary = "Get opened requests by theme id", tags = "explorer homework request")

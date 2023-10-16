@@ -19,7 +19,7 @@ import java.util.List;
 public class PersonRatingController {
     private final RatingService ratingService;
 
-    @GetMapping("/person/{personId}/rating")
+    @GetMapping("/people/{personId}/ratings")
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get rating", tags = "rating")
     @ApiResponses(value = {
@@ -40,7 +40,7 @@ public class PersonRatingController {
         else throw new RoleNotAvailableException();
     }
 
-    @GetMapping("/person/rating")
+    @GetMapping("/people/ratings")
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get rating", tags = "rating")
     @ApiResponses(value = {

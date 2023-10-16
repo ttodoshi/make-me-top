@@ -21,7 +21,7 @@ import java.util.List;
 public class CourseRatingController {
     private final CourseRatingService courseRatingService;
 
-    @GetMapping("/course")
+    @GetMapping("/courses")
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get rating", tags = "rating")
     @ApiResponses(value = {

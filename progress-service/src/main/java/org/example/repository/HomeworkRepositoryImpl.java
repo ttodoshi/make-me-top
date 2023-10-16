@@ -24,7 +24,7 @@ public class HomeworkRepositoryImpl implements HomeworkRepository {
                 .baseUrl("http://homework-service/api/v1/homework-app/").build()
                 .get()
                 .uri(uri -> uri
-                        .path("theme/{themeId}/group/{groupId}/homework/")
+                        .path("themes/{themeId}/groups/{groupId}/homeworks/")
                         .build(themeId, groupId)
                 )
                 .header("Authorization", authorizationHeaderRepository.getAuthorizationHeader())
@@ -44,7 +44,7 @@ public class HomeworkRepositoryImpl implements HomeworkRepository {
                 .baseUrl("http://homework-service/api/v1/homework-app/").build()
                 .get()
                 .uri(uri -> uri
-                        .path("theme/{themeId}/group/{groupId}/homework/completed/")
+                        .path("themes/{themeId}/groups/{groupId}/homeworks/completed/")
                         .queryParam("explorerId", explorerId)
                         .build(themeId, groupId)
                 )

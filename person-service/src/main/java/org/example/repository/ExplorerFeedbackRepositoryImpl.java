@@ -22,7 +22,7 @@ public class ExplorerFeedbackRepositoryImpl implements ExplorerFeedbackRepositor
                 .baseUrl("http://feedback-service/api/v1/feedback-app/").build()
                 .get()
                 .uri(uri -> uri
-                        .path("explorer-feedback/")
+                        .path("explorer-feedbacks/")
                         .queryParam("keeperIds", keeperIds)
                         .build()
                 )

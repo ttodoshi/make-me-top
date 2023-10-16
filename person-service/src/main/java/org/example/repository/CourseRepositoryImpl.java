@@ -25,7 +25,7 @@ public class CourseRepositoryImpl implements CourseRepository {
                 .baseUrl("http://course-service/api/v1/course-app/").build()
                 .get()
                 .uri(uri -> uri
-                        .path("course/")
+                        .path("courses/")
                         .queryParam("courseIds", courseIds)
                         .build()
                 )
