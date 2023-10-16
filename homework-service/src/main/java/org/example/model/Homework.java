@@ -16,9 +16,11 @@ public class Homework {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer homeworkId;
+    @Column(nullable = false)
     private Integer courseThemeId;
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
+    @Column(nullable = false)
     private Integer groupId;
     @OneToMany(mappedBy = "request", cascade = CascadeType.ALL)
     @JsonBackReference

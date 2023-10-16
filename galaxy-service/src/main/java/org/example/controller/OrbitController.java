@@ -21,7 +21,7 @@ import javax.validation.Valid;
 public class OrbitController {
     private final OrbitService orbitService;
 
-    @GetMapping("/orbit/{orbitId}")
+    @GetMapping("/orbits/{orbitId}")
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get orbit by id", tags = "orbit")
     @ApiResponses(value = {
@@ -34,14 +34,14 @@ public class OrbitController {
                     })
     })
     public ResponseEntity<?> getOrbitById(@PathVariable("orbitId") Integer orbitId,
-                                          @RequestParam(name = "withSystemList", required = false) Boolean withSystemsList) {
-        if (withSystemsList != null && withSystemsList)
+                                          @RequestParam(required = false) Boolean withSystemList) {
+        if (withSystemList != null && withSystemList)
             return ResponseEntity.ok(orbitService.getOrbitWithSystemList(orbitId));
         else
             return ResponseEntity.ok(orbitService.getOrbitById(orbitId));
     }
 
-    @PostMapping("/galaxy/{galaxyId}/orbit")
+    @PostMapping("/galaxies/{galaxyId}/orbits")
     @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).BIG_BROTHER)")
     @Operation(summary = "Create orbit", tags = "orbit")
     @ApiResponses(value = {
@@ -62,7 +62,7 @@ public class OrbitController {
                 );
     }
 
-    @PutMapping("/orbit/{orbitId}")
+    @PutMapping("/orbits/{orbitId}")
     @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).BIG_BROTHER)")
     @Operation(summary = "Update orbit by id", tags = "orbit")
     @ApiResponses(value = {
@@ -79,7 +79,7 @@ public class OrbitController {
         return ResponseEntity.ok(orbitService.updateOrbit(orbitId, orbit));
     }
 
-    @DeleteMapping("/orbit/{orbitId}")
+    @DeleteMapping("/orbits/{orbitId}")
     @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).BIG_BROTHER)")
     @Operation(summary = "Delete orbit by id", tags = "orbit")
     @ApiResponses(value = {

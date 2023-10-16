@@ -26,8 +26,8 @@ public class CourseRegistrationRequest {
     private Integer courseId;
     @Column(nullable = false)
     private Integer personId;
-    @Column(nullable = false)
     @CreatedDate
+    @Column(nullable = false)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime requestDate;
     @ManyToOne(optional = false)

@@ -11,6 +11,7 @@ public class HomeworkRequestStatus {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer statusId;
+    @Column(nullable = false, unique = true)
     @Enumerated(EnumType.STRING)
     private HomeworkRequestStatusType status;
 }

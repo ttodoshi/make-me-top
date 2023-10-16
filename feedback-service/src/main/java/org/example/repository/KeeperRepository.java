@@ -12,4 +12,6 @@ public interface KeeperRepository {
     List<KeeperDto> findKeepersByPersonId(Integer personId);
 
     Map<Integer, List<KeeperDto>> findKeepersByPersonIdIn(List<Integer> personIds);
+
+    Optional<KeeperDto> findById(Integer keeperId);
 }

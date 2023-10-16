@@ -22,7 +22,7 @@ public class KeeperFeedbackRepositoryImpl implements KeeperFeedbackRepository {
                 .baseUrl("http://feedback-service/api/v1/feedback-app/").build()
                 .get()
                 .uri(uri -> uri
-                        .path("keeper-feedback/")
+                        .path("keeper-feedbacks/")
                         .queryParam("explorerIds", explorerIds)
                         .build()
                 )

@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.apache.kafka.common.annotation.InterfaceStability;
 import org.example.dto.homework.CreateHomeworkDto;
 import org.example.dto.homework.UpdateHomeworkDto;
 import org.example.service.HomeworkService;
@@ -21,7 +22,7 @@ import java.util.List;
 public class HomeworkController {
     private final HomeworkService homeworkService;
 
-    @GetMapping("/homework/{homeworkId}")
+    @GetMapping("/homeworks/{homeworkId}")
     @PreAuthorize("@roleService.hasAnyCourseRoleByHomeworkId(#homeworkId, T(org.example.config.security.role.CourseRoleType).EXPLORER) ||" +
             "@roleService.hasAnyCourseRoleByHomeworkId(#homeworkId, T(org.example.config.security.role.CourseRoleType).KEEPER)")
     @Operation(summary = "Get homework by homework id", tags = "homework")
@@ -38,7 +39,7 @@ public class HomeworkController {
         return ResponseEntity.ok(homeworkService.findHomeworkByHomeworkId(homeworkId));
     }
 
-    @GetMapping("/theme/{themeId}/group/{groupId}/homework")
+    @GetMapping("/themes/{themeId}/groups/{groupId}/homeworks")
     @PreAuthorize("@roleService.hasAnyCourseRoleByGroupId(#groupId, T(org.example.config.security.role.CourseRoleType).EXPLORER) ||" +
             "@roleService.hasAnyCourseRoleByGroupId(#groupId, T(org.example.config.security.role.CourseRoleType).KEEPER)")
     @Operation(summary = "Get homework by theme id and group id", tags = "homework")
@@ -56,7 +57,26 @@ public class HomeworkController {
         return ResponseEntity.ok(homeworkService.getHomeworkByThemeIdForGroup(themeId, groupId));
     }
 
-    @GetMapping("/homework")
+    @GetMapping("/themes/{themeId}/groups/{groupId}/homeworks/completed")
+    @PreAuthorize("@roleService.hasAnyCourseRoleByGroupId(#groupId, T(org.example.config.security.role.CourseRoleType).EXPLORER) ||" +
+            "@roleService.hasAnyCourseRoleByGroupId(#groupId, T(org.example.config.security.role.CourseRoleType).KEEPER)")
+    @Operation(summary = "Get completed homework by theme id and group id", tags = "homework")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Requested homework",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json")
+                    })
+    })
+    public ResponseEntity<?> getCompletedHomeworkByThemeIdForGroup(@PathVariable("themeId") Integer themeId,
+                                                                   @PathVariable("groupId") Integer groupId,
+                                                                   @RequestParam Integer explorerId) {
+        return ResponseEntity.ok(homeworkService.getCompletedHomeworkByThemeIdForGroup(themeId, groupId, explorerId));
+    }
+
+    @GetMapping("/homeworks")
     @PreAuthorize("@roleService.hasAnyCourseRoleByHomeworkIds(#homeworkIds, T(org.example.config.security.role.CourseRoleType).EXPLORER) ||" +
             "@roleService.hasAnyCourseRoleByHomeworkIds(#homeworkIds, T(org.example.config.security.role.CourseRoleType).KEEPER)")
     @Operation(summary = "Get homeworks by homework id in", tags = "homework")
@@ -73,7 +93,7 @@ public class HomeworkController {
         return ResponseEntity.ok(homeworkService.findHomeworksByHomeworkIdIn(homeworkIds));
     }
 
-    @PostMapping("/theme/{themeId}/homework")
+    @PostMapping("/themes/{themeId}/homeworks")
     @PreAuthorize("@roleService.hasAnyCourseRoleByThemeId(#themeId, T(org.example.config.security.role.CourseRoleType).KEEPER)")
     @Operation(summary = "Create homework for theme", tags = "homework")
     @ApiResponses(value = {
@@ -90,7 +110,7 @@ public class HomeworkController {
         return ResponseEntity.ok(homeworkService.addHomework(themeId, homework));
     }
 
-    @PutMapping("/homework/{homeworkId}")
+    @PutMapping("/homeworks/{homeworkId}")
     @PreAuthorize("@roleService.hasAnyCourseRoleByHomeworkId(#homeworkId, T(org.example.config.security.role.CourseRoleType).KEEPER)")
     @Operation(summary = "Update homework by id", tags = "homework")
     @ApiResponses(value = {
@@ -107,7 +127,7 @@ public class HomeworkController {
         return ResponseEntity.ok(homeworkService.updateHomework(homeworkId, homework));
     }
 
-    @DeleteMapping("/homework/{homeworkId}")
+    @DeleteMapping("/homeworks/{homeworkId}")
     @PreAuthorize("@roleService.hasAnyCourseRoleByHomeworkId(#homeworkId, T(org.example.config.security.role.CourseRoleType).KEEPER)")
     @Operation(summary = "Delete homework by id", tags = "homework")
     @ApiResponses(value = {

@@ -22,7 +22,7 @@ import java.util.List;
 public class ExplorerFeedbackController {
     private final ExplorerFeedbackService explorerFeedbackService;
 
-    @GetMapping("/explorer-feedback")
+    @GetMapping("/explorer-feedbacks")
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get explorer feedbacks by keeper id in", tags = "explorer feedback")
     @ApiResponses(value = {
@@ -38,7 +38,7 @@ public class ExplorerFeedbackController {
         return ResponseEntity.ok(explorerFeedbackService.findExplorerFeedbacksByKeeperIdIn(keeperIds));
     }
 
-    @PostMapping("/course/{courseId}/explorer-feedback")
+    @PostMapping("/courses/{courseId}/explorer-feedbacks")
     @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).EXPLORER) && " +
             "@roleService.hasAnyCourseRole(#courseId, T(org.example.config.security.role.CourseRoleType).EXPLORER)")
     @Operation(summary = "Send feedback for keeper (rating from 1 to 5)", tags = "explorer feedback")
@@ -60,7 +60,7 @@ public class ExplorerFeedbackController {
                 );
     }
 
-    @PostMapping("/course/{courseId}/course-feedback")
+    @PostMapping("/courses/{courseId}/course-feedbacks")
     @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).EXPLORER) && " +
             "@roleService.hasAnyCourseRole(#courseId, T(org.example.config.security.role.CourseRoleType).EXPLORER)")
     @Operation(summary = "Set rating from 1 to 5 for course", tags = "explorer feedback")

@@ -18,8 +18,11 @@ public class StarSystem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer systemId;
+    @Column(nullable = false, unique = true)
     private String systemName;
+    @Column(nullable = false)
     private Integer systemLevel;
+    @Column(nullable = false)
     private Integer systemPosition;
     @ManyToOne(optional = false)
     @JoinColumn(name = "orbit_id", nullable = false, insertable = false, updatable = false)

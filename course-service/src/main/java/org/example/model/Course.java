@@ -23,16 +23,21 @@ import java.util.List;
 @EntityListeners(AuditingEntityListener.class)
 public class Course {
     @Id
+    @Column(nullable = false)
     @NotNull
     private Integer courseId;
+    @Column(nullable = false)
     @NotNull
     private String title;
     @CreatedDate
+    @Column(nullable = false)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime creationDate;
     @LastModifiedDate
+    @Column(nullable = false)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime lastModified;
+    @Column(nullable = false)
     @NotNull
     private String description;
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)

@@ -22,7 +22,7 @@ public class HomeworkRequestRepositoryImpl implements HomeworkRequestRepository 
                 .baseUrl("http://homework-service/api/v1/homework-app/").build()
                 .get()
                 .uri(uri -> uri
-                        .path("homework-request/")
+                        .path("homework-requests/")
                         .queryParam("explorerIds", explorerIds)
                         .build()
                 )

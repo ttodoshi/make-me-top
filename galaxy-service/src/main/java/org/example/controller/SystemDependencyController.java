@@ -18,7 +18,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/galaxy-app/dependency")
+@RequestMapping("/api/v1/galaxy-app/dependencies")
 @RequiredArgsConstructor
 @Validated
 public class SystemDependencyController {

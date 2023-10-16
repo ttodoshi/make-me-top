@@ -18,6 +18,7 @@ public class HomeworkMark {
     @JoinColumn(name = "request_id", nullable = false, insertable = false, updatable = false)
     @JsonBackReference
     private HomeworkRequest request;
+    @Column(nullable = false)
     private Integer mark;
     @Column(columnDefinition = "TEXT")
     private String comment;

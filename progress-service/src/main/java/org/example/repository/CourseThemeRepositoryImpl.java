@@ -27,7 +27,7 @@ public class CourseThemeRepositoryImpl implements CourseThemeRepository {
                 .baseUrl("http://course-service/api/v1/course-app/").build()
                 .get()
                 .uri(uri -> uri
-                        .path("theme/{themeId}/")
+                        .path("themes/{themeId}/")
                         .build(themeId)
                 )
                 .header("Authorization", authorizationHeaderRepository.getAuthorizationHeader())
@@ -47,7 +47,7 @@ public class CourseThemeRepositoryImpl implements CourseThemeRepository {
                 .baseUrl("http://course-service/api/v1/course-app/").build()
                 .get()
                 .uri(uri -> uri
-                        .path("course/{courseId}/theme/")
+                        .path("courses/{courseId}/themes/")
                         .build(courseId)
                 )
                 .header("Authorization", authorizationHeaderRepository.getAuthorizationHeader())

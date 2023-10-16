@@ -97,7 +97,7 @@ public class CourseProgressServiceImpl implements CourseProgressService {
                 .baseUrl("http://progress-service/api/v1/progress-app/").build()
                 .get()
                 .uri(uri -> uri
-                        .path("explorer/{explorerId}/")
+                        .path("explorers/{explorerId}/")
                         .build(explorerId)
                 )
                 .header("Authorization", authorizationHeaderRepository.getAuthorizationHeader())
@@ -138,7 +138,7 @@ public class CourseProgressServiceImpl implements CourseProgressService {
                 .baseUrl("http://progress-service/api/v1/progress-app/").build()
                 .get()
                 .uri(uri -> uri
-                        .path("explorer/final-assessment/")
+                        .path("explorers/final-assessments/")
                         .queryParam("explorerIds", explorerIds)
                         .build()
                 )
@@ -226,7 +226,7 @@ public class CourseProgressServiceImpl implements CourseProgressService {
                 .baseUrl("http://progress-service/api/v1/progress-app/").build()
                 .get()
                 .uri(uri -> uri
-                        .path("explorer/completed/")
+                        .path("explorers/completed/")
                         .queryParam("explorerIds", explorerIds)
                         .build()
                 ).header("Authorization", authorizationHeaderRepository.getAuthorizationHeader())

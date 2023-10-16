@@ -2,8 +2,10 @@ package org.example.service.validator;
 
 import lombok.RequiredArgsConstructor;
 import org.example.exception.classes.courseEX.CourseNotFoundException;
+import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
 import org.example.exception.classes.personEX.PersonNotFoundException;
 import org.example.repository.CourseRepository;
+import org.example.repository.ExplorerRepository;
 import org.example.repository.PersonRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ExplorerValidatorServiceImpl implements ExplorerValidatorService {
     private final PersonRepository personRepository;
     private final CourseRepository courseRepository;
+    private final ExplorerRepository explorerRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -31,6 +34,7 @@ public class ExplorerValidatorServiceImpl implements ExplorerValidatorService {
     @Override
     @Transactional(readOnly = true)
     public void validateDeleteExplorerByIdRequest(Integer explorerId) {
-        // TODO explorer exists and other
+        if (!explorerRepository.existsById(explorerId))
+            throw new ExplorerNotFoundException(explorerId);
     }
 }

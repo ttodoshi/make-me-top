@@ -21,7 +21,7 @@ import java.util.List;
 public class KeeperFeedbackController {
     private final KeeperFeedbackService keeperFeedbackService;
 
-    @GetMapping("/keeper-feedback")
+    @GetMapping("/keeper-feedbacks")
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get keeper feedbacks by explorer id in", tags = "explorer feedback")
     @ApiResponses(value = {
@@ -37,7 +37,7 @@ public class KeeperFeedbackController {
         return ResponseEntity.ok(keeperFeedbackService.findKeeperFeedbacksByExplorerIdIn(explorerIds));
     }
 
-    @PostMapping("/course/{courseId}/keeper-feedback")
+    @PostMapping("/courses/{courseId}/keeper-feedbacks")
     @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).KEEPER) && " +
             "@roleService.hasAnyCourseRole(#courseId, T(org.example.config.security.role.CourseRoleType).KEEPER)")
     @Operation(summary = "Send feedback for explorer", tags = "keeper feedback")

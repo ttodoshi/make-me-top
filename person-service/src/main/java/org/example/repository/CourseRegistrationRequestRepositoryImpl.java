@@ -27,7 +27,7 @@ public class CourseRegistrationRequestRepositoryImpl implements CourseRegistrati
                 .baseUrl("http://course-registration-service/api/v1/course-registration-app/").build()
                 .get()
                 .uri(uri -> uri
-                        .path("course-request/")
+                        .path("course-requests/processing/")
                         .queryParam("personId", personId)
                         .build()
                 )

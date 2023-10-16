@@ -13,8 +13,11 @@ public class CourseThemeCompletion {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer courseThemeCompletionId;
+    @Column(nullable = false)
     private Integer explorerId;
+    @Column(nullable = false)
     private Integer courseThemeId;
+    @Column(nullable = false)
     private Integer mark;
 
     public CourseThemeCompletion(Integer explorerId, Integer courseThemeId, Integer mark) {

@@ -19,14 +19,19 @@ import java.time.LocalDateTime;
 @EntityListeners(AuditingEntityListener.class)
 public class CourseTheme {
     @Id
+    @Column(nullable = false)
     private Integer courseThemeId;
+    @Column(nullable = false)
     private String title;
     @LastModifiedDate
+    @Column(nullable = false)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime lastModified;
+    @Column(nullable = false)
     private String description;
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
+    @Column(nullable = false)
     private Integer courseThemeNumber;
     @ManyToOne(optional = false)
     @JoinColumn(name = "course_id", nullable = false, insertable = false, updatable = false)

@@ -24,7 +24,7 @@ public class HomeworkRepositoryImpl implements HomeworkRepository {
                 .baseUrl("http://homework-service/api/v1/homework-app/").build()
                 .get()
                 .uri(uri -> uri
-                        .path("homework/")
+                        .path("homeworks/")
                         .queryParam("homeworkIds", homeworkIds)
                         .build()
                 )
@@ -45,7 +45,7 @@ public class HomeworkRepositoryImpl implements HomeworkRepository {
                 .baseUrl("http://homework-service/api/v1/homework-app/").build()
                 .get()
                 .uri(uri -> uri
-                        .path("homework/{homeworkId}")
+                        .path("homeworks/{homeworkId}")
                         .build(homeworkId)
                 )
                 .header("Authorization", authorizationHeaderRepository.getAuthorizationHeader())

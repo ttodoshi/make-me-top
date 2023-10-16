@@ -24,7 +24,7 @@ import java.util.List;
 public class PlanetController {
     private final PlanetService planetService;
 
-    @GetMapping("/planet")
+    @GetMapping("/planets")
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get planets by system id in", tags = "planet")
     @ApiResponses(value = {
@@ -56,7 +56,7 @@ public class PlanetController {
         return ResponseEntity.ok(planetService.getPlanetsListBySystemId(systemId));
     }
 
-    @PostMapping("/system/{systemId}/planet")
+    @PostMapping("/systems/{systemId}/planets")
     @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).BIG_BROTHER)")
     @Operation(summary = "Create planets", tags = "planet")
     @ApiResponses(value = {
@@ -77,7 +77,7 @@ public class PlanetController {
                 );
     }
 
-    @PutMapping("/planet/{planetId}")
+    @PutMapping("/planets/{planetId}")
     @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).BIG_BROTHER)")
     @Operation(summary = "Update planet", tags = "planet")
     @ApiResponses(value = {
@@ -94,7 +94,7 @@ public class PlanetController {
         return ResponseEntity.ok(planetService.updatePlanet(planetId, planet));
     }
 
-    @DeleteMapping("/planet/{planetId}")
+    @DeleteMapping("/planets/{planetId}")
     @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).BIG_BROTHER)")
     @Operation(summary = "Delete planet", tags = "planet")
     @ApiResponses(value = {

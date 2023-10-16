@@ -19,6 +19,7 @@ public class SystemDependency {
     @ManyToOne
     @JoinColumn(name = "parent_id")
     private StarSystem parent;
+    @Column(nullable = false)
     private Boolean isAlternative;
 
     public SystemDependency(StarSystem child, StarSystem parent, Boolean isAlternative) {

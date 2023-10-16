@@ -20,7 +20,7 @@ import java.util.List;
 public class CourseThemeController {
     private final CourseThemeService courseThemeService;
 
-    @GetMapping("/theme/{themeId}")
+    @GetMapping("/themes/{themeId}")
     @PreAuthorize("isAuthenticated()") // TODO
 //    @PreAuthorize("@roleServiceImpl.hasAnyCourseRoleByThemeId(#themeId, T(org.example.config.security.role.CourseRoleType).EXPLORER) ||" +
 //            "@roleServiceImpl.hasAnyCourseRoleByThemeId(#themeId, T(org.example.config.security.role.CourseRoleType).KEEPER) ||" +
@@ -39,7 +39,7 @@ public class CourseThemeController {
         return ResponseEntity.ok(courseThemeService.getCourseTheme(themeId));
     }
 
-    @GetMapping("/theme")
+    @GetMapping("/themes")
     @PreAuthorize("isAuthenticated()") // TODO
 //    @PreAuthorize("@roleServiceImpl.hasAnyCourseRoleByThemeIds(#themeIds, T(org.example.config.security.role.CourseRoleType).EXPLORER) ||" +
 //            "@roleServiceImpl.hasAnyCourseRoleByThemeIds(#themeIds, T(org.example.config.security.role.CourseRoleType).KEEPER) ||" +
@@ -58,7 +58,7 @@ public class CourseThemeController {
         return ResponseEntity.ok(courseThemeService.findCourseThemesByCourseThemeIdIn(themeIds));
     }
 
-    @GetMapping("/course/{courseId}/theme")
+    @GetMapping("/courses/{courseId}/themes")
     @PreAuthorize("isAuthenticated()") // TODO
 //    @PreAuthorize("@roleServiceImpl.hasAnyCourseRole(#courseId, T(org.example.config.security.role.CourseRoleType).EXPLORER) ||" +
 //            "@roleServiceImpl.hasAnyCourseRole(#courseId, T(org.example.config.security.role.CourseRoleType).KEEPER) ||" +
@@ -77,7 +77,7 @@ public class CourseThemeController {
         return ResponseEntity.ok(courseThemeService.getCourseThemesByCourseId(courseId));
     }
 
-    @PutMapping("/theme/{themeId}")
+    @PutMapping("/themes/{themeId}")
     @PreAuthorize("@roleServiceImpl.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).BIG_BROTHER)")
     @Operation(summary = "Update theme by id", tags = "theme")
     @ApiResponses(value = {

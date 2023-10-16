@@ -14,4 +14,6 @@ public interface ExplorerRepository {
     Map<Integer, List<ExplorerDto>> findExplorersByGroup_CourseIdIn(List<Integer> courseIds);
 
     Map<Integer, List<ExplorerDto>> findExplorersByPersonIdIn(List<Integer> personIds);
+
+    Optional<ExplorerDto> findById(Integer explorerId);
 }

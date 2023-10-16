@@ -3,6 +3,7 @@ package org.example.repository;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.keeper.KeeperDto;
 import org.example.exception.classes.connectEX.ConnectException;
+import org.example.exception.classes.keeperEX.KeeperNotFoundException;
 import org.example.exception.classes.personEX.PersonNotFoundException;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
@@ -85,5 +86,25 @@ public class KeeperRepositoryImpl implements KeeperRepository {
                 })
                 .timeout(Duration.ofSeconds(5))
                 .blockLast();
+    }
+
+    @Override
+    public Optional<KeeperDto> findById(Integer keeperId) {
+        return webClientBuilder
+                .baseUrl("http://person-service/api/v1/person-app/").build()
+                .get()
+                .uri(uri -> uri
+                        .path("keeper/{keeperId}/")
+                        .build(keeperId)
+                )
+                .header("Authorization", authorizationHeaderRepository.getAuthorizationHeader())
+                .retrieve()
+                .onStatus(httpStatus -> httpStatus.isError() && !httpStatus.equals(HttpStatus.NOT_FOUND), response -> {
+                    throw new ConnectException();
+                })
+                .bodyToMono(KeeperDto.class)
+                .timeout(Duration.ofSeconds(5))
+                .onErrorResume(WebClientResponseException.NotFound.class, error -> Mono.error(new KeeperNotFoundException(keeperId)))
+                .blockOptional();
     }
 }

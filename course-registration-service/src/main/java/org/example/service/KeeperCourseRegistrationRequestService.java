@@ -17,7 +17,6 @@ import org.example.model.CourseRegistrationRequestStatusType;
 import org.example.repository.*;
 import org.example.service.validator.KeeperCourseRegistrationRequestValidatorService;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -57,8 +56,6 @@ public class KeeperCourseRegistrationRequestService {
             courseRegistrationRequestKeeperService.closeRequestToOtherKeepersOnCourse(request);
         } else {
             keeperResponseStatus = CourseRegistrationRequestKeeperStatusType.REJECTED;
-            if (courseRegistrationRequestKeeperService.isRequestPersonallyForKeeper(request))
-                courseRegistrationRequestKeeperService.openRequestToOtherKeepersOnCourse(request);
         }
         return courseRegistrationRequestKeeperService
                 .saveKeeperResponseWithStatus(keeperResponse, keeperResponseStatus);
@@ -94,7 +91,7 @@ public class KeeperCourseRegistrationRequestService {
 
     @Transactional
     public List<CourseRegistrationRequest> startTeaching(Integer courseId) {
-        final PersonDto authenticatedPerson = (PersonDto) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        PersonDto authenticatedPerson = personService.getAuthenticatedPerson();
         keeperCourseRegistrationRequestValidatorService.validateStartTeachingRequest(authenticatedPerson.getPersonId());
         Integer acceptedStatusId = courseRegistrationRequestStatusRepository
                 .findCourseRegistrationRequestStatusByStatus(CourseRegistrationRequestStatusType.ACCEPTED)

@@ -28,8 +28,8 @@ public class CourseRegistrationRequestKeeper {
     private Integer requestId;
     @Column(nullable = false)
     private Integer keeperId;
-    @Column(nullable = false)
     @LastModifiedDate
+    @Column(nullable = false)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime responseDate;
     @ManyToOne(optional = false)

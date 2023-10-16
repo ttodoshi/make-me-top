@@ -20,7 +20,23 @@ import javax.validation.Valid;
 public class MarkController {
     private final MarkService markService;
 
-    @PostMapping("/mark")
+    @GetMapping("/explorers/{explorerId}/mark")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Get course mark by explorer id", tags = "mark")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Requested mark",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json")
+                    })
+    })
+    public ResponseEntity<?> getCourseMark(@PathVariable Integer explorerId) {
+        return ResponseEntity.ok(markService.getCourseMark(explorerId));
+    }
+
+    @PostMapping("/marks")
     @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).KEEPER) && " +
             "@roleService.hasAnyCourseRoleByExplorerId(#courseMark.explorerId, T(org.example.config.security.role.CourseRoleType).KEEPER)")
     @Operation(summary = "Set course mark from 1 to 5 to explorer", tags = "mark")
@@ -41,7 +57,7 @@ public class MarkController {
                 );
     }
 
-    @PostMapping("/theme/{themeId}/mark")
+    @PostMapping("/themes/{themeId}/marks")
     @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).KEEPER) && " +
             "@roleService.hasAnyCourseRoleByThemeId(#themeId, T(org.example.config.security.role.CourseRoleType).KEEPER)")
     @Operation(summary = "Set theme mark from 1 to 5 to explorer", tags = "mark")

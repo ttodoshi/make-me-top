@@ -25,7 +25,7 @@ public class CourseRegistrationRequestKeeperRepositoryImpl implements CourseRegi
                 .baseUrl("http://course-registration-service/api/v1/course-registration-app/").build()
                 .get()
                 .uri(uri -> uri
-                        .path("course-request/{requestId}/keeper/")
+                        .path("course-requests/{requestId}/keeper/")
                         .build(requestId)
                 )
                 .header("Authorization", authorizationHeaderRepository.getAuthorizationHeader())
@@ -46,7 +46,7 @@ public class CourseRegistrationRequestKeeperRepositoryImpl implements CourseRegi
                 .baseUrl("http://course-registration-service/api/v1/course-registration-app/").build()
                 .get()
                 .uri(uri -> uri
-                        .path("course-request/keeper/")
+                        .path("course-requests/keeper/")
                         .queryParam("keeperIds", keeperIds)
                         .build()
                 )

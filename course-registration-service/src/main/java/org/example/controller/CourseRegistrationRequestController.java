@@ -16,12 +16,12 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/course-registration-app")
+@RequestMapping("/api/v1/course-registration-app/course-requests")
 @RequiredArgsConstructor
 public class CourseRegistrationRequestController {
     private final CourseRegistrationRequestService courseRegistrationRequestService;
 
-    @GetMapping("/course-request")
+    @GetMapping("/processing")
     @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).EXPLORER) && " +
             "@roleService.isPerson(#personId)")
     @Operation(summary = "Get processing request for person", tags = "course request")
@@ -41,7 +41,7 @@ public class CourseRegistrationRequestController {
         );
     }
 
-    @GetMapping("/course-requests")
+    @GetMapping
     @PreAuthorize("isAuthenticated()") // TODO
 //    @PreAuthorize("(@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).EXPLORER) && " +
 //            "@roleService.hasAnyCourseRoleByRequestIds(#requestIds, T(org.example.config.security.role.CourseRoleType).EXPLORER)) ||" +

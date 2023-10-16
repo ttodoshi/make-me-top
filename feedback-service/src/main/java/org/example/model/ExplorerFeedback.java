@@ -11,9 +11,11 @@ import javax.persistence.Table;
 @Table(name = "explorer_feedback")
 @Data
 public class ExplorerFeedback {
+    @Column(nullable = false)
     private Integer keeperId;
     @Id
     private Integer explorerId;
+    @Column(nullable = false)
     private Integer rating;
     @Column(length = 1000)
     private String comment;

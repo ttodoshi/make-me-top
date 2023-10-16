@@ -6,10 +6,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
@@ -20,12 +17,16 @@ import java.time.LocalDateTime;
 public class Person {
     @Id
     private Integer personId;
+    @Column(nullable = false)
     private String firstName;
+    @Column(nullable = false)
     private String lastName;
     private String patronymic;
     @CreatedDate
+    @Column(nullable = false)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime registrationDate;
+    @Column(nullable = false)
     private Integer maxExplorers;
 
     public Person(Integer personId, String firstName, String lastName, String patronymic, Integer maxExplorers) {

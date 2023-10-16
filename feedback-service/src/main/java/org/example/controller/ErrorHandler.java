@@ -5,8 +5,13 @@ import org.example.exception.ErrorResponse;
 import org.example.exception.classes.connectEX.ConnectException;
 import org.example.exception.classes.courseEX.CourseNotFoundException;
 import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
+import org.example.exception.classes.explorerEX.ExplorerNotStudyingWithKeeperException;
+import org.example.exception.classes.feedbackEX.FeedbackAlreadyExistsException;
+import org.example.exception.classes.feedbackEX.UnexpectedRatingValueException;
+import org.example.exception.classes.keeperEX.DifferentKeeperException;
 import org.example.exception.classes.keeperEX.KeeperNotFoundException;
 import org.example.exception.classes.personEX.PersonNotFoundException;
+import org.example.exception.classes.progressEX.CourseNotCompletedException;
 import org.example.exception.classes.roleEX.RoleNotAvailableException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -112,6 +117,36 @@ public class ErrorHandler {
 
     @ExceptionHandler(RoleNotAvailableException.class)
     public ResponseEntity<ErrorResponse> handleRoleNotAvailableException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), e.getMessage()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ExplorerNotStudyingWithKeeperException.class)
+    public ResponseEntity<ErrorResponse> handleExplorerNotStudyingWithKeeperException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(CourseNotCompletedException.class)
+    public ResponseEntity<ErrorResponse> handleCourseNotCompletedException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(FeedbackAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleFeedbackAlreadyExistsException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(UnexpectedRatingValueException.class)
+    public ResponseEntity<ErrorResponse> handleUnexpectedRatingValueException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), e.getMessage()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(DifferentKeeperException.class)
+    public ResponseEntity<ErrorResponse> handleDifferentKeeperException(Exception e) {
         logWarning(e);
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), e.getMessage()), HttpStatus.BAD_REQUEST);
     }

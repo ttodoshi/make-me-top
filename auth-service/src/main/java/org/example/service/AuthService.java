@@ -55,6 +55,7 @@ public class AuthService {
         this.roleCheckerMap = roleCheckerMap;
     }
 
+    @Transactional
     public AuthResponseDto login(LoginRequestDto request) {
         MmtrAuthResponseDto authResponse = authenticatePerson(request);
         if (!isRoleAvailable(authResponse.getObject().getEmployeeId(), request.getRole()))

@@ -26,7 +26,7 @@ public class CourseRatingRepositoryImpl implements CourseRatingRepository {
                 .baseUrl("http://feedback-service/api/v1/feedback-app/").build()
                 .get()
                 .uri(uri -> uri
-                        .path("course/")
+                        .path("courses/")
                         .queryParam("courseIds", courseIds)
                         .build()
                 )

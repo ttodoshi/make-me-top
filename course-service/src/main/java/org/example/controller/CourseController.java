@@ -40,7 +40,7 @@ public class CourseController {
             return ResponseEntity.ok(courseService.getCourse(courseId));
     }
 
-    @GetMapping("/course")
+    @GetMapping("/courses")
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get courses by course id in", tags = "course")
     @ApiResponses(value = {
@@ -56,7 +56,7 @@ public class CourseController {
         return ResponseEntity.ok(courseService.findCoursesByCourseIdIn(courseIds));
     }
 
-    @GetMapping("/galaxy/{galaxyId}/course")
+    @GetMapping("/galaxies/{galaxyId}/courses")
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get all courses by galaxy id", tags = "course")
     @ApiResponses(value = {
@@ -72,7 +72,7 @@ public class CourseController {
         return ResponseEntity.ok(courseService.getCoursesByGalaxyId(galaxyId));
     }
 
-    @PutMapping("/galaxy/{galaxyId}/course/{courseId}")
+    @PutMapping("/galaxies/{galaxyId}/courses/{courseId}")
     @PreAuthorize("@roleServiceImpl.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).BIG_BROTHER)")
     @Operation(summary = "Update course by id", tags = "course")
     @ApiResponses(value = {

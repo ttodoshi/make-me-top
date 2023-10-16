@@ -17,13 +17,13 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 
 @RestController
-@RequestMapping("/api/v1/course-registration-app/course-requests")
+@RequestMapping("/api/v1/course-registration-app")
 @RequiredArgsConstructor
 public class KeeperCourseRegistrationRequestController {
     private final KeeperCourseRegistrationRequestService keeperCourseRegistrationRequestService;
     private final KeeperRejectionService keeperRejectionService;
 
-    @PatchMapping("/{requestId}")
+    @PatchMapping("/course-requests/{requestId}")
     @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).KEEPER) && " +
             "@roleService.hasAnyCourseRoleByRequestId(#requestId, T(org.example.config.security.role.CourseRoleType).KEEPER)")
     @Operation(summary = "Reply to course registration request", tags = "keeper course request")
@@ -41,7 +41,7 @@ public class KeeperCourseRegistrationRequestController {
         return ResponseEntity.ok(keeperCourseRegistrationRequestService.replyToRequest(requestId, reply));
     }
 
-    @GetMapping("/course/{courseId}")
+    @GetMapping("/course-requests/course/{courseId}")
     @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).KEEPER) && " +
             "@roleService.hasAnyCourseRole(#courseId, T(org.example.config.security.role.CourseRoleType).KEEPER)")
     @Operation(summary = "Get approved requests by course id", tags = "keeper course request")
@@ -58,7 +58,7 @@ public class KeeperCourseRegistrationRequestController {
         return ResponseEntity.ok(keeperCourseRegistrationRequestService.getApprovedRequests(courseId));
     }
 
-    @PostMapping("/course/{courseId}")
+    @PostMapping("/courses/{courseId}")
     @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).KEEPER) && " +
             "@roleService.hasAnyCourseRole(#courseId, T(org.example.config.security.role.CourseRoleType).KEEPER)")
     @Operation(summary = "Start education on course", tags = "keeper course request")
@@ -75,7 +75,7 @@ public class KeeperCourseRegistrationRequestController {
         return ResponseEntity.ok(keeperCourseRegistrationRequestService.startTeaching(courseId));
     }
 
-    @PostMapping("/{requestId}/rejection")
+    @PostMapping("/course-requests/{requestId}/rejections")
     @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).KEEPER) && " +
             "@roleService.hasAnyCourseRoleByRequestId(#requestId, T(org.example.config.security.role.CourseRoleType).KEEPER)")
     @Operation(summary = "Send keeper rejection", tags = "keeper course request")
@@ -97,7 +97,7 @@ public class KeeperCourseRegistrationRequestController {
                 );
     }
 
-    @GetMapping("/rejection")
+    @GetMapping("/course-requests/rejections")
     @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).KEEPER)")
     @Operation(summary = "Get keeper rejection reasons", tags = "keeper course request")
     @ApiResponses(value = {
