@@ -22,6 +22,7 @@ public class HomeworkService {
 
     private final HomeworkValidatorService homeworkValidatorService;
 
+    @Transactional(readOnly = true)
     public Homework findHomeworkByHomeworkId(Integer homeworkId) {
         return homeworkRepository.findById(homeworkId)
                 .orElseThrow(() -> new HomeworkNotFoundException(homeworkId));
@@ -31,6 +32,16 @@ public class HomeworkService {
     public List<Homework> getHomeworkByThemeIdForGroup(Integer themeId, Integer groupId) {
         homeworkValidatorService.validateGetRequest(themeId, groupId);
         return homeworkRepository.findHomeworksByCourseThemeIdAndGroupId(themeId, groupId);
+    }
+
+    @Transactional(readOnly = true)
+    public Map<Integer, Homework> findHomeworksByHomeworkIdIn(List<Integer> homeworkIds) {
+        return homeworkRepository.findAllByHomeworkIdIn(homeworkIds)
+                .stream()
+                .collect(Collectors.toMap(
+                        Homework::getHomeworkId,
+                        h -> h
+                ));
     }
 
     @Transactional(readOnly = true)
@@ -67,14 +78,5 @@ public class HomeworkService {
         homeworkRepository.deleteById(homeworkId);
         response.put("message", "Удалено задание " + homeworkId);
         return response;
-    }
-
-    public Map<Integer, Homework> findHomeworksByHomeworkIdIn(List<Integer> homeworkIds) {
-        return homeworkRepository.findAllByHomeworkIdIn(homeworkIds)
-                .stream()
-                .collect(Collectors.toMap(
-                        Homework::getHomeworkId,
-                        h -> h
-                ));
     }
 }

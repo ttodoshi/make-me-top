@@ -19,12 +19,14 @@ import java.util.stream.Collectors;
 public class PersonService {
     private final PersonRepository personRepository;
 
+    @Transactional(readOnly = true)
     public Person findPersonById(Integer personId) {
         return personRepository.findById(personId)
                 .orElseThrow(() -> new PersonNotFoundException(personId));
     }
 
     @KafkaListener(topics = "personTopic", containerFactory = "personKafkaListenerContainerFactory")
+    @Transactional
     public void savePerson(PersonCreateEvent person) {
         personRepository.save(
                 new Person(
@@ -47,6 +49,7 @@ public class PersonService {
                 ));
     }
 
+    @Transactional
     public Person setMaxExplorersValueForPerson(Integer personId, UpdatePersonDto personDto) {
         Person updatedPerson = personRepository.findById(personId)
                 .orElseThrow(() -> new PersonNotFoundException(personId));
@@ -54,6 +57,7 @@ public class PersonService {
         return personRepository.save(updatedPerson);
     }
 
+    @Transactional
     public void setDefaultExplorersValueForPerson(Integer personId) {
         setMaxExplorersValueForPerson(
                 personId,

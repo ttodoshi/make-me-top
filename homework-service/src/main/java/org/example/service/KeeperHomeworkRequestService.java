@@ -12,6 +12,7 @@ import org.example.model.*;
 import org.example.repository.*;
 import org.example.service.validator.KeeperHomeworkRequestValidatorService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +26,7 @@ public class KeeperHomeworkRequestService {
 
     private final KeeperHomeworkRequestValidatorService keeperHomeworkRequestValidatorService;
 
+    @Transactional
     public HomeworkMark setHomeworkMark(Integer homeworkId, HomeworkMarkDto mark) {
         HomeworkRequest homeworkRequest = changeRequestStatus(homeworkId, mark.getExplorerId(), HomeworkRequestStatusType.CLOSED);
         if (mark.getValue() < 1 || mark.getValue() > 5)
@@ -34,6 +36,7 @@ public class KeeperHomeworkRequestService {
         );
     }
 
+    @Transactional
     public HomeworkFeedback sendHomeworkFeedback(Integer homeworkId, CreateHomeworkFeedbackDto model) {
         HomeworkRequest homeworkRequest = changeRequestStatus(homeworkId, model.getExplorerId(), HomeworkRequestStatusType.EDITING);
         Integer openedStatusId = homeworkFeedbackStatusRepository
@@ -63,6 +66,7 @@ public class KeeperHomeworkRequestService {
                 .getStatusId();
     }
 
+    @Transactional(readOnly = true)
     public HomeworkRequest getHomeworkRequest(Integer requestId) {
         return homeworkRequestRepository.findById(requestId)
                 .orElseThrow(() -> new HomeworkRequestNotFound(requestId));

@@ -75,6 +75,7 @@ public class CourseRegistrationRequestKeeperServiceImpl implements CourseRegistr
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<CourseRegistrationRequestKeeper> findCourseRegistrationRequestKeepersByRequestId(Integer requestId) {
         if (!courseRegistrationRequestRepository.existsById(requestId)) {
             throw new RequestNotFoundException(requestId);
@@ -83,6 +84,7 @@ public class CourseRegistrationRequestKeeperServiceImpl implements CourseRegistr
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<CourseRegistrationRequestKeeper> findProcessingCourseRegistrationRequestKeepersByKeeperIdIn(List<Integer> keeperIds) {
         return courseRegistrationRequestKeeperRepository
                 .findProcessingCourseRegistrationRequestKeepersByKeeperIdIn(keeperIds);

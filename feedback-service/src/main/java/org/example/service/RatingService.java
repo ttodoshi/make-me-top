@@ -8,6 +8,7 @@ import org.example.repository.ExplorerRepository;
 import org.example.repository.KeeperFeedbackRepository;
 import org.example.repository.KeeperRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -25,8 +26,7 @@ public class RatingService {
         List<Integer> explorerIds = explorerRepository
                 .findExplorersByPersonId(personId)
                 .stream()
-                .mapToInt(ExplorerDto::getExplorerId)
-                .boxed()
+                .map(ExplorerDto::getExplorerId)
                 .collect(Collectors.toList());
         return Math.ceil(keeperFeedbackRepository.getPersonRatingAsExplorer(explorerIds).orElse(0.0) * 10) / 10;
     }
@@ -35,12 +35,12 @@ public class RatingService {
         List<Integer> keeperIds = keeperRepository
                 .findKeepersByPersonId(personId)
                 .stream()
-                .mapToInt(KeeperDto::getKeeperId)
-                .boxed()
+                .map(KeeperDto::getKeeperId)
                 .collect(Collectors.toList());
         return Math.ceil(explorerFeedbackRepository.getPersonRatingAsKeeper(keeperIds).orElse(0.0) * 10) / 10;
     }
 
+    @Transactional(readOnly = true)
     public Map<Integer, Double> getPeopleRatingAsExplorer(List<Integer> personIds) {
         return explorerRepository.findExplorersByPersonIdIn(personIds)
                 .entrySet()
@@ -53,6 +53,7 @@ public class RatingService {
                 ));
     }
 
+    @Transactional(readOnly = true)
     public Map<Integer, Double> getPeopleRatingAsKeeper(List<Integer> personIds) {
         return keeperRepository.findKeepersByPersonIdIn(personIds)
                 .entrySet()

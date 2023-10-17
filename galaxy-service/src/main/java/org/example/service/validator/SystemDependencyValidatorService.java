@@ -6,12 +6,14 @@ import org.example.exception.classes.dependencyEX.DependencyAlreadyExistsExcepti
 import org.example.exception.classes.dependencyEX.DependencyCouldNotBeCreatedException;
 import org.example.repository.DependencyRepository;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @RequiredArgsConstructor
 public class SystemDependencyValidatorService {
     private final DependencyRepository dependencyRepository;
 
+    @Transactional(readOnly = true)
     public void validateDependency(CreateDependencyDto dependency) {
         if (dependency.getChildId().equals(dependency.getParentId()))
             throw new DependencyCouldNotBeCreatedException(dependency.getChildId(), dependency.getParentId());

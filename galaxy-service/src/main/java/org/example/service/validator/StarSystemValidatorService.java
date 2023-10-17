@@ -11,6 +11,7 @@ import org.example.repository.GalaxyRepository;
 import org.example.repository.OrbitRepository;
 import org.example.repository.StarSystemRepository;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
 
@@ -21,16 +22,19 @@ public class StarSystemValidatorService {
     private final OrbitRepository orbitRepository;
     private final StarSystemRepository starSystemRepository;
 
+    @Transactional(readOnly = true)
     public void validateGetSystemWithDependencies(Integer systemId) {
         if (!starSystemRepository.existsById(systemId))
             throw new SystemNotFoundException(systemId);
     }
 
+    @Transactional(readOnly = true)
     public void validateGetSystemsByGalaxyId(Integer galaxyId) {
         if (!galaxyRepository.existsById(galaxyId))
             throw new GalaxyNotFoundException(galaxyId);
     }
 
+    @Transactional(readOnly = true)
     public void validatePostRequest(Integer orbitId, CreateStarSystemDto request) {
         if (!orbitRepository.existsById(orbitId))
             throw new OrbitNotFoundException(orbitId);
@@ -43,6 +47,7 @@ public class StarSystemValidatorService {
                 .stream().anyMatch(s -> s.getSystemName().equals(systemName));
     }
 
+    @Transactional(readOnly = true)
     public void validatePutRequest(Integer systemId, StarSystemDto system) {
         if (!starSystemRepository.existsById(systemId))
             throw new SystemNotFoundException(systemId);
@@ -57,6 +62,7 @@ public class StarSystemValidatorService {
                 .stream().anyMatch(s -> Objects.equals(s.getSystemName(), systemName) && !s.getSystemId().equals(systemId));
     }
 
+    @Transactional(readOnly = true)
     public void validateDeleteRequest(Integer systemId) {
         if (!starSystemRepository.existsById(systemId))
             throw new SystemNotFoundException(systemId);

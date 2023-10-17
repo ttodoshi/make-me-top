@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.example.dto.explorer.ExplorerDto;
 import org.example.dto.homework.CreateHomeworkRequestDto;
 import org.example.dto.homework.GetHomeworkRequestDto;
-import org.example.dto.person.PersonDto;
 import org.example.exception.classes.coursethemeEX.CourseThemeNotFoundException;
 import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
 import org.example.exception.classes.homeworkEX.HomeworkNotFoundException;
@@ -15,7 +14,6 @@ import org.example.model.HomeworkRequestStatusType;
 import org.example.repository.*;
 import org.example.service.validator.ExplorerHomeworkRequestValidatorService;
 import org.modelmapper.ModelMapper;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,13 +32,14 @@ public class ExplorerHomeworkRequestService {
     private final HomeworkFeedbackRepository homeworkFeedbackRepository;
     private final HomeworkFeedbackStatusRepository homeworkFeedbackStatusRepository;
 
+    private final PersonService personService;
     private final ExplorerHomeworkRequestValidatorService explorerHomeworkRequestValidatorService;
 
     private final ModelMapper mapper;
 
     @Transactional
     public HomeworkRequest sendHomeworkRequest(Integer homeworkId, CreateHomeworkRequestDto request) {
-        Integer authenticatedPersonId = getAuthenticatedPersonId();
+        Integer authenticatedPersonId = personService.getAuthenticatedPersonId();
         Integer themeId = homeworkRepository.findById(homeworkId)
                 .orElseThrow(() -> new HomeworkNotFoundException(homeworkId))
                 .getCourseThemeId();
@@ -61,11 +60,6 @@ public class ExplorerHomeworkRequestService {
                     )
             );
         }
-    }
-
-    private Integer getAuthenticatedPersonId() {
-        final PersonDto authenticatedPerson = (PersonDto) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return authenticatedPerson.getPersonId();
     }
 
     private ExplorerDto getExplorer(Integer personId, Integer courseId) {
@@ -104,7 +98,7 @@ public class ExplorerHomeworkRequestService {
     @Transactional(readOnly = true)
     public List<GetHomeworkRequestDto> getHomeworkRequests(Integer themeId) {
         explorerHomeworkRequestValidatorService.validateGetHomeworkRequests(themeId);
-        Integer personId = getAuthenticatedPersonId();
+        Integer personId = personService.getAuthenticatedPersonId();
         Integer courseId = courseThemeRepository.findById(themeId)
                 .orElseThrow(() -> new CourseThemeNotFoundException(themeId))
                 .getCourseId();

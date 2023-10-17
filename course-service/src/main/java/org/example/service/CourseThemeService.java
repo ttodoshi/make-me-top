@@ -38,12 +38,14 @@ public class CourseThemeService {
         this.updatePlanetKafkaTemplate = updatePlanetKafkaTemplate;
     }
 
+    @Transactional(readOnly = true)
     public CourseTheme getCourseTheme(Integer courseThemeId) {
         courseThemeValidatorService.validateGetThemeRequest(courseThemeId);
         return courseThemeRepository.findById(courseThemeId)
                 .orElseThrow(() -> new CourseThemeNotFoundException(courseThemeId));
     }
 
+    @Transactional(readOnly = true)
     public Map<Integer, CourseTheme> findCourseThemesByCourseThemeIdIn(List<Integer> themeIds) {
         return courseThemeRepository.findCourseThemesByCourseThemeIdIn(themeIds)
                 .stream()
@@ -60,6 +62,7 @@ public class CourseThemeService {
     }
 
     @KafkaListener(topics = "createCourseThemeTopic", containerFactory = "createThemeKafkaListenerContainerFactory")
+    @Transactional
     public CourseTheme createCourseTheme(@Header(KafkaHeaders.RECEIVED_MESSAGE_KEY) Integer courseId,
                                          @Payload CourseThemeCreateEvent courseThemeRequest) {
         CourseTheme theme = mapper.map(courseThemeRequest, CourseTheme.class);
@@ -68,6 +71,7 @@ public class CourseThemeService {
     }
 
     @KafkaListener(topics = "updateCourseThemeTopic", containerFactory = "updateThemeKafkaListenerContainerFactory")
+    @Transactional
     public void updateCourseThemeTitle(ConsumerRecord<Integer, String> record) {
         CourseTheme courseTheme = courseThemeRepository.findById(record.key())
                 .orElseThrow(() -> new CourseThemeNotFoundException(record.key()));
@@ -94,6 +98,7 @@ public class CourseThemeService {
     }
 
     @KafkaListener(topics = "deleteCourseThemeTopic", containerFactory = "deleteThemeKafkaListenerContainerFactory")
+    @Transactional
     public void deleteCourseTheme(Integer courseThemeId) {
         courseThemeRepository.deleteById(courseThemeId);
     }

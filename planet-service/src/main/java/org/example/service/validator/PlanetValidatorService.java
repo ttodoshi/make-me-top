@@ -5,8 +5,9 @@ import org.example.dto.planet.CreatePlanetDto;
 import org.example.dto.planet.UpdatePlanetDto;
 import org.example.exception.classes.planetEX.PlanetAlreadyExistsException;
 import org.example.exception.classes.planetEX.PlanetNotFoundException;
+import org.example.exception.classes.systemEX.SystemNotFoundException;
 import org.example.repository.PlanetRepository;
-import org.example.service.StarSystemService;
+import org.example.repository.StarSystemRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,15 +19,15 @@ import java.util.List;
 public class PlanetValidatorService {
     private final PlanetRepository planetRepository;
 
-    private final StarSystemService starSystemService;
+    private final StarSystemRepository starSystemRepository;
 
     public void validateGetPlanetsRequest(Integer systemId) {
-        starSystemService.checkSystemExists(systemId);
+        checkSystemExists(systemId);
     }
 
     @Transactional(readOnly = true)
     public void validatePostRequest(Integer systemId, List<CreatePlanetDto> planets) {
-        starSystemService.checkSystemExists(systemId);
+        checkSystemExists(systemId);
         List<CreatePlanetDto> savingPlanetsList = new ArrayList<>();
         for (CreatePlanetDto planet : planets) {
             if (savingPlanetsList.contains(planet) || planetExists(systemId, planet.getPlanetName()))
@@ -43,9 +44,14 @@ public class PlanetValidatorService {
 
     @Transactional(readOnly = true)
     public void validatePutRequest(Integer planetId, UpdatePlanetDto planet) {
-        starSystemService.checkSystemExists(planet.getSystemId());
+        checkSystemExists(planet.getSystemId());
         if (planetExists(planet.getSystemId(), planetId, planet.getPlanetName()))
             throw new PlanetAlreadyExistsException(planet.getPlanetName());
+    }
+
+    private void checkSystemExists(Integer systemId) {
+        if (!starSystemRepository.existsById(systemId))
+            throw new SystemNotFoundException(systemId);
     }
 
     private boolean planetExists(Integer systemId, Integer planetId, String planetName) {
