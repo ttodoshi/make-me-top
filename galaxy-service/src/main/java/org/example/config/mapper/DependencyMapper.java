@@ -9,6 +9,7 @@ public class DependencyMapper {
     public SystemDependencyModelDto dependencyToDependencyChildModel(SystemDependency systemDependency) {
         return new SystemDependencyModelDto(
                 systemDependency.getChild().getSystemId(),
+                systemDependency.getChild().getSystemName(),
                 "child",
                 systemDependency.getIsAlternative()
         );
@@ -17,6 +18,7 @@ public class DependencyMapper {
     public SystemDependencyModelDto dependencyToDependencyParentModel(SystemDependency systemDependency) {
         return new SystemDependencyModelDto(
                 systemDependency.getParent().getSystemId(),
+                systemDependency.getParent().getSystemName(),
                 "parent",
                 systemDependency.getIsAlternative()
         );
