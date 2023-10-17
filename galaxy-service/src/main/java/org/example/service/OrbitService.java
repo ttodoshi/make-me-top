@@ -46,13 +46,14 @@ public class OrbitService {
         return orbit;
     }
 
+    @Transactional(readOnly = true)
     public Orbit getOrbitById(Integer orbitId) {
         return orbitRepository.findById(orbitId)
                 .orElseThrow(() -> new OrbitNotFoundException(orbitId));
     }
 
-    @Transactional
     @CacheEvict(cacheNames = "galaxiesCache", key = "#galaxyId")
+    @Transactional
     public GetOrbitWithStarSystemsDto createOrbit(Integer galaxyId, CreateOrbitWithStarSystemsDto orbitRequest) {
         orbitValidatorService.validatePostRequest(galaxyId, orbitRequest);
         Orbit orbit = mapper.map(orbitRequest, Orbit.class);
@@ -68,6 +69,7 @@ public class OrbitService {
         return getOrbitWithSystemList(savedOrbit.getOrbitId());
     }
 
+    @Transactional
     public Orbit updateOrbit(Integer orbitId, OrbitDto orbit) {
         orbitValidatorService.validatePutRequest(orbitId, orbit);
         Orbit updatedOrbit = orbitRepository.findById(orbitId).orElseThrow(() -> new OrbitNotFoundException(orbitId));
@@ -78,6 +80,7 @@ public class OrbitService {
     }
 
     @CacheEvict(cacheNames = "galaxiesCache", key = "@orbitService.getOrbitById(#orbitId).galaxyId", beforeInvocation = true)
+    @Transactional
     public MessageDto deleteOrbit(Integer orbitId) {
         orbitValidatorService.validateDeleteRequest(orbitId);
         orbitRepository.deleteById(orbitId);

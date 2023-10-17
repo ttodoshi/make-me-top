@@ -32,6 +32,7 @@ public class PlanetService {
     private final KafkaTemplate<Integer, String> updateThemeKafkaTemplate;
     private final KafkaTemplate<Integer, Integer> deleteThemeKafkaTemplate;
 
+    @Transactional(readOnly = true)
     public List<Planet> getPlanetsListBySystemId(Integer systemId) {
         planetValidatorService.validateGetPlanetsRequest(systemId);
         return planetRepository.findPlanetsBySystemId(systemId);
@@ -79,6 +80,7 @@ public class PlanetService {
     }
 
     @KafkaListener(topics = "updatePlanetTopic", containerFactory = "updatePlanetKafkaListenerContainerFactory")
+    @Transactional
     public void updatePlanetName(ConsumerRecord<Integer, String> record) {
         Planet planet = planetRepository.findById(record.key())
                 .orElseThrow(() -> new PlanetNotFoundException(record.key()));

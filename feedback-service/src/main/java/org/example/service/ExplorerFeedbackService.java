@@ -14,6 +14,7 @@ import org.example.service.validator.FeedbackValidatorService;
 import org.modelmapper.ModelMapper;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -30,10 +31,12 @@ public class ExplorerFeedbackService {
 
     private final ModelMapper mapper;
 
+    @Transactional(readOnly = true)
     public List<ExplorerFeedback> findExplorerFeedbacksByKeeperIdIn(List<Integer> keeperIds) {
         return explorerFeedbackRepository.findExplorerFeedbacksByKeeperIdIn(keeperIds);
     }
 
+    @Transactional
     public ExplorerFeedback sendFeedbackForKeeper(Integer courseId, CreateExplorerFeedbackDto feedback) {
         Integer personId = personService.getAuthenticatedPersonId();
         feedbackValidatorService.validateFeedbackForKeeperRequest(personId, feedback);
@@ -46,11 +49,11 @@ public class ExplorerFeedbackService {
         return explorerFeedbackRepository.save(savingFeedback);
     }
 
-    // TODO
     private void sendGalaxyCacheRefreshMessage(Integer courseId) {
         kafkaTemplate.send("galaxyCacheTopic", courseId);
     }
 
+    @Transactional
     public CourseRating rateCourse(Integer courseId, CreateCourseRatingDto request) {
         Integer personId = personService.getAuthenticatedPersonId();
         feedbackValidatorService.validateCourseRatingRequest(personId, courseId, request);

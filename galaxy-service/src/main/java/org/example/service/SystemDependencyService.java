@@ -42,6 +42,7 @@ public class SystemDependencyService {
         return dependencies;
     }
 
+    @Transactional
     public MessageDto deleteDependency(DependencyDto dependency) {
         Integer dependencyId = getDependencyId(dependency);
         dependencyRepository.deleteById(dependencyId);

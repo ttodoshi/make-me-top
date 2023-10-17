@@ -77,6 +77,7 @@ public class ExplorerService {
     }
 
     @KafkaListener(topics = "explorerTopic", containerFactory = "explorerKafkaListenerContainerFactory")
+    @Transactional
     public Explorer createExplorer(ExplorerCreateEvent explorer) {
         return explorerRepository.save(
                 mapper.map(explorer, Explorer.class)

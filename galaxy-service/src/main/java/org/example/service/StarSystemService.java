@@ -69,18 +69,20 @@ public class StarSystemService {
         return system;
     }
 
+    @Transactional(readOnly = true)
     public StarSystem getStarSystemById(Integer systemId) {
         return starSystemRepository
                 .findById(systemId).orElseThrow(() -> new SystemNotFoundException(systemId));
     }
 
+    @Transactional(readOnly = true)
     public List<StarSystem> getStarSystemsByGalaxyId(Integer galaxyId) {
         starSystemValidatorService.validateGetSystemsByGalaxyId(galaxyId);
         return starSystemRepository.findSystemsByGalaxyId(galaxyId);
     }
 
-    @Transactional
     @CacheEvict(cacheNames = "galaxiesCache", key = "@orbitService.getOrbitById(#orbitId).galaxyId")
+    @Transactional
     public StarSystem createSystem(Integer orbitId, CreateStarSystemDto systemRequest) {
         starSystemValidatorService.validatePostRequest(orbitId, systemRequest);
         StarSystem system = mapper.map(systemRequest, StarSystem.class);
@@ -107,6 +109,7 @@ public class StarSystemService {
     }
 
     @KafkaListener(topics = "updateSystemTopic", containerFactory = "updateSystemKafkaListenerContainerFactory")
+    @Transactional
     public void updateSystemName(ConsumerRecord<Integer, String> record) {
         StarSystem starSystem = starSystemRepository.findById(record.key())
                 .orElseThrow(() -> new SystemNotFoundException(record.key()));
@@ -119,6 +122,7 @@ public class StarSystemService {
     }
 
     @CacheEvict(cacheNames = "galaxiesCache", key = "@orbitService.getOrbitById(@starSystemService.getStarSystemById(#systemId).orbitId).galaxyId", beforeInvocation = true)
+    @Transactional
     public MessageDto deleteSystem(Integer systemId) {
         starSystemValidatorService.validateDeleteRequest(systemId);
         starSystemRepository.deleteById(systemId);

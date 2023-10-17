@@ -52,6 +52,7 @@ public class CourseService {
         this.updateSystemKafkaTemplate = updateSystemKafkaTemplate;
     }
 
+    @Transactional(readOnly = true)
     public Course getCourse(Integer courseId) {
         return courseRepository.findById(courseId)
                 .orElseThrow(() -> new CourseNotFoundException(courseId));
@@ -84,6 +85,7 @@ public class CourseService {
         return response;
     }
 
+    @Transactional(readOnly = true)
     public Map<Integer, Course> findCoursesByCourseIdIn(List<Integer> courseIds) {
         return courseRepository.findCoursesByCourseIdIn(courseIds)
                 .stream()
@@ -93,15 +95,13 @@ public class CourseService {
                 ));
     }
 
+    @Transactional(readOnly = true)
     public List<Course> getCoursesByGalaxyId(Integer galaxyId) {
-        List<Integer> systems = starSystemRepository.getSystemsByGalaxyId(galaxyId)
+        List<Integer> systemIds = starSystemRepository.getSystemsByGalaxyId(galaxyId)
                 .stream()
-                .mapToInt(StarSystemDto::getSystemId)
-                .boxed().collect(Collectors.toList());
-        return courseRepository.findAll()
-                .stream()
-                .filter(c -> systems.contains(c.getCourseId()))
+                .map(StarSystemDto::getSystemId)
                 .collect(Collectors.toList());
+        return courseRepository.findCoursesByCourseIdIn(systemIds);
     }
 
     @KafkaListener(topics = "createCourseTopic", containerFactory = "createCourseKafkaListenerContainerFactory")
@@ -110,6 +110,7 @@ public class CourseService {
     }
 
     @KafkaListener(topics = "updateCourseTopic", containerFactory = "updateCourseKafkaListenerContainerFactory")
+    @Transactional
     public void updateCourseTitle(ConsumerRecord<Integer, String> record) {
         Course course = courseRepository.findById(record.key())
                 .orElseThrow(() -> new CourseNotFoundException(record.key()));
@@ -117,6 +118,7 @@ public class CourseService {
         courseRepository.save(course);
     }
 
+    @Transactional
     public Course updateCourse(Integer galaxyId, Integer courseId, UpdateCourseDto course) {
         Course updatedCourse = courseRepository.findById(courseId)
                 .orElseThrow(() -> new CourseNotFoundException(courseId));
@@ -132,6 +134,7 @@ public class CourseService {
     }
 
     @KafkaListener(topics = "deleteCourseTopic", containerFactory = "deleteCourseKafkaListenerContainerFactory")
+    @Transactional
     public void deleteCourse(Integer courseId) {
         courseRepository.deleteById(courseId);
     }

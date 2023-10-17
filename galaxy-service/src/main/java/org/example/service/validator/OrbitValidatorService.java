@@ -12,6 +12,7 @@ import org.example.repository.GalaxyRepository;
 import org.example.repository.OrbitRepository;
 import org.example.repository.StarSystemRepository;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,11 +25,13 @@ public class OrbitValidatorService {
     private final OrbitRepository orbitRepository;
     private final StarSystemRepository starSystemRepository;
 
+    @Transactional(readOnly = true)
     public void validateGetWithSystemListRequest(Integer orbitId) {
         if (!orbitRepository.existsById(orbitId))
             throw new OrbitNotFoundException(orbitId);
     }
 
+    @Transactional(readOnly = true)
     public void validatePostRequest(Integer galaxyId, CreateOrbitWithStarSystemsDto request) {
         if (!galaxyRepository.existsById(galaxyId))
             throw new GalaxyNotFoundException(galaxyId);
@@ -52,6 +55,7 @@ public class OrbitValidatorService {
                 .anyMatch(o -> o.getOrbitLevel().equals(orbitLevel));
     }
 
+    @Transactional(readOnly = true)
     public void validatePutRequest(Integer orbitId, OrbitDto orbit) {
         if (!galaxyRepository.existsById(orbit.getGalaxyId()))
             throw new GalaxyNotFoundException(orbit.getGalaxyId());
@@ -64,6 +68,7 @@ public class OrbitValidatorService {
                 .anyMatch(o -> o.getOrbitLevel().equals(orbitLevel) && !o.getOrbitId().equals(orbitId));
     }
 
+    @Transactional(readOnly = true)
     public void validateDeleteRequest(Integer orbitId) {
         if (!orbitRepository.existsById(orbitId))
             throw new OrbitNotFoundException(orbitId);

@@ -49,6 +49,7 @@ public class KeeperRejectionService {
         );
     }
 
+    @Transactional(readOnly = true)
     public List<RejectionReason> getRejectionReasons() {
         return rejectionReasonRepository.findAll();
     }

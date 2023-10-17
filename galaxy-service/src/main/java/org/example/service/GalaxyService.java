@@ -65,6 +65,7 @@ public class GalaxyService {
         return galaxy;
     }
 
+    @Transactional(readOnly = true)
     public Galaxy getGalaxyBySystemId(Integer systemId) {
         if (!starSystemRepository.existsById(systemId))
             throw new SystemNotFoundException(systemId);
@@ -83,6 +84,7 @@ public class GalaxyService {
     }
 
     @CacheEvict(cacheNames = "galaxiesCache", key = "#galaxyId")
+    @Transactional
     public Galaxy updateGalaxy(Integer galaxyId, GalaxyDto galaxy) {
         galaxyValidatorService.validatePutRequest(galaxyId, galaxy);
         Galaxy updatedGalaxy = galaxyRepository.getReferenceById(galaxyId);
@@ -92,6 +94,7 @@ public class GalaxyService {
     }
 
     @CacheEvict(cacheNames = "galaxiesCache", key = "#galaxyId")
+    @Transactional
     public MessageDto deleteGalaxy(Integer galaxyId) {
         galaxyValidatorService.validateDeleteRequest(galaxyId);
         galaxyRepository.deleteById(galaxyId);

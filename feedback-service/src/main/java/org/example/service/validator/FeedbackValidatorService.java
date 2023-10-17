@@ -46,6 +46,7 @@ public class FeedbackValidatorService {
             throw new UnexpectedRatingValueException();
     }
 
+    @Transactional(readOnly = true)
     public void validateFeedbackForKeeperRequest(Integer personId, CreateExplorerFeedbackDto feedback) {
         KeeperDto keeper = keeperRepository.findById(feedback.getKeeperId())
                 .orElseThrow(() -> new KeeperNotFoundException(feedback.getKeeperId()));
@@ -65,6 +66,7 @@ public class FeedbackValidatorService {
             throw new UnexpectedRatingValueException();
     }
 
+    @Transactional(readOnly = true)
     public void validateCourseRatingRequest(Integer personId, Integer courseId, CreateCourseRatingDto request) {
         if (!courseRepository.existsById(courseId))
             throw new CourseNotFoundException(courseId);

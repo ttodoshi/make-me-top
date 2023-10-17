@@ -28,6 +28,7 @@ public class KeeperFeedbackService {
 
     private final ModelMapper mapper;
 
+    @Transactional(readOnly = true)
     public List<KeeperFeedback> findKeeperFeedbacksByExplorerIdIn(List<Integer> explorerIds) {
         return keeperFeedbackRepository.findKeeperFeedbacksByExplorerIdIn(explorerIds);
     }

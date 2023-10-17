@@ -6,7 +6,6 @@ import org.example.config.security.role.AuthenticationRoleType;
 import org.example.dto.explorer.ExplorerGroupDto;
 import org.example.dto.homework.UpdateHomeworkDto;
 import org.example.dto.keeper.KeeperDto;
-import org.example.dto.person.PersonDto;
 import org.example.dto.progress.CourseThemeCompletedDto;
 import org.example.exception.classes.coursethemeEX.CourseThemeNotFoundException;
 import org.example.exception.classes.coursethemeEX.ThemeClosedException;
@@ -20,8 +19,7 @@ import org.example.exception.classes.keeperEX.KeeperNotForGroupException;
 import org.example.exception.classes.keeperEX.KeeperNotFoundException;
 import org.example.model.Homework;
 import org.example.repository.*;
-import org.example.repository.CourseProgressRepository;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.example.service.PersonService;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +35,7 @@ public class HomeworkValidatorService {
     private final ExplorerRepository explorerRepository;
     private final KeeperRepository keeperRepository;
 
+    private final PersonService personService;
     private final CourseProgressRepository courseProgressRepository;
     private final RoleService roleService;
 
@@ -49,7 +48,7 @@ public class HomeworkValidatorService {
                 .getCourseId();
         if (!explorerGroup.getCourseId().equals(courseId))
             throw new ThemeFromDifferentCourseException(themeId, groupId);
-        final Integer personId = getAuthenticatedPersonId();
+        final Integer personId = personService.getAuthenticatedPersonId();
         if (roleService.hasAnyAuthenticationRole(AuthenticationRoleType.EXPLORER)) {
             isExplorerInGroup(personId, explorerGroup);
             if (!isThemeOpened(
@@ -99,11 +98,6 @@ public class HomeworkValidatorService {
             throw new KeeperNotForGroupException();
     }
 
-    private Integer getAuthenticatedPersonId() {
-        final PersonDto authenticatedPerson = (PersonDto) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return authenticatedPerson.getPersonId();
-    }
-
     @Transactional(readOnly = true)
     public void validateGetCompletedRequest(Integer themeId, Integer groupId, Integer explorerId) {
         if (!explorerRepository.existsById(explorerId))
@@ -120,7 +114,7 @@ public class HomeworkValidatorService {
                 .getCourseId();
         if (!explorerGroup.getCourseId().equals(courseId))
             throw new ExplorerGroupIsNotOnCourseException(groupId, courseId);
-        isKeeperForGroup(getAuthenticatedPersonId(), explorerGroup);
+        isKeeperForGroup(personService.getAuthenticatedPersonId(), explorerGroup);
     }
 
     @Transactional(readOnly = true)
@@ -132,7 +126,7 @@ public class HomeworkValidatorService {
                 .getCourseId();
         if (!explorerGroup.getCourseId().equals(courseId))
             throw new ExplorerGroupIsNotOnCourseException(updateHomeworkDto.getGroupId(), courseId);
-        isKeeperForGroup(getAuthenticatedPersonId(), explorerGroup);
+        isKeeperForGroup(personService.getAuthenticatedPersonId(), explorerGroup);
     }
 
     @Transactional(readOnly = true)
@@ -141,6 +135,6 @@ public class HomeworkValidatorService {
                 .orElseThrow(() -> new HomeworkNotFoundException(homeworkId));
         ExplorerGroupDto explorerGroup = explorerGroupRepository.findById(homework.getGroupId())
                 .orElseThrow(() -> new ExplorerGroupNotFoundException(homework.getGroupId()));
-        isKeeperForGroup(getAuthenticatedPersonId(), explorerGroup);
+        isKeeperForGroup(personService.getAuthenticatedPersonId(), explorerGroup);
     }
 }
