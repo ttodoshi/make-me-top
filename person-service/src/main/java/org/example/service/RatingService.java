@@ -8,5 +8,7 @@ public interface RatingService {
 
     Double getPersonRatingAsExplorer(Integer personId);
 
-    Map<Integer, Double> getPeopleRatingAsExplorerByPersonIdIn(List<Integer> collect);
+    Map<Integer, Double> getPeopleRatingAsExplorerByPersonIdIn(List<Integer> personIds);
+
+    Map<Integer, Double> getPeopleRatingAsKeeperByPersonIdIn(List<Integer> personIds);
 }

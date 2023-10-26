@@ -89,4 +89,27 @@ public class RatingServiceImpl implements RatingService {
                 .onErrorResume(WebClientResponseException.Unauthorized.class, error -> Mono.error(new AccessDeniedException("Вам закрыт доступ к данной функциональности бортового компьютера")))
                 .blockLast();
     }
+
+    @Override
+    public Map<Integer, Double> getPeopleRatingAsKeeperByPersonIdIn(List<Integer> personIds) {
+        return webClientBuilder
+                .baseUrl("http://feedback-service/api/v1/feedback-app/").build()
+                .get()
+                .uri(uri -> uri
+                        .path("people/ratings/")
+                        .queryParam("personIds", personIds)
+                        .queryParam("as", "keeper")
+                        .build()
+                )
+                .header("Authorization", authorizationHeaderRepository.getAuthorizationHeader())
+                .retrieve()
+                .onStatus(httpStatus -> httpStatus.isError() && !httpStatus.equals(HttpStatus.UNAUTHORIZED), response -> {
+                    throw new ConnectException();
+                })
+                .bodyToFlux(new ParameterizedTypeReference<Map<Integer, Double>>() {
+                })
+                .timeout(Duration.ofSeconds(5))
+                .onErrorResume(WebClientResponseException.Unauthorized.class, error -> Mono.error(new AccessDeniedException("Вам закрыт доступ к данной функциональности бортового компьютера")))
+                .blockLast();
+    }
 }

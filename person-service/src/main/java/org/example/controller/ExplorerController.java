@@ -124,6 +124,22 @@ public class ExplorerController {
         return ResponseEntity.ok(explorerService.findExplorersByGroup_CourseIdIn(courseIds));
     }
 
+    @GetMapping("/explorers/all")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Find all explorers", tags = "explorer")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Requested explorers",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json")
+                    })
+    })
+    public ResponseEntity<?> findAllExplorers() {
+        return ResponseEntity.ok(explorerService.findExplorersWithCourseIds());
+    }
+
     @DeleteMapping("/explorers/{explorerId}")
     @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).EXPLORER) && " +
             "@roleService.isPersonExplorer(#explorerId)")

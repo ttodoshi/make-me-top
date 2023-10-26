@@ -2,7 +2,9 @@ package org.example.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.dto.event.ExplorerCreateEvent;
+import org.example.dto.explorer.ExplorerBasicInfoDto;
 import org.example.dto.message.MessageDto;
+import org.example.dto.person.PersonWithRatingDto;
 import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
 import org.example.model.Explorer;
 import org.example.repository.ExplorerRepository;
@@ -22,6 +24,7 @@ public class ExplorerService {
     private final ExplorerRepository explorerRepository;
 
     private final ExplorerValidatorService explorerValidatorService;
+    private final RatingService ratingService;
 
     private final ModelMapper mapper;
 
@@ -73,6 +76,39 @@ public class ExplorerService {
                 .collect(Collectors.toMap(
                         cId -> cId,
                         explorerRepository::findExplorersByGroup_CourseId
+                ));
+    }
+
+    @Transactional(readOnly = true)
+    public Map<Integer, List<PersonWithRatingDto>> findExplorersWithCourseIds() {
+        List<ExplorerBasicInfoDto> explorers = explorerRepository.findAll()
+                .stream()
+                .map(e -> new ExplorerBasicInfoDto(
+                        e.getPersonId(),
+                        e.getPerson().getFirstName(),
+                        e.getPerson().getLastName(),
+                        e.getPerson().getPatronymic(),
+                        e.getExplorerId(),
+                        e.getGroup().getCourseId(),
+                        e.getGroupId()
+                )).collect(Collectors.toList());
+        Map<Integer, Double> peopleRating = ratingService.getPeopleRatingAsExplorerByPersonIdIn(
+                explorers.stream()
+                        .map(ExplorerBasicInfoDto::getPersonId)
+                        .distinct()
+                        .collect(Collectors.toList())
+        );
+        return explorers
+                .stream()
+                .collect(Collectors.groupingBy(
+                        ExplorerBasicInfoDto::getCourseId,
+                        Collectors.mapping(e -> new PersonWithRatingDto(
+                                e.getPersonId(),
+                                e.getFirstName(),
+                                e.getLastName(),
+                                e.getPatronymic(),
+                                peopleRating.get(e.getPersonId())
+                        ), Collectors.toList())
                 ));
     }
 

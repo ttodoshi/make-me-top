@@ -114,6 +114,22 @@ public class KeeperController {
         );
     }
 
+    @GetMapping("/keepers/all")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Find all keepers", tags = "keeper")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Requested keepers",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json")
+                    })
+    })
+    public ResponseEntity<?> findAllKeepers() {
+        return ResponseEntity.ok(keeperService.findKeepersWithCourseIds());
+    }
+
     @PostMapping("/course/{courseId}/keeper")
     @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).BIG_BROTHER)")
     @Operation(summary = "Add keeper on course", tags = "keeper")

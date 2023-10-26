@@ -16,7 +16,6 @@ import org.example.model.CourseRegistrationRequestKeeperStatusType;
 import org.example.model.CourseRegistrationRequestStatusType;
 import org.example.repository.*;
 import org.example.service.validator.KeeperCourseRegistrationRequestValidatorService;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,7 +34,6 @@ public class KeeperCourseRegistrationRequestService {
     private final PersonService personService;
     private final CourseRegistrationRequestKeeperService courseRegistrationRequestKeeperService;
 
-    private final KafkaTemplate<String, Integer> kafkaTemplate;
     private final KeeperCourseRegistrationRequestValidatorService keeperCourseRegistrationRequestValidatorService;
 
     @Transactional
@@ -75,10 +73,6 @@ public class KeeperCourseRegistrationRequestService {
         );
     }
 
-    private void sendGalaxyCacheRefreshMessage(Integer courseId) {
-        kafkaTemplate.send("galaxyCacheTopic", courseId);
-    }
-
     @Transactional(readOnly = true)
     public List<CourseRegistrationRequest> getApprovedRequests(Integer courseId) {
         keeperCourseRegistrationRequestValidatorService.validateGetApprovedRequests(personService.getAuthenticatedPersonId(), courseId);
@@ -106,7 +100,6 @@ public class KeeperCourseRegistrationRequestService {
         Integer groupId = explorerGroupRepository.save(
                 new CreateExplorerGroupDto(courseId, keeper.getKeeperId())
         ).getGroupId();
-        sendGalaxyCacheRefreshMessage(courseId);
         return approvedRequests.stream()
                 .limit(authenticatedPerson.getMaxExplorers())
                 .peek(r -> {

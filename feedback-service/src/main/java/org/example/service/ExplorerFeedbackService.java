@@ -12,7 +12,6 @@ import org.example.repository.ExplorerFeedbackRepository;
 import org.example.repository.ExplorerRepository;
 import org.example.service.validator.FeedbackValidatorService;
 import org.modelmapper.ModelMapper;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +26,6 @@ public class ExplorerFeedbackService {
 
     private final PersonService personService;
     private final FeedbackValidatorService feedbackValidatorService;
-    private final KafkaTemplate<String, Integer> kafkaTemplate;
 
     private final ModelMapper mapper;
 
@@ -45,12 +43,7 @@ public class ExplorerFeedbackService {
                 .orElseThrow(() -> new ExplorerNotFoundException(courseId));
         ExplorerFeedback savingFeedback = mapper.map(feedback, ExplorerFeedback.class);
         savingFeedback.setExplorerId(explorer.getExplorerId());
-        sendGalaxyCacheRefreshMessage(courseId);
         return explorerFeedbackRepository.save(savingFeedback);
-    }
-
-    private void sendGalaxyCacheRefreshMessage(Integer courseId) {
-        kafkaTemplate.send("galaxyCacheTopic", courseId);
     }
 
     @Transactional

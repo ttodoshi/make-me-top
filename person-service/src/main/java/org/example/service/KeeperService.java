@@ -2,6 +2,7 @@ package org.example.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.dto.keeper.CreateKeeperDto;
+import org.example.dto.person.PersonWithRatingDto;
 import org.example.exception.classes.keeperEX.KeeperNotFoundException;
 import org.example.model.Keeper;
 import org.example.repository.KeeperRepository;
@@ -19,6 +20,7 @@ public class KeeperService {
     private final KeeperRepository keeperRepository;
 
     private final PersonService personService;
+    private final RatingService ratingService;
     private final KeeperValidatorService keeperValidatorService;
 
     @Transactional(readOnly = true)
@@ -64,6 +66,29 @@ public class KeeperService {
                                 k -> k
                         )
                 );
+    }
+
+    @Transactional(readOnly = true)
+    public Map<Integer, List<PersonWithRatingDto>> findKeepersWithCourseIds() {
+        List<Keeper> keepers = keeperRepository.findAll();
+        Map<Integer, Double> peopleRating = ratingService.getPeopleRatingAsKeeperByPersonIdIn(
+                keepers.stream()
+                        .map(Keeper::getPersonId)
+                        .distinct()
+                        .collect(Collectors.toList())
+        );
+        return keepers
+                .stream()
+                .collect(Collectors.groupingBy(
+                        Keeper::getCourseId,
+                        Collectors.mapping(k -> new PersonWithRatingDto(
+                                k.getPersonId(),
+                                k.getPerson().getFirstName(),
+                                k.getPerson().getLastName(),
+                                k.getPerson().getPatronymic(),
+                                peopleRating.get(k.getPersonId())
+                        ), Collectors.toList())
+                ));
     }
 
     @Transactional
