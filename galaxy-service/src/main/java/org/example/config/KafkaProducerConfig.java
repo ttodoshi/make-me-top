@@ -51,11 +51,7 @@ public class KafkaProducerConfig {
     @Bean
     @Qualifier("deleteCourseProducer")
     public ProducerFactory<Integer, Integer> deleteCourseProducer() {
-        Map<String, Object> properties = new HashMap<>();
-        properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
-        properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, IntegerSerializer.class);
-        properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, IntegerSerializer.class);
-        return new DefaultKafkaProducerFactory<>(properties);
+        return new DefaultKafkaProducerFactory<>(deleteProducerProperties());
     }
 
     @Bean
@@ -67,11 +63,15 @@ public class KafkaProducerConfig {
     @Bean
     @Qualifier("deletePlanetsProducer")
     public ProducerFactory<Integer, Integer> deletePlanetsProducer() {
+        return new DefaultKafkaProducerFactory<>(deleteProducerProperties());
+    }
+
+    private Map<String, Object> deleteProducerProperties() {
         Map<String, Object> properties = new HashMap<>();
         properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
         properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, IntegerSerializer.class);
         properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, IntegerSerializer.class);
-        return new DefaultKafkaProducerFactory<>(properties);
+        return properties;
     }
 
     @Bean

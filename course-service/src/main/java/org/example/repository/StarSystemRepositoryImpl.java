@@ -4,11 +4,12 @@ import lombok.RequiredArgsConstructor;
 import org.example.dto.starsystem.StarSystemDto;
 import org.example.exception.classes.connectEX.ConnectException;
 import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
-import org.example.repository.AuthorizationHeaderRepository;
-import org.example.repository.StarSystemRepository;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
+import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.util.List;
@@ -33,11 +34,12 @@ public class StarSystemRepositoryImpl implements StarSystemRepository {
                 .onStatus(HttpStatus.NOT_FOUND::equals, response -> {
                     throw new GalaxyNotFoundException(galaxyId);
                 })
-                .onStatus(HttpStatus::isError, response -> {
+                .onStatus(httpStatus -> httpStatus.isError() && !httpStatus.equals(HttpStatus.UNAUTHORIZED), response -> {
                     throw new ConnectException();
                 })
                 .bodyToFlux(StarSystemDto.class)
                 .timeout(Duration.ofSeconds(5))
+                .onErrorResume(WebClientResponseException.Unauthorized.class, error -> Mono.error(new AccessDeniedException("Вам закрыт доступ к данной функциональности бортового компьютера")))
                 .collectList()
                 .block();
     }

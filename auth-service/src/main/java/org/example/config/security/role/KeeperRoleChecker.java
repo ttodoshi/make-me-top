@@ -5,8 +5,11 @@ import org.example.exception.classes.connectEX.ConnectException;
 import org.example.repository.AuthorizationHeaderRepository;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
+import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -36,6 +39,7 @@ public class KeeperRoleChecker implements RoleChecker {
                 .retrieve()
                 .bodyToFlux(MmtrAuthResponseEmployeeDto.class)
                 .timeout(Duration.ofSeconds(5))
+                .onErrorResume(WebClientResponseException.Unauthorized.class, error -> Mono.error(new AccessDeniedException("Вам закрыт доступ к данной функциональности бортового компьютера")))
                 .onErrorResume(throwable -> {
                     throw new ConnectException();
                 })

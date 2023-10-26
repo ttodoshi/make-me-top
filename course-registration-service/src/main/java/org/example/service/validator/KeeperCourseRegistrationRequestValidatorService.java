@@ -15,9 +15,12 @@ import org.example.repository.CourseRegistrationRequestStatusRepository;
 import org.example.repository.ExplorerGroupRepository;
 import org.example.repository.KeeperRepository;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
+import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.util.Collections;
@@ -78,11 +81,12 @@ public class KeeperCourseRegistrationRequestValidatorService {
                         .build()
                 ).header("Authorization", authorizationHeaderRepository.getAuthorizationHeader())
                 .retrieve()
-                .onStatus(HttpStatus::isError, response -> {
+                .onStatus(httpStatus -> httpStatus.isError() && !httpStatus.equals(HttpStatus.UNAUTHORIZED), response -> {
                     throw new ConnectException();
                 })
                 .bodyToFlux(Integer.class)
                 .timeout(Duration.ofSeconds(5))
+                .onErrorResume(WebClientResponseException.Unauthorized.class, error -> Mono.error(new AccessDeniedException("Вам закрыт доступ к данной функциональности бортового компьютера")))
                 .collectList()
                 .block();
         return Objects.requireNonNullElse(explorersWithFinalAssessment, Collections.emptyList());

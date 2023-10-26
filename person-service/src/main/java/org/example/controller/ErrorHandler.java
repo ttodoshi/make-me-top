@@ -91,7 +91,7 @@ public class ErrorHandler {
     @ExceptionHandler(ConnectException.class)
     public ResponseEntity<ErrorResponse> handleConnectException(Exception e) {
         logError(e);
-        return new ResponseEntity<>(new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), "Бортовой компьютер не смог связаться с внутренней системой данных"), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(TimeoutException.class)

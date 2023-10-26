@@ -4,6 +4,7 @@ import org.example.dto.PersonDto;
 import org.example.exception.classes.connectEX.ConnectException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -24,7 +25,6 @@ public class PersonRepositoryImpl implements PersonRepository {
     }
 
     public Optional<PersonDto> findById(Integer personId) {
-        String authorizationHeader = authorizationHeaderRepository.getAuthorizationHeader();
         return webClientBuilder
                 .baseUrl("http://person-service/api/v1/person-app/").build()
                 .get()
@@ -39,6 +39,7 @@ public class PersonRepositoryImpl implements PersonRepository {
                 })
                 .bodyToMono(PersonDto.class)
                 .timeout(Duration.ofSeconds(5))
+                .onErrorResume(WebClientResponseException.Unauthorized.class, error -> Mono.error(new AccessDeniedException("Вам закрыт доступ к данной функциональности бортового компьютера")))
                 .onErrorResume(WebClientResponseException.Unauthorized.class, error -> Mono.empty())
                 .blockOptional();
     }

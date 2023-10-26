@@ -7,6 +7,7 @@ import org.example.exception.classes.personEX.PersonNotFoundException;
 import org.example.model.Person;
 import org.example.repository.PersonRepository;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +19,15 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PersonService {
     private final PersonRepository personRepository;
+
+    public Integer getAuthenticatedPersonId() {
+        Person authenticatedPerson = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return authenticatedPerson.getPersonId();
+    }
+
+    public Person getAuthenticatedPerson() {
+        return (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    }
 
     @Transactional(readOnly = true)
     public Person findPersonById(Integer personId) {

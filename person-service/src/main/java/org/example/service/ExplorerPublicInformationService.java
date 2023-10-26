@@ -5,12 +5,9 @@ import org.example.config.security.RoleService;
 import org.example.config.security.role.AuthenticationRoleType;
 import org.example.dto.feedback.KeeperCommentDto;
 import org.example.dto.progress.CurrentCourseProgressDto;
-import org.example.exception.classes.personEX.PersonNotFoundException;
 import org.example.model.Explorer;
 import org.example.model.Person;
 import org.example.repository.ExplorerRepository;
-import org.example.repository.PersonRepository;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,14 +16,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.Executor;
 
 @Service
 @RequiredArgsConstructor
 public class ExplorerPublicInformationService {
-    private final PersonRepository personRepository;
     private final ExplorerRepository explorerRepository;
 
+    private final PersonService personService;
     private final HomeworkService homeworkService;
     private final CourseService courseService;
     private final CourseRegistrationRequestService courseRegistrationRequestService;
@@ -39,11 +37,10 @@ public class ExplorerPublicInformationService {
 
     @Transactional(readOnly = true)
     public Map<String, Object> getExplorerPublicInformation(Integer personId) {
-        Person person = personRepository.findById(personId)
-                .orElseThrow(() -> new PersonNotFoundException(personId));
-        Person authenticatedPerson = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Integer authenticatedPersonId = authenticatedPerson.getPersonId();
         Map<String, Object> response = new LinkedHashMap<>();
+        Person person = personService.findPersonById(personId);
+        Person authenticatedPerson = personService.getAuthenticatedPerson();
+        Integer authenticatedPersonId = authenticatedPerson.getPersonId();
         response.put("person", person);
         response.put("rating", ratingService.getPersonRatingAsExplorer(personId));
         List<Explorer> personExplorers = explorerRepository.findExplorersByPersonId(personId);
@@ -65,17 +62,24 @@ public class ExplorerPublicInformationService {
                 response.put("currentSystem", currentCourseOptional.get());
             }
         }, asyncExecutor);
-        CompletableFuture<Void> investigatedSystems = CompletableFuture.runAsync(() -> {
-            response.put("investigatedSystems", courseService.getCoursesRating(
-                    courseProgressService.getInvestigatedSystemIds(personExplorers)
-            ));
-        }, asyncExecutor);
+        CompletableFuture<Void> investigatedSystems = CompletableFuture.runAsync(() ->
+                response.put("investigatedSystems", courseService.getCoursesRating(
+                        courseProgressService.getInvestigatedSystemIds(personExplorers)
+                )), asyncExecutor);
         CompletableFuture<Void> feedback = CompletableFuture.runAsync(() -> {
             List<KeeperCommentDto> feedbackList = feedbackService.getFeedbackForPersonAsExplorer(personExplorers);
             response.put("totalFeedback", feedbackList.size());
             response.put("feedback", feedbackList);
         }, asyncExecutor);
-        CompletableFuture.allOf(currentSystem, investigatedSystems, feedback).join();
+        try {
+            CompletableFuture.allOf(currentSystem, investigatedSystems, feedback).join();
+        } catch (CompletionException completionException) {
+            try {
+                throw completionException.getCause();
+            } catch (Throwable e) {
+                throw new RuntimeException(e);
+            }
+        }
         return response;
     }
 }
