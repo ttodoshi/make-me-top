@@ -13,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,6 +27,8 @@ public class KeeperProfileInformationService {
     private final CourseRegistrationRequestService courseRegistrationRequestService;
     private final CourseProgressService courseProgressService;
     private final RatingService ratingService;
+
+    private final Executor asyncExecutor;
 
     @Transactional(readOnly = true)
     public Map<String, Object> getKeeperCabinetInformation() {
@@ -39,12 +43,21 @@ public class KeeperProfileInformationService {
                 keepers.stream().map(Keeper::getKeeperId).collect(Collectors.toList())
         );
         response.put("totalExplorers", explorerGroups.stream().mapToLong(g -> g.getExplorers().size()).sum());
-        response.put("studyingExplorers", courseProgressService.getStudyingExplorersByKeeperPersonId(explorerGroups));
-        response.put("studyRequests", courseRegistrationRequestService.getStudyRequestsForKeeper(keepers));
-        response.put("finalAssessments", courseProgressService.getExplorersNeededFinalAssessment(explorerGroups));
-        response.put("reviewRequests", homeworkService.getHomeworkRequestsFromExplorersByGroups(
-                explorerGroups.stream().collect(Collectors.toMap(ExplorerGroup::getGroupId, g -> g))
-        ));
+        CompletableFuture<Void> studyingExplorers = CompletableFuture.runAsync(() -> {
+            response.put("studyingExplorers", courseProgressService.getStudyingExplorersByKeeperPersonId(explorerGroups));
+        }, asyncExecutor);
+        CompletableFuture<Void> studyRequests = CompletableFuture.runAsync(() -> {
+            response.put("studyRequests", courseRegistrationRequestService.getStudyRequestsForKeeper(keepers));
+        }, asyncExecutor);
+        CompletableFuture<Void> finalAssessments = CompletableFuture.runAsync(() -> {
+            response.put("finalAssessments", courseProgressService.getExplorersNeededFinalAssessment(explorerGroups));
+        }, asyncExecutor);
+        CompletableFuture<Void> reviewRequests = CompletableFuture.runAsync(() -> {
+            response.put("reviewRequests", homeworkService.getHomeworkRequestsFromExplorersByGroups(
+                    explorerGroups.stream().collect(Collectors.toMap(ExplorerGroup::getGroupId, g -> g))
+            ));
+        }, asyncExecutor);
+        CompletableFuture.allOf(studyingExplorers, studyRequests, finalAssessments, reviewRequests).join();
         return response;
     }
 }

@@ -1,10 +1,10 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.exception.classes.personEX.PersonNotFoundException;
 import org.example.model.Explorer;
 import org.example.model.ExplorerGroup;
 import org.example.model.Keeper;
-import org.example.exception.classes.personEX.PersonNotFoundException;
 import org.example.model.Person;
 import org.example.repository.ExplorerGroupRepository;
 import org.example.repository.KeeperRepository;
@@ -15,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,6 +29,8 @@ public class KeeperPublicInformationService {
     private final FeedbackService feedbackService;
     private final CourseService courseService;
     private final RatingService ratingService;
+
+    private final Executor asyncExecutor;
 
     @Transactional(readOnly = true)
     public Map<String, Object> getKeeperPublicInformation(Integer personId) {
@@ -45,10 +49,15 @@ public class KeeperPublicInformationService {
                 .flatMap(g -> g.getExplorers().stream())
                 .collect(Collectors.toList());
         response.put("totalExplorers", explorers.size());
-        response.put("systems", courseService.getCoursesRating(
-                keepers.stream().map(Keeper::getCourseId).collect(Collectors.toList())
-        ));
-        response.put("feedback", feedbackService.getFeedbackForPersonAsKeeper(explorerGroups));
+        CompletableFuture<Void> systems = CompletableFuture.runAsync(() -> {
+            response.put("systems", courseService.getCoursesRating(
+                    keepers.stream().map(Keeper::getCourseId).collect(Collectors.toList())
+            ));
+        }, asyncExecutor);
+        CompletableFuture<Void> feedback = CompletableFuture.runAsync(() -> {
+            response.put("feedback", feedbackService.getFeedbackForPersonAsKeeper(explorerGroups));
+        }, asyncExecutor);
+        CompletableFuture.allOf(systems, feedback).join();
         return response;
     }
 }

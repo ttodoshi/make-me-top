@@ -11,6 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +25,8 @@ public class ExplorerProfileInformationService {
     private final RatingService ratingService;
     private final CourseProgressService courseProgressService;
 
+    private final Executor asyncExecutor;
+
     @Transactional(readOnly = true)
     public Map<String, Object> getExplorerCabinetInformation() {
         Person authenticatedPerson = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -32,14 +36,23 @@ public class ExplorerProfileInformationService {
         response.put("rating", ratingService.getPersonRatingAsExplorer(authenticatedPersonId));
         List<Explorer> personExplorers = explorerRepository.findExplorersByPersonId(authenticatedPersonId);
         response.put("totalSystems", personExplorers.size());
-        courseProgressService.getCurrentCourseProgress(authenticatedPersonId)
-                .ifPresent(p -> response.put("currentSystem", p));
-        courseRegistrationRequestService.getStudyRequestForExplorerByPersonId(authenticatedPersonId)
-                .ifPresent(r -> response.put("studyRequest", r));
-        response.put("investigatedSystems", courseService.getCoursesRating(
-                courseProgressService.getInvestigatedSystemIds(personExplorers)
-        ));
-        response.put("ratingTable", explorerListService.getExplorers());
+        CompletableFuture<Void> currentSystem = CompletableFuture.runAsync(() -> {
+            courseProgressService.getCurrentCourseProgress(authenticatedPersonId)
+                    .ifPresent(p -> response.put("currentSystem", p));
+        }, asyncExecutor);
+        CompletableFuture<Void> studyRequest = CompletableFuture.runAsync(() -> {
+            courseRegistrationRequestService.getStudyRequestForExplorerByPersonId(authenticatedPersonId)
+                    .ifPresent(r -> response.put("studyRequest", r));
+        }, asyncExecutor);
+        CompletableFuture<Void> investigatedSystems = CompletableFuture.runAsync(() -> {
+            response.put("investigatedSystems", courseService.getCoursesRating(
+                    courseProgressService.getInvestigatedSystemIds(personExplorers)
+            ));
+        }, asyncExecutor);
+        CompletableFuture<Void> ratingTable = CompletableFuture.runAsync(() -> {
+            response.put("ratingTable", explorerListService.getExplorers());
+        }, asyncExecutor);
+        CompletableFuture.allOf(currentSystem, studyRequest, investigatedSystems, ratingTable).join();
         return response;
     }
 }
