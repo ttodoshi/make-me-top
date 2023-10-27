@@ -18,6 +18,7 @@ import org.example.model.Person;
 import org.example.repository.*;
 import org.example.service.CourseProgressService;
 import org.example.service.ExplorerGroupService;
+import org.example.service.ExplorerService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
@@ -43,6 +44,7 @@ public class CourseProgressServiceImpl implements CourseProgressService {
     private final CourseRepository courseRepository;
     private final CourseThemeRepository courseThemeRepository;
 
+    private final ExplorerService explorerService;
     private final ExplorerGroupService explorerGroupService;
 
     @Override
@@ -84,7 +86,7 @@ public class CourseProgressServiceImpl implements CourseProgressService {
     }
 
     private Optional<Explorer> getCurrentSystemExplorer(Integer personId) {
-        List<Explorer> personExplorers = explorerRepository.findExplorersByPersonId(personId);
+        List<Explorer> personExplorers = explorerService.findExplorersByPersonId(personId);
         List<Integer> explorersWithFinalAssessment = getExplorersWithFinalAssessment(
                 personExplorers.stream().map(Explorer::getExplorerId).collect(Collectors.toList())
         );

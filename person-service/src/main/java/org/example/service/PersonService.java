@@ -6,6 +6,7 @@ import org.example.dto.person.UpdatePersonDto;
 import org.example.exception.classes.personEX.PersonNotFoundException;
 import org.example.model.Person;
 import org.example.repository.PersonRepository;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,7 @@ public class PersonService {
         return (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 
+    @Cacheable(cacheNames = "personByIdCache", key = "#personId")
     @Transactional(readOnly = true)
     public Person findPersonById(Integer personId) {
         return personRepository.findById(personId)

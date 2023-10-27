@@ -3,9 +3,7 @@ package org.example.service;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.explorer.ExplorerDto;
 import org.example.dto.keeper.KeeperDto;
-import org.example.repository.ExplorerFeedbackRepository;
 import org.example.repository.ExplorerRepository;
-import org.example.repository.KeeperFeedbackRepository;
 import org.example.repository.KeeperRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,8 +17,8 @@ import java.util.stream.Collectors;
 public class RatingService {
     private final ExplorerRepository explorerRepository;
     private final KeeperRepository keeperRepository;
-    private final KeeperFeedbackRepository keeperFeedbackRepository;
-    private final ExplorerFeedbackRepository explorerFeedbackRepository;
+    private final KeeperFeedbackService keeperFeedbackService;
+    private final ExplorerFeedbackService explorerFeedbackService;
 
     public Double getPersonRatingAsExplorer(Integer personId) {
         List<Integer> explorerIds = explorerRepository
@@ -28,7 +26,7 @@ public class RatingService {
                 .stream()
                 .map(ExplorerDto::getExplorerId)
                 .collect(Collectors.toList());
-        return Math.ceil(keeperFeedbackRepository.getPersonRatingAsExplorer(explorerIds).orElse(0.0) * 10) / 10;
+        return keeperFeedbackService.getAvgRatingByPersonExplorerIds(explorerIds);
     }
 
     public Double getPersonRatingAsKeeper(Integer personId) {
@@ -37,7 +35,7 @@ public class RatingService {
                 .stream()
                 .map(KeeperDto::getKeeperId)
                 .collect(Collectors.toList());
-        return Math.ceil(explorerFeedbackRepository.getPersonRatingAsKeeper(keeperIds).orElse(0.0) * 10) / 10;
+        return explorerFeedbackService.getAvgRatingByPersonKeeperIds(keeperIds);
     }
 
     @Transactional(readOnly = true)
@@ -47,9 +45,9 @@ public class RatingService {
                 .stream()
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
-                        e -> Math.ceil(keeperFeedbackRepository.getPersonRatingAsExplorer(
+                        e -> keeperFeedbackService.getAvgRatingByPersonExplorerIds(
                                 e.getValue().stream().map(ExplorerDto::getExplorerId).collect(Collectors.toList())
-                        ).orElse(0.0) * 10) / 10
+                        )
                 ));
     }
 
@@ -60,9 +58,9 @@ public class RatingService {
                 .stream()
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
-                        e -> Math.ceil(explorerFeedbackRepository.getPersonRatingAsKeeper(
+                        e -> explorerFeedbackService.getAvgRatingByPersonKeeperIds(
                                 e.getValue().stream().map(KeeperDto::getKeeperId).collect(Collectors.toList())
-                        ).orElse(0.0) * 10) / 10
+                        )
                 ));
     }
 }

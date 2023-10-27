@@ -10,6 +10,8 @@ import org.example.model.Explorer;
 import org.example.repository.ExplorerRepository;
 import org.example.service.validator.ExplorerValidatorService;
 import org.modelmapper.ModelMapper;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +30,7 @@ public class ExplorerService {
 
     private final ModelMapper mapper;
 
+    @Cacheable(cacheNames = "explorerByIdCache", key = "#explorerId")
     @Transactional(readOnly = true)
     public Explorer findExplorerById(Integer explorerId) {
         return explorerRepository.findById(explorerId)
@@ -120,6 +123,7 @@ public class ExplorerService {
         );
     }
 
+    @CacheEvict(cacheNames = "explorerByIdCache", key = "#explorerId")
     @Transactional
     public MessageDto deleteExplorerById(Integer explorerId) {
         explorerValidatorService.validateDeleteExplorerByIdRequest(explorerId);

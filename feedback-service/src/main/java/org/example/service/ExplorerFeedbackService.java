@@ -57,4 +57,8 @@ public class ExplorerFeedbackService {
                 new CourseRating(explorer.getExplorerId(), request.getRating())
         );
     }
+
+    public Double getAvgRatingByPersonKeeperIds(List<Integer> keeperIds) {
+        return Math.ceil(explorerFeedbackRepository.getPersonRatingAsKeeper(keeperIds).orElse(0.0) * 10) / 10;
+    }
 }

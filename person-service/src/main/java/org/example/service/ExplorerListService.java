@@ -36,6 +36,7 @@ public class ExplorerListService {
                                 }
                         )
                 ).map(p -> {
+                    // TODO n + 1
                     Optional<CurrentCourseProgressDto> currentCourseProgress = courseProgressService
                             .getCurrentCourseProgress(p.getPersonId());
                     if (currentCourseProgress.isPresent()) {

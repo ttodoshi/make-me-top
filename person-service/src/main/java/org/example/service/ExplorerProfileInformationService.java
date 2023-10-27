@@ -46,7 +46,8 @@ public class ExplorerProfileInformationService {
                         courseProgressService.getInvestigatedSystemIds(personExplorers)
                 )), asyncExecutor);
         CompletableFuture<Void> ratingTable = CompletableFuture.runAsync(() ->
-                response.put("ratingTable", explorerListService.getExplorers()), asyncExecutor);
+                        response.put("ratingTable", explorerListService.getExplorers()),
+                asyncExecutor);
         try {
             CompletableFuture.allOf(currentSystem, studyRequest, investigatedSystems, ratingTable).join();
         } catch (CompletionException completionException) {

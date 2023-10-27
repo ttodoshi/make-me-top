@@ -45,4 +45,8 @@ public class KeeperFeedbackService {
         savingFeedback.setKeeperId(keeper.getKeeperId());
         return keeperFeedbackRepository.save(savingFeedback);
     }
+
+    public Double getAvgRatingByPersonExplorerIds(List<Integer> explorerIds) {
+        return Math.ceil(keeperFeedbackRepository.getPersonRatingAsExplorer(explorerIds).orElse(0.0) * 10) / 10;
+    }
 }
