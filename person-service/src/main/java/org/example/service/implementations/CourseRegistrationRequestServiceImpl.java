@@ -10,6 +10,7 @@ import org.example.model.Person;
 import org.example.repository.*;
 import org.example.service.CourseRegistrationRequestService;
 import org.example.service.KeeperService;
+import org.example.service.PersonService;
 import org.example.service.RatingService;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +30,7 @@ public class CourseRegistrationRequestServiceImpl implements CourseRegistrationR
     private final CourseRegistrationRequestKeeperRepository courseRegistrationRequestKeeperRepository;
     private final GalaxyRepository galaxyRepository;
 
+    private final PersonService personService;
     private final KeeperService keeperService;
     private final RatingService ratingService;
 
@@ -50,7 +52,7 @@ public class CourseRegistrationRequestServiceImpl implements CourseRegistrationR
         return openedRequests.stream()
                 .map(kr -> {
                     CourseRegistrationRequestDto currentRequest = requests.get(kr.getRequestId());
-                    Person person = personRepository.getReferenceById(currentRequest.getPersonId());
+                    Person person = personService.findPersonById(currentRequest.getPersonId());
                     return new CourseRegistrationRequestForKeeperDto(
                             person.getPersonId(),
                             person.getFirstName(),

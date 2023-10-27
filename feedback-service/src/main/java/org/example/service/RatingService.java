@@ -26,7 +26,7 @@ public class RatingService {
                 .stream()
                 .map(ExplorerDto::getExplorerId)
                 .collect(Collectors.toList());
-        return keeperFeedbackService.getAvgRatingByPersonExplorerIds(explorerIds);
+        return keeperFeedbackService.getRatingByPersonExplorerIds(explorerIds);
     }
 
     public Double getPersonRatingAsKeeper(Integer personId) {
@@ -35,7 +35,7 @@ public class RatingService {
                 .stream()
                 .map(KeeperDto::getKeeperId)
                 .collect(Collectors.toList());
-        return explorerFeedbackService.getAvgRatingByPersonKeeperIds(keeperIds);
+        return explorerFeedbackService.getRatingByPersonKeeperIds(keeperIds);
     }
 
     @Transactional(readOnly = true)
@@ -45,7 +45,7 @@ public class RatingService {
                 .stream()
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
-                        e -> keeperFeedbackService.getAvgRatingByPersonExplorerIds(
+                        e -> keeperFeedbackService.getRatingByPersonExplorerIds(
                                 e.getValue().stream().map(ExplorerDto::getExplorerId).collect(Collectors.toList())
                         )
                 ));
@@ -58,7 +58,7 @@ public class RatingService {
                 .stream()
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
-                        e -> explorerFeedbackService.getAvgRatingByPersonKeeperIds(
+                        e -> explorerFeedbackService.getRatingByPersonKeeperIds(
                                 e.getValue().stream().map(KeeperDto::getKeeperId).collect(Collectors.toList())
                         )
                 ));

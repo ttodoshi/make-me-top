@@ -11,10 +11,15 @@ import org.example.repository.KeeperFeedbackRepository;
 import org.example.repository.KeeperRepository;
 import org.example.service.validator.FeedbackValidatorService;
 import org.modelmapper.ModelMapper;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +31,7 @@ public class KeeperFeedbackService {
     private final PersonService personService;
     private final FeedbackValidatorService feedbackValidatorService;
 
+    private final CacheManager cacheManager;
     private final ModelMapper mapper;
 
     @Transactional(readOnly = true)
@@ -43,10 +49,24 @@ public class KeeperFeedbackService {
         feedbackValidatorService.validateFeedbackForExplorerRequest(keeper.getKeeperId(), feedback);
         KeeperFeedback savingFeedback = mapper.map(feedback, KeeperFeedback.class);
         savingFeedback.setKeeperId(keeper.getKeeperId());
+        clearExplorerRatingCache(feedback.getExplorerId());
         return keeperFeedbackRepository.save(savingFeedback);
     }
 
-    public Double getAvgRatingByPersonExplorerIds(List<Integer> explorerIds) {
+    private void clearExplorerRatingCache(Integer explorerId) {
+        Cache explorerRatingCache = cacheManager.getCache("explorerRatingCache");
+        Map<List<Integer>, Double> nativeCache = (Map<List<Integer>, Double>)
+                Objects.requireNonNull(explorerRatingCache).getNativeCache();
+        for (Map.Entry<List<Integer>, Double> entry : nativeCache.entrySet()) {
+            if (entry.getKey().contains(explorerId))
+                explorerRatingCache.evict(entry.getKey());
+        }
+    }
+
+    @Cacheable(cacheNames = "explorerRatingCache", key = "#explorerIds")
+    @Transactional(readOnly = true)
+    public Double getRatingByPersonExplorerIds(List<Integer> explorerIds) {
+        System.out.println("explorer rating cashed");
         return Math.ceil(keeperFeedbackRepository.getPersonRatingAsExplorer(explorerIds).orElse(0.0) * 10) / 10;
     }
 }
