@@ -71,7 +71,6 @@ public class KeeperFeedbackService {
     @Cacheable(cacheNames = "explorerRatingCache", key = "#explorerIds")
     @Transactional(readOnly = true)
     public Double getRatingByPersonExplorerIds(List<Integer> explorerIds) {
-        System.out.println("explorer rating cashed" + explorerIds);
         return Math.ceil(keeperFeedbackRepository.getPersonRatingAsExplorer(explorerIds).orElse(0.0) * 10) / 10;
     }
 }
