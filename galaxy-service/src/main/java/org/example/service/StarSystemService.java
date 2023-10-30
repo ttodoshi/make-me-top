@@ -128,11 +128,11 @@ public class StarSystemService {
         return new MessageDto("Система " + systemId + " была уничтожена чёрной дырой");
     }
 
-    private void deletePlanetsBySystemId(Integer systemId) {
+    public void deletePlanetsBySystemId(Integer systemId) {
         deletePlanetsKafkaTemplate.send("deletePlanetsTopic", systemId);
     }
 
-    private void deleteCourse(Integer systemId) {
+    public void deleteCourse(Integer systemId) {
         deleteCourseKafkaTemplate.send("deleteCourseTopic", systemId);
     }
 }

@@ -25,8 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
 import java.util.stream.Collectors;
 
 @Service
@@ -116,7 +114,12 @@ public class GalaxyService {
 
     @Transactional
     public MessageDto deleteGalaxy(Integer galaxyId) {
-        galaxyValidatorService.validateDeleteRequest(galaxyId);
+        Galaxy galaxy = galaxyRepository.findById(galaxyId)
+                .orElseThrow(() -> new GalaxyNotFoundException(galaxyId));
+        galaxy.getOrbits()
+                .stream()
+                .flatMap(g -> g.getSystems().stream())
+                .forEach(s -> orbitService.clearCourseAndPlanets(s.getSystemId()));
         galaxyRepository.deleteById(galaxyId);
         return new MessageDto("Галактика " + galaxyId + " была уничтожена квазаром");
     }

@@ -79,8 +79,17 @@ public class OrbitService {
 
     @Transactional
     public MessageDto deleteOrbit(Integer orbitId) {
-        orbitValidatorService.validateDeleteRequest(orbitId);
+        Orbit orbit = orbitRepository.findById(orbitId)
+                .orElseThrow(() -> new OrbitNotFoundException(orbitId));
+        orbit.getSystems().forEach(s -> {
+            clearCourseAndPlanets(s.getSystemId());
+        });
         orbitRepository.deleteById(orbitId);
         return new MessageDto("Орбита " + orbitId + " была уничтожена неизвестным оружием инопланетной цивилизации");
+    }
+
+    public void clearCourseAndPlanets(Integer systemId) {
+        systemService.deleteCourse(systemId);
+        systemService.deletePlanetsBySystemId(systemId);
     }
 }

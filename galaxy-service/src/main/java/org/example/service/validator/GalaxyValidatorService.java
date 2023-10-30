@@ -43,10 +43,4 @@ public class GalaxyValidatorService {
         return galaxyRepository.findAll().stream()
                 .anyMatch(g -> g.getGalaxyName().equals(galaxyName) && !g.getGalaxyId().equals(galaxyId));
     }
-
-    @Transactional(readOnly = true)
-    public void validateDeleteRequest(Integer galaxyId) {
-        if (!galaxyRepository.existsById(galaxyId))
-            throw new GalaxyNotFoundException(galaxyId);
-    }
 }
