@@ -2,8 +2,8 @@ package org.example.config.security;
 
 import lombok.RequiredArgsConstructor;
 import org.example.dto.PersonDto;
-import org.example.exception.classes.personEX.PersonNotFoundException;
 import org.example.repository.PersonRepository;
+import org.example.service.PersonService;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -24,6 +24,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
+    private final PersonService personService;
     private final PersonRepository personRepository;
 
     @Override
@@ -41,10 +42,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         final String userId = jwtService.extractId(jwtToken);
         if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            Optional<PersonDto> personOptional = personRepository.findById(Integer.valueOf(userId));
-            if (personOptional.isEmpty())
-                throw new PersonNotFoundException();
-            PersonDto person = personOptional.get();
+            PersonDto person = personService.findPersonById(Integer.valueOf(userId));
             if (jwtService.isAccessTokenValid(jwtToken, person)) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         person,

@@ -2,8 +2,8 @@ package org.example.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.springframework.data.annotation.CreatedDate;
@@ -38,6 +38,7 @@ public class CourseRegistrationRequest {
     private Integer statusId;
     @OneToMany(mappedBy = "request", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonBackReference
+    @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private List<CourseRegistrationRequestKeeper> keepersRequests;
 

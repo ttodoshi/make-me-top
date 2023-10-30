@@ -5,8 +5,11 @@ import org.example.dto.explorer.CreateExplorerGroupDto;
 import org.example.dto.explorer.ExplorerGroupDto;
 import org.example.exception.classes.connectEX.ConnectException;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
+import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.util.List;
@@ -28,11 +31,12 @@ public class ExplorerGroupRepositoryImpl implements ExplorerGroupRepository {
                 ).bodyValue(explorerGroup)
                 .header("Authorization", authorizationHeaderRepository.getAuthorizationHeader())
                 .retrieve()
-                .onStatus(HttpStatus::isError, response -> {
+                .onStatus(httpStatus -> httpStatus.isError() && !httpStatus.equals(HttpStatus.UNAUTHORIZED), response -> {
                     throw new ConnectException();
                 })
                 .bodyToMono(ExplorerGroupDto.class)
                 .timeout(Duration.ofSeconds(5))
+                .onErrorResume(WebClientResponseException.Unauthorized.class, error -> Mono.error(new AccessDeniedException("Вам закрыт доступ к данной функциональности бортового компьютера")))
                 .block();
     }
 
@@ -48,11 +52,12 @@ public class ExplorerGroupRepositoryImpl implements ExplorerGroupRepository {
                 )
                 .header("Authorization", authorizationHeaderRepository.getAuthorizationHeader())
                 .retrieve()
-                .onStatus(HttpStatus::isError, response -> {
+                .onStatus(httpStatus -> httpStatus.isError() && !httpStatus.equals(HttpStatus.UNAUTHORIZED), response -> {
                     throw new ConnectException();
                 })
                 .bodyToFlux(ExplorerGroupDto.class)
                 .timeout(Duration.ofSeconds(5))
+                .onErrorResume(WebClientResponseException.Unauthorized.class, error -> Mono.error(new AccessDeniedException("Вам закрыт доступ к данной функциональности бортового компьютера")))
                 .collectList()
                 .block();
     }

@@ -18,7 +18,9 @@ import org.example.model.Person;
 import org.example.repository.*;
 import org.example.service.CourseProgressService;
 import org.example.service.ExplorerGroupService;
+import org.example.service.ExplorerService;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -42,6 +44,7 @@ public class CourseProgressServiceImpl implements CourseProgressService {
     private final CourseRepository courseRepository;
     private final CourseThemeRepository courseThemeRepository;
 
+    private final ExplorerService explorerService;
     private final ExplorerGroupService explorerGroupService;
 
     @Override
@@ -83,7 +86,7 @@ public class CourseProgressServiceImpl implements CourseProgressService {
     }
 
     private Optional<Explorer> getCurrentSystemExplorer(Integer personId) {
-        List<Explorer> personExplorers = explorerRepository.findExplorersByPersonId(personId);
+        List<Explorer> personExplorers = explorerService.findExplorersByPersonId(personId);
         List<Integer> explorersWithFinalAssessment = getExplorersWithFinalAssessment(
                 personExplorers.stream().map(Explorer::getExplorerId).collect(Collectors.toList())
         );
@@ -102,11 +105,12 @@ public class CourseProgressServiceImpl implements CourseProgressService {
                 )
                 .header("Authorization", authorizationHeaderRepository.getAuthorizationHeader())
                 .retrieve()
-                .onStatus(httpStatus -> httpStatus.isError() && !httpStatus.equals(HttpStatus.NOT_FOUND), response -> {
+                .onStatus(httpStatus -> httpStatus.isError() && !httpStatus.equals(HttpStatus.NOT_FOUND) && !httpStatus.equals(HttpStatus.UNAUTHORIZED), response -> {
                     throw new ConnectException();
                 })
                 .bodyToMono(CourseWithThemesProgressDto.class)
                 .timeout(Duration.ofSeconds(5))
+                .onErrorResume(WebClientResponseException.Unauthorized.class, error -> Mono.error(new AccessDeniedException("Вам закрыт доступ к данной функциональности бортового компьютера")))
                 .onErrorResume(WebClientResponseException.NotFound.class, error -> Mono.error(new ExplorerNotFoundException(explorerId)))
                 .block();
     }
@@ -144,11 +148,12 @@ public class CourseProgressServiceImpl implements CourseProgressService {
                 )
                 .header("Authorization", authorizationHeaderRepository.getAuthorizationHeader())
                 .retrieve()
-                .onStatus(HttpStatus::isError, response -> {
+                .onStatus(httpStatus -> httpStatus.isError() && !httpStatus.equals(HttpStatus.UNAUTHORIZED), response -> {
                     throw new ConnectException();
                 })
                 .bodyToFlux(Integer.class)
                 .timeout(Duration.ofSeconds(5))
+                .onErrorResume(WebClientResponseException.Unauthorized.class, error -> Mono.error(new AccessDeniedException("Вам закрыт доступ к данной функциональности бортового компьютера")))
                 .collectList()
                 .block();
         if (explorerNeededFinalAssessment == null)
@@ -231,11 +236,12 @@ public class CourseProgressServiceImpl implements CourseProgressService {
                         .build()
                 ).header("Authorization", authorizationHeaderRepository.getAuthorizationHeader())
                 .retrieve()
-                .onStatus(HttpStatus::isError, response -> {
+                .onStatus(httpStatus -> httpStatus.isError() && !httpStatus.equals(HttpStatus.UNAUTHORIZED), response -> {
                     throw new ConnectException();
                 })
                 .bodyToFlux(Integer.class)
                 .timeout(Duration.ofSeconds(5))
+                .onErrorResume(WebClientResponseException.Unauthorized.class, error -> Mono.error(new AccessDeniedException("Вам закрыт доступ к данной функциональности бортового компьютера")))
                 .collectList()
                 .block();
         return Objects.requireNonNullElse(explorersWithFinalAssessment, Collections.emptyList());

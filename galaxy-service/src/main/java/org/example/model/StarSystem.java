@@ -1,11 +1,9 @@
 package org.example.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import java.util.List;
@@ -32,10 +30,12 @@ public class StarSystem {
     private Integer orbitId;
     @OneToMany(mappedBy = "child", cascade = CascadeType.ALL)
     @JsonBackReference
+    @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private List<SystemDependency> children;
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
     @JsonBackReference
+    @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private List<SystemDependency> parents;
 }

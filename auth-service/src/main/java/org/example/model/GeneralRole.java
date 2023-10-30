@@ -2,6 +2,7 @@ package org.example.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import javax.persistence.*;
@@ -19,6 +20,7 @@ public class GeneralRole {
     private GeneralRoleType name;
     @OneToMany(mappedBy = "role", cascade = CascadeType.ALL)
     @JsonBackReference
+    @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private List<PersonRole> personRoles;
 }

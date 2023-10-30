@@ -2,12 +2,16 @@ package org.example.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.dto.event.ExplorerCreateEvent;
+import org.example.dto.explorer.ExplorerBasicInfoDto;
 import org.example.dto.message.MessageDto;
+import org.example.dto.person.PersonWithRatingDto;
 import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
 import org.example.model.Explorer;
 import org.example.repository.ExplorerRepository;
 import org.example.service.validator.ExplorerValidatorService;
 import org.modelmapper.ModelMapper;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,9 +26,11 @@ public class ExplorerService {
     private final ExplorerRepository explorerRepository;
 
     private final ExplorerValidatorService explorerValidatorService;
+    private final RatingService ratingService;
 
     private final ModelMapper mapper;
 
+    @Cacheable(cacheNames = "explorerByIdCache", key = "#explorerId")
     @Transactional(readOnly = true)
     public Explorer findExplorerById(Integer explorerId) {
         return explorerRepository.findById(explorerId)
@@ -76,7 +82,41 @@ public class ExplorerService {
                 ));
     }
 
+    @Transactional(readOnly = true)
+    public Map<Integer, List<PersonWithRatingDto>> findExplorersWithCourseIds() {
+        List<ExplorerBasicInfoDto> explorers = explorerRepository.findAll()
+                .stream()
+                .map(e -> new ExplorerBasicInfoDto(
+                        e.getPersonId(),
+                        e.getPerson().getFirstName(),
+                        e.getPerson().getLastName(),
+                        e.getPerson().getPatronymic(),
+                        e.getExplorerId(),
+                        e.getGroup().getCourseId(),
+                        e.getGroupId()
+                )).collect(Collectors.toList());
+        Map<Integer, Double> peopleRating = ratingService.getPeopleRatingAsExplorerByPersonIdIn(
+                explorers.stream()
+                        .map(ExplorerBasicInfoDto::getPersonId)
+                        .distinct()
+                        .collect(Collectors.toList())
+        );
+        return explorers
+                .stream()
+                .collect(Collectors.groupingBy(
+                        ExplorerBasicInfoDto::getCourseId,
+                        Collectors.mapping(e -> new PersonWithRatingDto(
+                                e.getPersonId(),
+                                e.getFirstName(),
+                                e.getLastName(),
+                                e.getPatronymic(),
+                                peopleRating.get(e.getPersonId())
+                        ), Collectors.toList())
+                ));
+    }
+
     @KafkaListener(topics = "explorerTopic", containerFactory = "explorerKafkaListenerContainerFactory")
+    @CacheEvict(cacheNames = "explorerExistsCache", key = "#result.explorerId")
     @Transactional
     public Explorer createExplorer(ExplorerCreateEvent explorer) {
         return explorerRepository.save(
@@ -84,6 +124,7 @@ public class ExplorerService {
         );
     }
 
+    @CacheEvict(cacheNames = {"explorerByIdCache", "explorerExistsCache"}, key = "#explorerId")
     @Transactional
     public MessageDto deleteExplorerById(Integer explorerId) {
         explorerValidatorService.validateDeleteExplorerByIdRequest(explorerId);

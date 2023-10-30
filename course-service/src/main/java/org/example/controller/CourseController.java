@@ -37,7 +37,7 @@ public class CourseController {
         if (detailed != null && detailed)
             return ResponseEntity.ok(courseService.getDetailedCourseInfo(courseId));
         else
-            return ResponseEntity.ok(courseService.getCourse(courseId));
+            return ResponseEntity.ok(courseService.findCourseByCourseId(courseId));
     }
 
     @GetMapping("/courses")

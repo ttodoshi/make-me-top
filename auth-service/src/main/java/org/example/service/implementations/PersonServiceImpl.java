@@ -1,11 +1,13 @@
 package org.example.service.implementations;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.mmtr.MmtrAuthResponseEmployeeDto;
 import org.example.dto.PersonDto;
 import org.example.dto.event.PersonCreateEvent;
+import org.example.dto.mmtr.MmtrAuthResponseEmployeeDto;
+import org.example.exception.classes.personEX.PersonNotFoundException;
 import org.example.repository.PersonRepository;
 import org.example.service.PersonService;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +19,13 @@ public class PersonServiceImpl implements PersonService {
     private final PersonRepository personRepository;
 
     private final KafkaTemplate<Integer, Object> kafkaTemplate;
+
+    @Override
+    @Cacheable(cacheNames = "personByIdCache", key = "#personId")
+    public PersonDto findPersonById(Integer personId) {
+        return personRepository.findById(personId)
+                .orElseThrow(PersonNotFoundException::new);
+    }
 
     @Override
     public void savePersonIfNotExists(MmtrAuthResponseEmployeeDto employee) {

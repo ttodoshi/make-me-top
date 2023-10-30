@@ -1,8 +1,8 @@
 package org.example.service.validator;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.orbit.OrbitDto;
 import org.example.dto.orbit.CreateOrbitWithStarSystemsDto;
+import org.example.dto.orbit.OrbitDto;
 import org.example.dto.starsystem.CreateStarSystemDto;
 import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
 import org.example.exception.classes.orbitEX.OrbitCoordinatesException;
@@ -66,11 +66,5 @@ public class OrbitValidatorService {
     private boolean orbitExists(Integer galaxyId, Integer orbitId, Integer orbitLevel) {
         return orbitRepository.findOrbitsByGalaxyId(galaxyId).stream()
                 .anyMatch(o -> o.getOrbitLevel().equals(orbitLevel) && !o.getOrbitId().equals(orbitId));
-    }
-
-    @Transactional(readOnly = true)
-    public void validateDeleteRequest(Integer orbitId) {
-        if (!orbitRepository.existsById(orbitId))
-            throw new OrbitNotFoundException(orbitId);
     }
 }

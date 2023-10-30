@@ -53,7 +53,7 @@ public class CourseService {
     }
 
     @Transactional(readOnly = true)
-    public Course getCourse(Integer courseId) {
+    public Course findCourseByCourseId(Integer courseId) {
         return courseRepository.findById(courseId)
                 .orElseThrow(() -> new CourseNotFoundException(courseId));
     }
@@ -61,7 +61,7 @@ public class CourseService {
     @Transactional(readOnly = true)
     public Map<String, Object> getDetailedCourseInfo(Integer courseId) {
         Map<String, Object> response = new LinkedHashMap<>();
-        response.put("course", getCourse(courseId));
+        response.put("course", findCourseByCourseId(courseId));
         Integer authenticatedPersonId = personService.getAuthenticatedPersonId();
         List<ExplorerWithRatingDto> explorers = explorerService.getExplorersForCourse(courseId);
         List<KeeperWithRatingDto> keepers = keeperService.getKeepersForCourse(courseId);

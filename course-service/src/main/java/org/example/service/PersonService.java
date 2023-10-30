@@ -5,5 +5,5 @@ import org.example.dto.person.PersonDto;
 public interface PersonService {
     Integer getAuthenticatedPersonId();
 
-    PersonDto getAuthenticatedPerson();
+    PersonDto findPersonById(Integer personId);
 }

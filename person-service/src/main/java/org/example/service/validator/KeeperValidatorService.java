@@ -5,19 +5,19 @@ import org.example.dto.keeper.CreateKeeperDto;
 import org.example.exception.classes.courseEX.CourseNotFoundException;
 import org.example.exception.classes.personEX.PersonNotFoundException;
 import org.example.repository.CourseRepository;
-import org.example.repository.PersonRepository;
+import org.example.service.PersonService;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @RequiredArgsConstructor
 public class KeeperValidatorService {
-    private final PersonRepository personRepository;
     private final CourseRepository courseRepository;
+    private final PersonService personService;
 
     @Transactional(readOnly = true)
     public void validateKeepersByPersonIdRequest(Integer personId) {
-        if (!personRepository.existsById(personId))
+        if (!personService.personExistsById(personId))
             throw new PersonNotFoundException(personId);
     }
 
@@ -31,7 +31,7 @@ public class KeeperValidatorService {
     public void validateSetKeeperRequest(Integer courseId, CreateKeeperDto request) {
         if (!courseRepository.existsById(courseId))
             throw new CourseNotFoundException(courseId);
-        if (!personRepository.existsById(request.getPersonId()))
+        if (!personService.personExistsById(request.getPersonId()))
             throw new PersonNotFoundException(request.getPersonId());
     }
 }

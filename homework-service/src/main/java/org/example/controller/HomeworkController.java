@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.apache.kafka.common.annotation.InterfaceStability;
 import org.example.dto.homework.CreateHomeworkDto;
 import org.example.dto.homework.UpdateHomeworkDto;
 import org.example.service.HomeworkService;

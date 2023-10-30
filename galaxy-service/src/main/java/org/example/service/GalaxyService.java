@@ -1,26 +1,30 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.dto.explorer.ExplorerDto;
 import org.example.dto.galaxy.CreateGalaxyDto;
 import org.example.dto.galaxy.GalaxyDto;
 import org.example.dto.galaxy.GetGalaxyDto;
 import org.example.dto.galaxy.GetGalaxyInformationDto;
+import org.example.dto.keeper.KeeperDto;
 import org.example.dto.message.MessageDto;
 import org.example.dto.orbit.GetOrbitWithStarSystemsWithoutGalaxyIdDto;
+import org.example.dto.person.PersonWithSystemsDto;
 import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
 import org.example.exception.classes.systemEX.SystemNotFoundException;
 import org.example.model.Galaxy;
+import org.example.model.StarSystem;
 import org.example.repository.GalaxyRepository;
 import org.example.repository.OrbitRepository;
 import org.example.repository.StarSystemRepository;
 import org.example.service.validator.GalaxyValidatorService;
 import org.modelmapper.ModelMapper;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,7 +36,8 @@ public class GalaxyService {
 
     private final GalaxyValidatorService galaxyValidatorService;
     private final OrbitService orbitService;
-    private final GalaxyInformationService galaxyInformationService;
+    private final ExplorerService explorerService;
+    private final KeeperService keeperService;
 
     private final ModelMapper mapper;
 
@@ -43,10 +48,25 @@ public class GalaxyService {
 
     @Transactional(readOnly = true)
     public List<GetGalaxyInformationDto> getAllGalaxiesDetailed() {
+        Map<Integer, List<ExplorerDto>> explorers = explorerService.findExplorersWithCourseIds();
+        Map<Integer, List<KeeperDto>> keepers = keeperService.findKeepersWithCourseIds();
         return galaxyRepository.findAll()
                 .stream()
-                .map(galaxyInformationService::getGalaxyInformation)
-                .collect(Collectors.toList());
+                .map(g -> {
+                    List<StarSystem> systems = starSystemRepository.findSystemsByGalaxyId(g.getGalaxyId());
+                    List<PersonWithSystemsDto> personAsExplorerList = explorerService.getExplorersWithSystems(explorers, systems);
+                    List<PersonWithSystemsDto> personAsKeeperList = keeperService.getKeepersWithSystems(keepers, systems);
+                    return new GetGalaxyInformationDto(
+                            g.getGalaxyId(),
+                            g.getGalaxyName(),
+                            g.getGalaxyDescription(),
+                            systems.size(),
+                            personAsExplorerList.size(),
+                            personAsExplorerList,
+                            personAsKeeperList.size(),
+                            personAsKeeperList
+                    );
+                }).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
@@ -83,7 +103,6 @@ public class GalaxyService {
         return getGalaxyById(savedGalaxyId);
     }
 
-    @CacheEvict(cacheNames = "galaxiesCache", key = "#galaxyId")
     @Transactional
     public Galaxy updateGalaxy(Integer galaxyId, GalaxyDto galaxy) {
         galaxyValidatorService.validatePutRequest(galaxyId, galaxy);
@@ -93,10 +112,14 @@ public class GalaxyService {
         return galaxyRepository.save(updatedGalaxy);
     }
 
-    @CacheEvict(cacheNames = "galaxiesCache", key = "#galaxyId")
     @Transactional
     public MessageDto deleteGalaxy(Integer galaxyId) {
-        galaxyValidatorService.validateDeleteRequest(galaxyId);
+        Galaxy galaxy = galaxyRepository.findById(galaxyId)
+                .orElseThrow(() -> new GalaxyNotFoundException(galaxyId));
+        galaxy.getOrbits()
+                .stream()
+                .flatMap(g -> g.getSystems().stream())
+                .forEach(s -> orbitService.clearCourseAndPlanets(s.getSystemId()));
         galaxyRepository.deleteById(galaxyId);
         return new MessageDto("Галактика " + galaxyId + " была уничтожена квазаром");
     }

@@ -13,7 +13,6 @@ import org.example.repository.OrbitRepository;
 import org.example.repository.StarSystemRepository;
 import org.example.service.validator.OrbitValidatorService;
 import org.modelmapper.ModelMapper;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,7 +51,6 @@ public class OrbitService {
                 .orElseThrow(() -> new OrbitNotFoundException(orbitId));
     }
 
-    @CacheEvict(cacheNames = "galaxiesCache", key = "#galaxyId")
     @Transactional
     public GetOrbitWithStarSystemsDto createOrbit(Integer galaxyId, CreateOrbitWithStarSystemsDto orbitRequest) {
         orbitValidatorService.validatePostRequest(galaxyId, orbitRequest);
@@ -79,11 +77,19 @@ public class OrbitService {
         return orbitRepository.save(updatedOrbit);
     }
 
-    @CacheEvict(cacheNames = "galaxiesCache", key = "@orbitService.getOrbitById(#orbitId).galaxyId", beforeInvocation = true)
     @Transactional
     public MessageDto deleteOrbit(Integer orbitId) {
-        orbitValidatorService.validateDeleteRequest(orbitId);
+        Orbit orbit = orbitRepository.findById(orbitId)
+                .orElseThrow(() -> new OrbitNotFoundException(orbitId));
+        orbit.getSystems().forEach(s -> {
+            clearCourseAndPlanets(s.getSystemId());
+        });
         orbitRepository.deleteById(orbitId);
         return new MessageDto("Орбита " + orbitId + " была уничтожена неизвестным оружием инопланетной цивилизации");
+    }
+
+    public void clearCourseAndPlanets(Integer systemId) {
+        systemService.deleteCourse(systemId);
+        systemService.deletePlanetsBySystemId(systemId);
     }
 }
