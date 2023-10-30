@@ -16,11 +16,14 @@ import java.util.stream.Collectors;
 public class CourseRegistrationRequestService {
     private final CourseRegistrationRequestRepository courseRegistrationRequestRepository;
 
+    private final PersonService personService;
+
     @Transactional(readOnly = true)
-    public CourseRegistrationRequest findProcessingCourseRegistrationRequestByPersonId(Integer personId) {
+    public CourseRegistrationRequest findProcessingCourseRegistrationRequestByPersonId() {
         return courseRegistrationRequestRepository
-                .findCourseRegistrationRequestByPersonIdAndStatus_ProcessingStatus(personId)
-                .orElseThrow(RequestNotFoundException::new);
+                .findCourseRegistrationRequestByPersonIdAndStatus_ProcessingStatus(
+                        personService.getAuthenticatedPersonId()
+                ).orElseThrow(RequestNotFoundException::new);
     }
 
     @Transactional(readOnly = true)

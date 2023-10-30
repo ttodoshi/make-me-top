@@ -11,7 +11,7 @@ import java.util.Optional;
 public interface CourseRegistrationRequestService {
     List<CourseRegistrationRequestForKeeperDto> getStudyRequestsForKeeper(List<Keeper> keepers);
 
-    Optional<CourseRegistrationRequestForExplorerDto> getStudyRequestForExplorerByPersonId(Integer personId);
+    Optional<CourseRegistrationRequestForExplorerDto> getStudyRequestForExplorerByPersonId();
 
     Optional<CourseRegistrationRequestForKeeperWithGalaxyDto> getStudyRequestByExplorerPersonId(Integer authenticatedPersonId, Integer personId);
 }

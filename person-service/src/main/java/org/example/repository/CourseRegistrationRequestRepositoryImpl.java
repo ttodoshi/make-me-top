@@ -23,15 +23,11 @@ public class CourseRegistrationRequestRepositoryImpl implements CourseRegistrati
     private final AuthorizationHeaderRepository authorizationHeaderRepository;
 
     @Override
-    public Optional<CourseRegistrationRequestDto> findProcessingCourseRegistrationRequestByPersonId(Integer personId) {
+    public Optional<CourseRegistrationRequestDto> findProcessingCourseRegistrationRequestByPersonId() {
         return webClientBuilder
                 .baseUrl("http://course-registration-service/api/v1/course-registration-app/").build()
                 .get()
-                .uri(uri -> uri
-                        .path("course-requests/processing/")
-                        .queryParam("personId", personId)
-                        .build()
-                )
+                .uri("course-requests/processing/")
                 .header("Authorization", authorizationHeaderRepository.getAuthorizationHeader())
                 .retrieve()
                 .onStatus(httpStatus -> httpStatus.isError() && !httpStatus.equals(HttpStatus.NOT_FOUND) && !httpStatus.equals(HttpStatus.UNAUTHORIZED), response -> {
