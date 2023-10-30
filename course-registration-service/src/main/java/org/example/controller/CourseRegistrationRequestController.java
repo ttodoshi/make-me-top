@@ -22,8 +22,7 @@ public class CourseRegistrationRequestController {
     private final CourseRegistrationRequestService courseRegistrationRequestService;
 
     @GetMapping("/processing")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).EXPLORER) && " +
-            "@roleService.isPerson(#personId)")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).EXPLORER)")
     @Operation(summary = "Get processing request for person", tags = "course request")
     @ApiResponses(value = {
             @ApiResponse(
@@ -34,10 +33,10 @@ public class CourseRegistrationRequestController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> findProcessingCourseRegistrationRequestByPersonId(@RequestParam Integer personId) {
+    public ResponseEntity<?> findProcessingCourseRegistrationRequestByPersonId() {
         return ResponseEntity.ok(
                 courseRegistrationRequestService
-                        .findProcessingCourseRegistrationRequestByPersonId(personId)
+                        .findProcessingCourseRegistrationRequestByPersonId()
         );
     }
 

@@ -39,7 +39,7 @@ public class ExplorerProfileInformationService {
                 courseProgressService.getCurrentCourseProgress(authenticatedPersonId)
                         .ifPresent(p -> response.put("currentSystem", p)), asyncExecutor);
         CompletableFuture<Void> studyRequest = CompletableFuture.runAsync(() ->
-                courseRegistrationRequestService.getStudyRequestForExplorerByPersonId(authenticatedPersonId)
+                courseRegistrationRequestService.getStudyRequestForExplorerByPersonId()
                         .ifPresent(r -> response.put("studyRequest", r)), asyncExecutor);
         CompletableFuture<Void> investigatedSystems = CompletableFuture.runAsync(() ->
                 response.put("investigatedSystems", courseService.getCoursesRating(

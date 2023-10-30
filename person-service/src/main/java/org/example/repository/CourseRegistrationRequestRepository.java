@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Optional;
 
 public interface CourseRegistrationRequestRepository {
-    Optional<CourseRegistrationRequestDto> findProcessingCourseRegistrationRequestByPersonId(Integer personId);
+    Optional<CourseRegistrationRequestDto> findProcessingCourseRegistrationRequestByPersonId();
 
     Map<Integer, CourseRegistrationRequestDto> findCourseRegistrationRequestsByRequestIdIn(List<Integer> requestIds);
 }

@@ -69,9 +69,9 @@ public class CourseRegistrationRequestServiceImpl implements CourseRegistrationR
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<CourseRegistrationRequestForExplorerDto> getStudyRequestForExplorerByPersonId(Integer personId) {
+    public Optional<CourseRegistrationRequestForExplorerDto> getStudyRequestForExplorerByPersonId() {
         return courseRegistrationRequestRepository
-                .findProcessingCourseRegistrationRequestByPersonId(personId)
+                .findProcessingCourseRegistrationRequestByPersonId()
                 .map(r -> {
                     CourseDto course = courseRepository.getReferenceById(r.getCourseId());
                     GalaxyDto galaxy = galaxyRepository.getGalaxyBySystemId(r.getCourseId());
