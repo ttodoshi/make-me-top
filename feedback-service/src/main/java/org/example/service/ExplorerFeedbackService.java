@@ -15,12 +15,14 @@ import org.modelmapper.ModelMapper;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
@@ -53,14 +55,17 @@ public class ExplorerFeedbackService {
         return explorerFeedbackRepository.save(savingFeedback);
     }
 
-    private void clearKeeperRatingCache(Integer keeperId) {
-        Cache keeperRatingCache = cacheManager.getCache("keeperRatingCache");
-        Map<List<Integer>, Double> nativeCache = (Map<List<Integer>, Double>)
-                Objects.requireNonNull(keeperRatingCache).getNativeCache();
-        for (Map.Entry<List<Integer>, Double> entry : nativeCache.entrySet()) {
-            if (entry.getKey().contains(keeperId))
-                keeperRatingCache.evict(entry.getKey());
-        }
+    @Async
+    public void clearKeeperRatingCache(Integer keeperId) {
+        CompletableFuture.runAsync(() -> {
+            Cache keeperRatingCache = cacheManager.getCache("keeperRatingCache");
+            Map<List<Integer>, Double> nativeCache = (Map<List<Integer>, Double>)
+                    Objects.requireNonNull(keeperRatingCache).getNativeCache();
+            for (Map.Entry<List<Integer>, Double> entry : nativeCache.entrySet()) {
+                if (entry.getKey().contains(keeperId))
+                    keeperRatingCache.evict(entry.getKey());
+            }
+        });
     }
 
     @Transactional
@@ -78,7 +83,7 @@ public class ExplorerFeedbackService {
     @Cacheable(cacheNames = "keeperRatingCache", key = "#keeperIds")
     @Transactional(readOnly = true)
     public Double getRatingByPersonKeeperIds(List<Integer> keeperIds) {
-        System.out.println("keeper rating cashed");
+        System.out.println("keeper rating cashed" + keeperIds);
         return Math.ceil(explorerFeedbackRepository.getPersonRatingAsKeeper(keeperIds).orElse(0.0) * 10) / 10;
     }
 }

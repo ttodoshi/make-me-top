@@ -7,6 +7,7 @@ import org.example.exception.classes.connectEX.ConnectException;
 import org.example.model.StarSystem;
 import org.example.repository.AuthorizationHeaderRepository;
 import org.example.service.ExplorerService;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
@@ -28,6 +29,7 @@ public class ExplorerServiceImpl implements ExplorerService {
     private final WebClient.Builder webClientBuilder;
 
     @Override
+    @Cacheable(cacheNames = "explorersWithSystemsCache", key = "#systems")
     public List<PersonWithSystemsDto> getExplorersWithSystems(Map<Integer, List<ExplorerDto>> explorers, List<StarSystem> systems) {
         return systems.stream()
                 .flatMap(s ->

@@ -7,6 +7,9 @@ import org.example.exception.classes.keeperEX.KeeperNotFoundException;
 import org.example.model.Keeper;
 import org.example.repository.KeeperRepository;
 import org.example.service.validator.KeeperValidatorService;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,24 +26,34 @@ public class KeeperService {
     private final RatingService ratingService;
     private final KeeperValidatorService keeperValidatorService;
 
+    @Cacheable(cacheNames = "keeperByIdCache", key = "#keeperId")
     @Transactional(readOnly = true)
     public Keeper findKeeperByKeeperId(Integer keeperId) {
         return keeperRepository.findById(keeperId)
                 .orElseThrow(KeeperNotFoundException::new);
     }
 
+    @Cacheable(cacheNames = "keeperExistsCache", key = "#keeperId")
+    @Transactional(readOnly = true)
+    public boolean keeperExistsById(Integer keeperId) {
+        return keeperRepository.existsById(keeperId);
+    }
+
+    @Cacheable(cacheNames = "keeperByPersonIdAndCourseId", key = "{#personId, #courseId}")
     @Transactional(readOnly = true)
     public Keeper findKeeperByPersonIdAndCourseId(Integer personId, Integer courseId) {
         return keeperRepository.findKeeperByPersonIdAndCourseId(personId, courseId)
                 .orElseThrow(KeeperNotFoundException::new);
     }
 
+    @Cacheable(cacheNames = "keepersByPersonId", key = "#personId")
     @Transactional(readOnly = true)
     public List<Keeper> findKeepersByPersonId(Integer personId) {
         keeperValidatorService.validateKeepersByPersonIdRequest(personId);
         return keeperRepository.findKeepersByPersonId(personId);
     }
 
+    @Cacheable(cacheNames = "keepersByCourseId", key = "#courseId")
     @Transactional(readOnly = true)
     public List<Keeper> findKeepersByCourseId(Integer courseId) {
         keeperValidatorService.validateKeepersByCourseIdRequest(courseId);
@@ -91,6 +104,11 @@ public class KeeperService {
                 ));
     }
 
+    @Caching(evict = {
+            @CacheEvict(cacheNames = "keepersByPersonId", key = "#createKeeper.personId"),
+            @CacheEvict(cacheNames = "keeperExistsCache", key = "#result.keeperId"),
+            @CacheEvict(cacheNames = "keepersByCourseId", key = "#courseId")
+    })
     @Transactional
     public Keeper setKeeperToCourse(Integer courseId, CreateKeeperDto createKeeper) {
         keeperValidatorService.validateSetKeeperRequest(courseId, createKeeper);

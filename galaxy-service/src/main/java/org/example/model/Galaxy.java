@@ -2,6 +2,7 @@ package org.example.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import javax.persistence.*;
@@ -20,6 +21,7 @@ public class Galaxy {
     private String galaxyDescription;
     @OneToMany(mappedBy = "galaxy", cascade = CascadeType.ALL)
     @JsonBackReference
+    @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private List<Orbit> orbits;
 }

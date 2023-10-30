@@ -25,6 +25,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.stream.Collectors;
 
 @Service
@@ -61,13 +63,12 @@ public class GalaxyService {
                             g.getGalaxyName(),
                             g.getGalaxyDescription(),
                             systems.size(),
-                            explorers.size(),
+                            personAsExplorerList.size(),
                             personAsExplorerList,
-                            keepers.size(),
+                            personAsKeeperList.size(),
                             personAsKeeperList
                     );
-                })
-                .collect(Collectors.toList());
+                }).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)

@@ -116,6 +116,7 @@ public class ExplorerService {
     }
 
     @KafkaListener(topics = "explorerTopic", containerFactory = "explorerKafkaListenerContainerFactory")
+    @CacheEvict(cacheNames = "explorerExistsCache", key = "#result.explorerId")
     @Transactional
     public Explorer createExplorer(ExplorerCreateEvent explorer) {
         return explorerRepository.save(
@@ -123,7 +124,7 @@ public class ExplorerService {
         );
     }
 
-    @CacheEvict(cacheNames = "explorerByIdCache", key = "#explorerId")
+    @CacheEvict(cacheNames = {"explorerByIdCache", "explorerExistsCache"}, key = "#explorerId")
     @Transactional
     public MessageDto deleteExplorerById(Integer explorerId) {
         explorerValidatorService.validateDeleteExplorerByIdRequest(explorerId);

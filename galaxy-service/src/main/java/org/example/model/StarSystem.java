@@ -2,6 +2,7 @@ package org.example.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import javax.persistence.*;
@@ -29,10 +30,12 @@ public class StarSystem {
     private Integer orbitId;
     @OneToMany(mappedBy = "child", cascade = CascadeType.ALL)
     @JsonBackReference
+    @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private List<SystemDependency> children;
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
     @JsonBackReference
+    @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private List<SystemDependency> parents;
 }
