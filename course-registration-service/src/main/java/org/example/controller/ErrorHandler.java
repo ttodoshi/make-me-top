@@ -191,4 +191,10 @@ public class ErrorHandler {
         logWarning(e);
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
     }
+
+    @ExceptionHandler(RejectionReasonNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleRejectionReasonNotFoundException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
+    }
 }
