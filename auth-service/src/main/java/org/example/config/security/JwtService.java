@@ -19,7 +19,7 @@ public interface JwtService {
 
     String extractRole(String jwtToken);
 
-    boolean isAccessTokenValid(String jwtToken, PersonDto person);
+    boolean isAccessTokenValid(String jwtToken);
 
     boolean isRefreshTokenValid(String jwtToken);
 }

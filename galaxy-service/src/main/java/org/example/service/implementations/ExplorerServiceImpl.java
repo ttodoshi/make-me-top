@@ -1,23 +1,19 @@
 package org.example.service.implementations;
 
+import com.google.protobuf.Empty;
+import io.grpc.CallCredentials;
 import lombok.RequiredArgsConstructor;
-import org.example.dto.explorer.ExplorerDto;
+import net.devh.boot.grpc.client.inject.GrpcClient;
+import net.devh.boot.grpc.client.security.CallCredentialsHelper;
 import org.example.dto.person.PersonWithSystemsDto;
-import org.example.exception.classes.connectEX.ConnectException;
+import org.example.grpc.ExplorerServiceGrpc;
+import org.example.grpc.ExplorersService;
 import org.example.model.StarSystem;
 import org.example.repository.AuthorizationHeaderRepository;
 import org.example.service.ExplorerService;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
-import reactor.core.publisher.Mono;
 
-import java.time.Duration;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -26,14 +22,18 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ExplorerServiceImpl implements ExplorerService {
     private final AuthorizationHeaderRepository authorizationHeaderRepository;
-    private final WebClient.Builder webClientBuilder;
+    @GrpcClient("explorers")
+    private ExplorerServiceGrpc.ExplorerServiceBlockingStub explorerServiceBlockingStub;
 
     @Override
-    @Cacheable(cacheNames = "explorersWithSystemsCache", key = "#systems")
-    public List<PersonWithSystemsDto> getExplorersWithSystems(Map<Integer, List<ExplorerDto>> explorers, List<StarSystem> systems) {
+    @Cacheable(cacheNames = "explorersWithSystemsCache", key = "{#explorers, #systems}")
+    public List<PersonWithSystemsDto> getExplorersWithSystems(
+            Map<Integer, ExplorersService.AllExplorersResponse.ExplorerList> explorers,
+            List<StarSystem> systems) {
         return systems.stream()
                 .flatMap(s ->
-                        explorers.getOrDefault(s.getSystemId(), Collections.emptyList())
+                        explorers.getOrDefault(s.getSystemId(), ExplorersService.AllExplorersResponse.ExplorerList.newBuilder().build())
+                                .getPersonList()
                                 .stream()
                                 .map(e -> Map.entry(e, s.getSystemId())))
                 .collect(Collectors.groupingBy(Map.Entry::getKey,
@@ -45,20 +45,12 @@ public class ExplorerServiceImpl implements ExplorerService {
     }
 
     @Override
-    public Map<Integer, List<ExplorerDto>> findExplorersWithCourseIds() {
-        return webClientBuilder
-                .baseUrl("http://person-service/api/v1/person-app/").build()
-                .get()
-                .uri("explorers/all/")
-                .header("Authorization", authorizationHeaderRepository.getAuthorizationHeader())
-                .retrieve()
-                .onStatus(httpStatus -> httpStatus.isError() && !httpStatus.equals(HttpStatus.UNAUTHORIZED), response -> {
-                    throw new ConnectException();
-                })
-                .bodyToFlux(new ParameterizedTypeReference<Map<Integer, List<ExplorerDto>>>() {
-                })
-                .timeout(Duration.ofSeconds(5))
-                .onErrorResume(WebClientResponseException.Unauthorized.class, error -> Mono.error(new AccessDeniedException("Вам закрыт доступ к данной функциональности бортового компьютера")))
-                .blockLast();
+    public Map<Integer, ExplorersService.AllExplorersResponse.ExplorerList> findExplorersWithCourseIds() {
+        CallCredentials callCredentials = CallCredentialsHelper.authorizationHeader(
+                authorizationHeaderRepository.getAuthorizationHeader()
+        );
+        return explorerServiceBlockingStub.withCallCredentials(callCredentials)
+                .findAllExplorers(Empty.newBuilder().build())
+                .getExplorersWithCourseIdMapMap();
     }
 }

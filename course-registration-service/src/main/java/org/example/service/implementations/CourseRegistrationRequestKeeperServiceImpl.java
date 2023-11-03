@@ -56,7 +56,7 @@ public class CourseRegistrationRequestKeeperServiceImpl implements CourseRegistr
 
     @Override
     @Transactional
-    public void closeRequestToOtherKeepersOnCourse(CourseRegistrationRequest request) {
+    public void closeRequestToOtherKeepers(CourseRegistrationRequest request) {
         Integer processingStatusId = findCourseRegistrationRequestKeeperStatusId(
                 CourseRegistrationRequestKeeperStatusType.PROCESSING);
         Integer rejectedStatusId = findCourseRegistrationRequestKeeperStatusId(

@@ -1,20 +1,13 @@
 package org.example.repository;
 
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
-
-import javax.servlet.http.HttpServletRequest;
 
 @Component
 public class AuthorizationHeaderRepositoryImpl implements AuthorizationHeaderRepository {
     @Override
     public String getAuthorizationHeader() {
-        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        if (attributes != null) {
-            HttpServletRequest request = attributes.getRequest();
-            return request.getHeader("Authorization");
-        }
-        return "";
+        String accessToken = (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
+        return "Bearer " + accessToken;
     }
 }

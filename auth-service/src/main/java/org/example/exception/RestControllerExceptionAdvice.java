@@ -1,13 +1,11 @@
-package org.example.controller;
+package org.example.exception;
 
+import io.jsonwebtoken.MalformedJwtException;
 import lombok.extern.slf4j.Slf4j;
-import org.example.exception.ErrorResponse;
 import org.example.exception.classes.connectEX.ConnectException;
-import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
 import org.example.exception.classes.personEX.PersonNotFoundException;
-import org.example.exception.classes.planetEX.PlanetAlreadyExistsException;
-import org.example.exception.classes.planetEX.PlanetNotFoundException;
-import org.example.exception.classes.systemEX.SystemNotFoundException;
+import org.example.exception.classes.personEX.RoleNotAvailableException;
+import org.example.exception.classes.tokenEX.FailedRefreshException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -21,7 +19,7 @@ import java.util.concurrent.TimeoutException;
 
 @RestControllerAdvice
 @Slf4j
-public class ErrorHandler {
+public class RestControllerExceptionAdvice {
     private void logWarning(Throwable e) {
         StackTraceElement[] stackTrace = e.getStackTrace();
         if (stackTrace.length > 0) {
@@ -74,28 +72,16 @@ public class ErrorHandler {
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), "Ошибка в поступивших данных"), HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(SystemNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleSystemNotFoundException(Exception e) {
+    @ExceptionHandler(PersonNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handlePersonNotFoundException(Exception e) {
         logWarning(e);
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(GalaxyNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleGalaxyNotFoundException(Exception e) {
+    @ExceptionHandler(RoleNotAvailableException.class)
+    public ResponseEntity<ErrorResponse> handleRoleNotAvailableException(Exception e) {
         logWarning(e);
-        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(PlanetNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handlePlanetNotFoundException(Exception e) {
-        logWarning(e);
-        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(PlanetAlreadyExistsException.class)
-    public ResponseEntity<ErrorResponse> handlePlanetAlreadyExistsException(Exception e) {
-        logWarning(e);
-        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), e.getMessage()), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(ConnectException.class)
@@ -110,9 +96,14 @@ public class ErrorHandler {
         return handleConnectException(new ConnectException());
     }
 
-    @ExceptionHandler(PersonNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handlePersonNotFoundException(Exception e) {
-        logWarning(e);
-        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
+    @ExceptionHandler(FailedRefreshException.class)
+    public ResponseEntity<ErrorResponse> handleFailedRefreshException(Exception e) {
+        logError(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.UNAUTHORIZED.getReasonPhrase(), "Не удалось выполнить refresh-запрос"), HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(MalformedJwtException.class)
+    public ResponseEntity<ErrorResponse> handleMalformedJwtException(Exception e) {
+        return handleFailedRefreshException(e);
     }
 }

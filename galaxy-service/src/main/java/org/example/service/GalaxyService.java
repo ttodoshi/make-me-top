@@ -1,7 +1,6 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.explorer.ExplorerDto;
 import org.example.dto.galaxy.CreateGalaxyDto;
 import org.example.dto.galaxy.GalaxyDto;
 import org.example.dto.galaxy.GetGalaxyDto;
@@ -12,6 +11,8 @@ import org.example.dto.orbit.GetOrbitWithStarSystemsWithoutGalaxyIdDto;
 import org.example.dto.person.PersonWithSystemsDto;
 import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
 import org.example.exception.classes.systemEX.SystemNotFoundException;
+import org.example.grpc.ExplorersService;
+import org.example.grpc.KeeperServiceOuterClass;
 import org.example.model.Galaxy;
 import org.example.model.StarSystem;
 import org.example.repository.GalaxyRepository;
@@ -48,8 +49,8 @@ public class GalaxyService {
 
     @Transactional(readOnly = true)
     public List<GetGalaxyInformationDto> getAllGalaxiesDetailed() {
-        Map<Integer, List<ExplorerDto>> explorers = explorerService.findExplorersWithCourseIds();
-        Map<Integer, List<KeeperDto>> keepers = keeperService.findKeepersWithCourseIds();
+        Map<Integer, ExplorersService.AllExplorersResponse.ExplorerList> explorers = explorerService.findExplorersWithCourseIds();
+        Map<Integer, KeeperServiceOuterClass.AllKeepersResponse.KeeperList> keepers = keeperService.findKeepersWithCourseIds();
         return galaxyRepository.findAll()
                 .stream()
                 .map(g -> {

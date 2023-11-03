@@ -1,10 +1,10 @@
 package org.example.service;
 
-import org.example.dto.PersonDto;
 import org.example.dto.mmtr.MmtrAuthResponseEmployeeDto;
+import org.example.grpc.PeopleService;
 
 public interface PersonService {
-    PersonDto findPersonById(Integer personId);
+    PeopleService.Person findPersonById(Integer personId);
 
     void savePersonIfNotExists(MmtrAuthResponseEmployeeDto authResponseEmployee);
 }

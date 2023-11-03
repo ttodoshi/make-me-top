@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package org.example.grpc;
+
+import "google/protobuf/empty.proto";
+import "people_service.proto";
+
+option java_package = "org.example.grpc";
+
+service KeeperService {
+  rpc findAllKeepers(google.protobuf.Empty) returns (AllKeepersResponse) {
+  }
+}
+
+message AllKeepersResponse {
+  message KeeperList {
+    repeated PersonWithRating person = 1;
+  }
+  map<int32, KeeperList> keepersWithCourseIdMap = 1;
+}

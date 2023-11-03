@@ -1,5 +1,10 @@
 server:
   port: 8103
+grpc:
+  client:
+    people:
+      address: discovery:///person-service
+      negotiationType: PLAINTEXT
 spring:
   application:
     name: auth-service

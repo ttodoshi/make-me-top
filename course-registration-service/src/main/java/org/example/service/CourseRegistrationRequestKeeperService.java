@@ -14,7 +14,7 @@ public interface CourseRegistrationRequestKeeperService {
 
     CourseRegistrationRequestKeeper findCourseRegistrationRequestForAuthenticatedKeeper(CourseRegistrationRequest request);
 
-    void closeRequestToOtherKeepersOnCourse(CourseRegistrationRequest request);
+    void closeRequestToOtherKeepers(CourseRegistrationRequest request);
 
     List<CourseRegistrationRequestKeeper> findCourseRegistrationRequestKeepersByRequestId(Integer requestId);
 
