@@ -1,10 +1,10 @@
 package org.example.service.implementations;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.PersonDto;
 import org.example.dto.event.PersonCreateEvent;
 import org.example.dto.mmtr.MmtrAuthResponseEmployeeDto;
 import org.example.exception.classes.personEX.PersonNotFoundException;
+import org.example.grpc.PeopleService;
 import org.example.repository.PersonRepository;
 import org.example.service.PersonService;
 import org.springframework.cache.annotation.Cacheable;
@@ -22,14 +22,14 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     @Cacheable(cacheNames = "personByIdCache", key = "#personId")
-    public PersonDto findPersonById(Integer personId) {
+    public PeopleService.Person findPersonById(Integer personId) {
         return personRepository.findById(personId)
                 .orElseThrow(PersonNotFoundException::new);
     }
 
     @Override
     public void savePersonIfNotExists(MmtrAuthResponseEmployeeDto employee) {
-        Optional<PersonDto> personOptional = personRepository.findById(employee.getEmployeeId());
+        Optional<PeopleService.Person> personOptional = personRepository.findById(employee.getEmployeeId());
         if (personOptional.isEmpty())
             createPerson(employee);
     }

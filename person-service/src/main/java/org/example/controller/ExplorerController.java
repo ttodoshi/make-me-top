@@ -93,7 +93,6 @@ public class ExplorerController {
     }
 
     @GetMapping("/people/explorers")
-    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Find explorers", tags = "explorer")
     @ApiResponses(value = {
             @ApiResponse(

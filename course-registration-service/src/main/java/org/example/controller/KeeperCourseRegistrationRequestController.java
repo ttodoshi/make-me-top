@@ -41,7 +41,7 @@ public class KeeperCourseRegistrationRequestController {
         return ResponseEntity.ok(keeperCourseRegistrationRequestService.replyToRequest(requestId, reply));
     }
 
-    @GetMapping("/course-requests/course/{courseId}")
+    @GetMapping("/course-requests/courses/{courseId}")
     @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).KEEPER) && " +
             "@roleService.hasAnyCourseRole(#courseId, T(org.example.config.security.role.CourseRoleType).KEEPER)")
     @Operation(summary = "Get approved requests by course id", tags = "keeper course request")

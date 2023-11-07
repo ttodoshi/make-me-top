@@ -1,20 +1,17 @@
-package org.example.controller;
+package org.example.exception;
 
+import io.grpc.StatusRuntimeException;
 import lombok.extern.slf4j.Slf4j;
-import org.example.exception.ErrorResponse;
 import org.example.exception.classes.connectEX.ConnectException;
-import org.example.exception.classes.courseEX.CourseNotFoundException;
-import org.example.exception.classes.courseEX.CourseThemeNotFoundException;
-import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
+import org.example.exception.classes.dependencyEX.DependencyAlreadyExistsException;
+import org.example.exception.classes.dependencyEX.DependencyCouldNotBeCreatedException;
+import org.example.exception.classes.dependencyEX.DependencyNotFoundException;
+import org.example.exception.classes.galaxyEX.GalaxyAlreadyExistsException;
 import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
-import org.example.exception.classes.keeperEX.DifferentKeeperException;
-import org.example.exception.classes.markEX.CourseMarkNotFoundException;
-import org.example.exception.classes.markEX.ExplorerDoesNotNeedMarkException;
-import org.example.exception.classes.markEX.UnexpectedMarkValueException;
+import org.example.exception.classes.orbitEX.OrbitCoordinatesException;
+import org.example.exception.classes.orbitEX.OrbitNotFoundException;
 import org.example.exception.classes.personEX.PersonNotFoundException;
-import org.example.exception.classes.progressEX.HomeworkNotCompletedException;
-import org.example.exception.classes.progressEX.ThemeAlreadyCompletedException;
-import org.example.exception.classes.progressEX.UnexpectedCourseThemeException;
+import org.example.exception.classes.systemEX.SystemAlreadyExistsException;
 import org.example.exception.classes.systemEX.SystemNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,8 +26,8 @@ import java.util.concurrent.TimeoutException;
 
 @RestControllerAdvice
 @Slf4j
-public class ErrorHandler {
-    private void logWarning(Throwable e) {
+public class RestControllerExceptionAdvice {
+    private void logWarning(Exception e) {
         StackTraceElement[] stackTrace = e.getStackTrace();
         if (stackTrace.length > 0) {
             StackTraceElement firstStackTraceElement = stackTrace[0];
@@ -82,6 +79,60 @@ public class ErrorHandler {
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), "Ошибка в поступивших данных"), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(GalaxyNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleGalaxyNotFoundException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(GalaxyAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleGalaxyAlreadyExistsException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(OrbitNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleOrbitNotFoundException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(OrbitCoordinatesException.class)
+    public ResponseEntity<ErrorResponse> handleOrbitCoordinatesException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(SystemNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleSystemNotFoundException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(SystemAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleSystemAlreadyExistsException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(DependencyNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleDependencyNotFound(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(DependencyAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleDependencyAlreadyExistsException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(DependencyCouldNotBeCreatedException.class)
+    public ResponseEntity<ErrorResponse> handleDependencyCouldNotBeCreatedException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
+    }
+
     @ExceptionHandler(PersonNotFoundException.class)
     public ResponseEntity<ErrorResponse> handlePersonNotFoundException(Exception e) {
         logWarning(e);
@@ -100,75 +151,9 @@ public class ErrorHandler {
         return handleConnectException(new ConnectException());
     }
 
-    @ExceptionHandler(CourseThemeNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleCourseThemeNotFoundException(Exception e) {
-        logWarning(e);
-        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(ExplorerNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleExplorerNotFoundException(Exception e) {
-        logWarning(e);
-        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(CourseNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleCourseNotFoundException(Exception e) {
-        logWarning(e);
-        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(GalaxyNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleGalaxyNotFoundException(Exception e) {
-        logWarning(e);
-        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(SystemNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleSystemNotFoundException(Exception e) {
-        logWarning(e);
-        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(DifferentKeeperException.class)
-    public ResponseEntity<ErrorResponse> handleDifferentKeeperException(Exception e) {
-        logWarning(e);
-        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), e.getMessage()), HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(UnexpectedMarkValueException.class)
-    public ResponseEntity<ErrorResponse> handleUnexpectedMarkValueException(Exception e) {
-        logWarning(e);
-        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), e.getMessage()), HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(ExplorerDoesNotNeedMarkException.class)
-    public ResponseEntity<ErrorResponse> handleExplorerDoesNotNeedMarkException(Exception e) {
-        logWarning(e);
-        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), e.getMessage()), HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(ThemeAlreadyCompletedException.class)
-    public ResponseEntity<ErrorResponse> handlePlanetAlreadyCompletedException(Exception e) {
-        logWarning(e);
-        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), e.getMessage()), HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(UnexpectedCourseThemeException.class)
-    public ResponseEntity<ErrorResponse> handleUnexpectedCourseThemeException(Exception e) {
-        logWarning(e);
-        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), e.getMessage()), HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(HomeworkNotCompletedException.class)
-    public ResponseEntity<ErrorResponse> handleHomeworkNotCompletedException(Exception e) {
-        logWarning(e);
-        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
-    }
-
-    @ExceptionHandler(CourseMarkNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleCourseMarkNotFoundException(Exception e) {
-        logWarning(e);
-        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
+    @ExceptionHandler(StatusRuntimeException.class)
+    public ResponseEntity<ErrorResponse> handleStatusRuntimeException(StatusRuntimeException e) {
+        HttpStatus httpStatus = HttpStatus.valueOf(e.getStatus().getCode().name());
+        return new ResponseEntity<>(new ErrorResponse(httpStatus.getReasonPhrase(), e.getStatus().getDescription()), httpStatus);
     }
 }

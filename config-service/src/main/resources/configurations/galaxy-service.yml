@@ -1,5 +1,16 @@
 server:
   port: 8101
+grpc:
+  client:
+    people:
+      address: discovery:///person-service
+      negotiationType: PLAINTEXT
+    explorers:
+      address: discovery:///person-service
+      negotiationType: PLAINTEXT
+    keepers:
+      address: discovery:///person-service
+      negotiationType: PLAINTEXT
 spring:
   application:
     name: galaxy-service

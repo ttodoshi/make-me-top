@@ -1,5 +1,8 @@
 server:
   port: 8104
+grpc:
+  server:
+    port: 9090
 spring:
   application:
     name: person-service

@@ -6,7 +6,6 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
-import org.example.model.Person;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -31,9 +30,8 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public boolean isTokenValid(String jwtToken, Person person) {
-        final String id = extractId(jwtToken);
-        return id.equals(person.getPersonId().toString()) && !isTokenExpired(jwtToken);
+    public boolean isTokenValid(String jwtToken) {
+        return !isTokenExpired(jwtToken);
     }
 
     private boolean isTokenExpired(String jwtToken) {

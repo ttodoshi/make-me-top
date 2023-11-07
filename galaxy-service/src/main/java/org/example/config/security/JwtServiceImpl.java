@@ -6,7 +6,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
-import org.example.dto.person.PersonDto;
+import org.example.grpc.PeopleService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -31,9 +31,9 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public boolean isTokenValid(String jwtToken, PersonDto person) {
+    public boolean isTokenValid(String jwtToken, PeopleService.Person person) {
         final String id = extractId(jwtToken);
-        return id.equals(person.getPersonId().toString()) && !isTokenExpired(jwtToken);
+        return id.equals(String.valueOf(person.getPersonId())) && !isTokenExpired(jwtToken);
     }
 
     private boolean isTokenExpired(String jwtToken) {

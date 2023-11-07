@@ -6,6 +6,7 @@ build-job: # This job runs in the build stage, which runs first.
   script:
     - echo -e "\nСобираем проект...\n"
     - docker compose down
+    - mvn -f ./person-service-grpc-common/pom.xml clean install
     - mvn clean package
     - mvn -f ./config-service/pom.xml clean package
     - mvn -f ./discovery-service/pom.xml clean package

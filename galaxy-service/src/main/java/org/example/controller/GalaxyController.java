@@ -22,7 +22,6 @@ public class GalaxyController {
     private final GalaxyService galaxyService;
 
     @GetMapping("/galaxies")
-    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get all galaxies", tags = "galaxy")
     @ApiResponses(value = {
             @ApiResponse(

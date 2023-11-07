@@ -79,7 +79,6 @@ public class KeeperController {
     }
 
     @GetMapping("/people/keepers")
-    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Find keepers", tags = "keeper")
     @ApiResponses(value = {
             @ApiResponse(

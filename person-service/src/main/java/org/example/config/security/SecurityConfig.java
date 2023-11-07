@@ -2,8 +2,9 @@ package org.example.config.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -18,6 +19,7 @@ import org.springframework.security.web.authentication.logout.LogoutFilter;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
     private final JwtAuthFilter jwtAuthFilter;
+    private final JwtAuthenticationProvider jwtAuthenticationProvider;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -27,6 +29,10 @@ public class SecurityConfig {
                 .disable()
                 .authorizeHttpRequests()
                 .antMatchers("/swagger-ui/**", "/v3/api-docs/**", "/actuator/**")
+                .permitAll()
+                .antMatchers(HttpMethod.GET, "/api/v1/person-app/people/explorers/**") // TODO
+                .permitAll()
+                .antMatchers(HttpMethod.GET, "/api/v1/person-app/people/keepers/**")
                 .permitAll()
                 .anyRequest()
                 .authenticated()
@@ -53,9 +59,9 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager noopAuthenticationManager() {
-        return authentication -> {
-            throw new AuthenticationServiceException("Authentication is disabled");
-        };
+    public AuthenticationManager authenticationManager() {
+        ProviderManager providerManager = new ProviderManager(jwtAuthenticationProvider);
+        providerManager.setEraseCredentialsAfterAuthentication(false);
+        return providerManager;
     }
 }

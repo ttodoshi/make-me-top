@@ -1,18 +1,16 @@
-package org.example.controller;
+package org.example.exception;
 
 import lombok.extern.slf4j.Slf4j;
-import org.example.exception.ErrorResponse;
 import org.example.exception.classes.connectEX.ConnectException;
 import org.example.exception.classes.courseEX.CourseNotFoundException;
-import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
-import org.example.exception.classes.explorerEX.ExplorerNotStudyingWithKeeperException;
-import org.example.exception.classes.feedbackEX.FeedbackAlreadyExistsException;
-import org.example.exception.classes.feedbackEX.UnexpectedRatingValueException;
 import org.example.exception.classes.keeperEX.DifferentKeeperException;
 import org.example.exception.classes.keeperEX.KeeperNotFoundException;
 import org.example.exception.classes.personEX.PersonNotFoundException;
-import org.example.exception.classes.progressEX.CourseNotCompletedException;
-import org.example.exception.classes.roleEX.RoleNotAvailableException;
+import org.example.exception.classes.progressEX.AlreadyStudyingException;
+import org.example.exception.classes.progressEX.PersonIsStudyingException;
+import org.example.exception.classes.progressEX.SystemParentsNotCompletedException;
+import org.example.exception.classes.progressEX.TeachingInProcessException;
+import org.example.exception.classes.requestEX.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -26,7 +24,7 @@ import java.util.concurrent.TimeoutException;
 
 @RestControllerAdvice
 @Slf4j
-public class ErrorHandler {
+public class RestControllerExceptionAdvice {
     private void logWarning(Throwable e) {
         StackTraceElement[] stackTrace = e.getStackTrace();
         if (stackTrace.length > 0) {
@@ -97,6 +95,18 @@ public class ErrorHandler {
         return handleConnectException(new ConnectException());
     }
 
+    @ExceptionHandler(StatusNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleStatusNotFoundException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(RequestNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleRequestNotFoundException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(CourseNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleCourseNotFoundException(Exception e) {
         logWarning(e);
@@ -109,45 +119,81 @@ public class ErrorHandler {
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(ExplorerNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleExplorerNotFoundException(Exception e) {
-        logWarning(e);
-        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(RoleNotAvailableException.class)
-    public ResponseEntity<ErrorResponse> handleRoleNotAvailableException(Exception e) {
-        logWarning(e);
-        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), e.getMessage()), HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(ExplorerNotStudyingWithKeeperException.class)
-    public ResponseEntity<ErrorResponse> handleExplorerNotStudyingWithKeeperException(Exception e) {
-        logWarning(e);
-        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
-    }
-
-    @ExceptionHandler(CourseNotCompletedException.class)
-    public ResponseEntity<ErrorResponse> handleCourseNotCompletedException(Exception e) {
-        logWarning(e);
-        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
-    }
-
-    @ExceptionHandler(FeedbackAlreadyExistsException.class)
-    public ResponseEntity<ErrorResponse> handleFeedbackAlreadyExistsException(Exception e) {
-        logWarning(e);
-        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
-    }
-
-    @ExceptionHandler(UnexpectedRatingValueException.class)
-    public ResponseEntity<ErrorResponse> handleUnexpectedRatingValueException(Exception e) {
-        logWarning(e);
-        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), e.getMessage()), HttpStatus.BAD_REQUEST);
-    }
-
     @ExceptionHandler(DifferentKeeperException.class)
     public ResponseEntity<ErrorResponse> handleDifferentKeeperException(Exception e) {
         logWarning(e);
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), e.getMessage()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(NoApprovedRequestsFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNoApprovedRequestsFoundException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(AlreadyStudyingException.class)
+    public ResponseEntity<ErrorResponse> handleAlreadyStudyingException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(PersonIsStudyingException.class)
+    public ResponseEntity<ErrorResponse> handlePersonIsStudyingException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(SystemParentsNotCompletedException.class)
+    public ResponseEntity<ErrorResponse> handleSystemParentsNotCompletedException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(PersonIsKeeperException.class)
+    public ResponseEntity<ErrorResponse> handlePersonIsKeeperException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(PersonIsNotPersonInRequestException.class)
+    public ResponseEntity<ErrorResponse> handlePersonIsNotPersonInRequestException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(RequestAlreadySentException.class)
+    public ResponseEntity<ErrorResponse> handleRequestAlreadySentException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(RequestAlreadyClosedException.class)
+    public ResponseEntity<ErrorResponse> handleRequestAlreadyClosedException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), e.getMessage()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(TeachingInProcessException.class)
+    public ResponseEntity<ErrorResponse> handleTeachingInProcessException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(KeeperRejectionAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleKeeperRejectionAlreadyExistsException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(RequestNotRejectedException.class)
+    public ResponseEntity<ErrorResponse> handleRequestNotDeniedException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(RejectionReasonNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleRejectionReasonNotFoundException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
     }
 }

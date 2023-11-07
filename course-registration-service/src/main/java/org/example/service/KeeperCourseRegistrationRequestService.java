@@ -51,7 +51,7 @@ public class KeeperCourseRegistrationRequestService {
         if (approved) {
             keeperResponseStatus = CourseRegistrationRequestKeeperStatusType.APPROVED;
             changeRequestStatusToApproved(request);
-            courseRegistrationRequestKeeperService.closeRequestToOtherKeepersOnCourse(request);
+            courseRegistrationRequestKeeperService.closeRequestToOtherKeepers(request);
         } else {
             keeperResponseStatus = CourseRegistrationRequestKeeperStatusType.REJECTED;
         }

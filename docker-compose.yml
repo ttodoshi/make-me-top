@@ -52,7 +52,7 @@ services:
     container_name: postgres_container
     image: postgres
     environment:
-      POSTGRES_DB: postgres
+      POSTGRES_MULTIPLE_DATABASES: galaxy_db,planet_db,person_db,auth_db,course_db,course_registration_db,homework_db,progress_db,feedback_db
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: pass
       PGDATA: /data/postgres

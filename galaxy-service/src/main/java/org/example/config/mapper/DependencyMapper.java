@@ -2,9 +2,9 @@ package org.example.config.mapper;
 
 import org.example.dto.starsystem.SystemDependencyModelDto;
 import org.example.model.SystemDependency;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 
-@Configuration
+@Component
 public class DependencyMapper {
     public SystemDependencyModelDto dependencyToDependencyChildModel(SystemDependency systemDependency) {
         return new SystemDependencyModelDto(

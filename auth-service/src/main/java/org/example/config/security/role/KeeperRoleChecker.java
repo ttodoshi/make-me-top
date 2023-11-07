@@ -22,7 +22,7 @@ public class KeeperRoleChecker implements RoleChecker {
     private String MMTR_AUTH_URL;
 
     public KeeperRoleChecker(@Qualifier("mmtrAuthorizationHeaderRepository") AuthorizationHeaderRepository mmtrAuthorizationHeaderRepository,
-                             @Qualifier("webClientBuilder") WebClient.Builder webClientBuilder) {
+                             WebClient.Builder webClientBuilder) {
         this.mmtrAuthorizationHeaderRepository = mmtrAuthorizationHeaderRepository;
         this.webClientBuilder = webClientBuilder;
     }

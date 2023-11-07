@@ -44,7 +44,7 @@ public class AuthService {
     public AuthService(RefreshTokenInfoRepository refreshTokenInfoRepository, PersonService personService,
                        @Qualifier("authorizationHeaderRepository") AuthorizationHeaderRepository authorizationHeaderRepository,
                        @Qualifier("mmtrAuthorizationHeaderRepository") AuthorizationHeaderRepository mmtrAuthorizationHeaderRepository,
-                       @Qualifier("webClientBuilder") WebClient.Builder webClientBuilder, JwtService jwtGenerator,
+                       WebClient.Builder webClientBuilder, JwtService jwtGenerator,
                        @Qualifier("roleCheckerMap") Map<String, RoleChecker> roleCheckerMap) {
         this.refreshTokenInfoRepository = refreshTokenInfoRepository;
         this.personService = personService;
