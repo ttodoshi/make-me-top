@@ -1,5 +1,10 @@
 server:
   port: 8109
+grpc:
+  client:
+    explorers:
+      address: discovery:///person-service
+      negotiationType: PLAINTEXT
 spring:
   application:
     name: progress-service

@@ -13,6 +13,8 @@ service ExplorerService {
   }
   rpc findAllExplorers(google.protobuf.Empty) returns (AllExplorersResponse) {
   }
+  rpc findExplorersByPersonIdAndGroup_CourseIdIn(ExplorersByPersonIdAndGroup_CourseIdInRequest) returns (ExplorersByPersonIdAndGroup_CourseIdInResponse) {
+  }
 }
 
 message ExplorersByGroup_CourseIdInRequest {
@@ -38,4 +40,13 @@ message AllExplorersResponse {
     repeated PersonWithRating person = 1;
   }
   map<int32, ExplorerList> explorersWithCourseIdMap = 1;
+}
+
+message ExplorersByPersonIdAndGroup_CourseIdInRequest {
+  int32 personId = 1;
+  repeated int32 courseIds = 2;
+}
+
+message ExplorersByPersonIdAndGroup_CourseIdInResponse {
+  map<int32, Explorer> explorersWithCourseIdMap = 1;
 }

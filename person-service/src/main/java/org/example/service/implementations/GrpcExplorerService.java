@@ -109,4 +109,34 @@ public class GrpcExplorerService extends ExplorerServiceGrpc.ExplorerServiceImpl
                                 ))).build());
         responseObserver.onCompleted();
     }
+
+    @Override
+    public void findExplorersByPersonIdAndGroupCourseIdIn(ExplorersService.ExplorersByPersonIdAndGroup_CourseIdInRequest request, StreamObserver<ExplorersService.ExplorersByPersonIdAndGroup_CourseIdInResponse> responseObserver) {
+        List<Integer> courseIdsList = request.getCourseIdsList();
+        Map<Integer, ExplorersService.Explorer> explorersByPersonIdWithCourseId = explorerRepository
+                .findExplorersByPersonId(request.getPersonId())
+                .stream()
+                .filter(e -> courseIdsList.contains(e.getGroup().getCourseId()))
+                .collect(Collectors.toMap(
+                        e -> e.getGroup().getCourseId(),
+                        e -> ExplorersService.Explorer
+                                .newBuilder()
+                                .setExplorerId(e.getExplorerId())
+                                .setPersonId(e.getPersonId())
+                                .setGroupId(e.getGroupId())
+                                .setStartDate(
+                                        Timestamp.newBuilder()
+                                                .setSeconds(e.getStartDate().toEpochSecond(ZoneOffset.UTC))
+                                                .setNanos(e.getStartDate().getNano())
+                                                .build()
+                                ).build())
+                );
+        responseObserver.onNext(
+                ExplorersService.ExplorersByPersonIdAndGroup_CourseIdInResponse
+                        .newBuilder()
+                        .putAllExplorersWithCourseIdMap(explorersByPersonIdWithCourseId)
+                        .build()
+        );
+        responseObserver.onCompleted();
+    }
 }
