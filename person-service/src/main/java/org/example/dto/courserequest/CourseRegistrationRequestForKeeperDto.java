@@ -28,6 +28,6 @@ public class CourseRegistrationRequestForKeeperDto extends ExplorerRequestDto im
 
     @Override
     public int compareTo(CourseRegistrationRequestForKeeperDto request) {
-        return request.getRequestDate().compareTo(this.requestDate);
+        return this.requestDate.compareTo(request.getRequestDate());
     }
 }
