@@ -57,7 +57,6 @@ public class KeeperRepositoryImpl implements KeeperRepository {
                         .queryParam("personId", personId)
                         .build()
                 )
-                .header("Authorization", authorizationHeaderRepository.getAuthorizationHeader())
                 .retrieve()
                 .onStatus(httpStatus -> httpStatus.isError() && !httpStatus.equals(HttpStatus.NOT_FOUND) && !httpStatus.equals(HttpStatus.UNAUTHORIZED), response -> {
                     throw new ConnectException();

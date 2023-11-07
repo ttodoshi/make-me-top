@@ -56,7 +56,6 @@ public class ExplorerController {
 
 
     @GetMapping("/explorer")
-    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Find explorer(s)", tags = "explorer")
     @ApiResponses(value = {
             @ApiResponse(
