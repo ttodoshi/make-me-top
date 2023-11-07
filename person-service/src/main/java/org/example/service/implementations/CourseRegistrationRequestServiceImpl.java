@@ -61,10 +61,11 @@ public class CourseRegistrationRequestServiceImpl implements CourseRegistrationR
                             currentRequest.getCourseId(),
                             courses.get(currentRequest.getCourseId()).getTitle(),
                             currentRequest.getRequestId(),
+                            currentRequest.getRequestDate(),
                             kr.getKeeperId(),
                             ratings.get(person.getPersonId())
                     );
-                }).collect(Collectors.toList());
+                }).sorted().collect(Collectors.toList());
     }
 
     @Override
