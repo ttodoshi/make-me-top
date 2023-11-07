@@ -3,7 +3,6 @@ package org.example.service.implementations;
 import lombok.RequiredArgsConstructor;
 import org.example.exception.classes.connectEX.ConnectException;
 import org.example.exception.classes.personEX.PersonNotFoundException;
-import org.example.repository.AuthorizationHeaderRepository;
 import org.example.service.RatingService;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
@@ -21,7 +20,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class RatingServiceImpl implements RatingService {
     private final WebClient.Builder webClientBuilder;
-    private final AuthorizationHeaderRepository authorizationHeaderRepository;
 
     @Override
     public Double getPersonRatingAsKeeper(Integer personId) {
@@ -33,7 +31,6 @@ public class RatingServiceImpl implements RatingService {
                         .queryParam("as", "keeper")
                         .build(personId)
                 )
-                .header("Authorization", authorizationHeaderRepository.getAuthorizationHeader())
                 .retrieve()
                 .onStatus(httpStatus -> httpStatus.isError() && !httpStatus.equals(HttpStatus.NOT_FOUND) && !httpStatus.equals(HttpStatus.UNAUTHORIZED), response -> {
                     throw new ConnectException();
@@ -55,7 +52,6 @@ public class RatingServiceImpl implements RatingService {
                         .queryParam("as", "explorer")
                         .build(personId)
                 )
-                .header("Authorization", authorizationHeaderRepository.getAuthorizationHeader())
                 .retrieve()
                 .onStatus(httpStatus -> httpStatus.isError() && !httpStatus.equals(HttpStatus.NOT_FOUND) && !httpStatus.equals(HttpStatus.UNAUTHORIZED), response -> {
                     throw new ConnectException();
@@ -78,7 +74,6 @@ public class RatingServiceImpl implements RatingService {
                         .queryParam("as", "explorer")
                         .build()
                 )
-                .header("Authorization", authorizationHeaderRepository.getAuthorizationHeader())
                 .retrieve()
                 .onStatus(httpStatus -> httpStatus.isError() && !httpStatus.equals(HttpStatus.UNAUTHORIZED), response -> {
                     throw new ConnectException();
@@ -101,7 +96,6 @@ public class RatingServiceImpl implements RatingService {
                         .queryParam("as", "keeper")
                         .build()
                 )
-                .header("Authorization", authorizationHeaderRepository.getAuthorizationHeader())
                 .retrieve()
                 .onStatus(httpStatus -> httpStatus.isError() && !httpStatus.equals(HttpStatus.UNAUTHORIZED), response -> {
                     throw new ConnectException();

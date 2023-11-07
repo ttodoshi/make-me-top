@@ -2,6 +2,7 @@ package org.example.config.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -28,6 +29,10 @@ public class SecurityConfig {
                 .disable()
                 .authorizeHttpRequests()
                 .antMatchers("/swagger-ui/**", "/v3/api-docs/**", "/actuator/**")
+                .permitAll()
+                .antMatchers(HttpMethod.GET, "/api/v1/person-app/people/explorers/**") // TODO
+                .permitAll()
+                .antMatchers(HttpMethod.GET, "/api/v1/person-app/people/keepers/**")
                 .permitAll()
                 .anyRequest()
                 .authenticated()

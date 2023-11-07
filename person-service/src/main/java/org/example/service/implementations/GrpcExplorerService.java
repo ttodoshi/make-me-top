@@ -64,7 +64,6 @@ public class GrpcExplorerService extends ExplorerServiceGrpc.ExplorerServiceImpl
     }
 
     @Override
-    @PreAuthorize("isAuthenticated()")
     public void findAllExplorers(Empty request, StreamObserver<ExplorersService.AllExplorersResponse> responseObserver) {
         List<ExplorerBasicInfoDto> explorers = explorerRepository.findAll()
                 .stream()

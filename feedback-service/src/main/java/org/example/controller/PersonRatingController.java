@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.example.exception.classes.roleEX.RoleNotAvailableException;
 import org.example.service.RatingService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,7 +19,6 @@ public class PersonRatingController {
     private final RatingService ratingService;
 
     @GetMapping("/people/{personId}/ratings")
-    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get rating", tags = "rating")
     @ApiResponses(value = {
             @ApiResponse(
@@ -41,7 +39,6 @@ public class PersonRatingController {
     }
 
     @GetMapping("/people/ratings")
-    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get rating", tags = "rating")
     @ApiResponses(value = {
             @ApiResponse(

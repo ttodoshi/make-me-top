@@ -1,10 +1,8 @@
 package org.example.service.implementations;
 
 import com.google.protobuf.Empty;
-import io.grpc.CallCredentials;
 import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.client.inject.GrpcClient;
-import net.devh.boot.grpc.client.security.CallCredentialsHelper;
 import org.example.dto.person.PersonWithSystemsDto;
 import org.example.grpc.KeeperServiceGrpc;
 import org.example.grpc.KeeperServiceOuterClass;
@@ -21,7 +19,6 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class KeeperServiceImpl implements KeeperService {
-    private final AuthorizationHeaderRepository authorizationHeaderRepository;
     @GrpcClient("keepers")
     private KeeperServiceGrpc.KeeperServiceBlockingStub keeperServiceBlockingStub;
 
@@ -46,10 +43,7 @@ public class KeeperServiceImpl implements KeeperService {
 
     @Override
     public Map<Integer, KeeperServiceOuterClass.AllKeepersResponse.KeeperList> findKeepersWithCourseIds() {
-        CallCredentials callCredentials = CallCredentialsHelper.authorizationHeader(
-                authorizationHeaderRepository.getAuthorizationHeader()
-        );
-        return keeperServiceBlockingStub.withCallCredentials(callCredentials)
+        return keeperServiceBlockingStub
                 .findAllKeepers(Empty.newBuilder().build())
                 .getKeepersWithCourseIdMapMap();
     }

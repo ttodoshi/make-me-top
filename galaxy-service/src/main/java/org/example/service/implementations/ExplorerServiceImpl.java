@@ -1,15 +1,12 @@
 package org.example.service.implementations;
 
 import com.google.protobuf.Empty;
-import io.grpc.CallCredentials;
 import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.client.inject.GrpcClient;
-import net.devh.boot.grpc.client.security.CallCredentialsHelper;
 import org.example.dto.person.PersonWithSystemsDto;
 import org.example.grpc.ExplorerServiceGrpc;
 import org.example.grpc.ExplorersService;
 import org.example.model.StarSystem;
-import org.example.repository.AuthorizationHeaderRepository;
 import org.example.service.ExplorerService;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -21,7 +18,6 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class ExplorerServiceImpl implements ExplorerService {
-    private final AuthorizationHeaderRepository authorizationHeaderRepository;
     @GrpcClient("explorers")
     private ExplorerServiceGrpc.ExplorerServiceBlockingStub explorerServiceBlockingStub;
 
@@ -46,10 +42,7 @@ public class ExplorerServiceImpl implements ExplorerService {
 
     @Override
     public Map<Integer, ExplorersService.AllExplorersResponse.ExplorerList> findExplorersWithCourseIds() {
-        CallCredentials callCredentials = CallCredentialsHelper.authorizationHeader(
-                authorizationHeaderRepository.getAuthorizationHeader()
-        );
-        return explorerServiceBlockingStub.withCallCredentials(callCredentials)
+        return explorerServiceBlockingStub
                 .findAllExplorers(Empty.newBuilder().build())
                 .getExplorersWithCourseIdMapMap();
     }
