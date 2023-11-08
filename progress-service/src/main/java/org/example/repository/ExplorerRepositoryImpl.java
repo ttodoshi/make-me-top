@@ -1,8 +1,11 @@
 package org.example.repository;
 
 import lombok.RequiredArgsConstructor;
+import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.example.dto.explorer.ExplorerDto;
 import org.example.exception.classes.connectEX.ConnectException;
+import org.example.grpc.ExplorerServiceGrpc;
+import org.example.grpc.ExplorersService;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
@@ -21,6 +24,8 @@ import java.util.Optional;
 public class ExplorerRepositoryImpl implements ExplorerRepository {
     private final WebClient.Builder webClientBuilder;
     private final AuthorizationHeaderRepository authorizationHeaderRepository;
+    @GrpcClient("explorers")
+    private ExplorerServiceGrpc.ExplorerServiceBlockingStub explorerServiceBlockingStub;
 
     @Override
     public Optional<ExplorerDto> findById(Integer explorerId) {
@@ -86,5 +91,16 @@ public class ExplorerRepositoryImpl implements ExplorerRepository {
                 .timeout(Duration.ofSeconds(5))
                 .onErrorResume(WebClientResponseException.Unauthorized.class, error -> Mono.error(new AccessDeniedException("Вам закрыт доступ к данной функциональности бортового компьютера")))
                 .blockLast();
+    }
+
+    @Override
+    public ExplorersService.ExplorersByPersonIdAndGroup_CourseIdInResponse findExplorersByPersonIdAndGroupCourseIdIn(Integer personId, List<Integer> courseIds) {
+        return explorerServiceBlockingStub
+                .findExplorersByPersonIdAndGroupCourseIdIn(
+                        ExplorersService.ExplorersByPersonIdAndGroup_CourseIdInRequest
+                                .newBuilder()
+                                .setPersonId(personId)
+                                .addAllCourseIds(courseIds)
+                                .build());
     }
 }

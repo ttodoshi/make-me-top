@@ -39,7 +39,6 @@ public class GalaxyController {
     }
 
     @GetMapping("/galaxies/{galaxyId}")
-    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get galaxy by id", tags = "galaxy")
     @ApiResponses(value = {
             @ApiResponse(

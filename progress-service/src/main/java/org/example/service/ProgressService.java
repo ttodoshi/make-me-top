@@ -3,19 +3,23 @@ package org.example.service;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.PersonDto;
 import org.example.dto.explorer.ExplorerDto;
+import org.example.dto.galaxy.GetGalaxyDto;
 import org.example.dto.planet.PlanetDto;
 import org.example.dto.progress.CourseWithProgressDto;
 import org.example.dto.progress.CourseWithThemesProgressDto;
 import org.example.dto.progress.CoursesStateDto;
 import org.example.dto.starsystem.GetStarSystemWithDependenciesDto;
-import org.example.dto.starsystem.StarSystemDto;
 import org.example.dto.starsystem.SystemDependencyModelDto;
 import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
+import org.example.grpc.ExplorersService;
 import org.example.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,7 +30,7 @@ public class ProgressService {
     private final ExplorerRepository explorerRepository;
     private final ExplorerGroupRepository explorerGroupRepository;
     private final PlanetRepository planetRepository;
-    private final StarSystemRepository starSystemRepository;
+    private final GalaxyRepository galaxyRepository;
 
     private final CourseThemesProgressService courseThemesProgressService;
     private final PersonService personService;
@@ -37,18 +41,24 @@ public class ProgressService {
         Set<Integer> openedCourses = new LinkedHashSet<>();
         Set<CourseWithProgressDto> studiedCourses = new LinkedHashSet<>();
         Set<Integer> closedCourses = new LinkedHashSet<>();
-        for (StarSystemDto system : starSystemRepository.getSystemsByGalaxyId(galaxyId)) {
-            Optional<ExplorerDto> explorerOptional = explorerRepository
-                    .findExplorerByPersonIdAndGroup_CourseId(authenticatedPerson.getPersonId(), system.getSystemId());
-            if (explorerOptional.isPresent()) {
-                ExplorerDto explorer = explorerOptional.get();
+        GetGalaxyDto galaxy = galaxyRepository.getGalaxyById(galaxyId);
+        List<GetStarSystemWithDependenciesDto> systems = galaxy.getOrbitList()
+                .stream()
+                .flatMap(o -> o.getSystemWithDependenciesList().stream())
+                .collect(Collectors.toList());
+        Map<Integer, ExplorersService.Explorer> explorers = explorerRepository.findExplorersByPersonIdAndGroupCourseIdIn(
+                authenticatedPerson.getPersonId(),
+                systems.stream().map(GetStarSystemWithDependenciesDto::getSystemId).collect(Collectors.toList())
+        ).getExplorersWithCourseIdMapMap();
+        for (GetStarSystemWithDependenciesDto system : systems) {
+            if (explorers.containsKey(system.getSystemId())) {
                 studiedCourses.add(
                         new CourseWithProgressDto(
                                 system.getSystemId(),
-                                getCourseProgress(explorer.getExplorerId(), system.getSystemId())
+                                getCourseProgress(explorers.get(system.getSystemId()).getExplorerId(), system.getSystemId())
                         )
                 );
-            } else if (hasUncompletedParents(authenticatedPerson.getPersonId(), system.getSystemId())) {
+            } else if (hasUncompletedParents(explorers, system)) {
                 closedCourses.add(system.getSystemId());
             } else {
                 openedCourses.add(system.getSystemId());
@@ -71,15 +81,13 @@ public class ProgressService {
         return courseThemesProgressService.getThemesProgress(explorer);
     }
 
-    private boolean hasUncompletedParents(Integer personId, Integer systemId) {
-        GetStarSystemWithDependenciesDto systemWithDependencies = starSystemRepository
-                .getStarSystemWithDependencies(systemId);
-        for (SystemDependencyModelDto system : getParentDependencies(systemWithDependencies)) {
-            Optional<ExplorerDto> explorer = explorerRepository.findExplorerByPersonIdAndGroup_CourseId(personId, system.getSystemId());
-            if (explorer.isEmpty() || getCourseProgress(explorer.get().getExplorerId(), system.getSystemId()) < 100) {
+    private boolean hasUncompletedParents(Map<Integer, ExplorersService.Explorer> explorers, GetStarSystemWithDependenciesDto system) {
+        for (SystemDependencyModelDto systemDependency : getParentDependencies(system)) {
+            if (!explorers.containsKey(systemDependency.getSystemId()) || getCourseProgress(explorers.get(systemDependency.getSystemId()).getExplorerId(), systemDependency.getSystemId()) < 100) {
                 return true;
-            } else if (system.getIsAlternative())
+            } else if (systemDependency.getIsAlternative()) {
                 return false;
+            }
         }
         return false;
     }

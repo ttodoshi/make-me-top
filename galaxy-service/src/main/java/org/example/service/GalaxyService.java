@@ -5,7 +5,6 @@ import org.example.dto.galaxy.CreateGalaxyDto;
 import org.example.dto.galaxy.GalaxyDto;
 import org.example.dto.galaxy.GetGalaxyDto;
 import org.example.dto.galaxy.GetGalaxyInformationDto;
-import org.example.dto.keeper.KeeperDto;
 import org.example.dto.message.MessageDto;
 import org.example.dto.orbit.GetOrbitWithStarSystemsWithoutGalaxyIdDto;
 import org.example.dto.person.PersonWithSystemsDto;
