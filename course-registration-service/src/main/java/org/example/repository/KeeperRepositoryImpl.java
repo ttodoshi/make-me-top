@@ -1,10 +1,13 @@
 package org.example.repository;
 
 import lombok.RequiredArgsConstructor;
+import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.example.dto.keeper.KeeperDto;
 import org.example.exception.classes.connectEX.ConnectException;
 import org.example.exception.classes.keeperEX.KeeperNotFoundException;
 import org.example.exception.classes.personEX.PersonNotFoundException;
+import org.example.grpc.KeeperServiceGrpc;
+import org.example.grpc.KeeperServiceOuterClass;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
@@ -21,6 +24,8 @@ import java.util.Optional;
 public class KeeperRepositoryImpl implements KeeperRepository {
     private final WebClient.Builder webClientBuilder;
     private final AuthorizationHeaderRepository authorizationHeaderRepository;
+    @GrpcClient("keepers")
+    private KeeperServiceGrpc.KeeperServiceBlockingStub keeperServiceBlockingStub;
 
     public Optional<KeeperDto> findKeeperByPersonIdAndCourseId(Integer personId, Integer courseId) {
         return webClientBuilder
@@ -86,5 +91,14 @@ public class KeeperRepositoryImpl implements KeeperRepository {
                 .onErrorResume(WebClientResponseException.Unauthorized.class, error -> Mono.error(new AccessDeniedException("Вам закрыт доступ к данной функциональности бортового компьютера")))
                 .onErrorResume(WebClientResponseException.NotFound.class, error -> Mono.error(new KeeperNotFoundException(keeperId)))
                 .blockOptional();
+    }
+
+    @Override
+    public KeeperServiceOuterClass.KeepersByKeeperIdInResponse findKeepersByKeeperIdIn(List<Integer> keeperIds) {
+        return keeperServiceBlockingStub.findKeepersByKeeperIdIn(
+                KeeperServiceOuterClass.KeepersByKeeperIdInRequest.newBuilder()
+                        .addAllKeeperIds(keeperIds)
+                        .build()
+        );
     }
 }

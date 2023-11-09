@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package org.example.grpc;
 
+import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
 import "people_service.proto";
 
@@ -10,6 +11,8 @@ option java_package = "org.example.grpc";
 service KeeperService {
   rpc findAllKeepers(google.protobuf.Empty) returns (AllKeepersResponse) {
   }
+  rpc findKeepersByKeeperIdIn(KeepersByKeeperIdInRequest) returns (KeepersByKeeperIdInResponse){
+  }
 }
 
 message AllKeepersResponse {
@@ -17,4 +20,19 @@ message AllKeepersResponse {
     repeated PersonWithRating person = 1;
   }
   map<int32, KeeperList> keepersWithCourseIdMap = 1;
+}
+
+message KeepersByKeeperIdInRequest {
+  repeated int32 keeperIds = 1;
+}
+
+message Keeper {
+  int32 keeperId = 1;
+  int32 courseId = 2;
+  int32 personId = 3;
+  google.protobuf.Timestamp startDate = 4;
+}
+
+message KeepersByKeeperIdInResponse {
+  repeated Keeper keepers = 1;
 }

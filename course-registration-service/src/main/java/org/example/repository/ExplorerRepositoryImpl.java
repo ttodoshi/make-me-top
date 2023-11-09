@@ -1,7 +1,6 @@
 package org.example.repository;
 
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import org.example.dto.event.ExplorerCreateEvent;
 import org.example.dto.explorer.ExplorerDto;
 import org.example.exception.classes.connectEX.ConnectException;
@@ -48,7 +47,6 @@ public class ExplorerRepositoryImpl implements ExplorerRepository {
     }
 
     @Override
-    @SneakyThrows
     public void save(ExplorerCreateEvent explorer) {
         kafkaTemplate.send("explorerTopic", explorer);
     }

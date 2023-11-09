@@ -1,6 +1,7 @@
 package org.example.service.implementations;
 
 import com.google.protobuf.Empty;
+import com.google.protobuf.Timestamp;
 import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.server.service.GrpcService;
@@ -11,6 +12,7 @@ import org.example.model.Keeper;
 import org.example.repository.KeeperRepository;
 import org.example.service.RatingService;
 
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -19,8 +21,31 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class GrpcKeeperService extends KeeperServiceGrpc.KeeperServiceImplBase {
     private final KeeperRepository keeperRepository;
-
     private final RatingService ratingService;
+
+    @Override
+    public void findKeepersByKeeperIdIn(KeeperServiceOuterClass.KeepersByKeeperIdInRequest request, StreamObserver<KeeperServiceOuterClass.KeepersByKeeperIdInResponse> responseObserver) {
+        responseObserver.onNext(
+                KeeperServiceOuterClass.KeepersByKeeperIdInResponse.newBuilder()
+                        .addAllKeepers(keeperRepository
+                                .findKeepersByKeeperIdIn(request.getKeeperIdsList())
+                                .stream()
+                                .map(k -> KeeperServiceOuterClass.Keeper.newBuilder()
+                                        .setKeeperId(k.getKeeperId())
+                                        .setCourseId(k.getCourseId())
+                                        .setPersonId(k.getPersonId())
+                                        .setStartDate(
+                                                Timestamp.newBuilder()
+                                                        .setSeconds(k.getStartDate().toEpochSecond(ZoneOffset.UTC))
+                                                        .setNanos(k.getStartDate().getNano())
+                                                        .build()
+                                        ).build()
+                                ).collect(Collectors.toList())
+                        ).build()
+
+        );
+        responseObserver.onCompleted();
+    }
 
     @Override
     public void findAllKeepers(Empty request, StreamObserver<KeeperServiceOuterClass.AllKeepersResponse> responseObserver) {

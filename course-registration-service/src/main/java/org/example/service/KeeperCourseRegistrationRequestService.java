@@ -1,7 +1,7 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.PersonDto;
+import org.example.dto.courserequest.ApprovedRequestDto;
 import org.example.dto.courserequest.CourseRegistrationRequestReplyDto;
 import org.example.dto.event.ExplorerCreateEvent;
 import org.example.dto.explorer.CreateExplorerGroupDto;
@@ -10,6 +10,8 @@ import org.example.exception.classes.keeperEX.KeeperNotFoundException;
 import org.example.exception.classes.requestEX.NoApprovedRequestsFoundException;
 import org.example.exception.classes.requestEX.RequestNotFoundException;
 import org.example.exception.classes.requestEX.StatusNotFoundException;
+import org.example.grpc.KeeperServiceOuterClass;
+import org.example.grpc.PeopleService;
 import org.example.model.CourseRegistrationRequest;
 import org.example.model.CourseRegistrationRequestKeeper;
 import org.example.model.CourseRegistrationRequestKeeperStatusType;
@@ -74,29 +76,36 @@ public class KeeperCourseRegistrationRequestService {
     }
 
     @Transactional(readOnly = true)
-    public List<CourseRegistrationRequest> getApprovedRequests(Integer courseId) {
-        keeperCourseRegistrationRequestValidatorService.validateGetApprovedRequests(personService.getAuthenticatedPersonId(), courseId);
-        Integer keeperId = keeperRepository
-                .findKeeperByPersonIdAndCourseId(personService.getAuthenticatedPersonId(), courseId)
-                .orElseThrow(KeeperNotFoundException::new)
-                .getKeeperId();
-        return courseRegistrationRequestRepository.findApprovedRequestsByKeeperId(keeperId);
+    public List<ApprovedRequestDto> getApprovedRequests(List<Integer> keeperIds) {
+        List<KeeperServiceOuterClass.Keeper> keepers = keeperRepository.findKeepersByKeeperIdIn(keeperIds).getKeepersList();
+        keeperCourseRegistrationRequestValidatorService.validateGetApprovedRequests(personService.getAuthenticatedPersonId(), keepers);
+        return courseRegistrationRequestRepository.findApprovedKeeperRequestsByKeeperIdIn(keeperIds)
+                .stream()
+                .map(r -> new ApprovedRequestDto(
+                        r.getRequestId(),
+                        r.getRequest().getCourseId(),
+                        r.getRequest().getPersonId(),
+                        r.getRequest().getStatusId(),
+                        r.getKeeperId(),
+                        r.getResponseDate()
+                )).collect(Collectors.toList());
     }
 
     @Transactional
     public List<CourseRegistrationRequest> startTeaching(Integer courseId) {
-        PersonDto authenticatedPerson = personService.getAuthenticatedPerson();
+        PeopleService.Person authenticatedPerson = personService.getAuthenticatedPerson();
         keeperCourseRegistrationRequestValidatorService.validateStartTeachingRequest(authenticatedPerson.getPersonId());
         Integer acceptedStatusId = courseRegistrationRequestStatusRepository
                 .findCourseRegistrationRequestStatusByStatus(CourseRegistrationRequestStatusType.ACCEPTED)
                 .orElseThrow(() -> new StatusNotFoundException(CourseRegistrationRequestStatusType.ACCEPTED))
                 .getStatusId();
-        List<CourseRegistrationRequest> approvedRequests = getApprovedRequests(courseId);
-        if (approvedRequests.isEmpty())
-            throw new NoApprovedRequestsFoundException();
         KeeperDto keeper = keeperRepository
                 .findKeeperByPersonIdAndCourseId(authenticatedPerson.getPersonId(), courseId)
                 .orElseThrow(KeeperNotFoundException::new);
+        List<CourseRegistrationRequest> approvedRequests = courseRegistrationRequestRepository
+                .findApprovedRequestsByKeeperId(keeper.getKeeperId());
+        if (approvedRequests.isEmpty())
+            throw new NoApprovedRequestsFoundException();
         Integer groupId = explorerGroupRepository.save(
                 new CreateExplorerGroupDto(courseId, keeper.getKeeperId())
         ).getGroupId();

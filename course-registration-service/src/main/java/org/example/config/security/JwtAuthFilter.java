@@ -1,7 +1,7 @@
 package org.example.config.security;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.PersonDto;
+import org.example.grpc.PeopleService;
 import org.example.service.PersonService;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -40,8 +40,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         final String userId = jwtService.extractId(jwtToken);
         if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            PersonDto person = personService.findPersonById(Integer.valueOf(userId));
-            if (jwtService.isTokenValid(jwtToken, person)) {
+            PeopleService.Person person = personService.findPersonById(Integer.valueOf(userId));
+            if (jwtService.isTokenValid(jwtToken)) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         person,
                         null,
