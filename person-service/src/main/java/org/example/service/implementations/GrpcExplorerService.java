@@ -111,6 +111,7 @@ public class GrpcExplorerService extends ExplorerServiceGrpc.ExplorerServiceImpl
     }
 
     @Override
+    @PreAuthorize("isAuthenticated()")
     public void findExplorersByPersonIdAndGroupCourseIdIn(ExplorersService.ExplorersByPersonIdAndGroup_CourseIdInRequest request, StreamObserver<ExplorersService.ExplorersByPersonIdAndGroup_CourseIdInResponse> responseObserver) {
         List<Integer> courseIdsList = request.getCourseIdsList();
         Map<Integer, ExplorersService.Explorer> explorersByPersonIdWithCourseId = explorerRepository

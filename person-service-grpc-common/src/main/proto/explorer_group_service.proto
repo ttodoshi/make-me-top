@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package org.example.grpc;
+
+option java_package = "org.example.grpc";
+
+service ExplorerGroupService {
+  rpc findExplorerGroupById(ExplorerGroupByIdRequest) returns (ExplorerGroup) {
+  }
+}
+
+message ExplorerGroupByIdRequest {
+  int32 groupId = 1;
+}
+
+message ExplorerGroup {
+  int32 groupId = 1;
+  int32 courseId = 2;
+  int32 keeperId = 3;
+}

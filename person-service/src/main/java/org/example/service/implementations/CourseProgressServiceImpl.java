@@ -3,6 +3,7 @@ package org.example.service.implementations;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.course.CourseDto;
 import org.example.dto.course.CourseThemeDto;
+import org.example.dto.explorer.CurrentKeeperGroupDto;
 import org.example.dto.explorer.ExplorerBasicInfoDto;
 import org.example.dto.explorer.ExplorerNeededFinalAssessmentDto;
 import org.example.dto.keeper.KeeperBasicInfoDto;
@@ -38,7 +39,6 @@ public class CourseProgressServiceImpl implements CourseProgressService {
     private final AuthorizationHeaderRepository authorizationHeaderRepository;
 
     private final PersonRepository personRepository;
-    private final ExplorerRepository explorerRepository;
     private final KeeperRepository keeperRepository;
     private final ExplorerGroupRepository explorerGroupRepository;
     private final CourseRepository courseRepository;
@@ -199,31 +199,41 @@ public class CourseProgressServiceImpl implements CourseProgressService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ExplorerBasicInfoDto> getStudyingExplorersByKeeperPersonId(List<ExplorerGroup> keeperGroups) {
-        List<Integer> explorersWithFinalAssessment = getExplorersWithFinalAssessment(
+    public Optional<CurrentKeeperGroupDto> getStudyingExplorersByKeeperPersonId(List<ExplorerGroup> keeperGroups) {
+        Set<Integer> explorersWithFinalAssessment = new HashSet<>(getExplorersWithFinalAssessment(
                 keeperGroups.stream()
                         .flatMap(g -> g.getExplorers().stream())
                         .map(Explorer::getExplorerId)
                         .collect(Collectors.toList())
-        );
-        return keeperGroups.stream()
-                .flatMap(g -> g.getExplorers()
-                        .stream()
-                        .filter(e ->
-                                !explorersWithFinalAssessment.contains(e.getExplorerId()))
-                        .map(e -> {
-                            Person person = personRepository.getReferenceById(e.getPersonId());
-                            return new ExplorerBasicInfoDto(
-                                    person.getPersonId(),
-                                    person.getFirstName(),
-                                    person.getLastName(),
-                                    person.getPatronymic(),
-                                    e.getExplorerId(),
-                                    g.getCourseId(),
-                                    e.getGroupId()
-                            );
-                        })
-                ).collect(Collectors.toList());
+        ));
+        return keeperGroups
+                .stream()
+                .filter(g -> {
+                    List<Integer> explorerIds = g.getExplorers().stream().map(Explorer::getExplorerId).collect(Collectors.toList());
+                    return !explorersWithFinalAssessment.containsAll(explorerIds);
+                }).findAny()
+                .map(g -> {
+                    CourseDto course = courseRepository.getReferenceById(g.getCourseId());
+                    return new CurrentKeeperGroupDto(
+                            g.getGroupId(),
+                            g.getCourseId(),
+                            course.getTitle(),
+                            g.getExplorers()
+                                    .stream()
+                                    .map(e -> {
+                                        Person person = personRepository.getReferenceById(e.getPersonId());
+                                        return new ExplorerBasicInfoDto(
+                                                person.getPersonId(),
+                                                person.getFirstName(),
+                                                person.getLastName(),
+                                                person.getPatronymic(),
+                                                e.getExplorerId(),
+                                                g.getCourseId(),
+                                                e.getGroupId()
+                                        );
+                                    }).collect(Collectors.toList())
+                    );
+                });
     }
 
     private List<Integer> getExplorersWithFinalAssessment(List<Integer> explorerIds) {

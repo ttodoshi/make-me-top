@@ -46,10 +46,11 @@ public class ProgressService {
                 .stream()
                 .flatMap(o -> o.getSystemWithDependenciesList().stream())
                 .collect(Collectors.toList());
-        Map<Integer, ExplorersService.Explorer> explorers = explorerRepository.findExplorersByPersonIdAndGroupCourseIdIn(
-                authenticatedPerson.getPersonId(),
-                systems.stream().map(GetStarSystemWithDependenciesDto::getSystemId).collect(Collectors.toList())
-        ).getExplorersWithCourseIdMapMap();
+        Map<Integer, ExplorersService.Explorer> explorers = explorerRepository
+                .findExplorersByPersonIdAndGroupCourseIdIn(
+                        authenticatedPerson.getPersonId(),
+                        systems.stream().map(GetStarSystemWithDependenciesDto::getSystemId).collect(Collectors.toList())
+                ).getExplorersWithCourseIdMapMap();
         for (GetStarSystemWithDependenciesDto system : systems) {
             if (explorers.containsKey(system.getSystemId())) {
                 studiedCourses.add(

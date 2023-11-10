@@ -43,7 +43,7 @@ public class KeeperProfileInformationService {
         );
         response.put("totalExplorers", explorerGroups.stream().mapToLong(g -> g.getExplorers().size()).sum());
         CompletableFuture<Void> studyingExplorers = CompletableFuture.runAsync(() ->
-                response.put("studyingExplorers", courseProgressService.getStudyingExplorersByKeeperPersonId(explorerGroups)), asyncExecutor);
+                response.put("currentGroup", courseProgressService.getStudyingExplorersByKeeperPersonId(explorerGroups)), asyncExecutor);
         CompletableFuture<Void> studyRequests = CompletableFuture.runAsync(() ->
                 response.put("studyRequests", courseRegistrationRequestService.getStudyRequestsForKeeper(keepers)), asyncExecutor);
         CompletableFuture<Void> acceptedRequests = CompletableFuture.runAsync(() ->

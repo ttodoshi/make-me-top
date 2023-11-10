@@ -1,5 +1,10 @@
 server:
   port: 8106
+grpc:
+  client:
+    explorerGroups:
+      address: discovery:///person-service
+      negotiationType: PLAINTEXT
 spring:
   application:
     name: course-service

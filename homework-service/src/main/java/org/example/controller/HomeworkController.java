@@ -22,7 +22,8 @@ public class HomeworkController {
     private final HomeworkService homeworkService;
 
     @GetMapping("/homeworks/{homeworkId}")
-    @PreAuthorize("@roleService.hasAnyCourseRoleByHomeworkId(#homeworkId, T(org.example.config.security.role.CourseRoleType).EXPLORER) ||" +
+    @PreAuthorize("(@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).EXPLORER) &&" +
+            "@roleService.hasAnyCourseRoleByHomeworkId(#homeworkId, T(org.example.config.security.role.CourseRoleType).EXPLORER)) ||" +
             "@roleService.hasAnyCourseRoleByHomeworkId(#homeworkId, T(org.example.config.security.role.CourseRoleType).KEEPER)")
     @Operation(summary = "Get homework by homework id", tags = "homework")
     @ApiResponses(value = {
@@ -39,7 +40,8 @@ public class HomeworkController {
     }
 
     @GetMapping("/themes/{themeId}/groups/{groupId}/homeworks")
-    @PreAuthorize("@roleService.hasAnyCourseRoleByGroupId(#groupId, T(org.example.config.security.role.CourseRoleType).EXPLORER) ||" +
+    @PreAuthorize("(@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).EXPLORER) &&" +
+            "@roleService.hasAnyCourseRoleByGroupId(#groupId, T(org.example.config.security.role.CourseRoleType).EXPLORER)) ||" +
             "@roleService.hasAnyCourseRoleByGroupId(#groupId, T(org.example.config.security.role.CourseRoleType).KEEPER)")
     @Operation(summary = "Get homework by theme id and group id", tags = "homework")
     @ApiResponses(value = {
@@ -57,7 +59,8 @@ public class HomeworkController {
     }
 
     @GetMapping("/themes/{themeId}/groups/{groupId}/homeworks/completed")
-    @PreAuthorize("@roleService.hasAnyCourseRoleByGroupId(#groupId, T(org.example.config.security.role.CourseRoleType).EXPLORER) ||" +
+    @PreAuthorize("(@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).EXPLORER) &&" +
+            "@roleService.hasAnyCourseRoleByGroupId(#groupId, T(org.example.config.security.role.CourseRoleType).EXPLORER)) ||" +
             "@roleService.hasAnyCourseRoleByGroupId(#groupId, T(org.example.config.security.role.CourseRoleType).KEEPER)")
     @Operation(summary = "Get completed homework by theme id and group id", tags = "homework")
     @ApiResponses(value = {
@@ -76,7 +79,8 @@ public class HomeworkController {
     }
 
     @GetMapping("/homeworks")
-    @PreAuthorize("@roleService.hasAnyCourseRoleByHomeworkIds(#homeworkIds, T(org.example.config.security.role.CourseRoleType).EXPLORER) ||" +
+    @PreAuthorize("(@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).EXPLORER) &&" +
+            "@roleService.hasAnyCourseRoleByHomeworkIds(#homeworkIds, T(org.example.config.security.role.CourseRoleType).EXPLORER)) || " +
             "@roleService.hasAnyCourseRoleByHomeworkIds(#homeworkIds, T(org.example.config.security.role.CourseRoleType).KEEPER)")
     @Operation(summary = "Get homeworks by homework id in", tags = "homework")
     @ApiResponses(value = {

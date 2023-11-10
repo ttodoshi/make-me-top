@@ -35,7 +35,7 @@ public class AuthService {
     private final AuthorizationHeaderRepository authorizationHeaderRepository;
     private final AuthorizationHeaderRepository mmtrAuthorizationHeaderRepository;
     private final WebClient.Builder webClientBuilder;
-    private final JwtService jwtGenerator;
+    private final JwtService jwtService;
     private final Map<String, RoleChecker> roleCheckerMap;
 
     @Value("${mmtr-auth-url}")
@@ -44,14 +44,14 @@ public class AuthService {
     public AuthService(RefreshTokenInfoRepository refreshTokenInfoRepository, PersonService personService,
                        @Qualifier("authorizationHeaderRepository") AuthorizationHeaderRepository authorizationHeaderRepository,
                        @Qualifier("mmtrAuthorizationHeaderRepository") AuthorizationHeaderRepository mmtrAuthorizationHeaderRepository,
-                       WebClient.Builder webClientBuilder, JwtService jwtGenerator,
+                       WebClient.Builder webClientBuilder, JwtService jwtService,
                        @Qualifier("roleCheckerMap") Map<String, RoleChecker> roleCheckerMap) {
         this.refreshTokenInfoRepository = refreshTokenInfoRepository;
         this.personService = personService;
         this.authorizationHeaderRepository = authorizationHeaderRepository;
         this.mmtrAuthorizationHeaderRepository = mmtrAuthorizationHeaderRepository;
         this.webClientBuilder = webClientBuilder;
-        this.jwtGenerator = jwtGenerator;
+        this.jwtService = jwtService;
         this.roleCheckerMap = roleCheckerMap;
     }
 
@@ -60,11 +60,11 @@ public class AuthService {
         MmtrAuthResponseDto authResponse = authenticatePerson(request);
         if (!isRoleAvailable(authResponse.getObject().getEmployeeId(), request.getRole()))
             throw new RoleNotAvailableException();
-        AccessTokenDto accessToken = jwtGenerator.generateAccessToken(
+        AccessTokenDto accessToken = jwtService.generateAccessToken(
                 authResponse.getObject().getEmployeeId(),
                 request.getRole()
         );
-        RefreshTokenDto refreshToken = jwtGenerator.generateRefreshToken();
+        RefreshTokenDto refreshToken = jwtService.generateRefreshToken();
         cleanExpiredRefreshTokens();
         refreshTokenInfoRepository.save(
                 new RefreshTokenInfo(
@@ -119,16 +119,16 @@ public class AuthService {
 
     @Transactional
     public AuthResponseDto refresh(String refreshTokenValue) {
-        if (refreshTokenValue == null || !jwtGenerator.isRefreshTokenValid(refreshTokenValue))
+        if (refreshTokenValue == null || !jwtService.isRefreshTokenValid(refreshTokenValue))
             throw new FailedRefreshException();
         RefreshTokenInfo refreshTokenInfo = refreshTokenInfoRepository
                 .findRefreshTokenInfoByRefreshToken(refreshTokenValue)
                 .orElseThrow(FailedRefreshException::new);
-        RefreshTokenDto newRefreshToken = jwtGenerator.generateRefreshToken();
+        RefreshTokenDto newRefreshToken = jwtService.generateRefreshToken();
         refreshTokenInfo.setRefreshToken(newRefreshToken.getRefreshToken());
         refreshTokenInfo.setExpirationTime(newRefreshToken.getExpirationTime());
         return new AuthResponseDto(
-                jwtGenerator.generateAccessToken(
+                jwtService.generateAccessToken(
                         refreshTokenInfo.getPersonId(),
                         refreshTokenInfo.getRole()
                 ),

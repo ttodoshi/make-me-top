@@ -1,7 +1,9 @@
 package org.example.repository;
 
+import io.grpc.CallCredentials;
 import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.client.inject.GrpcClient;
+import net.devh.boot.grpc.client.security.CallCredentialsHelper;
 import org.example.dto.keeper.KeeperDto;
 import org.example.exception.classes.connectEX.ConnectException;
 import org.example.exception.classes.keeperEX.KeeperNotFoundException;
@@ -95,10 +97,14 @@ public class KeeperRepositoryImpl implements KeeperRepository {
 
     @Override
     public KeeperServiceOuterClass.KeepersByKeeperIdInResponse findKeepersByKeeperIdIn(List<Integer> keeperIds) {
-        return keeperServiceBlockingStub.findKeepersByKeeperIdIn(
-                KeeperServiceOuterClass.KeepersByKeeperIdInRequest.newBuilder()
-                        .addAllKeeperIds(keeperIds)
-                        .build()
+        CallCredentials callCredentials = CallCredentialsHelper.authorizationHeader(
+                authorizationHeaderRepository.getAuthorizationHeader()
         );
+        return keeperServiceBlockingStub.withCallCredentials(callCredentials)
+                .findKeepersByKeeperIdIn(
+                        KeeperServiceOuterClass.KeepersByKeeperIdInRequest.newBuilder()
+                                .addAllKeeperIds(keeperIds)
+                                .build()
+                );
     }
 }

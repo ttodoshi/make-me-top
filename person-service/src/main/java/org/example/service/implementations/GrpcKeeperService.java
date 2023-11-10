@@ -11,6 +11,7 @@ import org.example.grpc.PeopleService;
 import org.example.model.Keeper;
 import org.example.repository.KeeperRepository;
 import org.example.service.RatingService;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.time.ZoneOffset;
 import java.util.List;
@@ -24,6 +25,7 @@ public class GrpcKeeperService extends KeeperServiceGrpc.KeeperServiceImplBase {
     private final RatingService ratingService;
 
     @Override
+    @PreAuthorize("isAuthenticated()")
     public void findKeepersByKeeperIdIn(KeeperServiceOuterClass.KeepersByKeeperIdInRequest request, StreamObserver<KeeperServiceOuterClass.KeepersByKeeperIdInResponse> responseObserver) {
         responseObserver.onNext(
                 KeeperServiceOuterClass.KeepersByKeeperIdInResponse.newBuilder()
