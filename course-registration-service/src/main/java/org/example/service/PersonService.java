@@ -1,11 +1,11 @@
 package org.example.service;
 
-import org.example.dto.PersonDto;
+import org.example.grpc.PeopleService;
 
 public interface PersonService {
     Integer getAuthenticatedPersonId();
 
-    PersonDto getAuthenticatedPerson();
+    PeopleService.Person getAuthenticatedPerson();
 
-    PersonDto findPersonById(Integer personId);
+    PeopleService.Person findPersonById(Integer personId);
 }

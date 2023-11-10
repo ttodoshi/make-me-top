@@ -1,12 +1,12 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.PersonDto;
 import org.example.dto.courserequest.KeeperRejectionDto;
 import org.example.dto.keeper.KeeperDto;
 import org.example.exception.classes.keeperEX.DifferentKeeperException;
 import org.example.exception.classes.keeperEX.KeeperNotFoundException;
 import org.example.exception.classes.requestEX.RequestNotFoundException;
+import org.example.grpc.PeopleService;
 import org.example.model.CourseRegistrationRequest;
 import org.example.model.CourseRegistrationRequestKeeper;
 import org.example.model.KeeperRejection;
@@ -34,7 +34,7 @@ public class KeeperRejectionService {
     public KeeperRejection sendRejection(Integer requestId, KeeperRejectionDto rejection) {
         CourseRegistrationRequest request = courseRegistrationRequestRepository
                 .findById(requestId).orElseThrow(() -> new RequestNotFoundException(requestId));
-        PersonDto authenticatedPerson = personService.getAuthenticatedPerson();
+        PeopleService.Person authenticatedPerson = personService.getAuthenticatedPerson();
         KeeperDto keeper = keeperRepository
                 .findKeeperByPersonIdAndCourseId(
                         authenticatedPerson.getPersonId(), request.getCourseId()

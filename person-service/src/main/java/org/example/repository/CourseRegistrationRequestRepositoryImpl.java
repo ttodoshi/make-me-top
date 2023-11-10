@@ -1,6 +1,7 @@
 package org.example.repository;
 
 import lombok.RequiredArgsConstructor;
+import org.example.dto.courserequest.ApprovedRequestDto;
 import org.example.dto.courserequest.CourseRegistrationRequestDto;
 import org.example.exception.classes.connectEX.ConnectException;
 import org.springframework.core.ParameterizedTypeReference;
@@ -60,5 +61,27 @@ public class CourseRegistrationRequestRepositoryImpl implements CourseRegistrati
                 .timeout(Duration.ofSeconds(5))
                 .onErrorResume(WebClientResponseException.Unauthorized.class, error -> Mono.error(new AccessDeniedException("Вам закрыт доступ к данной функциональности бортового компьютера")))
                 .blockLast();
+    }
+
+    @Override
+    public List<ApprovedRequestDto> getApprovedCourseRegistrationRequests(List<Integer> keeperIds) {
+        return webClientBuilder
+                .baseUrl("http://course-registration-service/api/v1/course-registration-app/").build()
+                .get()
+                .uri(uri -> uri
+                        .path("course-requests/approved/")
+                        .queryParam("keeperIds", keeperIds)
+                        .build()
+                )
+                .header("Authorization", authorizationHeaderRepository.getAuthorizationHeader())
+                .retrieve()
+                .onStatus(httpStatus -> httpStatus.isError() && !httpStatus.equals(HttpStatus.UNAUTHORIZED), response -> {
+                    throw new ConnectException();
+                })
+                .bodyToFlux(ApprovedRequestDto.class)
+                .timeout(Duration.ofSeconds(5))
+                .onErrorResume(WebClientResponseException.Unauthorized.class, error -> Mono.error(new AccessDeniedException("Вам закрыт доступ к данной функциональности бортового компьютера")))
+                .collectList()
+                .block();
     }
 }

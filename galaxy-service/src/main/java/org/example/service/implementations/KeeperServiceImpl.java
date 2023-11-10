@@ -7,7 +7,6 @@ import org.example.dto.person.PersonWithSystemsDto;
 import org.example.grpc.KeeperServiceGrpc;
 import org.example.grpc.KeeperServiceOuterClass;
 import org.example.model.StarSystem;
-import org.example.repository.AuthorizationHeaderRepository;
 import org.example.service.KeeperService;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;

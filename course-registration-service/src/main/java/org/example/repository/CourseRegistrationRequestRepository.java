@@ -1,6 +1,7 @@
 package org.example.repository;
 
 import org.example.model.CourseRegistrationRequest;
+import org.example.model.CourseRegistrationRequestKeeper;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -20,4 +21,10 @@ public interface CourseRegistrationRequestRepository extends JpaRepository<Cours
             "WHERE crrk.keeperId = :keeperId AND crr.status.status = 'APPROVED' AND crrk.status.status = 'APPROVED'\n" +
             "ORDER BY crrk.responseDate")
     List<CourseRegistrationRequest> findApprovedRequestsByKeeperId(@Param("keeperId") Integer keeperId);
+
+    @Query(value = "SELECT crrk FROM CourseRegistrationRequest crr\n" +
+            "JOIN CourseRegistrationRequestKeeper crrk ON crrk.requestId = crr.requestId\n" +
+            "WHERE crrk.keeperId IN :keeperIds AND crr.status.status = 'APPROVED' AND crrk.status.status = 'APPROVED'\n" +
+            "ORDER BY crrk.responseDate")
+    List<CourseRegistrationRequestKeeper> findApprovedKeeperRequestsByKeeperIdIn(@Param("keeperIds") List<Integer> keeperIds);
 }

@@ -15,9 +15,8 @@ import org.example.service.RatingService;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Component
@@ -35,7 +34,7 @@ public class CourseRegistrationRequestServiceImpl implements CourseRegistrationR
     private final RatingService ratingService;
 
     @Override
-    public List<CourseRegistrationRequestForKeeperDto> getStudyRequestsForKeeper(List<Keeper> keepers) {
+    public List<CourseRegistrationRequestsForKeeperDto> getStudyRequestsForKeeper(List<Keeper> keepers) {
         List<CourseRegistrationRequestKeeperDto> openedRequests = courseRegistrationRequestKeeperRepository
                 .findProcessingCourseRegistrationRequestKeepersByKeeperIdIn(
                         keepers.stream().map(Keeper::getKeeperId).collect(Collectors.toList())
@@ -53,7 +52,7 @@ public class CourseRegistrationRequestServiceImpl implements CourseRegistrationR
                 .map(kr -> {
                     CourseRegistrationRequestDto currentRequest = requests.get(kr.getRequestId());
                     Person person = personService.findPersonById(currentRequest.getPersonId());
-                    return new CourseRegistrationRequestForKeeperDto(
+                    return new CourseRegistrationRequestsForKeeperDto.CourseRegistrationRequestForKeeperDto(
                             person.getPersonId(),
                             person.getFirstName(),
                             person.getLastName(),
@@ -65,7 +64,18 @@ public class CourseRegistrationRequestServiceImpl implements CourseRegistrationR
                             kr.getKeeperId(),
                             ratings.get(person.getPersonId())
                     );
-                }).sorted().collect(Collectors.toList());
+                }).collect(Collectors.groupingBy(
+                        r -> new AbstractMap.SimpleEntry<>(r.getCourseId(), r.getCourseTitle()),
+                        Collectors.mapping(Function.identity(), Collectors.toList())
+                )).entrySet().stream()
+                .map(e -> {
+                    Collections.sort(e.getValue());
+                    return new CourseRegistrationRequestsForKeeperDto(
+                            e.getKey().getKey(),
+                            e.getKey().getValue(),
+                            e.getValue()
+                    );
+                }).collect(Collectors.toList());
     }
 
     @Override
@@ -112,6 +122,7 @@ public class CourseRegistrationRequestServiceImpl implements CourseRegistrationR
         return getStudyRequestsForKeeper(
                 keeperRepository.findKeepersByPersonId(authenticatedPersonId)
         ).stream()
+                .flatMap(requests -> requests.getRequests().stream())
                 .filter(r -> r.getPersonId().equals(personId))
                 .findAny()
                 .map(r -> {
@@ -129,5 +140,47 @@ public class CourseRegistrationRequestServiceImpl implements CourseRegistrationR
                             galaxy.getGalaxyName()
                     );
                 });
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<GetApprovedCourseRegistrationRequestsForKeeperDto> getApprovedRequestsForKeeper(List<Keeper> keepers) {
+        List<ApprovedRequestDto> approvedRequests =
+                courseRegistrationRequestRepository.getApprovedCourseRegistrationRequests(
+                        keepers.stream().map(Keeper::getKeeperId).collect(Collectors.toList())
+                );
+        Map<Integer, CourseDto> courses = courseRepository.findCoursesByCourseIdIn(
+                approvedRequests.stream().map(ApprovedRequestDto::getCourseId).collect(Collectors.toList())
+        );
+        Map<Integer, Double> ratings = ratingService.getPeopleRatingAsExplorerByPersonIdIn(
+                approvedRequests.stream().map(ApprovedRequestDto::getPersonId).collect(Collectors.toList())
+        );
+        return approvedRequests.stream()
+                .map(r -> {
+                    Person person = personService.findPersonById(r.getPersonId());
+                    return new GetApprovedCourseRegistrationRequestsForKeeperDto.ApprovedCourseRegistrationRequestDto(
+                            person.getPersonId(),
+                            person.getFirstName(),
+                            person.getLastName(),
+                            person.getPatronymic(),
+                            r.getCourseId(),
+                            courses.get(r.getCourseId()).getTitle(),
+                            r.getRequestId(),
+                            r.getResponseDate(),
+                            r.getKeeperId(),
+                            ratings.get(person.getPersonId())
+                    );
+                }).collect(Collectors.groupingBy(
+                        r -> new AbstractMap.SimpleEntry<>(r.getCourseId(), r.getCourseTitle()),
+                        Collectors.mapping(Function.identity(), Collectors.toList())
+                )).entrySet().stream()
+                .map(e -> {
+                    Collections.sort(e.getValue());
+                    return new GetApprovedCourseRegistrationRequestsForKeeperDto(
+                            e.getKey().getKey(),
+                            e.getKey().getValue(),
+                            e.getValue()
+                    );
+                }).collect(Collectors.toList());
     }
 }

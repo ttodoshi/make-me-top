@@ -5,7 +5,6 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import lombok.RequiredArgsConstructor;
 import org.example.dto.token.AccessTokenDto;
 import org.example.dto.token.RefreshTokenDto;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,7 +14,6 @@ import java.util.Date;
 import java.util.function.Function;
 
 @Service
-@RequiredArgsConstructor
 public class JwtServiceImpl implements JwtService {
     @Value("${access-token-life-time-seconds}")
     private Integer ACCESS_TOKEN_LIFE_TIME;
@@ -45,11 +43,13 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public RefreshTokenDto generateRefreshToken() {
+    public RefreshTokenDto generateRefreshToken(Integer personId) {
+        Claims claims = Jwts.claims().setSubject(String.valueOf(personId));
         Date now = new Date();
         Date kill = new Date(now.getTime() + REFRESH_TOKEN_LIFE_TIME * 1000);
         return new RefreshTokenDto(
                 Jwts.builder()
+                        .setClaims(claims)
                         .setIssuedAt(now)
                         .setExpiration(kill)
                         .signWith(Keys.hmacShaKeyFor(

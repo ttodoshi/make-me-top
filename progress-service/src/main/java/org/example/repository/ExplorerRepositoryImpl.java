@@ -1,7 +1,9 @@
 package org.example.repository;
 
+import io.grpc.CallCredentials;
 import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.client.inject.GrpcClient;
+import net.devh.boot.grpc.client.security.CallCredentialsHelper;
 import org.example.dto.explorer.ExplorerDto;
 import org.example.exception.classes.connectEX.ConnectException;
 import org.example.grpc.ExplorerServiceGrpc;
@@ -95,12 +97,17 @@ public class ExplorerRepositoryImpl implements ExplorerRepository {
 
     @Override
     public ExplorersService.ExplorersByPersonIdAndGroup_CourseIdInResponse findExplorersByPersonIdAndGroupCourseIdIn(Integer personId, List<Integer> courseIds) {
+        CallCredentials callCredentials = CallCredentialsHelper.authorizationHeader(
+                authorizationHeaderRepository.getAuthorizationHeader()
+        );
         return explorerServiceBlockingStub
+                .withCallCredentials(callCredentials)
                 .findExplorersByPersonIdAndGroupCourseIdIn(
                         ExplorersService.ExplorersByPersonIdAndGroup_CourseIdInRequest
                                 .newBuilder()
                                 .setPersonId(personId)
                                 .addAllCourseIds(courseIds)
-                                .build());
+                                .build()
+                );
     }
 }

@@ -1,6 +1,6 @@
 package org.example.service;
 
-import org.example.dto.explorer.ExplorerBasicInfoDto;
+import org.example.dto.explorer.CurrentKeeperGroupDto;
 import org.example.model.Explorer;
 import org.example.model.ExplorerGroup;
 import org.example.dto.explorer.ExplorerNeededFinalAssessmentDto;
@@ -16,5 +16,5 @@ public interface CourseProgressService {
 
     List<Integer> getInvestigatedSystemIds(List<Explorer> personExplorers);
 
-    List<ExplorerBasicInfoDto> getStudyingExplorersByKeeperPersonId(List<ExplorerGroup> keeperGroups);
+    Optional<CurrentKeeperGroupDto> getStudyingExplorersByKeeperPersonId(List<ExplorerGroup> keeperGroups);
 }

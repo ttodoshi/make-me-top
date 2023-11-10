@@ -35,7 +35,7 @@ public class PlanetService {
     @Transactional(readOnly = true)
     public List<Planet> getPlanetsListBySystemId(Integer systemId) {
         planetValidatorService.validateGetPlanetsRequest(systemId);
-        return planetRepository.findPlanetsBySystemId(systemId);
+        return planetRepository.findPlanetsBySystemIdOrderByPlanetNumber(systemId);
     }
 
     @Transactional(readOnly = true)

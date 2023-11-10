@@ -33,8 +33,7 @@ public class KeeperRoleChecker implements RoleChecker {
                 .baseUrl(MMTR_AUTH_URL).build()
                 .get()
                 .uri("ts-rest/coaching/getProgramsMentorsByFilters/")
-                .header("Authorization", mmtrAuthorizationHeaderRepository
-                        .getAuthorizationHeader())
+                .header("Authorization", mmtrAuthorizationHeaderRepository.getAuthorizationHeader())
                 .acceptCharset(StandardCharsets.UTF_8)
                 .retrieve()
                 .bodyToFlux(MmtrAuthResponseEmployeeDto.class)

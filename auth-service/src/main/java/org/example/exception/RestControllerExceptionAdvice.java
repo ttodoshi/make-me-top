@@ -1,5 +1,6 @@
 package org.example.exception;
 
+import io.grpc.StatusRuntimeException;
 import io.jsonwebtoken.MalformedJwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.example.exception.classes.connectEX.ConnectException;
@@ -105,5 +106,11 @@ public class RestControllerExceptionAdvice {
     @ExceptionHandler(MalformedJwtException.class)
     public ResponseEntity<ErrorResponse> handleMalformedJwtException(Exception e) {
         return handleFailedRefreshException(e);
+    }
+
+    @ExceptionHandler(StatusRuntimeException.class)
+    public ResponseEntity<ErrorResponse> handleStatusRuntimeException(StatusRuntimeException e) {
+        HttpStatus httpStatus = HttpStatus.valueOf(e.getStatus().getCode().name());
+        return new ResponseEntity<>(new ErrorResponse(httpStatus.getReasonPhrase(), e.getStatus().getDescription()), httpStatus);
     }
 }

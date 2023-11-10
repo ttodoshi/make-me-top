@@ -37,7 +37,7 @@ public class PlanetValidatorService {
     }
 
     private boolean planetExists(Integer systemId, String planetName) {
-        return planetRepository.findPlanetsBySystemId(systemId).stream().anyMatch(
+        return planetRepository.findPlanetsBySystemIdOrderByPlanetNumber(systemId).stream().anyMatch(
                 p -> p.getPlanetName().equals(planetName)
         );
     }
@@ -55,7 +55,7 @@ public class PlanetValidatorService {
     }
 
     private boolean planetExists(Integer systemId, Integer planetId, String planetName) {
-        return planetRepository.findPlanetsBySystemId(systemId).stream().anyMatch(
+        return planetRepository.findPlanetsBySystemIdOrderByPlanetNumber(systemId).stream().anyMatch(
                 p -> p.getPlanetName().equals(planetName) && !p.getPlanetId().equals(planetId)
         );
     }

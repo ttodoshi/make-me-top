@@ -15,6 +15,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/course-registration-app")
@@ -41,10 +42,9 @@ public class KeeperCourseRegistrationRequestController {
         return ResponseEntity.ok(keeperCourseRegistrationRequestService.replyToRequest(requestId, reply));
     }
 
-    @GetMapping("/course-requests/courses/{courseId}")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).KEEPER) && " +
-            "@roleService.hasAnyCourseRole(#courseId, T(org.example.config.security.role.CourseRoleType).KEEPER)")
-    @Operation(summary = "Get approved requests by course id", tags = "keeper course request")
+    @GetMapping("/course-requests/approved")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).KEEPER)")
+    @Operation(summary = "Get approved requests", tags = "keeper course request")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
@@ -54,8 +54,10 @@ public class KeeperCourseRegistrationRequestController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> getApprovedRequests(@PathVariable Integer courseId) {
-        return ResponseEntity.ok(keeperCourseRegistrationRequestService.getApprovedRequests(courseId));
+    public ResponseEntity<?> getApprovedRequests(@RequestParam List<Integer> keeperIds) {
+        return ResponseEntity.ok(
+                keeperCourseRegistrationRequestService.getApprovedRequests(keeperIds)
+        );
     }
 
     @PostMapping("/courses/{courseId}")

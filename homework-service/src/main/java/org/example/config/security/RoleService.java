@@ -63,8 +63,10 @@ public class RoleService {
         );
     }
 
+    // TODO
     public boolean hasAnyCourseRoleByHomeworkIds(List<Integer> homeworkIds, CourseRoleType role) {
-        return homeworkIds.stream().allMatch(hId -> hasAnyCourseRoleByHomeworkId(hId, role));
+        return homeworkIds.stream()
+                .allMatch(hId -> hasAnyCourseRoleByHomeworkId(hId, role));
     }
 
     public boolean hasAnyCourseRoleByHomeworkRequestId(Integer homeworkRequestId, CourseRoleType role) {

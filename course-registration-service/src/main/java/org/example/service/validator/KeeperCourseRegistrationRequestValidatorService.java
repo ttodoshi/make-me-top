@@ -4,9 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.example.dto.explorer.ExplorerDto;
 import org.example.dto.keeper.KeeperDto;
 import org.example.exception.classes.connectEX.ConnectException;
-import org.example.exception.classes.keeperEX.KeeperNotFoundException;
+import org.example.exception.classes.keeperEX.DifferentKeeperException;
 import org.example.exception.classes.progressEX.TeachingInProcessException;
 import org.example.exception.classes.requestEX.RequestAlreadyClosedException;
+import org.example.grpc.KeeperServiceOuterClass;
 import org.example.model.CourseRegistrationRequest;
 import org.example.model.CourseRegistrationRequestStatus;
 import org.example.model.CourseRegistrationRequestStatusType;
@@ -46,9 +47,11 @@ public class KeeperCourseRegistrationRequestValidatorService {
     }
 
     @Transactional(readOnly = true)
-    public void validateGetApprovedRequests(Integer personId, Integer courseId) {
-        if (keeperRepository.findKeeperByPersonIdAndCourseId(personId, courseId).isEmpty())
-            throw new KeeperNotFoundException();
+    public void validateGetApprovedRequests(Integer personId, List<KeeperServiceOuterClass.Keeper> keepers) {
+        keepers.forEach(k -> {
+            if (!(k.getPersonId() == personId))
+                throw new DifferentKeeperException();
+        });
     }
 
     @Transactional(readOnly = true)
