@@ -11,7 +11,7 @@ import java.util.function.Function;
 public interface JwtService {
     AccessTokenDto generateAccessToken(Integer personId, String role);
 
-    RefreshTokenDto generateRefreshToken();
+    RefreshTokenDto generateRefreshToken(Integer personId);
 
     String extractId(String jwtToken);
 

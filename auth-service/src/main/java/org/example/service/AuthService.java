@@ -64,7 +64,9 @@ public class AuthService {
                 authResponse.getObject().getEmployeeId(),
                 request.getRole()
         );
-        RefreshTokenDto refreshToken = jwtService.generateRefreshToken();
+        RefreshTokenDto refreshToken = jwtService.generateRefreshToken(
+                authResponse.getObject().getEmployeeId()
+        );
         cleanExpiredRefreshTokens();
         refreshTokenInfoRepository.save(
                 new RefreshTokenInfo(
@@ -124,7 +126,9 @@ public class AuthService {
         RefreshTokenInfo refreshTokenInfo = refreshTokenInfoRepository
                 .findRefreshTokenInfoByRefreshToken(refreshTokenValue)
                 .orElseThrow(FailedRefreshException::new);
-        RefreshTokenDto newRefreshToken = jwtService.generateRefreshToken();
+        RefreshTokenDto newRefreshToken = jwtService.generateRefreshToken(
+                refreshTokenInfo.getPersonId()
+        );
         refreshTokenInfo.setRefreshToken(newRefreshToken.getRefreshToken());
         refreshTokenInfo.setExpirationTime(newRefreshToken.getExpirationTime());
         return new AuthResponseDto(

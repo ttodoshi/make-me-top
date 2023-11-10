@@ -43,11 +43,13 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public RefreshTokenDto generateRefreshToken() {
+    public RefreshTokenDto generateRefreshToken(Integer personId) {
+        Claims claims = Jwts.claims().setSubject(String.valueOf(personId));
         Date now = new Date();
         Date kill = new Date(now.getTime() + REFRESH_TOKEN_LIFE_TIME * 1000);
         return new RefreshTokenDto(
                 Jwts.builder()
+                        .setClaims(claims)
                         .setIssuedAt(now)
                         .setExpiration(kill)
                         .signWith(Keys.hmacShaKeyFor(
