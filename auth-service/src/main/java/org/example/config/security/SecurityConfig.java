@@ -53,7 +53,6 @@ public class SecurityConfig {
         return new JwtErrorHandlerFilter();
     }
 
-
     @Bean
     public AuthenticationManager authenticationManager() {
         ProviderManager providerManager = new ProviderManager(jwtAuthenticationProvider);
