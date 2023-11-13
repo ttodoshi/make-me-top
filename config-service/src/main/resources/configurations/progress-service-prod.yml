@@ -4,6 +4,8 @@ spring:
     driver-class-name: org.postgresql.Driver
     username: postgres
     url: jdbc:postgresql://10.10.0.14:5432/progress_db
+  kafka:
+    bootstrap-servers: 10.10.0.16:29092
 eureka:
   instance:
     prefer-ip-address: true

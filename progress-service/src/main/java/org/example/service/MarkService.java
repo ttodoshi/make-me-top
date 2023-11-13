@@ -8,6 +8,7 @@ import org.example.model.CourseThemeCompletion;
 import org.example.repository.CourseMarkRepository;
 import org.example.repository.CourseThemeCompletionRepository;
 import org.example.service.validator.MarkValidatorService;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,5 +39,20 @@ public class MarkService {
         return courseThemeCompletionRepository.save(
                 new CourseThemeCompletion(mark.getExplorerId(), themeId, mark.getValue())
         );
+    }
+
+    @KafkaListener(topics = "deleteExplorersProgressTopic", containerFactory = "deleteExplorersProgressKafkaListenerContainerFactory")
+    @Transactional
+    public void deleteExplorersProgressByThemeId(Integer themeId) {
+        courseThemeCompletionRepository
+                .deleteCourseThemeCompletionsByCourseThemeId(themeId);
+    }
+
+    @KafkaListener(topics = "deleteProgressAndMarkTopic", containerFactory = "deleteProgressAndMarkKafkaListenerContainerFactory")
+    @Transactional
+    public void deleteProgressAndMarkByExplorerId(Integer explorerId) {
+        courseThemeCompletionRepository
+                .deleteCourseThemeCompletionsByExplorerId(explorerId);
+        courseMarkRepository.deleteById(explorerId);
     }
 }

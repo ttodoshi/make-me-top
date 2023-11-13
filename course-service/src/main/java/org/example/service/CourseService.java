@@ -10,6 +10,7 @@ import org.example.dto.keeper.KeeperWithRatingDto;
 import org.example.dto.starsystem.StarSystemDto;
 import org.example.exception.classes.courseEX.CourseNotFoundException;
 import org.example.model.Course;
+import org.example.model.CourseTheme;
 import org.example.repository.CourseRepository;
 import org.example.repository.StarSystemRepository;
 import org.example.service.validator.CourseValidatorService;
@@ -30,6 +31,7 @@ public class CourseService {
     private final CourseRepository courseRepository;
     private final StarSystemRepository starSystemRepository;
 
+    private final CourseThemeService courseThemeService;
     private final ExplorerService explorerService;
     private final KeeperService keeperService;
     private final CourseValidatorService courseValidatorService;
@@ -39,10 +41,20 @@ public class CourseService {
     private final ModelMapper mapper;
 
     private final KafkaTemplate<Integer, String> updateSystemKafkaTemplate;
+    private final KafkaTemplate<Integer, Integer> deleteGroupsKafkaTemplate;
+    private final KafkaTemplate<Integer, Integer> deleteKeepersKafkaTemplate;
+    private final KafkaTemplate<Integer, Integer> deleteRequestsKafkaTemplate;
 
-    public CourseService(CourseRepository courseRepository, StarSystemRepository starSystemRepository, ExplorerService explorerService, KeeperService keeperService, CourseValidatorService courseValidatorService, RoleService roleService, PersonService personService, ModelMapper mapper, @Qualifier("updateSystemKafkaTemplate") KafkaTemplate<Integer, String> updateSystemKafkaTemplate) {
+    public CourseService(CourseRepository courseRepository, StarSystemRepository starSystemRepository,
+                         CourseThemeService courseThemeService, ExplorerService explorerService, KeeperService keeperService,
+                         CourseValidatorService courseValidatorService, RoleService roleService, PersonService personService,
+                         ModelMapper mapper, @Qualifier("updateSystemKafkaTemplate") KafkaTemplate<Integer, String> updateSystemKafkaTemplate,
+                         @Qualifier("deleteGroupsKafkaTemplate") KafkaTemplate<Integer, Integer> deleteGroupsKafkaTemplate,
+                         @Qualifier("deleteKeepersKafkaTemplate") KafkaTemplate<Integer, Integer> deleteKeepersKafkaTemplate,
+                         @Qualifier("deleteRequestsKafkaTemplate") KafkaTemplate<Integer, Integer> deleteRequestsKafkaTemplate) {
         this.courseRepository = courseRepository;
         this.starSystemRepository = starSystemRepository;
+        this.courseThemeService = courseThemeService;
         this.explorerService = explorerService;
         this.keeperService = keeperService;
         this.courseValidatorService = courseValidatorService;
@@ -50,6 +62,9 @@ public class CourseService {
         this.personService = personService;
         this.mapper = mapper;
         this.updateSystemKafkaTemplate = updateSystemKafkaTemplate;
+        this.deleteGroupsKafkaTemplate = deleteGroupsKafkaTemplate;
+        this.deleteKeepersKafkaTemplate = deleteKeepersKafkaTemplate;
+        this.deleteRequestsKafkaTemplate = deleteRequestsKafkaTemplate;
     }
 
     @Transactional(readOnly = true)
@@ -136,6 +151,27 @@ public class CourseService {
     @KafkaListener(topics = "deleteCourseTopic", containerFactory = "deleteCourseKafkaListenerContainerFactory")
     @Transactional
     public void deleteCourse(Integer courseId) {
+        courseThemeService.deleteDataRelatedToThemes(
+                this.findCourseByCourseId(courseId)
+                        .getCourseThemes()
+                        .stream().map(CourseTheme::getCourseThemeId)
+                        .collect(Collectors.toList())
+        );
         courseRepository.deleteById(courseId);
+        deleteGroupsByCourseId(courseId);
+        deleteKeepersByCourseId(courseId);
+        deleteRequestsByCourseId(courseId);
+    }
+
+    private void deleteRequestsByCourseId(Integer courseId) {
+        deleteRequestsKafkaTemplate.send("deleteCourseRegistrationRequestsTopic", courseId);
+    }
+
+    private void deleteKeepersByCourseId(Integer courseId) {
+        deleteKeepersKafkaTemplate.send("deleteKeepersTopic", courseId);
+    }
+
+    private void deleteGroupsByCourseId(Integer courseId) {
+        deleteGroupsKafkaTemplate.send("deleteGroupsTopic", courseId);
     }
 }

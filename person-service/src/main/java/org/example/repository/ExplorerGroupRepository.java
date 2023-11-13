@@ -9,4 +9,8 @@ public interface ExplorerGroupRepository extends JpaRepository<ExplorerGroup, In
     List<ExplorerGroup> findExplorerGroupsByGroupIdIn(List<Integer> groupIds);
 
     List<ExplorerGroup> findExplorerGroupsByKeeperIdIn(List<Integer> keeperIds);
+
+    List<ExplorerGroup> findExplorerGroupsByCourseId(Integer courseId);
+
+    void deleteExplorerGroupsByCourseId(Integer courseId);
 }

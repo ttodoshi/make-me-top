@@ -10,6 +10,7 @@ import org.example.service.validator.KeeperValidatorService;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -116,5 +117,11 @@ public class KeeperService {
         return keeperRepository.save(
                 new Keeper(courseId, createKeeper.getPersonId())
         );
+    }
+
+    @KafkaListener(topics = "deleteKeepersTopic", containerFactory = "deleteKeepersKafkaListenerContainerFactory")
+    @Transactional
+    public void deleteKeepersByCourseId(Integer courseId) {
+        keeperRepository.deleteKeepersByCourseId(courseId);
     }
 }

@@ -53,7 +53,7 @@ public class PlanetController {
                     })
     })
     public ResponseEntity<?> getPlanetsBySystemId(@PathVariable("systemId") Integer systemId) {
-        return ResponseEntity.ok(planetService.getPlanetsListBySystemId(systemId));
+        return ResponseEntity.ok(planetService.findPlanetsListBySystemId(systemId));
     }
 
     @PostMapping("/systems/{systemId}/planets")

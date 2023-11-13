@@ -30,12 +30,19 @@ public class CourseThemeService {
     private final ModelMapper mapper;
 
     private final KafkaTemplate<Integer, String> updatePlanetKafkaTemplate;
+    private final KafkaTemplate<Integer, Integer> deleteExplorersProgressKafkaTemplate;
+    private final KafkaTemplate<Integer, Integer> deleteHomeworksKafkaTemplate;
 
-    public CourseThemeService(CourseThemeRepository courseThemeRepository, CourseThemeValidatorService courseThemeValidatorService, ModelMapper mapper, @Qualifier("updatePlanetKafkaTemplate") KafkaTemplate<Integer, String> updatePlanetKafkaTemplate) {
+    public CourseThemeService(CourseThemeRepository courseThemeRepository, CourseThemeValidatorService courseThemeValidatorService,
+                              ModelMapper mapper, @Qualifier("updatePlanetKafkaTemplate") KafkaTemplate<Integer, String> updatePlanetKafkaTemplate,
+                              @Qualifier("deleteExplorersProgressKafkaTemplate") KafkaTemplate<Integer, Integer> deleteExplorersProgressKafkaTemplate,
+                              @Qualifier("deleteHomeworksKafkaTemplate") KafkaTemplate<Integer, Integer> deleteHomeworksKafkaTemplate) {
         this.courseThemeRepository = courseThemeRepository;
         this.courseThemeValidatorService = courseThemeValidatorService;
         this.mapper = mapper;
         this.updatePlanetKafkaTemplate = updatePlanetKafkaTemplate;
+        this.deleteExplorersProgressKafkaTemplate = deleteExplorersProgressKafkaTemplate;
+        this.deleteHomeworksKafkaTemplate = deleteHomeworksKafkaTemplate;
     }
 
     @Transactional(readOnly = true)
@@ -101,5 +108,22 @@ public class CourseThemeService {
     @Transactional
     public void deleteCourseTheme(Integer courseThemeId) {
         courseThemeRepository.deleteById(courseThemeId);
+    }
+
+    public void deleteDataRelatedToTheme(Integer themeId) {
+        deleteHomeworksByThemeId(themeId);
+        deleteExplorersProgressByThemeId(themeId);
+    }
+
+    private void deleteExplorersProgressByThemeId(Integer themeId) {
+        deleteExplorersProgressKafkaTemplate.send("deleteExplorersProgressTopic", themeId);
+    }
+
+    private void deleteHomeworksByThemeId(Integer themeId) {
+        deleteHomeworksKafkaTemplate.send("deleteHomeworksTopic", themeId);
+    }
+
+    public void deleteDataRelatedToThemes(List<Integer> themeIds) {
+        themeIds.forEach(this::deleteDataRelatedToTheme);
     }
 }

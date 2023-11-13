@@ -33,7 +33,7 @@ public class PlanetService {
     private final KafkaTemplate<Integer, Integer> deleteThemeKafkaTemplate;
 
     @Transactional(readOnly = true)
-    public List<Planet> getPlanetsListBySystemId(Integer systemId) {
+    public List<Planet> findPlanetsListBySystemId(Integer systemId) {
         planetValidatorService.validateGetPlanetsRequest(systemId);
         return planetRepository.findPlanetsBySystemIdOrderByPlanetNumber(systemId);
     }
@@ -43,7 +43,7 @@ public class PlanetService {
         return systemIds.stream()
                 .collect(Collectors.toMap(
                         sId -> sId,
-                        this::getPlanetsListBySystemId
+                        this::findPlanetsListBySystemId
                 ));
     }
 

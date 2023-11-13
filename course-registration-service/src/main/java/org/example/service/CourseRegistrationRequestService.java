@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.exception.classes.requestEX.RequestNotFoundException;
 import org.example.model.CourseRegistrationRequest;
 import org.example.repository.CourseRegistrationRequestRepository;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,5 +36,13 @@ public class CourseRegistrationRequestService {
                         CourseRegistrationRequest::getRequestId,
                         r -> r
                 ));
+    }
+
+
+    @KafkaListener(topics = "deleteCourseRegistrationRequestsTopic", containerFactory = "deleteCourseRegistrationRequestsKafkaListenerContainerFactory")
+    @Transactional
+    public void deleteCourseRegistrationRequestsByCourseId(Integer courseId) {
+        courseRegistrationRequestRepository
+                .deleteCourseRegistrationRequestsByCourseId(courseId);
     }
 }

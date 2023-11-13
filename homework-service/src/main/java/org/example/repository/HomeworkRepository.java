@@ -21,4 +21,6 @@ public interface HomeworkRepository extends JpaRepository<Homework, Integer> {
             @Param("groupId") Integer groupId,
             @Param("explorerId") Integer explorerId
     );
+
+    void deleteAllByCourseThemeId(Integer themeId);
 }

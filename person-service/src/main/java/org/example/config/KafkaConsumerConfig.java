@@ -58,4 +58,40 @@ public class KafkaConsumerConfig {
         factory.setConsumerFactory(explorerFactory());
         return factory;
     }
+
+    @Bean
+    public ConsumerFactory<Integer, Integer> deleteGroupsFactory() {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
+        properties.put(ConsumerConfig.GROUP_ID_CONFIG, "explorer");
+        properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, IntegerDeserializer.class);
+        properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, IntegerDeserializer.class);
+        return new DefaultKafkaConsumerFactory<>(properties);
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<Integer, Integer> deleteGroupsKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<Integer, Integer> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(deleteGroupsFactory());
+        return factory;
+    }
+
+    @Bean
+    public ConsumerFactory<Integer, Integer> deleteKeepersFactory() {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
+        properties.put(ConsumerConfig.GROUP_ID_CONFIG, "keeper");
+        properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, IntegerDeserializer.class);
+        properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, IntegerDeserializer.class);
+        return new DefaultKafkaConsumerFactory<>(properties);
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<Integer, Integer> deleteKeepersKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<Integer, Integer> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(deleteKeepersFactory());
+        return factory;
+    }
 }

@@ -1,6 +1,5 @@
 package org.example.service;
 
-import org.example.dto.keeper.KeeperDto;
 import org.example.dto.person.PersonWithSystemsDto;
 import org.example.grpc.KeeperServiceOuterClass;
 import org.example.model.StarSystem;

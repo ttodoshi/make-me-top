@@ -10,7 +10,8 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: update
-
+  kafka:
+    bootstrap-servers: http://localhost:9092
 eureka:
   client:
     service-url:
