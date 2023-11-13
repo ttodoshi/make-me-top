@@ -50,6 +50,7 @@ public class JwtServiceImpl implements JwtService {
         return new RefreshTokenDto(
                 Jwts.builder()
                         .setClaims(claims)
+                        .setHeaderParam("millis", now.getTime())
                         .setIssuedAt(now)
                         .setExpiration(kill)
                         .signWith(Keys.hmacShaKeyFor(
