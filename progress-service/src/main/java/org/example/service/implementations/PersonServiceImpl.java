@@ -15,6 +15,12 @@ public class PersonServiceImpl implements PersonService {
     private final PersonRepository personRepository;
 
     @Override
+    public Integer getAuthenticatedPersonId() {
+        PersonDto authenticatedPerson = (PersonDto) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return authenticatedPerson.getPersonId();
+    }
+
+    @Override
     public PersonDto getAuthenticatedPerson() {
         return (PersonDto) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
