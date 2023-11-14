@@ -1,6 +1,7 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.dto.mark.MarkDto;
 import org.example.exception.classes.markEX.CourseMarkNotFoundException;
 import org.example.model.CourseMark;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class MarkService {
     private final CourseMarkRepository courseMarkRepository;
     private final CourseThemeCompletionRepository courseThemeCompletionRepository;
@@ -53,6 +55,7 @@ public class MarkService {
     public void deleteProgressAndMarkByExplorerId(Integer explorerId) {
         courseThemeCompletionRepository
                 .deleteCourseThemeCompletionsByExplorerId(explorerId);
-        courseMarkRepository.deleteById(explorerId);
+        if (courseMarkRepository.existsById(explorerId))
+            courseMarkRepository.deleteById(explorerId);
     }
 }

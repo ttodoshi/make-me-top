@@ -41,7 +41,6 @@ public class CourseService {
     private final ModelMapper mapper;
 
     private final KafkaTemplate<Integer, String> updateSystemKafkaTemplate;
-    private final KafkaTemplate<Integer, Integer> deleteGroupsKafkaTemplate;
     private final KafkaTemplate<Integer, Integer> deleteKeepersKafkaTemplate;
     private final KafkaTemplate<Integer, Integer> deleteRequestsKafkaTemplate;
 
@@ -49,7 +48,6 @@ public class CourseService {
                          CourseThemeService courseThemeService, ExplorerService explorerService, KeeperService keeperService,
                          CourseValidatorService courseValidatorService, RoleService roleService, PersonService personService,
                          ModelMapper mapper, @Qualifier("updateSystemKafkaTemplate") KafkaTemplate<Integer, String> updateSystemKafkaTemplate,
-                         @Qualifier("deleteGroupsKafkaTemplate") KafkaTemplate<Integer, Integer> deleteGroupsKafkaTemplate,
                          @Qualifier("deleteKeepersKafkaTemplate") KafkaTemplate<Integer, Integer> deleteKeepersKafkaTemplate,
                          @Qualifier("deleteRequestsKafkaTemplate") KafkaTemplate<Integer, Integer> deleteRequestsKafkaTemplate) {
         this.courseRepository = courseRepository;
@@ -62,7 +60,6 @@ public class CourseService {
         this.personService = personService;
         this.mapper = mapper;
         this.updateSystemKafkaTemplate = updateSystemKafkaTemplate;
-        this.deleteGroupsKafkaTemplate = deleteGroupsKafkaTemplate;
         this.deleteKeepersKafkaTemplate = deleteKeepersKafkaTemplate;
         this.deleteRequestsKafkaTemplate = deleteRequestsKafkaTemplate;
     }
@@ -157,10 +154,9 @@ public class CourseService {
                         .stream().map(CourseTheme::getCourseThemeId)
                         .collect(Collectors.toList())
         );
-        courseRepository.deleteById(courseId);
-        deleteGroupsByCourseId(courseId);
-        deleteKeepersByCourseId(courseId);
         deleteRequestsByCourseId(courseId);
+        deleteKeepersByCourseId(courseId);
+        courseRepository.deleteById(courseId);
     }
 
     private void deleteRequestsByCourseId(Integer courseId) {
@@ -169,9 +165,5 @@ public class CourseService {
 
     private void deleteKeepersByCourseId(Integer courseId) {
         deleteKeepersKafkaTemplate.send("deleteKeepersTopic", courseId);
-    }
-
-    private void deleteGroupsByCourseId(Integer courseId) {
-        deleteGroupsKafkaTemplate.send("deleteGroupsTopic", courseId);
     }
 }

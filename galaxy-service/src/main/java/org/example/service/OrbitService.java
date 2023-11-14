@@ -81,9 +81,7 @@ public class OrbitService {
     public MessageDto deleteOrbit(Integer orbitId) {
         Orbit orbit = orbitRepository.findById(orbitId)
                 .orElseThrow(() -> new OrbitNotFoundException(orbitId));
-        orbit.getSystems().forEach(s -> {
-            clearCourseAndPlanets(s.getSystemId());
-        });
+        orbit.getSystems().forEach(s -> clearCourseAndPlanets(s.getSystemId()));
         orbitRepository.deleteById(orbitId);
         return new MessageDto("Орбита " + orbitId + " была уничтожена неизвестным оружием инопланетной цивилизации");
     }

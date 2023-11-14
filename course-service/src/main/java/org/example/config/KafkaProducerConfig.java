@@ -52,18 +52,6 @@ public class KafkaProducerConfig {
     }
 
     @Bean
-    @Qualifier("deleteGroupsProducer")
-    public ProducerFactory<Integer, Integer> deleteGroupsProducer() {
-        return new DefaultKafkaProducerFactory<>(deleteProducerProperties());
-    }
-
-    @Bean
-    @Qualifier("deleteGroupsKafkaTemplate")
-    public KafkaTemplate<Integer, Integer> deleteGroupsKafkaTemplate() {
-        return new KafkaTemplate<>(deleteGroupsProducer());
-    }
-
-    @Bean
     @Qualifier("deleteKeepersProducer")
     public ProducerFactory<Integer, Integer> deleteKeepersProducer() {
         return new DefaultKafkaProducerFactory<>(deleteProducerProperties());
