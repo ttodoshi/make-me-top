@@ -3,16 +3,16 @@ package org.example.service.validator;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.explorer.ExplorerDto;
 import org.example.dto.progress.CourseThemeCompletedDto;
-import org.example.exception.classes.coursethemeEX.CourseThemeNotFoundException;
 import org.example.exception.classes.homeworkEX.HomeworkAlreadyCheckingException;
 import org.example.exception.classes.homeworkEX.HomeworkRequestAlreadyClosedException;
+import org.example.exception.classes.planetEX.PlanetNotFoundException;
 import org.example.exception.classes.progressEX.UnexpectedCourseThemeException;
 import org.example.exception.classes.requestEX.StatusNotFoundException;
 import org.example.model.HomeworkRequest;
 import org.example.model.HomeworkRequestStatusType;
-import org.example.repository.CourseThemeRepository;
-import org.example.repository.HomeworkRequestStatusRepository;
 import org.example.repository.CourseProgressRepository;
+import org.example.repository.HomeworkRequestStatusRepository;
+import org.example.repository.PlanetRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,10 +21,10 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class ExplorerHomeworkRequestValidatorService {
-    private final CourseThemeRepository courseThemeRepository;
+    private final PlanetRepository planetRepository;
     private final HomeworkRequestStatusRepository homeworkRequestStatusRepository;
-
     private final CourseProgressRepository courseProgressRepository;
+
 
     @Transactional(readOnly = true)
     public void validateExistingRequest(HomeworkRequest request) {
@@ -61,7 +61,7 @@ public class ExplorerHomeworkRequestValidatorService {
 
     @Transactional(readOnly = true)
     public void validateGetHomeworkRequests(Integer themeId) {
-        if (!courseThemeRepository.existsById(themeId))
-            throw new CourseThemeNotFoundException(themeId);
+        if (!planetRepository.existsById(themeId))
+            throw new PlanetNotFoundException(themeId);
     }
 }

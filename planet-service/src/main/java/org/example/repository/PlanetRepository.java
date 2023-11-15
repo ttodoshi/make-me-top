@@ -8,5 +8,7 @@ import java.util.List;
 public interface PlanetRepository extends JpaRepository<Planet, Integer> {
     List<Planet> findPlanetsBySystemIdOrderByPlanetNumber(Integer systemId);
 
+    List<Planet> findPlanetsByPlanetIdIn(List<Integer> planetIds);
+
     void deletePlanetsBySystemId(Integer systemId);
 }

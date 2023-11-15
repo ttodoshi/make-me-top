@@ -8,5 +8,6 @@ import lombok.Data;
 public class ExplorerProgressDto {
     private Integer explorerId;
     private Integer groupId;
+    private Integer currentThemeId;
     private CourseWithThemesProgressDto progress;
 }

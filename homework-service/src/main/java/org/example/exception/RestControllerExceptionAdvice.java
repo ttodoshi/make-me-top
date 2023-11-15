@@ -16,6 +16,7 @@ import org.example.exception.classes.keeperEX.KeeperNotForGroupException;
 import org.example.exception.classes.keeperEX.KeeperNotFoundException;
 import org.example.exception.classes.markEX.UnexpectedMarkValueException;
 import org.example.exception.classes.personEX.PersonNotFoundException;
+import org.example.exception.classes.planetEX.PlanetNotFoundException;
 import org.example.exception.classes.progressEX.UnexpectedCourseThemeException;
 import org.example.exception.classes.requestEX.StatusNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -214,5 +215,11 @@ public class RestControllerExceptionAdvice {
     public ResponseEntity<ErrorResponse> handleThemeFromDifferentCourseException(Exception e) {
         logWarning(e);
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(PlanetNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handlePlanetNotFoundException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
     }
 }

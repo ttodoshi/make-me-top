@@ -4,9 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.example.dto.explorer.ExplorerDto;
 import org.example.dto.homework.CreateHomeworkRequestDto;
 import org.example.dto.homework.GetHomeworkRequestDto;
-import org.example.exception.classes.coursethemeEX.CourseThemeNotFoundException;
 import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
 import org.example.exception.classes.homeworkEX.HomeworkNotFoundException;
+import org.example.exception.classes.planetEX.PlanetNotFoundException;
 import org.example.exception.classes.requestEX.StatusNotFoundException;
 import org.example.model.HomeworkFeedbackStatusType;
 import org.example.model.HomeworkRequest;
@@ -27,7 +27,7 @@ public class ExplorerHomeworkRequestService {
     private final HomeworkRepository homeworkRepository;
     private final HomeworkRequestRepository homeworkRequestRepository;
     private final ExplorerRepository explorerRepository;
-    private final CourseThemeRepository courseThemeRepository;
+    private final PlanetRepository planetRepository;
     private final HomeworkRequestStatusRepository homeworkRequestStatusRepository;
     private final HomeworkFeedbackRepository homeworkFeedbackRepository;
     private final HomeworkFeedbackStatusRepository homeworkFeedbackStatusRepository;
@@ -43,9 +43,9 @@ public class ExplorerHomeworkRequestService {
         Integer themeId = homeworkRepository.findById(homeworkId)
                 .orElseThrow(() -> new HomeworkNotFoundException(homeworkId))
                 .getCourseThemeId();
-        Integer courseId = courseThemeRepository.findById(themeId)
-                .orElseThrow(() -> new CourseThemeNotFoundException(themeId))
-                .getCourseId();
+        Integer courseId = planetRepository.findById(themeId)
+                .orElseThrow(() -> new PlanetNotFoundException(themeId))
+                .getSystemId();
         ExplorerDto explorer = getExplorer(authenticatedPersonId, courseId);
         Optional<HomeworkRequest> homeworkRequestOptional = homeworkRequestRepository
                 .findHomeworkRequestByHomeworkIdAndExplorerId(homeworkId, explorer.getExplorerId());
@@ -99,9 +99,9 @@ public class ExplorerHomeworkRequestService {
     public List<GetHomeworkRequestDto> getHomeworkRequests(Integer themeId) {
         explorerHomeworkRequestValidatorService.validateGetHomeworkRequests(themeId);
         Integer personId = personService.getAuthenticatedPersonId();
-        Integer courseId = courseThemeRepository.findById(themeId)
-                .orElseThrow(() -> new CourseThemeNotFoundException(themeId))
-                .getCourseId();
+        Integer courseId = planetRepository.findById(themeId)
+                .orElseThrow(() -> new PlanetNotFoundException(themeId))
+                .getSystemId();
         ExplorerDto explorer = explorerRepository.findExplorerByPersonIdAndGroup_CourseId(personId, courseId)
                 .orElseThrow(() -> new ExplorerNotFoundException(courseId));
         return homeworkRequestRepository
