@@ -1,12 +1,11 @@
 package org.example.repository;
 
-import org.example.dto.explorer.CreateExplorerGroupDto;
-import org.example.dto.explorer.ExplorerGroupDto;
+import org.example.grpc.ExplorerGroupsService;
 
 import java.util.List;
 
 public interface ExplorerGroupRepository {
-    ExplorerGroupDto save(CreateExplorerGroupDto explorerGroup);
+    ExplorerGroupsService.ExplorerGroup save(ExplorerGroupsService.CreateGroupRequest explorerGroup);
 
-    List<ExplorerGroupDto> findExplorerGroupsByKeeperIdIn(List<Integer> keeperIds);
+    List<ExplorerGroupsService.ExplorerGroup> findExplorerGroupsByKeeperIdIn(List<Integer> keeperIds);
 }

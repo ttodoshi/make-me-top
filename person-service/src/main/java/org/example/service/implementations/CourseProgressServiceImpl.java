@@ -2,16 +2,17 @@ package org.example.service.implementations;
 
 import lombok.RequiredArgsConstructor;
 import org.example.dto.course.CourseDto;
-import org.example.dto.course.CourseThemeDto;
 import org.example.dto.explorer.CurrentKeeperGroupDto;
 import org.example.dto.explorer.ExplorerBasicInfoDto;
 import org.example.dto.explorer.ExplorerNeededFinalAssessmentDto;
 import org.example.dto.keeper.KeeperBasicInfoDto;
+import org.example.dto.planet.PlanetDto;
 import org.example.dto.progress.CourseThemeCompletedDto;
 import org.example.dto.progress.CourseWithThemesProgressDto;
 import org.example.dto.progress.CurrentCourseProgressDto;
 import org.example.exception.classes.connectEX.ConnectException;
 import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
+import org.example.exception.classes.planetEX.PlanetNotFoundException;
 import org.example.model.Explorer;
 import org.example.model.ExplorerGroup;
 import org.example.model.Keeper;
@@ -42,7 +43,7 @@ public class CourseProgressServiceImpl implements CourseProgressService {
     private final KeeperRepository keeperRepository;
     private final ExplorerGroupRepository explorerGroupRepository;
     private final CourseRepository courseRepository;
-    private final CourseThemeRepository courseThemeRepository;
+    private final PlanetRepository planetRepository;
 
     private final ExplorerService explorerService;
     private final ExplorerGroupService explorerGroupService;
@@ -58,7 +59,8 @@ public class CourseProgressServiceImpl implements CourseProgressService {
         CourseWithThemesProgressDto courseProgress = getCourseProgress(currentSystemExplorer.getExplorerId());
         double progress = getCourseProgressValue(courseProgress);
         Integer currentThemeId = getCurrentCourseThemeId(courseProgress);
-        CourseThemeDto currentTheme = courseThemeRepository.getReferenceById(currentThemeId);
+        PlanetDto currentPlanet = planetRepository.findById(currentThemeId)
+                .orElseThrow(() -> new PlanetNotFoundException(currentThemeId));
         CourseDto currentCourse = courseRepository.getReferenceById(courseProgress.getCourseId());
         Keeper keeper = keeperRepository.getReferenceById(
                 explorerGroupRepository.getReferenceById(currentSystemExplorer.getGroupId()).getKeeperId()
@@ -75,8 +77,8 @@ public class CourseProgressServiceImpl implements CourseProgressService {
                 new CurrentCourseProgressDto(
                         currentSystemExplorer.getExplorerId(),
                         currentSystemExplorer.getGroupId(),
-                        currentTheme.getCourseThemeId(),
-                        currentTheme.getTitle(),
+                        currentPlanet.getPlanetId(),
+                        currentPlanet.getPlanetName(),
                         currentCourse.getCourseId(),
                         currentCourse.getTitle(),
                         keeperInfo,
@@ -199,7 +201,7 @@ public class CourseProgressServiceImpl implements CourseProgressService {
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<CurrentKeeperGroupDto> getStudyingExplorersByKeeperPersonId(List<ExplorerGroup> keeperGroups) {
+    public Optional<CurrentKeeperGroupDto> getCurrentGroup(List<ExplorerGroup> keeperGroups) {
         Set<Integer> explorersWithFinalAssessment = new HashSet<>(getExplorersWithFinalAssessment(
                 keeperGroups.stream()
                         .flatMap(g -> g.getExplorers().stream())

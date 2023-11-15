@@ -1,7 +1,7 @@
 package org.example.service.validator;
 
-import org.example.dto.explorer.CreateExplorerGroupDto;
+import org.example.grpc.ExplorerGroupsService;
 
 public interface ExplorerGroupValidatorService {
-    void validateCreateExplorerGroupRequest(CreateExplorerGroupDto group);
+    void validateCreateExplorerGroupRequest(ExplorerGroupsService.CreateGroupRequest group);
 }

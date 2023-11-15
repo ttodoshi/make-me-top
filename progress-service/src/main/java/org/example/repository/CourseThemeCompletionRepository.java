@@ -13,4 +13,8 @@ public interface CourseThemeCompletionRepository extends JpaRepository<CourseThe
     Double getCourseProgress(@Param("explorerId") Integer explorerId, @Param("totalThemesCount") Integer totalThemesCount);
 
     Optional<CourseThemeCompletion> findCourseThemeProgressByExplorerIdAndCourseThemeId(Integer explorerId, Integer courseThemeId);
+
+    void deleteCourseThemeCompletionsByCourseThemeId(Integer themeId);
+
+    void deleteCourseThemeCompletionsByExplorerId(Integer explorerId);
 }

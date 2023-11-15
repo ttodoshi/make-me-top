@@ -1,9 +1,9 @@
 package org.example.service.validator;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.explorer.CreateExplorerGroupDto;
 import org.example.exception.classes.courseEX.CourseNotFoundException;
 import org.example.exception.classes.keeperEX.KeeperNotFoundException;
+import org.example.grpc.ExplorerGroupsService;
 import org.example.repository.CourseRepository;
 import org.example.service.KeeperService;
 import org.springframework.stereotype.Component;
@@ -17,7 +17,7 @@ public class ExplorerGroupValidatorServiceImpl implements ExplorerGroupValidator
 
     @Override
     @Transactional(readOnly = true)
-    public void validateCreateExplorerGroupRequest(CreateExplorerGroupDto group) {
+    public void validateCreateExplorerGroupRequest(ExplorerGroupsService.CreateGroupRequest group) {
         if (!keeperService.keeperExistsById(group.getKeeperId()))
             throw new KeeperNotFoundException(group.getKeeperId());
         if (!courseRepository.existsById(group.getCourseId()))

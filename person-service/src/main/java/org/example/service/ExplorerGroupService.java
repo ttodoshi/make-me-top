@@ -1,8 +1,8 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.explorer.CreateExplorerGroupDto;
 import org.example.exception.classes.explorerEX.ExplorerGroupNotFoundException;
+import org.example.grpc.ExplorerGroupsService;
 import org.example.model.ExplorerGroup;
 import org.example.repository.ExplorerGroupRepository;
 import org.example.service.validator.ExplorerGroupValidatorService;
@@ -45,10 +45,13 @@ public class ExplorerGroupService {
     }
 
     @Transactional
-    public ExplorerGroup createExplorerGroup(CreateExplorerGroupDto group) {
+    public ExplorerGroup createExplorerGroup(ExplorerGroupsService.CreateGroupRequest group) {
         explorerGroupValidatorService.validateCreateExplorerGroupRequest(group);
         return explorerGroupRepository.save(
-                mapper.map(group, ExplorerGroup.class)
+                new ExplorerGroup(
+                        group.getCourseId(),
+                        group.getKeeperId()
+                )
         );
     }
 }

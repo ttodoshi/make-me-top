@@ -21,10 +21,12 @@ public class CourseThemeController {
     private final CourseThemeService courseThemeService;
 
     @GetMapping("/themes/{themeId}")
-    @PreAuthorize("isAuthenticated()") // TODO
-//    @PreAuthorize("@roleServiceImpl.hasAnyCourseRoleByThemeId(#themeId, T(org.example.config.security.role.CourseRoleType).EXPLORER) ||" +
-//            "@roleServiceImpl.hasAnyCourseRoleByThemeId(#themeId, T(org.example.config.security.role.CourseRoleType).KEEPER) ||" +
-//            "@roleServiceImpl.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).BIG_BROTHER)")
+//    @PreAuthorize("isAuthenticated()") // TODO
+    @PreAuthorize("(@roleServiceImpl.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).EXPLORER) && " +
+            "@roleServiceImpl.hasAnyCourseRoleByThemeId(#themeId, T(org.example.config.security.role.CourseRoleType).EXPLORER)) ||" +
+            "(@roleServiceImpl.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).KEEPER) &&" +
+            "@roleServiceImpl.hasAnyCourseRoleByThemeId(#themeId, T(org.example.config.security.role.CourseRoleType).KEEPER)) ||" +
+            "@roleServiceImpl.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).BIG_BROTHER)")
     @Operation(summary = "Get theme by theme id", tags = "theme")
     @ApiResponses(value = {
             @ApiResponse(
@@ -40,10 +42,12 @@ public class CourseThemeController {
     }
 
     @GetMapping("/themes")
-    @PreAuthorize("isAuthenticated()") // TODO
-//    @PreAuthorize("@roleServiceImpl.hasAnyCourseRoleByThemeIds(#themeIds, T(org.example.config.security.role.CourseRoleType).EXPLORER) ||" +
-//            "@roleServiceImpl.hasAnyCourseRoleByThemeIds(#themeIds, T(org.example.config.security.role.CourseRoleType).KEEPER) ||" +
-//            "@roleServiceImpl.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).BIG_BROTHER)")
+//    @PreAuthorize("isAuthenticated()") // TODO
+    @PreAuthorize("(@roleServiceImpl.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).EXPLORER) &&" +
+            "@roleServiceImpl.hasAnyCourseRoleByThemeIds(#themeIds, T(org.example.config.security.role.CourseRoleType).EXPLORER)) ||" +
+            "(@roleServiceImpl.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).KEEPER) &&" +
+            "@roleServiceImpl.hasAnyCourseRoleByThemeIds(#themeIds, T(org.example.config.security.role.CourseRoleType).KEEPER)) ||" +
+            "@roleServiceImpl.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).BIG_BROTHER)")
     @Operation(summary = "Get themes by theme id in", tags = "theme")
     @ApiResponses(value = {
             @ApiResponse(
@@ -59,10 +63,12 @@ public class CourseThemeController {
     }
 
     @GetMapping("/courses/{courseId}/themes")
-    @PreAuthorize("isAuthenticated()") // TODO
-//    @PreAuthorize("@roleServiceImpl.hasAnyCourseRole(#courseId, T(org.example.config.security.role.CourseRoleType).EXPLORER) ||" +
-//            "@roleServiceImpl.hasAnyCourseRole(#courseId, T(org.example.config.security.role.CourseRoleType).KEEPER) ||" +
-//            "@roleServiceImpl.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).BIG_BROTHER)")
+//    @PreAuthorize("isAuthenticated()") // TODO
+    @PreAuthorize("(@roleServiceImpl.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).EXPLORER) && " +
+            "@roleServiceImpl.hasAnyCourseRole(#courseId, T(org.example.config.security.role.CourseRoleType).EXPLORER)) ||" +
+            "(@roleServiceImpl.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).KEEPER) && " +
+            "@roleServiceImpl.hasAnyCourseRole(#courseId, T(org.example.config.security.role.CourseRoleType).KEEPER)) ||" +
+            "@roleServiceImpl.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).BIG_BROTHER)")
     @Operation(summary = "Get themes by course id", tags = "theme")
     @ApiResponses(value = {
             @ApiResponse(

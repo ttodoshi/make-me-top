@@ -7,6 +7,7 @@ import org.example.exception.classes.homeworkEX.HomeworkNotFoundException;
 import org.example.model.Homework;
 import org.example.repository.HomeworkRepository;
 import org.example.service.validator.HomeworkValidatorService;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -78,5 +79,11 @@ public class HomeworkService {
         homeworkRepository.deleteById(homeworkId);
         response.put("message", "Удалено задание " + homeworkId);
         return response;
+    }
+
+    @KafkaListener(topics = "deleteHomeworksTopic", containerFactory = "deleteHomeworksKafkaListenerContainerFactory")
+    @Transactional
+    public void deleteHomeworksByThemeId(Integer themeId) {
+        homeworkRepository.deleteAllByCourseThemeId(themeId);
     }
 }

@@ -32,8 +32,13 @@ public class PlanetService {
     private final KafkaTemplate<Integer, String> updateThemeKafkaTemplate;
     private final KafkaTemplate<Integer, Integer> deleteThemeKafkaTemplate;
 
+    public Planet findPlanetById(Integer planetId) {
+        return planetRepository.findById(planetId)
+                .orElseThrow(() -> new PlanetNotFoundException(planetId));
+    }
+
     @Transactional(readOnly = true)
-    public List<Planet> getPlanetsListBySystemId(Integer systemId) {
+    public List<Planet> findPlanetsBySystemId(Integer systemId) {
         planetValidatorService.validateGetPlanetsRequest(systemId);
         return planetRepository.findPlanetsBySystemIdOrderByPlanetNumber(systemId);
     }
@@ -43,7 +48,7 @@ public class PlanetService {
         return systemIds.stream()
                 .collect(Collectors.toMap(
                         sId -> sId,
-                        this::getPlanetsListBySystemId
+                        this::findPlanetsBySystemId
                 ));
     }
 

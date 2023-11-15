@@ -8,6 +8,9 @@ grpc:
     keepers:
       address: discovery:///person-service
       negotiationType: PLAINTEXT
+    explorerGroups:
+      address: discovery:///person-service
+      negotiationType: PLAINTEXT
 spring:
   application:
     name: course-registration-service

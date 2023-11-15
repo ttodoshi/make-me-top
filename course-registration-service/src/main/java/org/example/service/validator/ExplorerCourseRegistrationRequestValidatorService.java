@@ -46,7 +46,7 @@ public class ExplorerCourseRegistrationRequestValidatorService {
             throw new PersonIsKeeperException();
         if (!courseProgressService.isCourseOpenedForAuthenticatedPerson(request.getCourseId()))
             throw new SystemParentsNotCompletedException(request.getCourseId());
-        if (courseRegistrationRequestRepository.findCourseRegistrationRequestByPersonIdAndStatus_ProcessingStatus(personId).isPresent())
+        if (courseRegistrationRequestRepository.findCourseRegistrationRequestByPersonIdAndStatus_NotAccepted(personId).isPresent())
             throw new RequestAlreadySentException();
     }
 

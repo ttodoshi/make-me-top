@@ -3,12 +3,15 @@ package org.example.model;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "keeper")
@@ -31,6 +34,11 @@ public class Keeper {
     @Column(nullable = false)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime startDate;
+    @OneToMany(mappedBy = "keeper", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonBackReference
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private List<ExplorerGroup> explorerGroups;
 
     public Keeper(Integer courseId, Integer personId) {
         this.courseId = courseId;

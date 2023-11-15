@@ -1,6 +1,5 @@
 package org.example.service;
 
-import lombok.RequiredArgsConstructor;
 import org.example.dto.event.ExplorerCreateEvent;
 import org.example.dto.explorer.ExplorerBasicInfoDto;
 import org.example.dto.message.MessageDto;
@@ -10,9 +9,11 @@ import org.example.model.Explorer;
 import org.example.repository.ExplorerRepository;
 import org.example.service.validator.ExplorerValidatorService;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,14 +22,28 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class ExplorerService {
     private final ExplorerRepository explorerRepository;
 
     private final ExplorerValidatorService explorerValidatorService;
     private final RatingService ratingService;
 
+    private final KafkaTemplate<Integer, Integer> deleteProgressAndMarkByExplorerIdKafkaTemplate;
+    private final KafkaTemplate<Integer, Integer> deleteFeedbackByExplorerIdKafkaTemplate;
     private final ModelMapper mapper;
+
+    public ExplorerService(ExplorerRepository explorerRepository, ExplorerValidatorService explorerValidatorService,
+                           RatingService ratingService,
+                           @Qualifier("deleteProgressAndMarkByExplorerIdKafkaTemplate") KafkaTemplate<Integer, Integer> deleteProgressAndMarkByExplorerIdKafkaTemplate,
+                           @Qualifier("deleteFeedbackByExplorerIdKafkaTemplate") KafkaTemplate<Integer, Integer> deleteFeedbackByExplorerIdKafkaTemplate,
+                           ModelMapper mapper) {
+        this.explorerRepository = explorerRepository;
+        this.explorerValidatorService = explorerValidatorService;
+        this.ratingService = ratingService;
+        this.deleteProgressAndMarkByExplorerIdKafkaTemplate = deleteProgressAndMarkByExplorerIdKafkaTemplate;
+        this.deleteFeedbackByExplorerIdKafkaTemplate = deleteFeedbackByExplorerIdKafkaTemplate;
+        this.mapper = mapper;
+    }
 
     @Cacheable(cacheNames = "explorerByIdCache", key = "#explorerId")
     @Transactional(readOnly = true)
@@ -115,7 +130,7 @@ public class ExplorerService {
                 ));
     }
 
-    @KafkaListener(topics = "explorerTopic", containerFactory = "explorerKafkaListenerContainerFactory")
+    @KafkaListener(topics = "explorerTopic", containerFactory = "createExplorerKafkaListenerContainerFactory")
     @CacheEvict(cacheNames = "explorerExistsCache", key = "#result.explorerId")
     @Transactional
     public Explorer createExplorer(ExplorerCreateEvent explorer) {
@@ -129,6 +144,17 @@ public class ExplorerService {
     public MessageDto deleteExplorerById(Integer explorerId) {
         explorerValidatorService.validateDeleteExplorerByIdRequest(explorerId);
         explorerRepository.deleteById(explorerId);
+        deleteExplorerRelatedData(explorerId);
         return new MessageDto("Вы ушли с курса");
+    }
+
+    public void deleteExplorerRelatedData(Integer explorerId) {
+        deleteProgressAndMarkByExplorerIdKafkaTemplate.send(
+                "deleteProgressAndMarkTopic",
+                explorerId);
+        deleteFeedbackByExplorerIdKafkaTemplate.send(
+                "deleteFeedbackTopic",
+                explorerId
+        );
     }
 }

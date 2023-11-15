@@ -5,11 +5,13 @@ import org.example.dto.keeper.CreateKeeperDto;
 import org.example.dto.person.PersonWithRatingDto;
 import org.example.exception.classes.keeperEX.KeeperNotFoundException;
 import org.example.model.Keeper;
+import org.example.repository.ExplorerGroupRepository;
 import org.example.repository.KeeperRepository;
 import org.example.service.validator.KeeperValidatorService;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,7 +23,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class KeeperService {
     private final KeeperRepository keeperRepository;
+    private final ExplorerGroupRepository explorerGroupRepository;
 
+    private final ExplorerService explorerService;
     private final PersonService personService;
     private final RatingService ratingService;
     private final KeeperValidatorService keeperValidatorService;
@@ -116,5 +120,17 @@ public class KeeperService {
         return keeperRepository.save(
                 new Keeper(courseId, createKeeper.getPersonId())
         );
+    }
+
+    @KafkaListener(topics = "deleteKeepersTopic", containerFactory = "deleteKeepersKafkaListenerContainerFactory")
+    @Transactional
+    public void deleteKeepersByCourseId(Integer courseId) {
+        explorerGroupRepository.findExplorerGroupsByKeeperIdIn(
+                keeperRepository.findKeepersByCourseId(
+                        courseId
+                ).stream().map(Keeper::getKeeperId).collect(Collectors.toList())
+        ).forEach(g -> g.getExplorers().forEach(e ->
+                explorerService.deleteExplorerRelatedData(e.getExplorerId())));
+        keeperRepository.deleteKeepersByCourseId(courseId);
     }
 }

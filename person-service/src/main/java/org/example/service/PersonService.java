@@ -51,7 +51,7 @@ public class PersonService {
         return personRepository.existsById(personId);
     }
 
-    @KafkaListener(topics = "personTopic", containerFactory = "personKafkaListenerContainerFactory")
+    @KafkaListener(topics = "personTopic", containerFactory = "createPersonKafkaListenerContainerFactory")
     @Transactional
     public void savePerson(PersonCreateEvent person) {
         personRepository.save(

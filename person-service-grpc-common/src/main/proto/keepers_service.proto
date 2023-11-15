@@ -13,6 +13,8 @@ service KeeperService {
   }
   rpc findKeepersByKeeperIdIn(KeepersByKeeperIdInRequest) returns (KeepersByKeeperIdInResponse){
   }
+  rpc findKeepersByPersonIdAndGroup_CourseIdIn(KeepersByPersonIdAndGroup_CourseIdInRequest) returns (KeepersByPersonIdAndGroup_CourseIdInResponse) {
+  }
 }
 
 message AllKeepersResponse {
@@ -35,4 +37,13 @@ message Keeper {
 
 message KeepersByKeeperIdInResponse {
   repeated Keeper keepers = 1;
+}
+
+message KeepersByPersonIdAndGroup_CourseIdInRequest {
+  int32 personId = 1;
+  repeated int32 courseIds = 2;
+}
+
+message KeepersByPersonIdAndGroup_CourseIdInResponse {
+  map<int32, Keeper> keepersWithCourseIdMap = 1;
 }

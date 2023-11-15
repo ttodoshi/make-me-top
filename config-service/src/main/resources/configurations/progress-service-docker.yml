@@ -10,7 +10,8 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: update
-
+  kafka:
+    bootstrap-servers: 10.10.0.16:29092
 eureka:
   instance:
     prefer-ip-address: true

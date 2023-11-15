@@ -90,4 +90,22 @@ public class ProgressController {
         return ResponseEntity.ok(
                 progressService.getExplorerThemesProgress(explorerId));
     }
+
+    @GetMapping("/courses/{courseId}")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).EXPLORER) && " +
+            "@roleService.hasAnyCourseRole(#courseId, T(org.example.config.security.role.CourseRoleType).EXPLORER)")
+    @Operation(summary = "Get explorer course progress", tags = "system progress")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Explorer progress",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json")
+                    })
+    })
+    public ResponseEntity<?> getExplorerCourseProgress(@PathVariable Integer courseId) {
+        return ResponseEntity.ok(
+                progressService.getExplorerCourseProgress(courseId));
+    }
 }

@@ -24,20 +24,20 @@ import java.util.List;
 public class PlanetController {
     private final PlanetService planetService;
 
-    @GetMapping("/planets")
+    @GetMapping("/planets/{planetId}")
     @PreAuthorize("isAuthenticated()")
-    @Operation(summary = "Get planets by system id in", tags = "planet")
+    @Operation(summary = "Find planet by id", tags = "planet")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Requested planets",
+                    description = "Requested planet",
                     content = {
                             @Content(
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> findPlanetsBySystemIdIn(@RequestParam List<Integer> systemIds) {
-        return ResponseEntity.ok(planetService.findPlanetsBySystemIdIn(systemIds));
+    public ResponseEntity<?> findPlanetById(@PathVariable Integer planetId) {
+        return ResponseEntity.ok(planetService.findPlanetById(planetId));
     }
 
     @GetMapping("/systems/{systemId}/planets")
@@ -52,8 +52,24 @@ public class PlanetController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> getPlanetsBySystemId(@PathVariable("systemId") Integer systemId) {
-        return ResponseEntity.ok(planetService.getPlanetsListBySystemId(systemId));
+    public ResponseEntity<?> getPlanetsBySystemId(@PathVariable Integer systemId) {
+        return ResponseEntity.ok(planetService.findPlanetsBySystemId(systemId));
+    }
+
+    @GetMapping("/planets")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Get planets by system id in", tags = "planet")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Requested planets",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json")
+                    })
+    })
+    public ResponseEntity<?> findPlanetsBySystemIdIn(@RequestParam List<Integer> systemIds) {
+        return ResponseEntity.ok(planetService.findPlanetsBySystemIdIn(systemIds));
     }
 
     @PostMapping("/systems/{systemId}/planets")
@@ -89,7 +105,7 @@ public class PlanetController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> updatePlanetById(@PathVariable("planetId") Integer planetId,
+    public ResponseEntity<?> updatePlanetById(@PathVariable Integer planetId,
                                               @Valid @RequestBody UpdatePlanetDto planet) {
         return ResponseEntity.ok(planetService.updatePlanet(planetId, planet));
     }
@@ -106,7 +122,7 @@ public class PlanetController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> deletePlanetById(@PathVariable("planetId") Integer id) {
-        return ResponseEntity.ok(planetService.deletePlanetById(id));
+    public ResponseEntity<?> deletePlanetById(@PathVariable Integer planetId) {
+        return ResponseEntity.ok(planetService.deletePlanetById(planetId));
     }
 }

@@ -13,7 +13,6 @@ public interface JwtService {
     <T> T extractClaim(String jwtToken, Function<Claims, T> claimsResolver);
 
     String extractRole(String jwtToken);
-    // TODO fix everywhere, only token
 
-    boolean isTokenValid(String jwtToken, PeopleService.Person person);
+    boolean isTokenValid(String jwtToken);
 }

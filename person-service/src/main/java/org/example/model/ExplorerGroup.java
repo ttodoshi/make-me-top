@@ -29,4 +29,9 @@ public class ExplorerGroup {
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private List<Explorer> explorers;
+
+    public ExplorerGroup(Integer courseId, Integer keeperId) {
+        this.courseId = courseId;
+        this.keeperId = keeperId;
+    }
 }

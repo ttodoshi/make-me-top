@@ -8,6 +8,7 @@ import org.example.dto.planet.PlanetDto;
 import org.example.dto.progress.CourseWithProgressDto;
 import org.example.dto.progress.CourseWithThemesProgressDto;
 import org.example.dto.progress.CoursesStateDto;
+import org.example.dto.progress.ExplorerProgressDto;
 import org.example.dto.starsystem.GetStarSystemWithDependenciesDto;
 import org.example.dto.starsystem.SystemDependencyModelDto;
 import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
@@ -135,5 +136,17 @@ public class ProgressService {
 
     public List<Integer> getExplorerIdsWithFinalAssessment(List<Integer> explorerIds) {
         return courseMarkRepository.findExplorerIdsWithFinalAssessment(explorerIds);
+    }
+
+    public ExplorerProgressDto getExplorerCourseProgress(Integer courseId) {
+        ExplorerDto explorer = explorerRepository.findExplorerByPersonIdAndGroup_CourseId(
+                personService.getAuthenticatedPersonId(),
+                courseId
+        ).orElseThrow(ExplorerNotFoundException::new);
+        return new ExplorerProgressDto(
+                explorer.getExplorerId(),
+                explorer.getGroupId(),
+                getExplorerThemesProgress(explorer.getExplorerId())
+        );
     }
 }

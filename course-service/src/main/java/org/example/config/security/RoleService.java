@@ -10,6 +10,8 @@ public interface RoleService {
 
     boolean hasAnyCourseRole(Integer courseId, CourseRoleType role);
 
+    boolean hasAnyCoursesRole(List<Integer> courseIds, CourseRoleType role);
+
     boolean hasAnyCourseRoleByThemeId(Integer themeId, CourseRoleType role);
 
     boolean hasAnyCourseRoleByThemeIds(List<Integer> themeIds, CourseRoleType role);
