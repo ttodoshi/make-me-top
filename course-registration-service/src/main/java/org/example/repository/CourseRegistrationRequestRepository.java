@@ -11,8 +11,8 @@ import java.util.Optional;
 
 public interface CourseRegistrationRequestRepository extends JpaRepository<CourseRegistrationRequest, Integer> {
     @Query("SELECT crr FROM CourseRegistrationRequest crr\n" +
-            " WHERE crr.personId = :personId AND crr.status.status = 'PROCESSING'")
-    Optional<CourseRegistrationRequest> findCourseRegistrationRequestByPersonIdAndStatus_ProcessingStatus(@Param("personId") Integer personId);
+            " WHERE crr.personId = :personId AND crr.status.status != 'ACCEPTED'")
+    Optional<CourseRegistrationRequest> findCourseRegistrationRequestByPersonIdAndStatus_NotAccepted(@Param("personId") Integer personId);
 
     List<CourseRegistrationRequest> findCourseRegistrationRequestsByRequestIdIn(List<Integer> requestIds);
 

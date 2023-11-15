@@ -22,7 +22,7 @@ public class CourseRegistrationRequestService {
     @Transactional(readOnly = true)
     public CourseRegistrationRequest findProcessingCourseRegistrationRequestByPersonId() {
         return courseRegistrationRequestRepository
-                .findCourseRegistrationRequestByPersonIdAndStatus_ProcessingStatus(
+                .findCourseRegistrationRequestByPersonIdAndStatus_NotAccepted(
                         personService.getAuthenticatedPersonId()
                 ).orElseThrow(RequestNotFoundException::new);
     }
