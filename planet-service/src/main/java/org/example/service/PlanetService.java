@@ -38,7 +38,7 @@ public class PlanetService {
     }
 
     @Transactional(readOnly = true)
-    public List<Planet> findPlanetsListBySystemId(Integer systemId) {
+    public List<Planet> findPlanetsBySystemId(Integer systemId) {
         planetValidatorService.validateGetPlanetsRequest(systemId);
         return planetRepository.findPlanetsBySystemIdOrderByPlanetNumber(systemId);
     }
@@ -48,7 +48,7 @@ public class PlanetService {
         return systemIds.stream()
                 .collect(Collectors.toMap(
                         sId -> sId,
-                        this::findPlanetsListBySystemId
+                        this::findPlanetsBySystemId
                 ));
     }
 

@@ -4,12 +4,12 @@ import lombok.RequiredArgsConstructor;
 import org.example.dto.courserequest.ApprovedRequestDto;
 import org.example.dto.courserequest.CourseRegistrationRequestReplyDto;
 import org.example.dto.event.ExplorerCreateEvent;
-import org.example.dto.explorer.CreateExplorerGroupDto;
 import org.example.dto.keeper.KeeperDto;
 import org.example.exception.classes.keeperEX.KeeperNotFoundException;
 import org.example.exception.classes.requestEX.NoApprovedRequestsFoundException;
 import org.example.exception.classes.requestEX.RequestNotFoundException;
 import org.example.exception.classes.requestEX.StatusNotFoundException;
+import org.example.grpc.ExplorerGroupsService;
 import org.example.grpc.KeepersService;
 import org.example.grpc.PeopleService;
 import org.example.model.CourseRegistrationRequest;
@@ -107,7 +107,10 @@ public class KeeperCourseRegistrationRequestService {
         if (approvedRequests.isEmpty())
             throw new NoApprovedRequestsFoundException();
         Integer groupId = explorerGroupRepository.save(
-                new CreateExplorerGroupDto(courseId, keeper.getKeeperId())
+                ExplorerGroupsService.CreateGroupRequest.newBuilder()
+                        .setCourseId(courseId)
+                        .setKeeperId(keeper.getKeeperId())
+                        .build()
         ).getGroupId();
         return approvedRequests.stream()
                 .limit(authenticatedPerson.getMaxExplorers())

@@ -1,4 +1,5 @@
 syntax = "proto3";
+import "explorers_service.proto";
 
 package org.example.grpc;
 
@@ -7,14 +8,32 @@ option java_package = "org.example.grpc";
 service ExplorerGroupService {
   rpc findExplorerGroupById(ExplorerGroupByIdRequest) returns (ExplorerGroup) {
   }
+  rpc findExplorerGroupsByKeeperIdIn(ExplorerGroupsByKeeperIdInRequest) returns (ExplorerGroupsByKeeperIdInResponse) {
+  }
+  rpc createGroup(CreateGroupRequest) returns (ExplorerGroup) {
+  }
 }
 
 message ExplorerGroupByIdRequest {
   int32 groupId = 1;
 }
 
+message ExplorerGroupsByKeeperIdInRequest {
+  repeated int32 keeperIds = 1;
+}
+
+message ExplorerGroupsByKeeperIdInResponse {
+  repeated ExplorerGroup groups = 1;
+}
+
+message CreateGroupRequest {
+  int32 courseId = 1;
+  int32 keeperId = 2;
+}
+
 message ExplorerGroup {
   int32 groupId = 1;
   int32 courseId = 2;
   int32 keeperId = 3;
+  repeated Explorer explorers = 4;
 }

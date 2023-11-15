@@ -1,12 +1,12 @@
 package org.example.service.validator;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.explorer.ExplorerDto;
 import org.example.dto.keeper.KeeperDto;
 import org.example.exception.classes.connectEX.ConnectException;
 import org.example.exception.classes.keeperEX.DifferentKeeperException;
 import org.example.exception.classes.progressEX.TeachingInProcessException;
 import org.example.exception.classes.requestEX.RequestAlreadyClosedException;
+import org.example.grpc.ExplorersService;
 import org.example.grpc.KeepersService;
 import org.example.model.CourseRegistrationRequest;
 import org.example.model.CourseRegistrationRequestStatus;
@@ -57,14 +57,14 @@ public class KeeperCourseRegistrationRequestValidatorService {
     @Transactional(readOnly = true)
     public void validateStartTeachingRequest(Integer personId) {
         List<KeeperDto> personKeepers = keeperRepository.findKeepersByPersonId(personId);
-        List<ExplorerDto> keeperExplorers = explorerGroupRepository
+        List<ExplorersService.Explorer> keeperExplorers = explorerGroupRepository
                 .findExplorerGroupsByKeeperIdIn(
                         personKeepers.stream().map(KeeperDto::getKeeperId).collect(Collectors.toList())
                 ).stream()
-                .flatMap(g -> g.getExplorers().stream())
+                .flatMap(g -> g.getExplorersList().stream())
                 .collect(Collectors.toList());
         List<Integer> explorersWithFinalAssessment = getExplorersWithFinalAssessment(
-                keeperExplorers.stream().map(ExplorerDto::getExplorerId).collect(Collectors.toList())
+                keeperExplorers.stream().map(ExplorersService.Explorer::getExplorerId).collect(Collectors.toList())
         );
         long currentStudyingExplorersCount = keeperExplorers.stream()
                 .filter(e ->

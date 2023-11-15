@@ -5,14 +5,13 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.example.dto.explorer.CreateExplorerGroupDto;
+import org.example.grpc.ExplorerGroupsService;
 import org.example.service.ExplorerGroupService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -86,7 +85,7 @@ public class ExplorerGroupController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> createExplorerGroup(@Valid @RequestBody CreateExplorerGroupDto group) {
+    public ResponseEntity<?> createExplorerGroup(@RequestBody ExplorerGroupsService.CreateGroupRequest group) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(
