@@ -6,6 +6,7 @@ import org.example.dto.theme.UpdateCourseThemeDto;
 import org.example.exception.classes.courseEX.CourseNotFoundException;
 import org.example.exception.classes.coursethemeEX.CourseThemeAlreadyExistsException;
 import org.example.exception.classes.coursethemeEX.CourseThemeNotFoundException;
+import org.example.exception.classes.coursethemeEX.ThemeClosedException;
 import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
 import org.example.repository.CourseRepository;
 import org.example.repository.CourseThemeRepository;
@@ -29,9 +30,9 @@ public class CourseThemeValidatorService {
     private final PersonService personService;
 
     @Transactional(readOnly = true)
-    public void validateGetThemeRequest(Integer courseThemeId) { // TODO
-//        if (!isThemeOpened(courseThemeId))
-//            throw new ThemeClosedException(courseThemeId);
+    public void validateGetThemeRequest(Integer courseThemeId) {
+        if (!isThemeOpened(courseThemeId))
+            throw new ThemeClosedException(courseThemeId);
     }
 
     private boolean isThemeOpened(Integer themeId) {
@@ -63,12 +64,6 @@ public class CourseThemeValidatorService {
                 return planet.getCourseThemeId();
         }
         return themesProgress.get(themesProgress.size() - 1).getCourseThemeId();
-    }
-
-    @Transactional(readOnly = true)
-    public void validateGetThemesByCourseIdRequest(Integer courseId) {
-        if (!courseRepository.existsById(courseId))
-            throw new CourseNotFoundException(courseId);
     }
 
     @Transactional(readOnly = true)

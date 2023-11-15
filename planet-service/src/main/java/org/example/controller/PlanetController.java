@@ -58,6 +58,22 @@ public class PlanetController {
 
     @GetMapping("/planets")
     @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Get planets by planet id in", tags = "planet")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Requested planets",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json")
+                    })
+    })
+    public ResponseEntity<?> findPlanetsByPlanetIdIn(@RequestParam List<Integer> planetIds) {
+        return ResponseEntity.ok(planetService.findPlanetsByPlanetIdIn(planetIds));
+    }
+
+    @GetMapping("/systems/planets")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get planets by system id in", tags = "planet")
     @ApiResponses(value = {
             @ApiResponse(

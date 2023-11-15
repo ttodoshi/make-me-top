@@ -3,11 +3,12 @@ package org.example.service.implementations;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.course.CourseDto;
 import org.example.dto.course.CourseThemeDto;
-import org.example.model.Explorer;
-import org.example.model.ExplorerGroup;
 import org.example.dto.homework.GetHomeworkRequestDto;
 import org.example.dto.homework.HomeworkDto;
 import org.example.dto.homework.HomeworkRequestDto;
+import org.example.dto.planet.PlanetDto;
+import org.example.model.Explorer;
+import org.example.model.ExplorerGroup;
 import org.example.model.Person;
 import org.example.repository.*;
 import org.example.service.HomeworkService;
@@ -28,6 +29,7 @@ public class HomeworkServiceImpl implements HomeworkService {
     private final HomeworkRepository homeworkRepository;
     private final HomeworkRequestRepository homeworkRequestRepository;
     private final CourseRepository courseRepository;
+    private final PlanetRepository planetRepository;
     private final CourseThemeRepository courseThemeRepository;
 
     @Override
@@ -46,7 +48,7 @@ public class HomeworkServiceImpl implements HomeworkService {
         Map<Integer, HomeworkDto> homeworks = homeworkRepository.findHomeworksByHomeworkIdIn(
                 homeworkRequests.stream().map(HomeworkRequestDto::getHomeworkId).collect(Collectors.toList())
         );
-        Map<Integer, CourseThemeDto> themes = courseThemeRepository.findCourseThemesByCourseThemeIdIn(
+        Map<Integer, PlanetDto> planets = planetRepository.findPlanetsByPlanetIdIn(
                 homeworks.values().stream().map(HomeworkDto::getCourseThemeId).collect(Collectors.toList())
         );
         return homeworkRequests.stream()
@@ -60,7 +62,7 @@ public class HomeworkServiceImpl implements HomeworkService {
                                     currentRequestExplorer.getGroupId()
                             ).getCourseId()
                     );
-                    CourseThemeDto currentRequestTheme = themes.get(
+                    PlanetDto currentRequestPlanet = planets.get(
                             homeworks.get(hr.getHomeworkId()).getCourseThemeId()
                     );
                     return new GetHomeworkRequestDto(
@@ -72,8 +74,8 @@ public class HomeworkServiceImpl implements HomeworkService {
                             currentRequestCourse.getCourseId(),
                             currentRequestCourse.getTitle(),
                             hr.getExplorerId(),
-                            currentRequestTheme.getCourseThemeId(),
-                            currentRequestTheme.getTitle(),
+                            currentRequestPlanet.getPlanetId(),
+                            currentRequestPlanet.getPlanetName(),
                             hr.getHomeworkId()
                     );
                 }).collect(Collectors.toList());

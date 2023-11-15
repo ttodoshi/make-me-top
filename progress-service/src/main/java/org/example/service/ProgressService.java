@@ -5,10 +5,7 @@ import org.example.dto.PersonDto;
 import org.example.dto.explorer.ExplorerDto;
 import org.example.dto.galaxy.GetGalaxyDto;
 import org.example.dto.planet.PlanetDto;
-import org.example.dto.progress.CourseWithProgressDto;
-import org.example.dto.progress.CourseWithThemesProgressDto;
-import org.example.dto.progress.CoursesStateDto;
-import org.example.dto.progress.ExplorerProgressDto;
+import org.example.dto.progress.*;
 import org.example.dto.starsystem.GetStarSystemWithDependenciesDto;
 import org.example.dto.starsystem.SystemDependencyModelDto;
 import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
@@ -143,10 +140,21 @@ public class ProgressService {
                 personService.getAuthenticatedPersonId(),
                 courseId
         ).orElseThrow(ExplorerNotFoundException::new);
+        CourseWithThemesProgressDto themesProgress = courseThemesProgressService.getThemesProgress(explorer);
         return new ExplorerProgressDto(
                 explorer.getExplorerId(),
                 explorer.getGroupId(),
-                getExplorerThemesProgress(explorer.getExplorerId())
+                getCurrentCourseThemeId(themesProgress),
+                themesProgress
         );
+    }
+
+    private Integer getCurrentCourseThemeId(CourseWithThemesProgressDto courseProgress) {
+        List<CourseThemeCompletedDto> themesProgress = courseProgress.getThemesWithProgress();
+        for (CourseThemeCompletedDto planet : themesProgress) {
+            if (!planet.getCompleted())
+                return planet.getCourseThemeId();
+        }
+        return themesProgress.get(themesProgress.size() - 1).getCourseThemeId();
     }
 }

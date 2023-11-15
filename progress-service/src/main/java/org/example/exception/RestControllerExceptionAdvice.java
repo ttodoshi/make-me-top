@@ -12,6 +12,7 @@ import org.example.exception.classes.markEX.CourseMarkNotFoundException;
 import org.example.exception.classes.markEX.ExplorerDoesNotNeedMarkException;
 import org.example.exception.classes.markEX.UnexpectedMarkValueException;
 import org.example.exception.classes.personEX.PersonNotFoundException;
+import org.example.exception.classes.planetEX.PlanetNotFoundException;
 import org.example.exception.classes.progressEX.HomeworkNotCompletedException;
 import org.example.exception.classes.progressEX.ThemeAlreadyCompletedException;
 import org.example.exception.classes.progressEX.UnexpectedCourseThemeException;
@@ -176,5 +177,11 @@ public class RestControllerExceptionAdvice {
     public ResponseEntity<ErrorResponse> handleStatusRuntimeException(StatusRuntimeException e) {
         HttpStatus httpStatus = HttpStatus.valueOf(e.getStatus().getCode().name());
         return new ResponseEntity<>(new ErrorResponse(httpStatus.getReasonPhrase(), e.getStatus().getDescription()), httpStatus);
+    }
+
+    @ExceptionHandler(PlanetNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handlePlanetNotFoundException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
     }
 }

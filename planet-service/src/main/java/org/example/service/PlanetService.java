@@ -43,6 +43,15 @@ public class PlanetService {
         return planetRepository.findPlanetsBySystemIdOrderByPlanetNumber(systemId);
     }
 
+    public Map<Integer, Planet> findPlanetsByPlanetIdIn(List<Integer> planetIds) {
+        return planetRepository.findPlanetsByPlanetIdIn(planetIds)
+                .stream()
+                .collect(Collectors.toMap(
+                        Planet::getPlanetId,
+                        p -> p
+                ));
+    }
+
     @Transactional(readOnly = true)
     public Map<Integer, List<Planet>> findPlanetsBySystemIdIn(List<Integer> systemIds) {
         return systemIds.stream()

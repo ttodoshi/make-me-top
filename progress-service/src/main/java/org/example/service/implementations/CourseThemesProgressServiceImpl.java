@@ -37,7 +37,7 @@ public class CourseThemesProgressServiceImpl implements CourseThemesProgressServ
                 .map(p -> {
                     boolean completed = courseThemeCompletionRepository
                             .findCourseThemeProgressByExplorerIdAndCourseThemeId(explorer.getExplorerId(), p.getPlanetId()).isPresent();
-                    return new CourseThemeCompletedDto(p.getPlanetId(), p.getPlanetName(), completed);
+                    return new CourseThemeCompletedDto(p.getPlanetId(), p.getPlanetName(), p.getPlanetNumber(), completed);
                 }).collect(Collectors.toList());
         return new CourseWithThemesProgressDto(courseId, course.getTitle(), themesProgress);
     }

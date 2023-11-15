@@ -18,8 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 public class CourseThemeService {
@@ -50,22 +48,6 @@ public class CourseThemeService {
         courseThemeValidatorService.validateGetThemeRequest(courseThemeId);
         return courseThemeRepository.findById(courseThemeId)
                 .orElseThrow(() -> new CourseThemeNotFoundException(courseThemeId));
-    }
-
-    @Transactional(readOnly = true)
-    public Map<Integer, CourseTheme> findCourseThemesByCourseThemeIdIn(List<Integer> themeIds) {
-        return courseThemeRepository.findCourseThemesByCourseThemeIdIn(themeIds)
-                .stream()
-                .collect(Collectors.toMap(
-                        CourseTheme::getCourseThemeId,
-                        t -> t
-                ));
-    }
-
-    @Transactional(readOnly = true)
-    public List<CourseTheme> getCourseThemesByCourseId(Integer courseId) {
-        courseThemeValidatorService.validateGetThemesByCourseIdRequest(courseId);
-        return courseThemeRepository.findCourseThemesByCourseIdOrderByCourseThemeNumber(courseId);
     }
 
     @KafkaListener(topics = "createCourseThemeTopic", containerFactory = "createThemeKafkaListenerContainerFactory")

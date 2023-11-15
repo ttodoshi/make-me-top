@@ -135,7 +135,7 @@ public class MarkValidatorService {
             Boolean themeCompleted = courseThemeCompletionRepository
                     .findCourseThemeProgressByExplorerIdAndCourseThemeId(explorer.getExplorerId(), p.getPlanetId()).isPresent();
             themesCompletion.add(
-                    new CourseThemeCompletedDto(p.getPlanetId(), p.getPlanetName(), themeCompleted)
+                    new CourseThemeCompletedDto(p.getPlanetId(), p.getPlanetName(), p.getPlanetNumber(), themeCompleted)
             );
         }
         return CourseWithThemesProgressDto.builder()

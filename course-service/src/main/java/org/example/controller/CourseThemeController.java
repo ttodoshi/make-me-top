@@ -12,7 +12,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -39,48 +38,6 @@ public class CourseThemeController {
     })
     public ResponseEntity<?> getCourseThemeById(@PathVariable("themeId") Integer themeId) {
         return ResponseEntity.ok(courseThemeService.getCourseTheme(themeId));
-    }
-
-    @GetMapping("/themes")
-//    @PreAuthorize("isAuthenticated()") // TODO
-    @PreAuthorize("(@roleServiceImpl.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).EXPLORER) &&" +
-            "@roleServiceImpl.hasAnyCourseRoleByThemeIds(#themeIds, T(org.example.config.security.role.CourseRoleType).EXPLORER)) ||" +
-            "(@roleServiceImpl.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).KEEPER) &&" +
-            "@roleServiceImpl.hasAnyCourseRoleByThemeIds(#themeIds, T(org.example.config.security.role.CourseRoleType).KEEPER)) ||" +
-            "@roleServiceImpl.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).BIG_BROTHER)")
-    @Operation(summary = "Get themes by theme id in", tags = "theme")
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Requested themes",
-                    content = {
-                            @Content(
-                                    mediaType = "application/json")
-                    })
-    })
-    public ResponseEntity<?> findCourseThemesByCourseThemeIdIn(@RequestParam List<Integer> themeIds) {
-        return ResponseEntity.ok(courseThemeService.findCourseThemesByCourseThemeIdIn(themeIds));
-    }
-
-    @GetMapping("/courses/{courseId}/themes")
-//    @PreAuthorize("isAuthenticated()") // TODO
-    @PreAuthorize("(@roleServiceImpl.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).EXPLORER) && " +
-            "@roleServiceImpl.hasAnyCourseRole(#courseId, T(org.example.config.security.role.CourseRoleType).EXPLORER)) ||" +
-            "(@roleServiceImpl.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).KEEPER) && " +
-            "@roleServiceImpl.hasAnyCourseRole(#courseId, T(org.example.config.security.role.CourseRoleType).KEEPER)) ||" +
-            "@roleServiceImpl.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).BIG_BROTHER)")
-    @Operation(summary = "Get themes by course id", tags = "theme")
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Requested themes by course id",
-                    content = {
-                            @Content(
-                                    mediaType = "application/json")
-                    })
-    })
-    public ResponseEntity<?> getCourseThemesByCourseId(@PathVariable Integer courseId) {
-        return ResponseEntity.ok(courseThemeService.getCourseThemesByCourseId(courseId));
     }
 
     @PutMapping("/themes/{themeId}")

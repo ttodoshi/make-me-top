@@ -6,5 +6,6 @@ import lombok.Data;
 public class CourseThemeCompletedDto {
     private Integer courseThemeId;
     private String title;
+    private Integer courseThemeNumber;
     private Boolean completed;
 }

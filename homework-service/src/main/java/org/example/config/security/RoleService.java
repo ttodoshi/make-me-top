@@ -5,10 +5,10 @@ import org.example.config.security.role.AuthenticationRoleType;
 import org.example.config.security.role.CourseRoleType;
 import org.example.dto.explorer.ExplorerDto;
 import org.example.dto.person.PersonDto;
-import org.example.exception.classes.coursethemeEX.CourseThemeNotFoundException;
 import org.example.exception.classes.explorerEX.ExplorerGroupNotFoundException;
 import org.example.exception.classes.homeworkEX.HomeworkNotFoundException;
 import org.example.exception.classes.homeworkEX.HomeworkRequestNotFound;
+import org.example.exception.classes.planetEX.PlanetNotFoundException;
 import org.example.repository.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,7 +25,7 @@ public class RoleService {
     private final KeeperRepository keeperRepository;
     private final ExplorerRepository explorerRepository;
     private final ExplorerGroupRepository explorerGroupRepository;
-    private final CourseThemeRepository courseThemeRepository;
+    private final PlanetRepository planetRepository;
     private final HomeworkRepository homeworkRepository;
     private final HomeworkRequestRepository homeworkRequestRepository;
 
@@ -47,9 +47,9 @@ public class RoleService {
 
     public boolean hasAnyCourseRoleByThemeId(Integer themeId, CourseRoleType role) {
         return hasAnyCourseRole(
-                courseThemeRepository.findById(themeId)
-                        .orElseThrow(() -> new CourseThemeNotFoundException(themeId))
-                        .getCourseId(),
+                planetRepository.findById(themeId)
+                        .orElseThrow(() -> new PlanetNotFoundException(themeId))
+                        .getSystemId(),
                 role
         );
     }

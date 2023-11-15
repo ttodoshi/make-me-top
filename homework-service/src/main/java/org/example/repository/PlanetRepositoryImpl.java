@@ -1,7 +1,7 @@
 package org.example.repository;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.course.CourseThemeDto;
+import org.example.dto.planet.PlanetDto;
 import org.example.exception.classes.connectEX.ConnectException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
@@ -15,25 +15,25 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class CourseThemeRepositoryImpl implements CourseThemeRepository {
+public class PlanetRepositoryImpl implements PlanetRepository {
     private final WebClient.Builder webClientBuilder;
     private final AuthorizationHeaderRepository authorizationHeaderRepository;
 
     @Override
-    public Optional<CourseThemeDto> findById(Integer themeId) {
+    public Optional<PlanetDto> findById(Integer planetId) {
         return webClientBuilder
-                .baseUrl("http://course-service/api/v1/course-app/").build()
+                .baseUrl("http://planet-service/api/v1/planet-app/").build()
                 .get()
                 .uri(uri -> uri
-                        .path("themes/{themeId}/")
-                        .build(themeId)
+                        .path("planets/{planetId}/")
+                        .build(planetId)
                 )
                 .header("Authorization", authorizationHeaderRepository.getAuthorizationHeader())
                 .retrieve()
                 .onStatus(httpStatus -> httpStatus.isError() && !httpStatus.equals(HttpStatus.NOT_FOUND) && !httpStatus.equals(HttpStatus.UNAUTHORIZED), response -> {
                     throw new ConnectException();
                 })
-                .bodyToMono(CourseThemeDto.class)
+                .bodyToMono(PlanetDto.class)
                 .timeout(Duration.ofSeconds(5))
                 .onErrorResume(WebClientResponseException.Unauthorized.class, error -> Mono.error(new AccessDeniedException("Вам закрыт доступ к данной функциональности бортового компьютера")))
                 .onErrorResume(WebClientResponseException.NotFound.class, error -> Mono.empty())
@@ -43,10 +43,10 @@ public class CourseThemeRepositoryImpl implements CourseThemeRepository {
     @Override
     public Boolean existsById(Integer themeId) {
         return webClientBuilder
-                .baseUrl("http://course-service/api/v1/course-app/").build()
+                .baseUrl("http://planet-service/api/v1/planet-app/").build()
                 .get()
                 .uri(uri -> uri
-                        .path("themes/{themeId}/")
+                        .path("planets/{planetId}/")
                         .build(themeId)
                 )
                 .header("Authorization", authorizationHeaderRepository.getAuthorizationHeader())
