@@ -1,7 +1,7 @@
 package org.example.repository;
 
 import org.example.dto.keeper.KeeperDto;
-import org.example.grpc.KeeperServiceOuterClass;
+import org.example.grpc.KeepersService;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,5 +13,5 @@ public interface KeeperRepository {
 
     Optional<KeeperDto> findById(Integer keeperId);
 
-    KeeperServiceOuterClass.KeepersByKeeperIdInResponse findKeepersByKeeperIdIn(List<Integer> keeperIds);
+    KeepersService.KeepersByKeeperIdInResponse findKeepersByKeeperIdIn(List<Integer> keeperIds);
 }

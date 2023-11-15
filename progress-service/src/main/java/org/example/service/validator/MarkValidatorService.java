@@ -3,12 +3,12 @@ package org.example.service.validator;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.PersonDto;
 import org.example.dto.course.CourseDto;
-import org.example.dto.course.CourseThemeDto;
 import org.example.dto.explorer.ExplorerDto;
 import org.example.dto.explorer.ExplorerGroupDto;
 import org.example.dto.homework.HomeworkDto;
 import org.example.dto.keeper.KeeperDto;
 import org.example.dto.mark.MarkDto;
+import org.example.dto.planet.PlanetDto;
 import org.example.dto.progress.CourseThemeCompletedDto;
 import org.example.dto.progress.CourseWithThemesProgressDto;
 import org.example.exception.classes.connectEX.ConnectException;
@@ -47,7 +47,7 @@ public class MarkValidatorService {
     private final ExplorerGroupRepository explorerGroupRepository;
     private final KeeperRepository keeperRepository;
     private final CourseRepository courseRepository;
-    private final CourseThemeRepository courseThemeRepository;
+    private final PlanetRepository planetRepository;
     private final CourseThemeCompletionRepository courseThemeCompletionRepository;
     private final HomeworkRepository homeworkRepository;
 
@@ -131,11 +131,11 @@ public class MarkValidatorService {
         CourseDto course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new CourseNotFoundException(courseId));
         List<CourseThemeCompletedDto> themesCompletion = new ArrayList<>();
-        for (CourseThemeDto ct : courseThemeRepository.findCourseThemesByCourseIdOrderByCourseThemeNumberAsc(courseId)) {
+        for (PlanetDto p : planetRepository.findPlanetsBySystemId(courseId)) {
             Boolean themeCompleted = courseThemeCompletionRepository
-                    .findCourseThemeProgressByExplorerIdAndCourseThemeId(explorer.getExplorerId(), ct.getCourseThemeId()).isPresent();
+                    .findCourseThemeProgressByExplorerIdAndCourseThemeId(explorer.getExplorerId(), p.getPlanetId()).isPresent();
             themesCompletion.add(
-                    new CourseThemeCompletedDto(ct.getCourseThemeId(), ct.getTitle(), themeCompleted)
+                    new CourseThemeCompletedDto(p.getPlanetId(), p.getPlanetName(), themeCompleted)
             );
         }
         return CourseWithThemesProgressDto.builder()

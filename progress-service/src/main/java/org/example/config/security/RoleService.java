@@ -4,12 +4,12 @@ import lombok.RequiredArgsConstructor;
 import org.example.config.security.role.AuthenticationRoleType;
 import org.example.config.security.role.CourseRoleType;
 import org.example.dto.PersonDto;
-import org.example.exception.classes.courseEX.CourseThemeNotFoundException;
 import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
-import org.example.repository.CourseThemeRepository;
+import org.example.exception.classes.planetEX.PlanetNotFoundException;
 import org.example.repository.ExplorerGroupRepository;
 import org.example.repository.ExplorerRepository;
 import org.example.repository.KeeperRepository;
+import org.example.repository.PlanetRepository;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -21,7 +21,7 @@ public class RoleService {
     private final KeeperRepository keeperRepository;
     private final ExplorerRepository explorerRepository;
     private final ExplorerGroupRepository explorerGroupRepository;
-    private final CourseThemeRepository courseThemeRepository;
+    private final PlanetRepository planetRepository;
 
     public boolean hasAnyAuthenticationRole(AuthenticationRoleType role) {
         for (GrantedAuthority authority : SecurityContextHolder.getContext().getAuthentication().getAuthorities()) {
@@ -54,9 +54,9 @@ public class RoleService {
 
     public boolean hasAnyCourseRoleByThemeId(Integer themeId, CourseRoleType role) {
         return hasAnyCourseRole(
-                courseThemeRepository.findById(themeId)
-                        .orElseThrow(() -> new CourseThemeNotFoundException(themeId))
-                        .getCourseId(),
+                planetRepository.findById(themeId)
+                        .orElseThrow(() -> new PlanetNotFoundException(themeId))
+                        .getSystemId(),
                 role
         );
     }

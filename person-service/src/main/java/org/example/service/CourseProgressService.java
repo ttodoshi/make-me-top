@@ -16,5 +16,5 @@ public interface CourseProgressService {
 
     List<Integer> getInvestigatedSystemIds(List<Explorer> personExplorers);
 
-    Optional<CurrentKeeperGroupDto> getStudyingExplorersByKeeperPersonId(List<ExplorerGroup> keeperGroups);
+    Optional<CurrentKeeperGroupDto> getCurrentGroup(List<ExplorerGroup> keeperGroups);
 }

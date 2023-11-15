@@ -9,7 +9,7 @@ import org.example.exception.classes.connectEX.ConnectException;
 import org.example.exception.classes.keeperEX.KeeperNotFoundException;
 import org.example.exception.classes.personEX.PersonNotFoundException;
 import org.example.grpc.KeeperServiceGrpc;
-import org.example.grpc.KeeperServiceOuterClass;
+import org.example.grpc.KeepersService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
@@ -96,13 +96,13 @@ public class KeeperRepositoryImpl implements KeeperRepository {
     }
 
     @Override
-    public KeeperServiceOuterClass.KeepersByKeeperIdInResponse findKeepersByKeeperIdIn(List<Integer> keeperIds) {
+    public KeepersService.KeepersByKeeperIdInResponse findKeepersByKeeperIdIn(List<Integer> keeperIds) {
         CallCredentials callCredentials = CallCredentialsHelper.authorizationHeader(
                 authorizationHeaderRepository.getAuthorizationHeader()
         );
         return keeperServiceBlockingStub.withCallCredentials(callCredentials)
                 .findKeepersByKeeperIdIn(
-                        KeeperServiceOuterClass.KeepersByKeeperIdInRequest.newBuilder()
+                        KeepersService.KeepersByKeeperIdInRequest.newBuilder()
                                 .addAllKeeperIds(keeperIds)
                                 .build()
                 );

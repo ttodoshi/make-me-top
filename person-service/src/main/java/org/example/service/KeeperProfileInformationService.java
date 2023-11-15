@@ -42,8 +42,10 @@ public class KeeperProfileInformationService {
                 keepers.stream().map(Keeper::getKeeperId).collect(Collectors.toList())
         );
         response.put("totalExplorers", explorerGroups.stream().mapToLong(g -> g.getExplorers().size()).sum());
-        CompletableFuture<Void> studyingExplorers = CompletableFuture.runAsync(() ->
-                response.put("currentGroup", courseProgressService.getStudyingExplorersByKeeperPersonId(explorerGroups)), asyncExecutor);
+        CompletableFuture<Void> currentGroup = CompletableFuture.runAsync(() ->
+                courseProgressService.getCurrentGroup(explorerGroups).ifPresent(g ->
+                        response.put("currentGroup", g)
+                ), asyncExecutor);
         CompletableFuture<Void> studyRequests = CompletableFuture.runAsync(() ->
                 response.put("studyRequests", courseRegistrationRequestService.getStudyRequestsForKeeper(keepers)), asyncExecutor);
         CompletableFuture<Void> acceptedRequests = CompletableFuture.runAsync(() ->
@@ -55,7 +57,7 @@ public class KeeperProfileInformationService {
                         explorerGroups.stream().collect(Collectors.toMap(ExplorerGroup::getGroupId, g -> g))
                 )), asyncExecutor);
         try {
-            CompletableFuture.allOf(studyingExplorers, studyRequests, acceptedRequests, finalAssessments, reviewRequests).join();
+            CompletableFuture.allOf(currentGroup, studyRequests, acceptedRequests, finalAssessments, reviewRequests).join();
         } catch (CompletionException completionException) {
             try {
                 throw completionException.getCause();

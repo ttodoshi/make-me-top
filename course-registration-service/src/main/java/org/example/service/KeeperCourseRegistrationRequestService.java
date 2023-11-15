@@ -10,7 +10,7 @@ import org.example.exception.classes.keeperEX.KeeperNotFoundException;
 import org.example.exception.classes.requestEX.NoApprovedRequestsFoundException;
 import org.example.exception.classes.requestEX.RequestNotFoundException;
 import org.example.exception.classes.requestEX.StatusNotFoundException;
-import org.example.grpc.KeeperServiceOuterClass;
+import org.example.grpc.KeepersService;
 import org.example.grpc.PeopleService;
 import org.example.model.CourseRegistrationRequest;
 import org.example.model.CourseRegistrationRequestKeeper;
@@ -77,7 +77,7 @@ public class KeeperCourseRegistrationRequestService {
 
     @Transactional(readOnly = true)
     public List<ApprovedRequestDto> getApprovedRequests(List<Integer> keeperIds) {
-        List<KeeperServiceOuterClass.Keeper> keepers = keeperRepository.findKeepersByKeeperIdIn(keeperIds).getKeepersList();
+        List<KeepersService.Keeper> keepers = keeperRepository.findKeepersByKeeperIdIn(keeperIds).getKeepersList();
         keeperCourseRegistrationRequestValidatorService.validateGetApprovedRequests(personService.getAuthenticatedPersonId(), keepers);
         return courseRegistrationRequestRepository.findApprovedKeeperRequestsByKeeperIdIn(keeperIds)
                 .stream()

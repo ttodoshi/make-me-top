@@ -11,7 +11,7 @@ import org.example.dto.person.PersonWithSystemsDto;
 import org.example.exception.classes.galaxyEX.GalaxyNotFoundException;
 import org.example.exception.classes.systemEX.SystemNotFoundException;
 import org.example.grpc.ExplorersService;
-import org.example.grpc.KeeperServiceOuterClass;
+import org.example.grpc.KeepersService;
 import org.example.model.Galaxy;
 import org.example.model.StarSystem;
 import org.example.repository.GalaxyRepository;
@@ -49,7 +49,7 @@ public class GalaxyService {
     @Transactional(readOnly = true)
     public List<GetGalaxyInformationDto> getAllGalaxiesDetailed() {
         Map<Integer, ExplorersService.AllExplorersResponse.ExplorerList> explorers = explorerService.findExplorersWithCourseIds();
-        Map<Integer, KeeperServiceOuterClass.AllKeepersResponse.KeeperList> keepers = keeperService.findKeepersWithCourseIds();
+        Map<Integer, KeepersService.AllKeepersResponse.KeeperList> keepers = keeperService.findKeepersWithCourseIds();
         return galaxyRepository.findAll()
                 .stream()
                 .map(g -> {

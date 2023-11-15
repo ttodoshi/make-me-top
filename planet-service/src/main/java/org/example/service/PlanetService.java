@@ -32,6 +32,11 @@ public class PlanetService {
     private final KafkaTemplate<Integer, String> updateThemeKafkaTemplate;
     private final KafkaTemplate<Integer, Integer> deleteThemeKafkaTemplate;
 
+    public Planet findPlanetById(Integer planetId) {
+        return planetRepository.findById(planetId)
+                .orElseThrow(() -> new PlanetNotFoundException(planetId));
+    }
+
     @Transactional(readOnly = true)
     public List<Planet> findPlanetsListBySystemId(Integer systemId) {
         planetValidatorService.validateGetPlanetsRequest(systemId);

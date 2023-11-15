@@ -1,8 +1,13 @@
 package org.example.repository;
 
+import io.grpc.CallCredentials;
 import lombok.RequiredArgsConstructor;
+import net.devh.boot.grpc.client.inject.GrpcClient;
+import net.devh.boot.grpc.client.security.CallCredentialsHelper;
 import org.example.dto.explorer.ExplorerDto;
 import org.example.exception.classes.connectEX.ConnectException;
+import org.example.grpc.ExplorerServiceGrpc;
+import org.example.grpc.ExplorersService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
@@ -11,6 +16,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -18,6 +24,8 @@ import java.util.Optional;
 public class ExplorerRepositoryImpl implements ExplorerRepository {
     private final WebClient.Builder webClientBuilder;
     private final AuthorizationHeaderRepository authorizationHeaderRepository;
+    @GrpcClient("explorers")
+    private ExplorerServiceGrpc.ExplorerServiceBlockingStub explorerServiceBlockingStub;
 
     @Override
     public Optional<ExplorerDto> findExplorerByPersonIdAndGroup_CourseId(Integer personId, Integer courseId) {
@@ -61,5 +69,21 @@ public class ExplorerRepositoryImpl implements ExplorerRepository {
                 .onErrorResume(WebClientResponseException.Unauthorized.class, error -> Mono.error(new AccessDeniedException("Вам закрыт доступ к данной функциональности бортового компьютера")))
                 .onErrorResume(WebClientResponseException.NotFound.class, error -> Mono.empty())
                 .blockOptional();
+    }
+
+    @Override
+    public ExplorersService.ExplorersByPersonIdAndGroup_CourseIdInResponse findExplorersByPersonIdAndGroupCourseIdIn(Integer personId, List<Integer> courseIds) {
+        CallCredentials callCredentials = CallCredentialsHelper.authorizationHeader(
+                authorizationHeaderRepository.getAuthorizationHeader()
+        );
+        return explorerServiceBlockingStub
+                .withCallCredentials(callCredentials)
+                .findExplorersByPersonIdAndGroupCourseIdIn(
+                        ExplorersService.ExplorersByPersonIdAndGroup_CourseIdInRequest
+                                .newBuilder()
+                                .setPersonId(personId)
+                                .addAllCourseIds(courseIds)
+                                .build()
+                );
     }
 }

@@ -2,7 +2,6 @@ package org.example.config.security;
 
 
 import io.jsonwebtoken.Claims;
-import org.example.dto.person.PersonDto;
 
 import java.util.function.Function;
 
@@ -14,5 +13,5 @@ public interface JwtService {
 
     String extractRole(String jwtToken);
 
-    boolean isTokenValid(String jwtToken, PersonDto person);
+    boolean isTokenValid(String jwtToken);
 }

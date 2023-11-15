@@ -4,7 +4,7 @@ import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.server.service.GrpcService;
 import org.example.grpc.ExplorerGroupServiceGrpc;
-import org.example.grpc.ExplorerGroupServiceOuterClass;
+import org.example.grpc.ExplorerGroupsService;
 import org.example.model.ExplorerGroup;
 import org.example.service.ExplorerGroupService;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,10 +16,10 @@ public class GrpcExplorerGroupService extends ExplorerGroupServiceGrpc.ExplorerG
 
     @Override
     @PreAuthorize("isAuthenticated()")
-    public void findExplorerGroupById(ExplorerGroupServiceOuterClass.ExplorerGroupByIdRequest request, StreamObserver<ExplorerGroupServiceOuterClass.ExplorerGroup> responseObserver) {
+    public void findExplorerGroupById(ExplorerGroupsService.ExplorerGroupByIdRequest request, StreamObserver<ExplorerGroupsService.ExplorerGroup> responseObserver) {
         ExplorerGroup group = explorerGroupService.findGroupById(request.getGroupId());
         responseObserver.onNext(
-                ExplorerGroupServiceOuterClass.ExplorerGroup.newBuilder()
+                ExplorerGroupsService.ExplorerGroup.newBuilder()
                         .setGroupId(group.getGroupId())
                         .setCourseId(group.getCourseId())
                         .setKeeperId(group.getKeeperId())

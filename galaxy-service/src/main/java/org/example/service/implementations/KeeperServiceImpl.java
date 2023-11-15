@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.example.dto.person.PersonWithSystemsDto;
 import org.example.grpc.KeeperServiceGrpc;
-import org.example.grpc.KeeperServiceOuterClass;
+import org.example.grpc.KeepersService;
 import org.example.model.StarSystem;
 import org.example.service.KeeperService;
 import org.springframework.cache.annotation.Cacheable;
@@ -24,11 +24,11 @@ public class KeeperServiceImpl implements KeeperService {
     @Override
     @Cacheable(cacheNames = "keepersWithSystemsCache", key = "{#keepers, #systems}")
     public List<PersonWithSystemsDto> getKeepersWithSystems(
-            Map<Integer, KeeperServiceOuterClass.AllKeepersResponse.KeeperList> keepers,
+            Map<Integer, KeepersService.AllKeepersResponse.KeeperList> keepers,
             List<StarSystem> systems) {
         return systems.stream()
                 .flatMap(s ->
-                        keepers.getOrDefault(s.getSystemId(), KeeperServiceOuterClass.AllKeepersResponse.KeeperList.newBuilder().build())
+                        keepers.getOrDefault(s.getSystemId(), KeepersService.AllKeepersResponse.KeeperList.newBuilder().build())
                                 .getPersonList()
                                 .stream()
                                 .map(k -> Map.entry(k, s.getSystemId())))
@@ -41,7 +41,7 @@ public class KeeperServiceImpl implements KeeperService {
     }
 
     @Override
-    public Map<Integer, KeeperServiceOuterClass.AllKeepersResponse.KeeperList> findKeepersWithCourseIds() {
+    public Map<Integer, KeepersService.AllKeepersResponse.KeeperList> findKeepersWithCourseIds() {
         return keeperServiceBlockingStub
                 .findAllKeepers(Empty.newBuilder().build())
                 .getKeepersWithCourseIdMapMap();

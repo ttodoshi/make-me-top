@@ -1,8 +1,13 @@
 package org.example.repository;
 
+import io.grpc.CallCredentials;
 import lombok.RequiredArgsConstructor;
+import net.devh.boot.grpc.client.inject.GrpcClient;
+import net.devh.boot.grpc.client.security.CallCredentialsHelper;
 import org.example.dto.keeper.KeeperDto;
 import org.example.exception.classes.connectEX.ConnectException;
+import org.example.grpc.KeeperServiceGrpc;
+import org.example.grpc.KeepersService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
@@ -11,6 +16,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -18,6 +24,8 @@ import java.util.Optional;
 public class KeeperRepositoryImpl implements KeeperRepository {
     private final WebClient.Builder webClientBuilder;
     private final AuthorizationHeaderRepository authorizationHeaderRepository;
+    @GrpcClient("keepers")
+    private KeeperServiceGrpc.KeeperServiceBlockingStub keeperServiceBlockingStub;
 
     @Override
     public Optional<KeeperDto> findKeeperByPersonIdAndCourseId(Integer personId, Integer courseId) {
@@ -40,5 +48,21 @@ public class KeeperRepositoryImpl implements KeeperRepository {
                 .onErrorResume(WebClientResponseException.Unauthorized.class, error -> Mono.error(new AccessDeniedException("Вам закрыт доступ к данной функциональности бортового компьютера")))
                 .onErrorResume(WebClientResponseException.NotFound.class, error -> Mono.empty())
                 .blockOptional();
+    }
+
+    @Override
+    public KeepersService.KeepersByPersonIdAndGroup_CourseIdInResponse findKeepersByPersonIdAndGroupCourseIdIn(Integer personId, List<Integer> courseIds) {
+        CallCredentials callCredentials = CallCredentialsHelper.authorizationHeader(
+                authorizationHeaderRepository.getAuthorizationHeader()
+        );
+        return keeperServiceBlockingStub
+                .withCallCredentials(callCredentials)
+                .findKeepersByPersonIdAndGroupCourseIdIn(
+                        KeepersService.KeepersByPersonIdAndGroup_CourseIdInRequest
+                                .newBuilder()
+                                .setPersonId(personId)
+                                .addAllCourseIds(courseIds)
+                                .build()
+                );
     }
 }
