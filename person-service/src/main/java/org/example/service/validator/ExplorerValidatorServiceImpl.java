@@ -7,7 +7,6 @@ import org.example.exception.classes.personEX.PersonNotFoundException;
 import org.example.repository.CourseRepository;
 import org.example.repository.ExplorerRepository;
 import org.example.service.PersonService;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,7 +32,6 @@ public class ExplorerValidatorServiceImpl implements ExplorerValidatorService {
     }
 
     @Override
-    @Cacheable(cacheNames = "explorerExistsCache", key = "#explorerId")
     @Transactional(readOnly = true)
     public void validateDeleteExplorerByIdRequest(Integer explorerId) {
         if (!explorerRepository.existsById(explorerId))

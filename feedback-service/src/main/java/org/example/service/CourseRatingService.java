@@ -1,7 +1,7 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.explorer.ExplorerDto;
+import org.example.grpc.ExplorersService;
 import org.example.repository.CourseRatingRepository;
 import org.example.repository.ExplorerRepository;
 import org.springframework.stereotype.Service;
@@ -19,14 +19,18 @@ public class CourseRatingService {
 
     @Transactional(readOnly = true)
     public Map<Integer, Double> getCoursesRating(List<Integer> courseIds) {
-        Map<Integer, List<ExplorerDto>> explorers = explorerRepository.findExplorersByGroup_CourseIdIn(courseIds);
+        Map<Integer, ExplorersService.ExplorerList> explorers = explorerRepository.findExplorersByGroup_CourseIdIn(courseIds);
         return explorers.entrySet()
                 .stream()
                 .collect(
                         Collectors.toMap(
                                 Map.Entry::getKey,
                                 e -> courseRatingRepository.findAvgRatingByExplorerIdIn(
-                                        e.getValue().stream().map(ExplorerDto::getExplorerId).collect(Collectors.toList())
+                                        e.getValue()
+                                                .getExplorersList()
+                                                .stream()
+                                                .map(ExplorersService.Explorer::getExplorerId)
+                                                .collect(Collectors.toList())
                                 ).orElse(0.0)
                         )
                 );

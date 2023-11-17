@@ -1,13 +1,13 @@
 package org.example.service.validator;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.explorer.ExplorerDto;
 import org.example.dto.progress.CourseThemeCompletedDto;
 import org.example.exception.classes.homeworkEX.HomeworkAlreadyCheckingException;
 import org.example.exception.classes.homeworkEX.HomeworkRequestAlreadyClosedException;
 import org.example.exception.classes.planetEX.PlanetNotFoundException;
 import org.example.exception.classes.progressEX.UnexpectedCourseThemeException;
 import org.example.exception.classes.requestEX.StatusNotFoundException;
+import org.example.grpc.ExplorersService;
 import org.example.model.HomeworkRequest;
 import org.example.model.HomeworkRequestStatusType;
 import org.example.repository.CourseProgressRepository;
@@ -35,13 +35,13 @@ public class ExplorerHomeworkRequestValidatorService {
     }
 
     @Transactional(readOnly = true)
-    public void validateNewRequest(Integer themeId, ExplorerDto explorer) {
+    public void validateNewRequest(Integer themeId, ExplorersService.Explorer explorer) {
         Integer currentThemeId = getCurrentCourseThemeId(explorer);
         if (!currentThemeId.equals(themeId))
             throw new UnexpectedCourseThemeException(currentThemeId, themeId);
     }
 
-    private Integer getCurrentCourseThemeId(ExplorerDto explorer) {
+    private Integer getCurrentCourseThemeId(ExplorersService.Explorer explorer) {
         List<CourseThemeCompletedDto> themesProgress = courseProgressRepository
                 .getCourseProgress(explorer.getExplorerId())
                 .getThemesWithProgress();

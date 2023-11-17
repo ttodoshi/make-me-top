@@ -11,6 +11,22 @@ import org.springframework.context.annotation.Configuration;
 public class CacheConfig {
     @Bean
     public CacheManager cacheManager() {
-        return new ConcurrentMapCacheManager("personByIdCache", "peopleByPersonIdIn", "explorerByIdCache", "keeperByIdCache", "keeperByPersonIdAndCourseId", "keepersByPersonId", "keepersByCourseId", "personExistsCache", "explorerExistsCache", "keeperExistsCache");
+        return new ConcurrentMapCacheManager(
+                "personByIdCache",
+                "personExistsByIdCache",
+                "peopleByPersonIdInCache",
+                "keeperByIdCache",
+                "keeperExistsByIdCache",
+                "keeperByPersonIdAndCourseIdCache",
+                "keepersByPersonIdCache",
+                "keepersByCourseIdCache",
+                "explorerByIdCache",
+                "explorerExistsByIdCache",
+                "explorersByGroup_CourseIdInCache",
+                "allExplorersCache",
+                "explorerGroupByIdCache",
+                "explorerGroupsByKeeperIdInCache",
+                "explorerGroupsByGroupIdInCache"
+        );
     }
 }

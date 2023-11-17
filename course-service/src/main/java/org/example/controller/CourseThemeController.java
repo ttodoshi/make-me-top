@@ -20,7 +20,6 @@ public class CourseThemeController {
     private final CourseThemeService courseThemeService;
 
     @GetMapping("/themes/{themeId}")
-//    @PreAuthorize("isAuthenticated()") // TODO
     @PreAuthorize("(@roleServiceImpl.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).EXPLORER) && " +
             "@roleServiceImpl.hasAnyCourseRoleByThemeId(#themeId, T(org.example.config.security.role.CourseRoleType).EXPLORER)) ||" +
             "(@roleServiceImpl.hasAnyAuthenticationRole(T(org.example.config.security.role.AuthenticationRoleType).KEEPER) &&" +

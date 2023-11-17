@@ -2,6 +2,9 @@ server:
   port: 8106
 grpc:
   client:
+    people:
+      address: discovery:///person-service
+      negotiationType: PLAINTEXT
     explorers:
       address: discovery:///person-service
       negotiationType: PLAINTEXT

@@ -1,12 +1,13 @@
 package org.example.repository;
 
-import org.example.dto.explorer.ExplorerGroupDto;
+import org.example.grpc.ExplorerGroupsService;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public interface ExplorerGroupRepository {
-    ExplorerGroupDto getReferenceById(Integer groupId);
+    ExplorerGroupsService.ExplorerGroup getReferenceById(Integer groupId);
 
-    Map<Integer, Integer> findExplorerGroupsCourseIdByGroupIdIn(List<Integer> groupIds);
+    Map<Integer, ExplorerGroupsService.ExplorerGroup> findExplorerGroupsByGroupIdIn(List<Integer> groupIds);
 }

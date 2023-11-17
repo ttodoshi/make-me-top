@@ -1,15 +1,15 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.PersonDto;
-import org.example.dto.explorer.ExplorerDto;
 import org.example.dto.galaxy.GetGalaxyDto;
 import org.example.dto.planet.PlanetDto;
 import org.example.dto.progress.*;
 import org.example.dto.starsystem.GetStarSystemWithDependenciesDto;
 import org.example.dto.starsystem.SystemDependencyModelDto;
 import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
+import org.example.grpc.ExplorerGroupsService;
 import org.example.grpc.ExplorersService;
+import org.example.grpc.PeopleService;
 import org.example.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,7 +35,7 @@ public class ProgressService {
 
     @Transactional(readOnly = true)
     public CoursesStateDto getCoursesProgressForCurrentUser(Integer galaxyId) {
-        PersonDto authenticatedPerson = personService.getAuthenticatedPerson();
+        PeopleService.Person authenticatedPerson = personService.getAuthenticatedPerson();
         Set<Integer> openedCourses = new LinkedHashSet<>();
         Set<CourseWithProgressDto> studiedCourses = new LinkedHashSet<>();
         Set<Integer> closedCourses = new LinkedHashSet<>();
@@ -48,7 +48,7 @@ public class ProgressService {
                 .findExplorersByPersonIdAndGroupCourseIdIn(
                         authenticatedPerson.getPersonId(),
                         systems.stream().map(GetStarSystemWithDependenciesDto::getSystemId).collect(Collectors.toList())
-                ).getExplorersWithCourseIdMapMap();
+                ).getExplorerWithCourseIdMapMap();
         for (GetStarSystemWithDependenciesDto system : systems) {
             if (explorers.containsKey(system.getSystemId())) {
                 studiedCourses.add(
@@ -75,7 +75,7 @@ public class ProgressService {
     }
 
     public CourseWithThemesProgressDto getExplorerThemesProgress(Integer explorerId) {
-        ExplorerDto explorer = explorerRepository.findById(explorerId)
+        ExplorersService.Explorer explorer = explorerRepository.findById(explorerId)
                 .orElseThrow(() -> new ExplorerNotFoundException(explorerId));
         return courseThemesProgressService.getThemesProgress(explorer);
     }
@@ -108,20 +108,20 @@ public class ProgressService {
     @Transactional(readOnly = true)
     public List<Integer> getExplorerIdsNeededFinalAssessment(List<Integer> explorerIds) {
         List<Integer> explorersWithFinalAssessment = getExplorerIdsWithFinalAssessment(explorerIds);
-        Map<Integer, ExplorerDto> explorers = explorerRepository.findExplorersByExplorerIdIn(explorerIds);
-        Map<Integer, Integer> explorerGroupCourseIds = explorerGroupRepository
-                .findExplorerGroupsCourseIdByGroupIdIn(
-                        explorers.values().stream().map(ExplorerDto::getGroupId).collect(Collectors.toList())
+        Map<Integer, ExplorersService.Explorer> explorers = explorerRepository.findExplorersByExplorerIdIn(explorerIds);
+        Map<Integer, ExplorerGroupsService.ExplorerGroup> explorerGroups = explorerGroupRepository
+                .findExplorerGroupsByGroupIdIn(
+                        explorers.values().stream().map(ExplorersService.Explorer::getGroupId).collect(Collectors.toList())
                 );
         Map<Integer, List<PlanetDto>> planets = planetRepository.findPlanetsBySystemIdIn(
-                explorerGroupCourseIds.values().stream().distinct().collect(Collectors.toList())
+                explorerGroups.values().stream().map(ExplorerGroupsService.ExplorerGroup::getCourseId).distinct().collect(Collectors.toList())
         );
         return explorerIds.stream()
                 .filter(eId -> !explorersWithFinalAssessment.contains(eId))
                 .filter(eId -> {
-                    Integer explorerCourseId = explorerGroupCourseIds.get(
+                    Integer explorerCourseId = explorerGroups.get(
                             explorers.get(eId).getGroupId()
-                    );
+                    ).getCourseId();
                     return courseThemeCompletionRepository
                             .getCourseProgress(
                                     eId,
@@ -136,7 +136,7 @@ public class ProgressService {
     }
 
     public ExplorerProgressDto getExplorerCourseProgress(Integer courseId) {
-        ExplorerDto explorer = explorerRepository.findExplorerByPersonIdAndGroup_CourseId(
+        ExplorersService.Explorer explorer = explorerRepository.findExplorerByPersonIdAndGroup_CourseId(
                 personService.getAuthenticatedPersonId(),
                 courseId
         ).orElseThrow(ExplorerNotFoundException::new);

@@ -2,8 +2,7 @@ package org.example.dto.course;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
-import org.example.dto.explorer.ExplorerDto;
-import org.example.dto.keeper.KeeperDto;
+import org.example.dto.person.PersonWithRatingDto;
 
 import java.util.List;
 
@@ -11,6 +10,6 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class GetCourseDto {
     private CourseDto course;
-    private List<ExplorerDto> explorers;
-    private List<KeeperDto> keepers;
+    private List<PersonWithRatingDto> explorers;
+    private List<PersonWithRatingDto> keepers;
 }

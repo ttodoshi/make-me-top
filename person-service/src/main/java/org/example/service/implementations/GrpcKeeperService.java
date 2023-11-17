@@ -9,9 +9,10 @@ import org.example.grpc.KeeperServiceGrpc;
 import org.example.grpc.KeepersService;
 import org.example.grpc.PeopleService;
 import org.example.model.Keeper;
-import org.example.repository.KeeperRepository;
+import org.example.service.KeeperService;
 import org.example.service.RatingService;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZoneOffset;
 import java.util.List;
@@ -21,12 +22,97 @@ import java.util.stream.Collectors;
 @GrpcService
 @RequiredArgsConstructor
 public class GrpcKeeperService extends KeeperServiceGrpc.KeeperServiceImplBase {
-    private final KeeperRepository keeperRepository;
+    private final KeeperService keeperService;
     private final RatingService ratingService;
 
     @Override
+    @PreAuthorize("isAuthenticated()")
+    @Transactional(readOnly = true)
+    public void findKeeperById(KeepersService.KeeperByIdRequest request, StreamObserver<KeepersService.Keeper> responseObserver) {
+        Keeper keeper = keeperService.findKeeperByKeeperId(request.getKeeperId());
+        responseObserver.onNext(
+                KeepersService.Keeper.newBuilder()
+                        .setKeeperId(keeper.getKeeperId())
+                        .setCourseId(keeper.getCourseId())
+                        .setPersonId(keeper.getPersonId())
+                        .setStartDate(
+                                Timestamp.newBuilder()
+                                        .setSeconds(keeper.getStartDate().toEpochSecond(ZoneOffset.UTC))
+                                        .setNanos(keeper.getStartDate().getNano())
+                                        .build()
+                        ).build()
+        );
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public void findKeepersByPersonId(KeepersService.KeepersByPersonIdRequest request, StreamObserver<KeepersService.KeeperList> responseObserver) {
+        responseObserver.onNext(KeepersService.KeeperList
+                .newBuilder()
+                .addAllKeepers(
+                        keeperService
+                                .findKeepersByPersonId(request.getPersonId())
+                                .stream()
+                                .map(k -> KeepersService.Keeper.newBuilder()
+                                        .setKeeperId(k.getKeeperId())
+                                        .setCourseId(k.getCourseId())
+                                        .setPersonId(k.getPersonId())
+                                        .setStartDate(
+                                                Timestamp.newBuilder()
+                                                        .setSeconds(k.getStartDate().toEpochSecond(ZoneOffset.UTC))
+                                                        .setNanos(k.getStartDate().getNano())
+                                                        .build()
+                                        ).build()
+                                ).collect(Collectors.toList())
+                ).build()
+        );
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    @PreAuthorize("isAuthenticated()")
+    @Transactional(readOnly = true)
+    public void findKeeperByPersonIdAndCourseId(KeepersService.KeeperByPersonIdAndCourseIdRequest request, StreamObserver<KeepersService.Keeper> responseObserver) {
+        Keeper keeper = keeperService.findKeeperByPersonIdAndCourseId(
+                request.getPersonId(),
+                request.getCourseId()
+        );
+        responseObserver.onNext(
+                KeepersService.Keeper.newBuilder()
+                        .setKeeperId(keeper.getKeeperId())
+                        .setCourseId(keeper.getCourseId())
+                        .setPersonId(keeper.getPersonId())
+                        .setStartDate(
+                                Timestamp.newBuilder()
+                                        .setSeconds(keeper.getStartDate().toEpochSecond(ZoneOffset.UTC))
+                                        .setNanos(keeper.getStartDate().getNano())
+                                        .build()
+                        ).build()
+        );
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    @PreAuthorize("isAuthenticated()")
+    @Transactional(readOnly = true)
+    public void findKeepersByCourseId(KeepersService.KeepersByCourseIdRequest request, StreamObserver<KeepersService.KeeperList> responseObserver) {
+        responseObserver.onNext(KeepersService.KeeperList
+                .newBuilder()
+                .addAllKeepers(
+                        keeperService.findKeepersByCourseId(request.getCourseId())
+                                .stream()
+                                .map(this::mapKeeperToGrpcModel)
+                                .collect(Collectors.toList())
+                ).build()
+        );
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public void findAllKeepers(Empty request, StreamObserver<KeepersService.AllKeepersResponse> responseObserver) {
-        List<Keeper> keepers = keeperRepository.findAll();
+        List<Keeper> keepers = keeperService.findAllKeepers();
         Map<Integer, Double> peopleRating = ratingService.getPeopleRatingAsKeeperByPersonIdIn(
                 keepers.stream()
                         .map(Keeper::getPersonId)
@@ -65,56 +151,79 @@ public class GrpcKeeperService extends KeeperServiceGrpc.KeeperServiceImplBase {
 
     @Override
     @PreAuthorize("isAuthenticated()")
+    @Transactional(readOnly = true)
     public void findKeepersByKeeperIdIn(KeepersService.KeepersByKeeperIdInRequest request, StreamObserver<KeepersService.KeepersByKeeperIdInResponse> responseObserver) {
-        responseObserver.onNext(
-                KeepersService.KeepersByKeeperIdInResponse.newBuilder()
-                        .addAllKeepers(keeperRepository
-                                .findKeepersByKeeperIdIn(request.getKeeperIdsList())
+        responseObserver.onNext(KeepersService.KeepersByKeeperIdInResponse
+                .newBuilder()
+                .putAllKeeperByKeeperIdMap(
+                        keeperService.findKeepersByKeeperIdIn(
+                                        request.getKeeperIdsList()
+                                ).entrySet()
                                 .stream()
-                                .map(k -> KeepersService.Keeper.newBuilder()
-                                        .setKeeperId(k.getKeeperId())
-                                        .setCourseId(k.getCourseId())
-                                        .setPersonId(k.getPersonId())
-                                        .setStartDate(
-                                                Timestamp.newBuilder()
-                                                        .setSeconds(k.getStartDate().toEpochSecond(ZoneOffset.UTC))
-                                                        .setNanos(k.getStartDate().getNano())
-                                                        .build()
-                                        ).build()
-                                ).collect(Collectors.toList())
-                        ).build()
-
+                                .collect(Collectors.toMap(
+                                        Map.Entry::getKey,
+                                        e -> this.mapKeeperToGrpcModel(e.getValue())
+                                ))
+                ).build()
         );
         responseObserver.onCompleted();
     }
 
     @Override
-    public void findKeepersByPersonIdAndGroupCourseIdIn(KeepersService.KeepersByPersonIdAndGroup_CourseIdInRequest request, StreamObserver<KeepersService.KeepersByPersonIdAndGroup_CourseIdInResponse> responseObserver) {
-        List<Integer> courseIdsList = request.getCourseIdsList();
-        Map<Integer, KeepersService.Keeper> keepersByPersonIdWithCourseId = keeperRepository
-                .findKeepersByPersonId(request.getPersonId())
-                .stream()
-                .filter(k -> courseIdsList.contains(k.getCourseId()))
-                .collect(Collectors.toMap(
-                        Keeper::getCourseId,
-                        k -> KeepersService.Keeper
-                                .newBuilder()
-                                .setKeeperId(k.getKeeperId())
-                                .setPersonId(k.getPersonId())
-                                .setCourseId(k.getCourseId())
-                                .setStartDate(
-                                        Timestamp.newBuilder()
-                                                .setSeconds(k.getStartDate().toEpochSecond(ZoneOffset.UTC))
-                                                .setNanos(k.getStartDate().getNano())
-                                                .build()
-                                ).build())
-                );
-        responseObserver.onNext(
-                KeepersService.KeepersByPersonIdAndGroup_CourseIdInResponse
-                        .newBuilder()
-                        .putAllKeepersWithCourseIdMap(keepersByPersonIdWithCourseId)
-                        .build()
+    @Transactional(readOnly = true)
+    public void findKeepersByPersonIdIn(KeepersService.KeepersByPersonIdInRequest request, StreamObserver<KeepersService.KeepersByPersonIdInResponse> responseObserver) {
+        responseObserver.onNext(KeepersService.KeepersByPersonIdInResponse
+                .newBuilder()
+                .putAllKeepersByPersonIdMap(request
+                        .getPersonIdsList()
+                        .stream()
+                        .collect(Collectors.toMap(
+                                pId -> pId,
+                                pId -> KeepersService.KeeperList
+                                        .newBuilder()
+                                        .addAllKeepers(
+                                                keeperService.findKeepersByPersonId(pId)
+                                                        .stream()
+                                                        .map(this::mapKeeperToGrpcModel)
+                                                        .collect(Collectors.toList()))
+                                        .build()
+                        ))
+                ).build()
         );
         responseObserver.onCompleted();
+    }
+
+    @Override
+    @PreAuthorize("isAuthenticated()")
+    @Transactional(readOnly = true)
+    public void findKeepersByPersonIdAndCourseIdIn(KeepersService.KeepersByPersonIdAndCourseIdInRequest request, StreamObserver<KeepersService.KeepersByPersonIdAndCourseIdInResponse> responseObserver) {
+        responseObserver.onNext(KeepersService.KeepersByPersonIdAndCourseIdInResponse
+                .newBuilder()
+                .putAllKeeperWithCourseIdMap(
+                        keeperService.findKeepersByPersonIdAndCourseIdIn(
+                                        request.getPersonId(),
+                                        request.getCourseIdsList()
+                                ).stream()
+                                .collect(Collectors.toMap(
+                                        Keeper::getCourseId,
+                                        this::mapKeeperToGrpcModel)
+                                ))
+                .build()
+        );
+        responseObserver.onCompleted();
+    }
+
+    private KeepersService.Keeper mapKeeperToGrpcModel(Keeper keeper) {
+        return KeepersService.Keeper
+                .newBuilder()
+                .setKeeperId(keeper.getKeeperId())
+                .setPersonId(keeper.getPersonId())
+                .setCourseId(keeper.getCourseId())
+                .setStartDate(
+                        Timestamp.newBuilder()
+                                .setSeconds(keeper.getStartDate().toEpochSecond(ZoneOffset.UTC))
+                                .setNanos(keeper.getStartDate().getNano())
+                                .build()
+                ).build();
     }
 }

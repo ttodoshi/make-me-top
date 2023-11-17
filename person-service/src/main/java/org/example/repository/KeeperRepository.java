@@ -15,5 +15,7 @@ public interface KeeperRepository extends JpaRepository<Keeper, Integer> {
 
     List<Keeper> findKeepersByKeeperIdIn(List<Integer> keeperIds);
 
+    List<Keeper> findKeepersByPersonIdAndCourseIdIn(Integer personId, List<Integer> courseIds);
+
     void deleteKeepersByCourseId(Integer courseId);
 }

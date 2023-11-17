@@ -1,8 +1,8 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.explorer.ExplorerDto;
-import org.example.dto.keeper.KeeperDto;
+import org.example.grpc.ExplorersService;
+import org.example.grpc.KeepersService;
 import org.example.repository.ExplorerRepository;
 import org.example.repository.KeeperRepository;
 import org.springframework.stereotype.Service;
@@ -24,7 +24,7 @@ public class RatingService {
         List<Integer> explorerIds = explorerRepository
                 .findExplorersByPersonId(personId)
                 .stream()
-                .map(ExplorerDto::getExplorerId)
+                .map(ExplorersService.Explorer::getExplorerId)
                 .collect(Collectors.toList());
         return keeperFeedbackService.getRatingByPersonExplorerIds(explorerIds);
     }
@@ -33,7 +33,7 @@ public class RatingService {
         List<Integer> keeperIds = keeperRepository
                 .findKeepersByPersonId(personId)
                 .stream()
-                .map(KeeperDto::getKeeperId)
+                .map(KeepersService.Keeper::getKeeperId)
                 .collect(Collectors.toList());
         return explorerFeedbackService.getRatingByPersonKeeperIds(keeperIds);
     }
@@ -46,7 +46,11 @@ public class RatingService {
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
                         e -> keeperFeedbackService.getRatingByPersonExplorerIds(
-                                e.getValue().stream().map(ExplorerDto::getExplorerId).collect(Collectors.toList())
+                                e.getValue()
+                                        .getExplorersList()
+                                        .stream()
+                                        .map(ExplorersService.Explorer::getExplorerId)
+                                        .collect(Collectors.toList())
                         )
                 ));
     }
@@ -59,7 +63,11 @@ public class RatingService {
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
                         e -> explorerFeedbackService.getRatingByPersonKeeperIds(
-                                e.getValue().stream().map(KeeperDto::getKeeperId).collect(Collectors.toList())
+                                e.getValue()
+                                        .getKeepersList()
+                                        .stream()
+                                        .map(KeepersService.Keeper::getKeeperId)
+                                        .collect(Collectors.toList())
                         )
                 ));
     }

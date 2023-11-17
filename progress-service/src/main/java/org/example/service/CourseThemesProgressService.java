@@ -1,8 +1,8 @@
 package org.example.service;
 
 import org.example.dto.progress.CourseWithThemesProgressDto;
-import org.example.dto.explorer.ExplorerDto;
+import org.example.grpc.ExplorersService;
 
 public interface CourseThemesProgressService {
-    CourseWithThemesProgressDto getThemesProgress(ExplorerDto explorer);
+    CourseWithThemesProgressDto getThemesProgress(ExplorersService.Explorer explorer);
 }

@@ -1,20 +1,19 @@
 package org.example.dto.person;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.List;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
-@EqualsAndHashCode
-public class PersonWithSystemsDto {
-    private Integer personId;
-    private String firstName;
-    private String lastName;
-    private String patronymic;
-    private Double rating;
+public class PersonWithSystemsDto extends PersonWithRatingDto {
     private List<Integer> systems;
+
+    public PersonWithSystemsDto(Integer personId, String firstName, String lastName, String patronymic, Double rating, List<Integer> systems) {
+        super(personId, firstName, lastName, patronymic, rating);
+        this.systems = systems;
+    }
 }

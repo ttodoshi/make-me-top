@@ -1,7 +1,7 @@
 package org.example.repository;
 
-import org.example.dto.explorer.ExplorerGroupDto;
+import org.example.grpc.ExplorerGroupsService;
 
 public interface ExplorerGroupRepository {
-    ExplorerGroupDto getReferenceById(Integer groupId);
+    ExplorerGroupsService.ExplorerGroup getReferenceById(Integer groupId);
 }

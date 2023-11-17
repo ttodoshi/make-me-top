@@ -2,7 +2,6 @@ package org.example.service.validator;
 
 import lombok.RequiredArgsConstructor;
 import org.example.dto.courserequest.CreateCourseRegistrationRequestDto;
-import org.example.dto.keeper.KeeperDto;
 import org.example.exception.classes.courseEX.CourseNotFoundException;
 import org.example.exception.classes.keeperEX.KeeperNotFoundException;
 import org.example.exception.classes.progressEX.AlreadyStudyingException;
@@ -12,6 +11,7 @@ import org.example.exception.classes.requestEX.PersonIsKeeperException;
 import org.example.exception.classes.requestEX.PersonIsNotPersonInRequestException;
 import org.example.exception.classes.requestEX.RequestAlreadySentException;
 import org.example.exception.classes.requestEX.StatusNotFoundException;
+import org.example.grpc.KeepersService;
 import org.example.model.CourseRegistrationRequest;
 import org.example.model.CourseRegistrationRequestStatusType;
 import org.example.repository.*;
@@ -51,9 +51,9 @@ public class ExplorerCourseRegistrationRequestValidatorService {
     }
 
     private boolean keeperExistsOnCourse(Integer keeperId, Integer courseId) {
-        KeeperDto keeper = keeperRepository.findById(keeperId)
+        KeepersService.Keeper keeper = keeperRepository.findById(keeperId)
                 .orElseThrow(() -> new KeeperNotFoundException(keeperId));
-        return keeper.getCourseId().equals(courseId);
+        return courseId.equals(keeper.getCourseId());
     }
 
     private boolean isPersonKeeperOnCourse(Integer authenticatedPersonId, Integer courseId) {

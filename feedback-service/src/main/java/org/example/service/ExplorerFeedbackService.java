@@ -1,10 +1,10 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.explorer.ExplorerDto;
 import org.example.dto.feedback.CreateCourseRatingDto;
 import org.example.dto.feedback.CreateExplorerFeedbackDto;
 import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
+import org.example.grpc.ExplorersService;
 import org.example.model.CourseRating;
 import org.example.model.ExplorerFeedback;
 import org.example.repository.CourseRatingRepository;
@@ -46,7 +46,7 @@ public class ExplorerFeedbackService {
     public ExplorerFeedback sendFeedbackForKeeper(Integer courseId, CreateExplorerFeedbackDto feedback) {
         Integer personId = personService.getAuthenticatedPersonId();
         feedbackValidatorService.validateFeedbackForKeeperRequest(personId, feedback);
-        ExplorerDto explorer = explorerRepository
+        ExplorersService.Explorer explorer = explorerRepository
                 .findExplorerByPersonIdAndGroup_CourseId(personId, courseId)
                 .orElseThrow(() -> new ExplorerNotFoundException(courseId));
         ExplorerFeedback savingFeedback = mapper.map(feedback, ExplorerFeedback.class);
@@ -72,7 +72,7 @@ public class ExplorerFeedbackService {
     public CourseRating rateCourse(Integer courseId, CreateCourseRatingDto request) {
         Integer personId = personService.getAuthenticatedPersonId();
         feedbackValidatorService.validateCourseRatingRequest(personId, courseId, request);
-        ExplorerDto explorer = explorerRepository
+        ExplorersService.Explorer explorer = explorerRepository
                 .findExplorerByPersonIdAndGroup_CourseId(personId, courseId)
                 .orElseThrow(() -> new ExplorerNotFoundException(courseId));
         return courseRatingRepository.save(

@@ -1,8 +1,6 @@
 package org.example.config.security;
 
-
 import io.jsonwebtoken.Claims;
-import org.example.dto.PersonDto;
 import org.example.dto.token.AccessTokenDto;
 import org.example.dto.token.RefreshTokenDto;
 

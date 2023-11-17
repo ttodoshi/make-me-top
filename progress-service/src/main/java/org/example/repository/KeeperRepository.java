@@ -1,11 +1,11 @@
 package org.example.repository;
 
-import org.example.dto.keeper.KeeperDto;
+import org.example.grpc.KeepersService;
 
 import java.util.Optional;
 
 public interface KeeperRepository {
-    Optional<KeeperDto> findKeeperByPersonIdAndCourseId(Integer personId, Integer courseId);
+    Optional<KeepersService.Keeper> findKeeperByPersonIdAndCourseId(Integer personId, Integer courseId);
 
-    KeeperDto getReferenceById(Integer keeperId);
+    KeepersService.Keeper getReferenceById(Integer keeperId);
 }

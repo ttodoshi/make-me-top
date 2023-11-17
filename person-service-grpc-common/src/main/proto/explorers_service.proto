@@ -9,30 +9,47 @@ import "people_service.proto";
 option java_package = "org.example.grpc";
 
 service ExplorerService {
-  rpc findExplorersByGroup_CourseIdIn(ExplorersByGroup_CourseIdInRequest) returns (ExplorersByGroup_CourseIdInResponse) {
+  rpc findExplorerById(ExplorerByIdRequest) returns (Explorer) {
+  }
+  rpc findExplorersByPersonId(ExplorersByPersonIdRequest) returns (ExplorerList) {
+  }
+  rpc findExplorerByPersonIdAndGroup_CourseId(ExplorersByPersonIdAndGroupCourseIdRequest) returns (Explorer){
+  }
+  rpc findExplorersByGroup_CourseId(ExplorersByGroup_CourseIdRequest) returns (ExplorerList) {
+  }
+  rpc existsById(ExplorerByIdRequest) returns (ExplorerExistsByIdResponse) {
   }
   rpc findAllExplorers(google.protobuf.Empty) returns (AllExplorersResponse) {
+  }
+  rpc findExplorersByExplorerIdIn(ExplorersByExplorerIdInRequest) returns (ExplorersByExplorerIdInResponse){
+  }
+  rpc findExplorersByGroup_CourseIdIn(ExplorersByGroup_CourseIdInRequest) returns (ExplorersByGroup_CourseIdInResponse) {
+  }
+  rpc findExplorersByPersonIdIn(ExplorersByPersonIdInRequest) returns (ExplorersByPersonIdInResponse){
   }
   rpc findExplorersByPersonIdAndGroup_CourseIdIn(ExplorersByPersonIdAndGroup_CourseIdInRequest) returns (ExplorersByPersonIdAndGroup_CourseIdInResponse) {
   }
 }
 
-message ExplorersByGroup_CourseIdInRequest {
-  repeated int32 courseIds = 1;
-}
-
-message ExplorersByGroup_CourseIdInResponse {
-  message ExplorerList {
-    repeated Explorer explorer = 1;
-  }
-  map<int32, ExplorerList> explorersByCourseIdMap = 1;
-}
-
-message Explorer {
+message ExplorerByIdRequest {
   int32 explorerId = 1;
-  int32 personId = 2;
-  int32 groupId = 3;
-  google.protobuf.Timestamp startDate = 4;
+}
+
+message ExplorersByPersonIdRequest {
+  int32 personId = 1;
+}
+
+message ExplorersByPersonIdAndGroupCourseIdRequest {
+  int32 personId = 1;
+  int32 courseId = 2;
+}
+
+message ExplorersByGroup_CourseIdRequest {
+  int32 courseId = 1;
+}
+
+message ExplorerExistsByIdResponse {
+  bool explorerExists = 1;
 }
 
 message AllExplorersResponse {
@@ -42,11 +59,46 @@ message AllExplorersResponse {
   map<int32, ExplorerList> explorersWithCourseIdMap = 1;
 }
 
+message ExplorersByExplorerIdInRequest {
+  repeated int32 explorerIds = 1;
+}
+
+message ExplorersByExplorerIdInResponse {
+  map<int32, Explorer> explorerByExplorerIdMap = 1;
+}
+
+message ExplorersByGroup_CourseIdInRequest {
+  repeated int32 courseIds = 1;
+}
+
+message ExplorersByGroup_CourseIdInResponse {
+  map<int32, ExplorerList> explorersByCourseIdMap = 1;
+}
+
+message ExplorersByPersonIdInRequest {
+  repeated int32 personIds = 1;
+}
+
+message ExplorersByPersonIdInResponse {
+  map<int32, ExplorerList> explorersByPersonIdMap = 1;
+}
+
 message ExplorersByPersonIdAndGroup_CourseIdInRequest {
   int32 personId = 1;
   repeated int32 courseIds = 2;
 }
 
 message ExplorersByPersonIdAndGroup_CourseIdInResponse {
-  map<int32, Explorer> explorersWithCourseIdMap = 1;
+  map<int32, Explorer> explorerWithCourseIdMap = 1;
+}
+
+message Explorer {
+  int32 explorerId = 1;
+  int32 personId = 2;
+  int32 groupId = 3;
+  google.protobuf.Timestamp startDate = 4;
+}
+
+message ExplorerList {
+  repeated Explorer explorers = 1;
 }

@@ -32,7 +32,8 @@ public class ExplorerGroupRepositoryImpl implements ExplorerGroupRepository {
         CallCredentials callCredentials = CallCredentialsHelper.authorizationHeader(
                 authorizationHeaderRepository.getAuthorizationHeader()
         );
-        return explorerGroupServiceBlockingStub.withCallCredentials(callCredentials)
+        return explorerGroupServiceBlockingStub
+                .withCallCredentials(callCredentials)
                 .findExplorerGroupsByKeeperIdIn(
                         ExplorerGroupsService.ExplorerGroupsByKeeperIdInRequest.newBuilder()
                                 .addAllKeeperIds(keeperIds)

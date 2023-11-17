@@ -1,12 +1,8 @@
 package org.example.service.validator;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.PersonDto;
 import org.example.dto.course.CourseDto;
-import org.example.dto.explorer.ExplorerDto;
-import org.example.dto.explorer.ExplorerGroupDto;
 import org.example.dto.homework.HomeworkDto;
-import org.example.dto.keeper.KeeperDto;
 import org.example.dto.mark.MarkDto;
 import org.example.dto.planet.PlanetDto;
 import org.example.dto.progress.CourseThemeCompletedDto;
@@ -20,6 +16,10 @@ import org.example.exception.classes.markEX.UnexpectedMarkValueException;
 import org.example.exception.classes.progressEX.HomeworkNotCompletedException;
 import org.example.exception.classes.progressEX.ThemeAlreadyCompletedException;
 import org.example.exception.classes.progressEX.UnexpectedCourseThemeException;
+import org.example.grpc.ExplorerGroupsService;
+import org.example.grpc.ExplorersService;
+import org.example.grpc.KeepersService;
+import org.example.grpc.PeopleService;
 import org.example.model.CourseThemeCompletion;
 import org.example.repository.*;
 import org.example.service.PersonService;
@@ -55,7 +55,7 @@ public class MarkValidatorService {
 
     @Transactional(readOnly = true)
     public void validateCourseMarkRequest(MarkDto courseMark) {
-        ExplorerDto explorer = explorerRepository.findById(courseMark.getExplorerId())
+        ExplorersService.Explorer explorer = explorerRepository.findById(courseMark.getExplorerId())
                 .orElseThrow(() -> new ExplorerNotFoundException(courseMark.getExplorerId()));
         if (isNotKeeperForThisExplorer(explorer))
             throw new DifferentKeeperException();
@@ -65,12 +65,13 @@ public class MarkValidatorService {
             throw new ExplorerDoesNotNeedMarkException(courseMark.getExplorerId());
     }
 
-    private boolean isNotKeeperForThisExplorer(ExplorerDto explorer) {
-        ExplorerGroupDto explorerGroup = explorerGroupRepository.getReferenceById(explorer.getGroupId());
-        PersonDto authenticatedPerson = personService.getAuthenticatedPerson();
-        KeeperDto keeper = keeperRepository
+    private boolean isNotKeeperForThisExplorer(ExplorersService.Explorer explorer) {
+        ExplorerGroupsService.ExplorerGroup explorerGroup = explorerGroupRepository
+                .getReferenceById(explorer.getGroupId());
+        PeopleService.Person authenticatedPerson = personService.getAuthenticatedPerson();
+        KeepersService.Keeper keeper = keeperRepository
                 .getReferenceById(explorerGroup.getKeeperId());
-        return !authenticatedPerson.getPersonId().equals(keeper.getPersonId());
+        return !(authenticatedPerson.getPersonId() == keeper.getPersonId());
     }
 
     private boolean explorerNeedFinalAssessment(Integer explorerId) {
@@ -99,7 +100,7 @@ public class MarkValidatorService {
 
     @Transactional(readOnly = true)
     public void validateThemeMarkRequest(Integer themeId, MarkDto mark) {
-        ExplorerDto explorer = explorerRepository.findById(mark.getExplorerId())
+        ExplorersService.Explorer explorer = explorerRepository.findById(mark.getExplorerId())
                 .orElseThrow(() -> new ExplorerNotFoundException(mark.getExplorerId()));
         if (isNotKeeperForThisExplorer(explorer))
             throw new DifferentKeeperException();
@@ -116,7 +117,7 @@ public class MarkValidatorService {
             throw new HomeworkNotCompletedException(themeId);
     }
 
-    private Integer getCurrentCourseThemeDtoId(ExplorerDto explorer) {
+    private Integer getCurrentCourseThemeDtoId(ExplorersService.Explorer explorer) {
         List<CourseThemeCompletedDto> themesProgress = getThemesProgress(explorer).getThemesWithProgress();
         for (CourseThemeCompletedDto theme : themesProgress) {
             if (!theme.getCompleted())
@@ -125,7 +126,7 @@ public class MarkValidatorService {
         return themesProgress.get(themesProgress.size() - 1).getCourseThemeId();
     }
 
-    private CourseWithThemesProgressDto getThemesProgress(ExplorerDto explorer) {
+    private CourseWithThemesProgressDto getThemesProgress(ExplorersService.Explorer explorer) {
         Integer courseId = explorerGroupRepository
                 .getReferenceById(explorer.getGroupId()).getCourseId();
         CourseDto course = courseRepository.findById(courseId)
@@ -145,7 +146,7 @@ public class MarkValidatorService {
                 .build();
     }
 
-    private boolean homeworkNotCompleted(Integer themeId, ExplorerDto explorer) {
+    private boolean homeworkNotCompleted(Integer themeId, ExplorersService.Explorer explorer) {
         List<HomeworkDto> allHomeworksByThemeId = homeworkRepository
                 .findHomeworksByCourseThemeIdAndGroupId(themeId, explorer.getGroupId());
         List<HomeworkDto> allCompletedHomeworkByThemeId = homeworkRepository

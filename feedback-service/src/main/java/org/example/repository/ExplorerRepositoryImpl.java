@@ -1,18 +1,13 @@
 package org.example.repository;
 
+import io.grpc.CallCredentials;
 import lombok.RequiredArgsConstructor;
-import org.example.dto.explorer.ExplorerDto;
-import org.example.exception.classes.connectEX.ConnectException;
-import org.example.exception.classes.personEX.PersonNotFoundException;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.access.AccessDeniedException;
+import net.devh.boot.grpc.client.inject.GrpcClient;
+import net.devh.boot.grpc.client.security.CallCredentialsHelper;
+import org.example.grpc.ExplorerServiceGrpc;
+import org.example.grpc.ExplorersService;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
-import reactor.core.publisher.Mono;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -20,116 +15,82 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 public class ExplorerRepositoryImpl implements ExplorerRepository {
-    private final WebClient.Builder webClientBuilder;
     private final AuthorizationHeaderRepository authorizationHeaderRepository;
+    @GrpcClient("explorers")
+    private ExplorerServiceGrpc.ExplorerServiceBlockingStub explorerServiceBlockingStub;
 
     @Override
-    public Optional<ExplorerDto> findExplorerByPersonIdAndGroup_CourseId(Integer personId, Integer courseId) {
-        return webClientBuilder
-                .baseUrl("http://person-service/api/v1/person-app/").build()
-                .get()
-                .uri(uri -> uri
-                        .path("explorer/")
-                        .queryParam("personId", personId)
-                        .queryParam("courseId", courseId)
-                        .build()
-                )
-                .header("Authorization", authorizationHeaderRepository.getAuthorizationHeader())
-                .retrieve()
-                .onStatus(httpStatus -> httpStatus.isError() && !httpStatus.equals(HttpStatus.NOT_FOUND) && !httpStatus.equals(HttpStatus.UNAUTHORIZED), response -> {
-                    throw new ConnectException();
-                })
-                .bodyToMono(ExplorerDto.class)
-                .timeout(Duration.ofSeconds(5))
-                .onErrorResume(WebClientResponseException.Unauthorized.class, error -> Mono.error(new AccessDeniedException("Вам закрыт доступ к данной функциональности бортового компьютера")))
-                .onErrorResume(WebClientResponseException.NotFound.class, error -> Mono.empty())
-                .blockOptional();
+    public Optional<ExplorersService.Explorer> findById(Integer explorerId) {
+        CallCredentials callCredentials = CallCredentialsHelper.authorizationHeader(
+                authorizationHeaderRepository.getAuthorizationHeader()
+        );
+        try {
+            return Optional.of(
+                    explorerServiceBlockingStub
+                            .withCallCredentials(callCredentials)
+                            .findExplorerById(
+                                    ExplorersService.ExplorerByIdRequest.newBuilder()
+                                            .setExplorerId(explorerId)
+                                            .build()
+                            )
+            );
+        } catch (Exception e) {
+            return Optional.empty();
+        }
     }
 
     @Override
-    public List<ExplorerDto> findExplorersByPersonId(Integer personId) {
-        return webClientBuilder
-                .baseUrl("http://person-service/api/v1/person-app/").build()
-                .get()
-                .uri(uri -> uri
-                        .path("explorer/")
-                        .queryParam("personId", personId)
-                        .build()
-                )
-                .retrieve()
-                .onStatus(httpStatus -> httpStatus.isError() && !httpStatus.equals(HttpStatus.NOT_FOUND) && !httpStatus.equals(HttpStatus.UNAUTHORIZED), response -> {
-                    throw new ConnectException();
-                })
-                .bodyToFlux(ExplorerDto.class)
-                .timeout(Duration.ofSeconds(5))
-                .onErrorResume(WebClientResponseException.Unauthorized.class, error -> Mono.error(new AccessDeniedException("Вам закрыт доступ к данной функциональности бортового компьютера")))
-                .onErrorResume(WebClientResponseException.NotFound.class, error -> Mono.error(new PersonNotFoundException(personId)))
-                .collectList()
-                .block();
+    public Optional<ExplorersService.Explorer> findExplorerByPersonIdAndGroup_CourseId(Integer personId, Integer courseId) {
+        CallCredentials callCredentials = CallCredentialsHelper.authorizationHeader(
+                authorizationHeaderRepository.getAuthorizationHeader()
+        );
+        try {
+            return Optional.of(
+                    explorerServiceBlockingStub
+                            .withCallCredentials(callCredentials)
+                            .findExplorerByPersonIdAndGroupCourseId(
+                                    ExplorersService.ExplorersByPersonIdAndGroupCourseIdRequest.newBuilder()
+                                            .setPersonId(personId)
+                                            .setCourseId(courseId)
+                                            .build()
+                            )
+            );
+        } catch (Exception e) {
+            return Optional.empty();
+        }
     }
 
     @Override
-    public Map<Integer, List<ExplorerDto>> findExplorersByGroup_CourseIdIn(List<Integer> courseIds) {
-        return webClientBuilder
-                .baseUrl("http://person-service/api/v1/person-app/").build()
-                .get()
-                .uri(uri -> uri
-                        .path("course/explorers/")
-                        .queryParam("courseIds", courseIds)
-                        .build()
-                )
-                .header("Authorization", authorizationHeaderRepository.getAuthorizationHeader())
-                .retrieve()
-                .onStatus(httpStatus -> httpStatus.isError() && !httpStatus.equals(HttpStatus.UNAUTHORIZED), response -> {
-                    throw new ConnectException();
-                })
-                .bodyToFlux(new ParameterizedTypeReference<Map<Integer, List<ExplorerDto>>>() {
-                })
-                .timeout(Duration.ofSeconds(5))
-                .onErrorResume(WebClientResponseException.Unauthorized.class, error -> Mono.error(new AccessDeniedException("Вам закрыт доступ к данной функциональности бортового компьютера")))
-                .blockLast();
+    public List<ExplorersService.Explorer> findExplorersByPersonId(Integer personId) {
+        return explorerServiceBlockingStub
+                .findExplorersByPersonId(
+                        ExplorersService.ExplorersByPersonIdRequest.newBuilder()
+                                .setPersonId(personId)
+                                .build()
+                ).getExplorersList();
     }
 
     @Override
-    public Map<Integer, List<ExplorerDto>> findExplorersByPersonIdIn(List<Integer> personIds) {
-        return webClientBuilder
-                .baseUrl("http://person-service/api/v1/person-app/").build()
-                .get()
-                .uri(uri -> uri
-                        .path("people/explorers/")
-                        .queryParam("personIds", personIds)
-                        .build()
-                )
-                .header("Authorization", authorizationHeaderRepository.getAuthorizationHeader())
-                .retrieve()
-                .onStatus(httpStatus -> httpStatus.isError() && !httpStatus.equals(HttpStatus.UNAUTHORIZED), response -> {
-                    throw new ConnectException();
-                })
-                .bodyToFlux(new ParameterizedTypeReference<Map<Integer, List<ExplorerDto>>>() {
-                })
-                .timeout(Duration.ofSeconds(5))
-                .onErrorResume(WebClientResponseException.Unauthorized.class, error -> Mono.error(new AccessDeniedException("Вам закрыт доступ к данной функциональности бортового компьютера")))
-                .blockLast();
+    public Map<Integer, ExplorersService.ExplorerList> findExplorersByGroup_CourseIdIn(List<Integer> courseIds) {
+        CallCredentials callCredentials = CallCredentialsHelper.authorizationHeader(
+                authorizationHeaderRepository.getAuthorizationHeader()
+        );
+        return explorerServiceBlockingStub
+                .withCallCredentials(callCredentials)
+                .findExplorersByGroupCourseIdIn(
+                        ExplorersService.ExplorersByGroup_CourseIdInRequest.newBuilder()
+                                .addAllCourseIds(courseIds)
+                                .build()
+                ).getExplorersByCourseIdMapMap();
     }
 
     @Override
-    public Optional<ExplorerDto> findById(Integer explorerId) {
-        return webClientBuilder
-                .baseUrl("http://person-service/api/v1/person-app/").build()
-                .get()
-                .uri(uri -> uri
-                        .path("explorer/{explorerId}/")
-                        .build(explorerId)
-                )
-                .header("Authorization", authorizationHeaderRepository.getAuthorizationHeader())
-                .retrieve()
-                .onStatus(httpStatus -> httpStatus.isError() && !httpStatus.equals(HttpStatus.NOT_FOUND) && !httpStatus.equals(HttpStatus.UNAUTHORIZED), response -> {
-                    throw new ConnectException();
-                })
-                .bodyToMono(ExplorerDto.class)
-                .timeout(Duration.ofSeconds(5))
-                .onErrorResume(WebClientResponseException.Unauthorized.class, error -> Mono.error(new AccessDeniedException("Вам закрыт доступ к данной функциональности бортового компьютера")))
-                .onErrorResume(WebClientResponseException.NotFound.class, error -> Mono.empty())
-                .blockOptional();
+    public Map<Integer, ExplorersService.ExplorerList> findExplorersByPersonIdIn(List<Integer> personIds) {
+        return explorerServiceBlockingStub
+                .findExplorersByPersonIdIn(
+                        ExplorersService.ExplorersByPersonIdInRequest.newBuilder()
+                                .addAllPersonIds(personIds)
+                                .build()
+                ).getExplorersByPersonIdMapMap();
     }
 }

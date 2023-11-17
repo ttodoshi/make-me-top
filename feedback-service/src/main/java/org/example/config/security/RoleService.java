@@ -3,7 +3,7 @@ package org.example.config.security;
 import lombok.RequiredArgsConstructor;
 import org.example.config.security.role.AuthenticationRoleType;
 import org.example.config.security.role.CourseRoleType;
-import org.example.dto.PersonDto;
+import org.example.grpc.PeopleService;
 import org.example.repository.ExplorerRepository;
 import org.example.repository.KeeperRepository;
 import org.springframework.security.core.GrantedAuthority;
@@ -25,7 +25,7 @@ public class RoleService {
     }
 
     public boolean hasAnyCourseRole(Integer courseId, CourseRoleType role) {
-        PersonDto person = (PersonDto) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        PeopleService.Person person = (PeopleService.Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (role.equals(CourseRoleType.EXPLORER))
             return explorerRepository.findExplorerByPersonIdAndGroup_CourseId(person.getPersonId(), courseId).isPresent();
         else

@@ -13,9 +13,15 @@ import java.util.Optional;
 public interface ExplorerRepository extends JpaRepository<Explorer, Integer> {
     List<Explorer> findExplorersByGroup_CourseId(Integer courseId);
 
-    Optional<Explorer> findExplorerByPersonIdAndGroup_CourseId(Integer personId, Integer groupId);
+    Optional<Explorer> findExplorerByPersonIdAndGroup_CourseId(Integer personId, Integer courseId);
 
     List<Explorer> findExplorersByPersonId(Integer personId);
+
+    List<Explorer> findExplorersByExplorerIdIn(List<Integer> explorerIds);
+
+    List<Explorer> findExplorersByGroup_CourseIdIn(List<Integer> courseIds);
+
+    List<Explorer> findExplorersByPersonIdAndGroup_CourseIdIn(Integer personId, List<Integer> courseIds);
 
     @Override
     @Modifying

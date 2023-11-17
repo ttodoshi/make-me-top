@@ -45,7 +45,7 @@ public class PersonService {
                 .orElseThrow(() -> new PersonNotFoundException(personId));
     }
 
-    @Cacheable(cacheNames = "personExistsCache", key = "#personId")
+    @Cacheable(cacheNames = "personExistsByIdCache", key = "#personId")
     @Transactional(readOnly = true)
     public boolean personExistsById(Integer personId) {
         return personRepository.existsById(personId);
@@ -65,11 +65,11 @@ public class PersonService {
         );
     }
 
-    @Cacheable(cacheNames = "peopleByPersonIdIn", key = "#personIds")
+    @Cacheable(cacheNames = "peopleByPersonIdInCache", key = "#personIds")
     @Transactional(readOnly = true)
     public Map<Integer, Person> findPeopleByPersonIdIn(List<Integer> personIds) {
-        return personIds.stream()
-                .map(this::findPersonById)
+        return personRepository.findPeopleByPersonIdIn(personIds)
+                .stream()
                 .collect(Collectors.toMap(
                         Person::getPersonId,
                         p -> p
@@ -89,7 +89,7 @@ public class PersonService {
     @Async
     public void clearPeopleByPersonIdInCache(Integer personId) {
         CompletableFuture.runAsync(() -> {
-            Cache peopleByPersonIdInCache = cacheManager.getCache("peopleByPersonIdIn");
+            Cache peopleByPersonIdInCache = cacheManager.getCache("peopleByPersonIdInCache");
             Map<List<Integer>, Map<Integer, Person>> nativeCache = (Map<List<Integer>, Map<Integer, Person>>)
                     Objects.requireNonNull(peopleByPersonIdInCache).getNativeCache();
             for (Map.Entry<List<Integer>, Map<Integer, Person>> entry : nativeCache.entrySet()) {

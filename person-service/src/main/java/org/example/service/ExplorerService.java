@@ -3,22 +3,20 @@ package org.example.service;
 import org.example.dto.event.ExplorerCreateEvent;
 import org.example.dto.explorer.ExplorerBasicInfoDto;
 import org.example.dto.message.MessageDto;
-import org.example.dto.person.PersonWithRatingDto;
 import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
 import org.example.model.Explorer;
 import org.example.repository.ExplorerRepository;
 import org.example.service.validator.ExplorerValidatorService;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,23 +24,17 @@ public class ExplorerService {
     private final ExplorerRepository explorerRepository;
 
     private final ExplorerValidatorService explorerValidatorService;
-    private final RatingService ratingService;
 
     private final KafkaTemplate<Integer, Integer> deleteProgressAndMarkByExplorerIdKafkaTemplate;
     private final KafkaTemplate<Integer, Integer> deleteFeedbackByExplorerIdKafkaTemplate;
-    private final ModelMapper mapper;
 
     public ExplorerService(ExplorerRepository explorerRepository, ExplorerValidatorService explorerValidatorService,
-                           RatingService ratingService,
                            @Qualifier("deleteProgressAndMarkByExplorerIdKafkaTemplate") KafkaTemplate<Integer, Integer> deleteProgressAndMarkByExplorerIdKafkaTemplate,
-                           @Qualifier("deleteFeedbackByExplorerIdKafkaTemplate") KafkaTemplate<Integer, Integer> deleteFeedbackByExplorerIdKafkaTemplate,
-                           ModelMapper mapper) {
+                           @Qualifier("deleteFeedbackByExplorerIdKafkaTemplate") KafkaTemplate<Integer, Integer> deleteFeedbackByExplorerIdKafkaTemplate) {
         this.explorerRepository = explorerRepository;
         this.explorerValidatorService = explorerValidatorService;
-        this.ratingService = ratingService;
         this.deleteProgressAndMarkByExplorerIdKafkaTemplate = deleteProgressAndMarkByExplorerIdKafkaTemplate;
         this.deleteFeedbackByExplorerIdKafkaTemplate = deleteFeedbackByExplorerIdKafkaTemplate;
-        this.mapper = mapper;
     }
 
     @Cacheable(cacheNames = "explorerByIdCache", key = "#explorerId")
@@ -52,13 +44,10 @@ public class ExplorerService {
                 .orElseThrow(ExplorerNotFoundException::new);
     }
 
+    @Cacheable(cacheNames = "explorerExistsByIdCache", key = "#explorerId")
     @Transactional(readOnly = true)
-    public Map<Integer, Explorer> findExplorersByExplorerIdIn(List<Integer> explorerIds) {
-        return explorerIds.stream()
-                .collect(Collectors.toMap(
-                        eId -> eId,
-                        this::findExplorerById
-                ));
+    public boolean explorerExistsById(Integer explorerId) {
+        return explorerRepository.existsById(explorerId);
     }
 
     @Transactional(readOnly = true)
@@ -80,26 +69,25 @@ public class ExplorerService {
     }
 
     @Transactional(readOnly = true)
-    public Map<Integer, List<Explorer>> findExplorersByPersonIdIn(List<Integer> personIds) {
-        return personIds.stream()
-                .collect(Collectors.toMap(
-                        pId -> pId,
-                        this::findExplorersByPersonId
-                ));
+    public List<Explorer> findExplorersByExplorerIdIn(List<Integer> explorerIds) {
+        return explorerRepository.findExplorersByExplorerIdIn(explorerIds);
+    }
+
+    @Cacheable(cacheNames = "explorersByGroup_CourseIdInCache")
+    @Transactional(readOnly = true)
+    public List<Explorer> findExplorersByGroup_CourseIdIn(List<Integer> courseIds) {
+        return explorerRepository.findExplorersByGroup_CourseIdIn(courseIds);
     }
 
     @Transactional(readOnly = true)
-    public Map<Integer, List<Explorer>> findExplorersByGroup_CourseIdIn(List<Integer> courseIds) {
-        return courseIds.stream()
-                .collect(Collectors.toMap(
-                        cId -> cId,
-                        explorerRepository::findExplorersByGroup_CourseId
-                ));
+    public List<Explorer> findExplorersByPersonIdAndGroup_CourseIdIn(Integer personId, List<Integer> courseIds) {
+        return explorerRepository.findExplorersByPersonIdAndGroup_CourseIdIn(personId, courseIds);
     }
 
+    @Cacheable(cacheNames = "allExplorersCache")
     @Transactional(readOnly = true)
-    public Map<Integer, List<PersonWithRatingDto>> findExplorersWithCourseIds() {
-        List<ExplorerBasicInfoDto> explorers = explorerRepository.findAll()
+    public List<ExplorerBasicInfoDto> findAllExplorers() {
+        return explorerRepository.findAll()
                 .stream()
                 .map(e -> new ExplorerBasicInfoDto(
                         e.getPersonId(),
@@ -110,36 +98,29 @@ public class ExplorerService {
                         e.getGroup().getCourseId(),
                         e.getGroupId()
                 )).collect(Collectors.toList());
-        Map<Integer, Double> peopleRating = ratingService.getPeopleRatingAsExplorerByPersonIdIn(
-                explorers.stream()
-                        .map(ExplorerBasicInfoDto::getPersonId)
-                        .distinct()
-                        .collect(Collectors.toList())
-        );
-        return explorers
-                .stream()
-                .collect(Collectors.groupingBy(
-                        ExplorerBasicInfoDto::getCourseId,
-                        Collectors.mapping(e -> new PersonWithRatingDto(
-                                e.getPersonId(),
-                                e.getFirstName(),
-                                e.getLastName(),
-                                e.getPatronymic(),
-                                peopleRating.get(e.getPersonId())
-                        ), Collectors.toList())
-                ));
     }
 
     @KafkaListener(topics = "explorerTopic", containerFactory = "createExplorerKafkaListenerContainerFactory")
-    @CacheEvict(cacheNames = "explorerExistsCache", key = "#result.explorerId")
+    @Caching(evict = {
+            @CacheEvict(cacheNames = "explorerExistsByIdCache", key = "#result.explorerId"),
+            @CacheEvict(cacheNames = "explorersByGroup_CourseIdInCache", allEntries = true),
+            @CacheEvict(cacheNames = "allExplorersCache", allEntries = true),
+    })
     @Transactional
     public Explorer createExplorer(ExplorerCreateEvent explorer) {
         return explorerRepository.save(
-                mapper.map(explorer, Explorer.class)
+                new Explorer(
+                        explorer.getPersonId(),
+                        explorer.getGroupId()
+                )
         );
     }
 
-    @CacheEvict(cacheNames = {"explorerByIdCache", "explorerExistsCache"}, key = "#explorerId")
+    @Caching(evict = {
+            @CacheEvict(cacheNames = {"explorerByIdCache", "explorerExistsByIdCache"}, key = "#explorerId"),
+            @CacheEvict(cacheNames = "explorersByGroup_CourseIdInCache", allEntries = true),
+            @CacheEvict(cacheNames = "allExplorersCache", allEntries = true),
+    })
     @Transactional
     public MessageDto deleteExplorerById(Integer explorerId) {
         explorerValidatorService.validateDeleteExplorerByIdRequest(explorerId);

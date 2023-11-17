@@ -23,7 +23,8 @@ public class PersonRepositoryImpl implements PersonRepository {
         );
         try {
             return Optional.of(
-                    personServiceBlockingStub.withCallCredentials(callCredentials)
+                    personServiceBlockingStub
+                            .withCallCredentials(callCredentials)
                             .findPersonById(
                                     PeopleService.PersonByIdRequest.newBuilder()
                                             .setPersonId(personId)

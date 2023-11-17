@@ -5,6 +5,9 @@ grpc:
     people:
       address: discovery:///person-service
       negotiationType: PLAINTEXT
+    explorers:
+      address: discovery:///person-service
+      negotiationType: PLAINTEXT
     keepers:
       address: discovery:///person-service
       negotiationType: PLAINTEXT

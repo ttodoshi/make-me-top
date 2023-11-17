@@ -1,15 +1,15 @@
 package org.example.service.validator;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.explorer.ExplorerDto;
-import org.example.dto.explorer.ExplorerGroupDto;
-import org.example.dto.keeper.KeeperDto;
 import org.example.exception.classes.explorerEX.ExplorerGroupNotFoundException;
 import org.example.exception.classes.homeworkEX.HomeworkIsStillEditingException;
 import org.example.exception.classes.homeworkEX.HomeworkRequestAlreadyClosedException;
 import org.example.exception.classes.keeperEX.DifferentKeeperException;
 import org.example.exception.classes.keeperEX.KeeperNotFoundException;
 import org.example.exception.classes.requestEX.StatusNotFoundException;
+import org.example.grpc.ExplorerGroupsService;
+import org.example.grpc.ExplorersService;
+import org.example.grpc.KeepersService;
 import org.example.model.HomeworkRequest;
 import org.example.model.HomeworkRequestStatusType;
 import org.example.repository.ExplorerGroupRepository;
@@ -29,13 +29,13 @@ public class KeeperHomeworkRequestValidatorService {
     private final PersonService personService;
 
     @Transactional(readOnly = true)
-    public void validateHomeworkRequest(ExplorerDto explorer, HomeworkRequest homeworkRequest) {
-        ExplorerGroupDto explorerGroup = explorerGroupRepository.findById(explorer.getGroupId())
+    public void validateHomeworkRequest(ExplorersService.Explorer explorer, HomeworkRequest homeworkRequest) {
+        ExplorerGroupsService.ExplorerGroup explorerGroup = explorerGroupRepository.findById(explorer.getGroupId())
                 .orElseThrow(() -> new ExplorerGroupNotFoundException(explorer.getGroupId()));
-        KeeperDto keeper = keeperRepository
+        KeepersService.Keeper keeper = keeperRepository
                 .findKeeperByPersonIdAndCourseId(personService.getAuthenticatedPersonId(), explorerGroup.getCourseId())
                 .orElseThrow(KeeperNotFoundException::new);
-        if (!explorerGroup.getKeeperId().equals(keeper.getKeeperId()))
+        if (!(explorerGroup.getKeeperId() == keeper.getKeeperId()))
             throw new DifferentKeeperException();
         if (homeworkRequest.getStatusId().equals(getStatusId(HomeworkRequestStatusType.EDITING)))
             throw new HomeworkIsStillEditingException(homeworkRequest.getHomeworkId(), explorer.getExplorerId());

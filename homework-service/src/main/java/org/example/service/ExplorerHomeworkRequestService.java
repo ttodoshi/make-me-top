@@ -1,13 +1,13 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.explorer.ExplorerDto;
 import org.example.dto.homework.CreateHomeworkRequestDto;
 import org.example.dto.homework.GetHomeworkRequestDto;
 import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
 import org.example.exception.classes.homeworkEX.HomeworkNotFoundException;
 import org.example.exception.classes.planetEX.PlanetNotFoundException;
 import org.example.exception.classes.requestEX.StatusNotFoundException;
+import org.example.grpc.ExplorersService;
 import org.example.model.HomeworkFeedbackStatusType;
 import org.example.model.HomeworkRequest;
 import org.example.model.HomeworkRequestStatusType;
@@ -46,7 +46,7 @@ public class ExplorerHomeworkRequestService {
         Integer courseId = planetRepository.findById(themeId)
                 .orElseThrow(() -> new PlanetNotFoundException(themeId))
                 .getSystemId();
-        ExplorerDto explorer = getExplorer(authenticatedPersonId, courseId);
+        ExplorersService.Explorer explorer = getExplorer(authenticatedPersonId, courseId);
         Optional<HomeworkRequest> homeworkRequestOptional = homeworkRequestRepository
                 .findHomeworkRequestByHomeworkIdAndExplorerId(homeworkId, explorer.getExplorerId());
         if (homeworkRequestOptional.isPresent()) {
@@ -62,9 +62,9 @@ public class ExplorerHomeworkRequestService {
         }
     }
 
-    private ExplorerDto getExplorer(Integer personId, Integer courseId) {
+    private ExplorersService.Explorer getExplorer(Integer personId, Integer courseId) {
         return explorerRepository.findExplorerByPersonIdAndGroup_CourseId(personId, courseId)
-                .orElseThrow(() -> new ExplorerNotFoundException(courseId));
+                .orElseThrow(() -> new ExplorerNotFoundException());
     }
 
     private Integer getCheckingStatusId() {
@@ -102,8 +102,8 @@ public class ExplorerHomeworkRequestService {
         Integer courseId = planetRepository.findById(themeId)
                 .orElseThrow(() -> new PlanetNotFoundException(themeId))
                 .getSystemId();
-        ExplorerDto explorer = explorerRepository.findExplorerByPersonIdAndGroup_CourseId(personId, courseId)
-                .orElseThrow(() -> new ExplorerNotFoundException(courseId));
+        ExplorersService.Explorer explorer = explorerRepository.findExplorerByPersonIdAndGroup_CourseId(personId, courseId)
+                .orElseThrow(ExplorerNotFoundException::new);
         return homeworkRequestRepository
                 .findOpenedHomeworkRequestsByThemeId(themeId, explorer.getExplorerId())
                 .stream()

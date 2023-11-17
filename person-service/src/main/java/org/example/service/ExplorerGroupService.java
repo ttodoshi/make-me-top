@@ -6,13 +6,13 @@ import org.example.grpc.ExplorerGroupsService;
 import org.example.model.ExplorerGroup;
 import org.example.repository.ExplorerGroupRepository;
 import org.example.service.validator.ExplorerGroupValidatorService;
-import org.modelmapper.ModelMapper;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -21,29 +21,29 @@ public class ExplorerGroupService {
 
     private final ExplorerGroupValidatorService explorerGroupValidatorService;
 
-    private final ModelMapper mapper;
-
+    @Cacheable(cacheNames = "explorerGroupByIdCache", key = "#groupId")
     @Transactional(readOnly = true)
     public ExplorerGroup findGroupById(Integer groupId) {
         return explorerGroupRepository.findById(groupId)
                 .orElseThrow(() -> new ExplorerGroupNotFoundException(groupId));
     }
 
+    @Cacheable(cacheNames = "explorerGroupsByKeeperIdInCache", key = "#keeperIds")
     @Transactional(readOnly = true)
-    public List<ExplorerGroup> findGroupsByKeeperIdIn(List<Integer> keeperIds) {
+    public List<ExplorerGroup> findExplorerGroupsByKeeperIdIn(List<Integer> keeperIds) {
         return explorerGroupRepository.findExplorerGroupsByKeeperIdIn(keeperIds);
     }
 
+    @Cacheable(cacheNames = "explorerGroupsByGroupIdInCache", key = "#groupIds")
     @Transactional(readOnly = true)
-    public Map<Integer, Integer> findExplorerGroupsCourseIdByGroupIdIn(List<Integer> groupIds) {
-        return explorerGroupRepository.findExplorerGroupsByGroupIdIn(groupIds)
-                .stream()
-                .collect(Collectors.toMap(
-                        ExplorerGroup::getGroupId,
-                        ExplorerGroup::getCourseId
-                ));
+    public List<ExplorerGroup> findExplorerGroupsByGroupIdIn(List<Integer> groupIds) {
+        return explorerGroupRepository.findExplorerGroupsByGroupIdIn(groupIds);
     }
 
+    @Caching(evict = {
+            @CacheEvict(cacheNames = "explorerGroupsByKeeperIdInCache", allEntries = true),
+            @CacheEvict(cacheNames = "explorerGroupsByGroupIdInCache", allEntries = true),
+    })
     @Transactional
     public ExplorerGroup createExplorerGroup(ExplorerGroupsService.CreateGroupRequest group) {
         explorerGroupValidatorService.validateCreateExplorerGroupRequest(group);

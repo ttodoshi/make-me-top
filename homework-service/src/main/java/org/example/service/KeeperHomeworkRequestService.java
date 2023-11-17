@@ -7,7 +7,7 @@ import org.example.exception.classes.explorerEX.ExplorerNotFoundException;
 import org.example.exception.classes.homeworkEX.HomeworkRequestNotFound;
 import org.example.exception.classes.markEX.UnexpectedMarkValueException;
 import org.example.exception.classes.requestEX.StatusNotFoundException;
-import org.example.dto.explorer.ExplorerDto;
+import org.example.grpc.ExplorersService;
 import org.example.model.*;
 import org.example.repository.*;
 import org.example.service.validator.KeeperHomeworkRequestValidatorService;
@@ -49,7 +49,7 @@ public class KeeperHomeworkRequestService {
     }
 
     private HomeworkRequest changeRequestStatus(Integer homeworkId, Integer explorerId, HomeworkRequestStatusType status) {
-        ExplorerDto explorer = explorerRepository.findById(explorerId)
+        ExplorersService.Explorer explorer = explorerRepository.findById(explorerId)
                 .orElseThrow(ExplorerNotFoundException::new);
         HomeworkRequest homeworkRequest = homeworkRequestRepository
                 .findHomeworkRequestByHomeworkIdAndExplorerId(homeworkId, explorerId)

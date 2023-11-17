@@ -2,7 +2,6 @@ package org.example.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.dto.keeper.CreateKeeperDto;
-import org.example.dto.person.PersonWithRatingDto;
 import org.example.exception.classes.keeperEX.KeeperNotFoundException;
 import org.example.model.Keeper;
 import org.example.repository.ExplorerGroupRepository;
@@ -27,7 +26,6 @@ public class KeeperService {
 
     private final ExplorerService explorerService;
     private final PersonService personService;
-    private final RatingService ratingService;
     private final KeeperValidatorService keeperValidatorService;
 
     @Cacheable(cacheNames = "keeperByIdCache", key = "#keeperId")
@@ -37,40 +35,31 @@ public class KeeperService {
                 .orElseThrow(KeeperNotFoundException::new);
     }
 
-    @Cacheable(cacheNames = "keeperExistsCache", key = "#keeperId")
+    @Cacheable(cacheNames = "keeperExistsByIdCache", key = "#keeperId")
     @Transactional(readOnly = true)
     public boolean keeperExistsById(Integer keeperId) {
         return keeperRepository.existsById(keeperId);
     }
 
-    @Cacheable(cacheNames = "keeperByPersonIdAndCourseId", key = "{#personId, #courseId}")
+    @Cacheable(cacheNames = "keeperByPersonIdAndCourseIdCache", key = "{#personId, #courseId}")
     @Transactional(readOnly = true)
     public Keeper findKeeperByPersonIdAndCourseId(Integer personId, Integer courseId) {
         return keeperRepository.findKeeperByPersonIdAndCourseId(personId, courseId)
                 .orElseThrow(KeeperNotFoundException::new);
     }
 
-    @Cacheable(cacheNames = "keepersByPersonId", key = "#personId")
+    @Cacheable(cacheNames = "keepersByPersonIdCache", key = "#personId")
     @Transactional(readOnly = true)
     public List<Keeper> findKeepersByPersonId(Integer personId) {
         keeperValidatorService.validateKeepersByPersonIdRequest(personId);
         return keeperRepository.findKeepersByPersonId(personId);
     }
 
-    @Cacheable(cacheNames = "keepersByCourseId", key = "#courseId")
+    @Cacheable(cacheNames = "keepersByCourseIdCache", key = "#courseId")
     @Transactional(readOnly = true)
     public List<Keeper> findKeepersByCourseId(Integer courseId) {
         keeperValidatorService.validateKeepersByCourseIdRequest(courseId);
         return keeperRepository.findKeepersByCourseId(courseId);
-    }
-
-    @Transactional(readOnly = true)
-    public Map<Integer, List<Keeper>> findKeepersByPersonIdIn(List<Integer> personIds) {
-        return personIds.stream()
-                .collect(Collectors.toMap(
-                        pId -> pId,
-                        this::findKeepersByPersonId
-                ));
     }
 
     @Transactional(readOnly = true)
@@ -86,32 +75,19 @@ public class KeeperService {
     }
 
     @Transactional(readOnly = true)
-    public Map<Integer, List<PersonWithRatingDto>> findKeepersWithCourseIds() {
-        List<Keeper> keepers = keeperRepository.findAll();
-        Map<Integer, Double> peopleRating = ratingService.getPeopleRatingAsKeeperByPersonIdIn(
-                keepers.stream()
-                        .map(Keeper::getPersonId)
-                        .distinct()
-                        .collect(Collectors.toList())
-        );
-        return keepers
-                .stream()
-                .collect(Collectors.groupingBy(
-                        Keeper::getCourseId,
-                        Collectors.mapping(k -> new PersonWithRatingDto(
-                                k.getPersonId(),
-                                k.getPerson().getFirstName(),
-                                k.getPerson().getLastName(),
-                                k.getPerson().getPatronymic(),
-                                peopleRating.get(k.getPersonId())
-                        ), Collectors.toList())
-                ));
+    public List<Keeper> findKeepersByPersonIdAndCourseIdIn(Integer personId, List<Integer> courseIds) {
+        return keeperRepository.findKeepersByPersonIdAndCourseIdIn(personId, courseIds);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Keeper> findAllKeepers() {
+        return keeperRepository.findAll();
     }
 
     @Caching(evict = {
-            @CacheEvict(cacheNames = "keepersByPersonId", key = "#createKeeper.personId"),
-            @CacheEvict(cacheNames = "keeperExistsCache", key = "#result.keeperId"),
-            @CacheEvict(cacheNames = "keepersByCourseId", key = "#courseId")
+            @CacheEvict(cacheNames = "keepersByPersonIdCache", key = "#createKeeper.personId"),
+            @CacheEvict(cacheNames = "keeperExistsByIdCache", key = "#result.keeperId"),
+            @CacheEvict(cacheNames = "keepersByCourseIdCache", key = "#courseId")
     })
     @Transactional
     public Keeper setKeeperToCourse(Integer courseId, CreateKeeperDto createKeeper) {

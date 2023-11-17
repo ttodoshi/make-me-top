@@ -190,13 +190,13 @@ public class CourseProgressServiceImpl implements CourseProgressService {
                         .map(Explorer::getExplorerId)
                         .collect(Collectors.toList())
         );
-        return new ArrayList<>(
-                explorerGroupService.findExplorerGroupsCourseIdByGroupIdIn(
+        return explorerGroupService.findExplorerGroupsByGroupIdIn(
                         personExplorers.stream().filter(e ->
                                 explorersWithFinalAssessment.contains(e.getExplorerId())
                         ).map(Explorer::getGroupId).collect(Collectors.toList())
-                ).values()
-        );
+                ).stream()
+                .map(ExplorerGroup::getCourseId)
+                .collect(Collectors.toList());
     }
 
     @Override

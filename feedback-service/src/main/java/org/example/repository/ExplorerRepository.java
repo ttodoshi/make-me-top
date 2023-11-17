@@ -1,19 +1,19 @@
 package org.example.repository;
 
-import org.example.dto.explorer.ExplorerDto;
+import org.example.grpc.ExplorersService;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 public interface ExplorerRepository {
-    Optional<ExplorerDto> findExplorerByPersonIdAndGroup_CourseId(Integer personId, Integer courseId);
+    Optional<ExplorersService.Explorer> findById(Integer explorerId);
 
-    List<ExplorerDto> findExplorersByPersonId(Integer personId);
+    Optional<ExplorersService.Explorer> findExplorerByPersonIdAndGroup_CourseId(Integer personId, Integer courseId);
 
-    Map<Integer, List<ExplorerDto>> findExplorersByGroup_CourseIdIn(List<Integer> courseIds);
+    List<ExplorersService.Explorer> findExplorersByPersonId(Integer personId);
 
-    Map<Integer, List<ExplorerDto>> findExplorersByPersonIdIn(List<Integer> personIds);
+    Map<Integer, ExplorersService.ExplorerList> findExplorersByGroup_CourseIdIn(List<Integer> courseIds);
 
-    Optional<ExplorerDto> findById(Integer explorerId);
+    Map<Integer, ExplorersService.ExplorerList> findExplorersByPersonIdIn(List<Integer> personIds);
 }

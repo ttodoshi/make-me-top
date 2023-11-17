@@ -3,12 +3,13 @@ package org.example.config.security;
 import lombok.RequiredArgsConstructor;
 import org.example.config.security.role.AuthenticationRoleType;
 import org.example.config.security.role.CourseRoleType;
-import org.example.dto.explorer.ExplorerDto;
-import org.example.dto.person.PersonDto;
 import org.example.exception.classes.explorerEX.ExplorerGroupNotFoundException;
 import org.example.exception.classes.homeworkEX.HomeworkNotFoundException;
 import org.example.exception.classes.homeworkEX.HomeworkRequestNotFound;
 import org.example.exception.classes.planetEX.PlanetNotFoundException;
+import org.example.grpc.ExplorerGroupsService;
+import org.example.grpc.ExplorersService;
+import org.example.grpc.PeopleService;
 import org.example.repository.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -38,7 +39,7 @@ public class RoleService {
     }
 
     public boolean hasAnyCourseRole(Integer courseId, CourseRoleType role) {
-        PersonDto person = (PersonDto) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        PeopleService.Person person = (PeopleService.Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (role.equals(CourseRoleType.EXPLORER))
             return explorerRepository.findExplorerByPersonIdAndGroup_CourseId(person.getPersonId(), courseId).isPresent();
         else
@@ -88,11 +89,14 @@ public class RoleService {
 
     @Transactional(readOnly = true)
     public boolean hasAnyCourseRoleByExplorerIds(List<Integer> explorerIds, CourseRoleType role) {
-        Map<Integer, ExplorerDto> explorers = explorerRepository.findExplorersByExplorerIdIn(explorerIds);
-        Map<Integer, Integer> courseIds = explorerGroupRepository.findExplorerGroupsCourseIdByGroupIdIn(
-                explorers.values().stream().map(ExplorerDto::getGroupId).collect(Collectors.toList())
+        Map<Integer, ExplorersService.Explorer> explorers = explorerRepository.findExplorersByExplorerIdIn(explorerIds);
+        Map<Integer, ExplorerGroupsService.ExplorerGroup> groups = explorerGroupRepository.findExplorerGroupsByGroupIdIn(
+                explorers.values().stream().map(ExplorersService.Explorer::getGroupId).collect(Collectors.toList())
         );
-        return courseIds.values().stream()
+        return groups
+                .values()
+                .stream()
+                .map(ExplorerGroupsService.ExplorerGroup::getCourseId)
                 .distinct()
                 .allMatch(cId -> hasAnyCourseRole(cId, role)); // TODO
     }

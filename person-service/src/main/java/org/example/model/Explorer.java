@@ -37,4 +37,9 @@ public class Explorer {
     @Column(nullable = false)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime startDate;
+
+    public Explorer(Integer personId, Integer groupId) {
+        this.personId = personId;
+        this.groupId = groupId;
+    }
 }

@@ -2,26 +2,18 @@ package org.example.service.implementations;
 
 import lombok.RequiredArgsConstructor;
 import org.example.dto.explorer.ExplorerBaseInfoDto;
-import org.example.dto.explorer.ExplorerDto;
 import org.example.dto.explorer.ExplorerWithRatingDto;
-import org.example.dto.person.PersonDto;
-import org.example.exception.classes.connectEX.ConnectException;
-import org.example.exception.classes.courseEX.CourseNotFoundException;
+import org.example.grpc.ExplorersService;
+import org.example.grpc.PeopleService;
 import org.example.repository.AuthorizationHeaderRepository;
+import org.example.repository.ExplorerRepository;
 import org.example.repository.PersonRepository;
 import org.example.service.ExplorerService;
 import org.example.service.RatingService;
 import org.modelmapper.ModelMapper;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
-import java.time.Duration;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -29,10 +21,8 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 public class ExplorerServiceImpl implements ExplorerService {
-    private final WebClient.Builder webClientBuilder;
-    private final AuthorizationHeaderRepository authorizationHeaderRepository;
-
     private final PersonRepository personRepository;
+    private final ExplorerRepository explorerRepository;
 
     private final RatingService ratingService;
 
@@ -40,7 +30,7 @@ public class ExplorerServiceImpl implements ExplorerService {
 
     @Override
     public List<ExplorerWithRatingDto> getExplorersForCourse(Integer courseId) {
-        List<ExplorerBaseInfoDto> explorers = findExplorersByCourseId(courseId);
+        List<ExplorerBaseInfoDto> explorers = getExplorersFromCourse(courseId);
         Map<Integer, Double> ratings = ratingService.getPeopleRatingAsExplorerByPersonIdIn(
                 explorers.stream().map(ExplorerBaseInfoDto::getPersonId).collect(Collectors.toList())
         );
@@ -53,33 +43,14 @@ public class ExplorerServiceImpl implements ExplorerService {
                 .collect(Collectors.toList());
     }
 
-    private List<ExplorerBaseInfoDto> findExplorersByCourseId(Integer courseId) {
-        List<ExplorerDto> explorers = webClientBuilder
-                .baseUrl("http://person-service/api/v1/person-app/").build()
-                .get()
-                .uri(uri -> uri
-                        .path("course/{courseId}/explorer/")
-                        .build(courseId)
-                )
-                .header("Authorization", authorizationHeaderRepository.getAuthorizationHeader())
-                .retrieve()
-                .onStatus(httpStatus -> httpStatus.isError() && !httpStatus.equals(HttpStatus.NOT_FOUND) && !httpStatus.equals(HttpStatus.UNAUTHORIZED), response -> {
-                    throw new ConnectException();
-                })
-                .bodyToFlux(ExplorerDto.class)
-                .timeout(Duration.ofSeconds(5))
-                .onErrorResume(WebClientResponseException.Unauthorized.class, error -> Mono.error(new AccessDeniedException("Вам закрыт доступ к данной функциональности бортового компьютера")))
-                .onErrorResume(WebClientResponseException.NotFound.class, error -> Flux.error(new CourseNotFoundException(courseId)))
-                .collectList()
-                .block();
-        if (explorers == null)
-            return Collections.emptyList();
-        Map<Integer, PersonDto> people = personRepository.findPeopleByPersonIdIn(
-                explorers.stream().map(ExplorerDto::getPersonId).collect(Collectors.toList())
+    private List<ExplorerBaseInfoDto> getExplorersFromCourse(Integer courseId) {
+        List<ExplorersService.Explorer> explorers = explorerRepository.findExplorersByCourseId(courseId);
+        Map<Integer, PeopleService.Person> people = personRepository.findPeopleByPersonIdIn(
+                explorers.stream().map(ExplorersService.Explorer::getPersonId).collect(Collectors.toList())
         );
         return explorers.stream()
                 .map(e -> {
-                    PersonDto currentKeeperPerson = people.get(e.getPersonId());
+                    PeopleService.Person currentKeeperPerson = people.get(e.getPersonId());
                     return new ExplorerBaseInfoDto(
                             currentKeeperPerson.getPersonId(),
                             currentKeeperPerson.getFirstName(),

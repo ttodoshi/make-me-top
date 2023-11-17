@@ -1,7 +1,6 @@
 package org.example.service.validator;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.keeper.KeeperDto;
 import org.example.exception.classes.connectEX.ConnectException;
 import org.example.exception.classes.keeperEX.DifferentKeeperException;
 import org.example.exception.classes.progressEX.TeachingInProcessException;
@@ -26,6 +25,7 @@ import reactor.core.publisher.Mono;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -47,8 +47,8 @@ public class KeeperCourseRegistrationRequestValidatorService {
     }
 
     @Transactional(readOnly = true)
-    public void validateGetApprovedRequests(Integer personId, List<KeepersService.Keeper> keepers) {
-        keepers.forEach(k -> {
+    public void validateGetApprovedRequests(Integer personId, Map<Integer, KeepersService.Keeper> keepers) {
+        keepers.values().forEach(k -> {
             if (!(k.getPersonId() == personId))
                 throw new DifferentKeeperException();
         });
@@ -56,10 +56,10 @@ public class KeeperCourseRegistrationRequestValidatorService {
 
     @Transactional(readOnly = true)
     public void validateStartTeachingRequest(Integer personId) {
-        List<KeeperDto> personKeepers = keeperRepository.findKeepersByPersonId(personId);
+        List<KeepersService.Keeper> personKeepers = keeperRepository.findKeepersByPersonId(personId);
         List<ExplorersService.Explorer> keeperExplorers = explorerGroupRepository
                 .findExplorerGroupsByKeeperIdIn(
-                        personKeepers.stream().map(KeeperDto::getKeeperId).collect(Collectors.toList())
+                        personKeepers.stream().map(KeepersService.Keeper::getKeeperId).collect(Collectors.toList())
                 ).stream()
                 .flatMap(g -> g.getExplorersList().stream())
                 .collect(Collectors.toList());

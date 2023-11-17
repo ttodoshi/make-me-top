@@ -8,7 +8,9 @@ option java_package = "org.example.grpc";
 service ExplorerGroupService {
   rpc findExplorerGroupById(ExplorerGroupByIdRequest) returns (ExplorerGroup) {
   }
-  rpc findExplorerGroupsByKeeperIdIn(ExplorerGroupsByKeeperIdInRequest) returns (ExplorerGroupsByKeeperIdInResponse) {
+  rpc findExplorerGroupsByGroupIdIn(ExplorerGroupsByGroupIdInRequest) returns (ExplorerGroupsByGroupIdInResponse) {
+  }
+  rpc findExplorerGroupsByKeeperIdIn(ExplorerGroupsByKeeperIdInRequest) returns (ExplorerGroupList) {
   }
   rpc createGroup(CreateGroupRequest) returns (ExplorerGroup) {
   }
@@ -18,11 +20,19 @@ message ExplorerGroupByIdRequest {
   int32 groupId = 1;
 }
 
+message ExplorerGroupsByGroupIdInRequest {
+  repeated int32 groupIds = 1;
+}
+
+message ExplorerGroupsByGroupIdInResponse {
+  map<int32, ExplorerGroup> groupByGroupIdMap = 1;
+}
+
 message ExplorerGroupsByKeeperIdInRequest {
   repeated int32 keeperIds = 1;
 }
 
-message ExplorerGroupsByKeeperIdInResponse {
+message ExplorerGroupList {
   repeated ExplorerGroup groups = 1;
 }
 

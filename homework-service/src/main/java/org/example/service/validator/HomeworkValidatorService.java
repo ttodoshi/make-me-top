@@ -3,9 +3,7 @@ package org.example.service.validator;
 import lombok.RequiredArgsConstructor;
 import org.example.config.security.RoleService;
 import org.example.config.security.role.AuthenticationRoleType;
-import org.example.dto.explorer.ExplorerGroupDto;
 import org.example.dto.homework.UpdateHomeworkDto;
-import org.example.dto.keeper.KeeperDto;
 import org.example.dto.progress.CourseThemeCompletedDto;
 import org.example.exception.classes.coursethemeEX.CourseThemeNotFoundException;
 import org.example.exception.classes.coursethemeEX.ThemeClosedException;
@@ -18,6 +16,8 @@ import org.example.exception.classes.homeworkEX.HomeworkNotFoundException;
 import org.example.exception.classes.keeperEX.KeeperNotForGroupException;
 import org.example.exception.classes.keeperEX.KeeperNotFoundException;
 import org.example.exception.classes.planetEX.PlanetNotFoundException;
+import org.example.grpc.ExplorerGroupsService;
+import org.example.grpc.KeepersService;
 import org.example.model.Homework;
 import org.example.repository.*;
 import org.example.service.PersonService;
@@ -42,12 +42,12 @@ public class HomeworkValidatorService {
 
     @Transactional(readOnly = true)
     public void validateGetRequest(Integer themeId, Integer groupId) {
-        ExplorerGroupDto explorerGroup = explorerGroupRepository.findById(groupId)
+        ExplorerGroupsService.ExplorerGroup explorerGroup = explorerGroupRepository.findById(groupId)
                 .orElseThrow(() -> new ExplorerGroupNotFoundException(groupId));
         Integer courseId = planetRepository.findById(themeId)
                 .orElseThrow(() -> new PlanetNotFoundException(themeId))
                 .getSystemId();
-        if (!explorerGroup.getCourseId().equals(courseId))
+        if (!courseId.equals(explorerGroup.getCourseId()))
             throw new ThemeFromDifferentCourseException(themeId, groupId);
         final Integer personId = personService.getAuthenticatedPersonId();
         if (roleService.hasAnyAuthenticationRole(AuthenticationRoleType.EXPLORER)) {
@@ -86,16 +86,16 @@ public class HomeworkValidatorService {
         return themesProgress.get(themesProgress.size() - 1).getCourseThemeId();
     }
 
-    private void isExplorerInGroup(Integer personId, ExplorerGroupDto explorerGroup) {
+    private void isExplorerInGroup(Integer personId, ExplorerGroupsService.ExplorerGroup explorerGroup) {
         if (explorerRepository.findExplorerByPersonIdAndGroup_CourseId(personId, explorerGroup.getCourseId()).isEmpty())
             throw new ExplorerNotInGroupException();
     }
 
-    private void isKeeperForGroup(Integer personId, ExplorerGroupDto explorerGroup) {
-        KeeperDto keeper = keeperRepository
+    private void isKeeperForGroup(Integer personId, ExplorerGroupsService.ExplorerGroup explorerGroup) {
+        KeepersService.Keeper keeper = keeperRepository
                 .findKeeperByPersonIdAndCourseId(personId, explorerGroup.getCourseId())
                 .orElseThrow(KeeperNotFoundException::new);
-        if (!explorerGroup.getKeeperId().equals(keeper.getKeeperId()))
+        if (!(explorerGroup.getKeeperId() == keeper.getKeeperId()))
             throw new KeeperNotForGroupException();
     }
 
@@ -108,24 +108,24 @@ public class HomeworkValidatorService {
 
     @Transactional(readOnly = true)
     public void validatePostRequest(Integer themeId, Integer groupId) {
-        ExplorerGroupDto explorerGroup = explorerGroupRepository.findById(groupId)
+        ExplorerGroupsService.ExplorerGroup explorerGroup = explorerGroupRepository.findById(groupId)
                 .orElseThrow(() -> new ExplorerGroupNotFoundException(groupId));
         Integer courseId = planetRepository.findById(themeId)
                 .orElseThrow(() -> new PlanetNotFoundException(themeId))
                 .getSystemId();
-        if (!explorerGroup.getCourseId().equals(courseId))
+        if (!courseId.equals(explorerGroup.getCourseId()))
             throw new ExplorerGroupIsNotOnCourseException(groupId, courseId);
         isKeeperForGroup(personService.getAuthenticatedPersonId(), explorerGroup);
     }
 
     @Transactional(readOnly = true)
     public void validatePutRequest(UpdateHomeworkDto updateHomeworkDto) {
-        ExplorerGroupDto explorerGroup = explorerGroupRepository.findById(updateHomeworkDto.getGroupId())
+        ExplorerGroupsService.ExplorerGroup explorerGroup = explorerGroupRepository.findById(updateHomeworkDto.getGroupId())
                 .orElseThrow(() -> new ExplorerGroupNotFoundException(updateHomeworkDto.getGroupId()));
         Integer courseId = planetRepository.findById(updateHomeworkDto.getCourseThemeId())
                 .orElseThrow(() -> new PlanetNotFoundException(updateHomeworkDto.getCourseThemeId()))
                 .getSystemId();
-        if (!explorerGroup.getCourseId().equals(courseId))
+        if (!courseId.equals(explorerGroup.getCourseId()))
             throw new ExplorerGroupIsNotOnCourseException(updateHomeworkDto.getGroupId(), courseId);
         isKeeperForGroup(personService.getAuthenticatedPersonId(), explorerGroup);
     }
@@ -134,7 +134,7 @@ public class HomeworkValidatorService {
     public void validateDeleteRequest(Integer homeworkId) {
         Homework homework = homeworkRepository.findById(homeworkId)
                 .orElseThrow(() -> new HomeworkNotFoundException(homeworkId));
-        ExplorerGroupDto explorerGroup = explorerGroupRepository.findById(homework.getGroupId())
+        ExplorerGroupsService.ExplorerGroup explorerGroup = explorerGroupRepository.findById(homework.getGroupId())
                 .orElseThrow(() -> new ExplorerGroupNotFoundException(homework.getGroupId()));
         isKeeperForGroup(personService.getAuthenticatedPersonId(), explorerGroup);
     }

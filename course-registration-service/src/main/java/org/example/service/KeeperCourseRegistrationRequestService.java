@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.example.dto.courserequest.ApprovedRequestDto;
 import org.example.dto.courserequest.CourseRegistrationRequestReplyDto;
 import org.example.dto.event.ExplorerCreateEvent;
-import org.example.dto.keeper.KeeperDto;
 import org.example.exception.classes.keeperEX.KeeperNotFoundException;
 import org.example.exception.classes.requestEX.NoApprovedRequestsFoundException;
 import org.example.exception.classes.requestEX.RequestNotFoundException;
@@ -22,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -77,7 +77,7 @@ public class KeeperCourseRegistrationRequestService {
 
     @Transactional(readOnly = true)
     public List<ApprovedRequestDto> getApprovedRequests(List<Integer> keeperIds) {
-        List<KeepersService.Keeper> keepers = keeperRepository.findKeepersByKeeperIdIn(keeperIds).getKeepersList();
+        Map<Integer, KeepersService.Keeper> keepers = keeperRepository.findKeepersByKeeperIdIn(keeperIds);
         keeperCourseRegistrationRequestValidatorService.validateGetApprovedRequests(personService.getAuthenticatedPersonId(), keepers);
         return courseRegistrationRequestRepository.findApprovedKeeperRequestsByKeeperIdIn(keeperIds)
                 .stream()
@@ -99,7 +99,7 @@ public class KeeperCourseRegistrationRequestService {
                 .findCourseRegistrationRequestStatusByStatus(CourseRegistrationRequestStatusType.ACCEPTED)
                 .orElseThrow(() -> new StatusNotFoundException(CourseRegistrationRequestStatusType.ACCEPTED))
                 .getStatusId();
-        KeeperDto keeper = keeperRepository
+        KeepersService.Keeper keeper = keeperRepository
                 .findKeeperByPersonIdAndCourseId(authenticatedPerson.getPersonId(), courseId)
                 .orElseThrow(KeeperNotFoundException::new);
         List<CourseRegistrationRequest> approvedRequests = courseRegistrationRequestRepository

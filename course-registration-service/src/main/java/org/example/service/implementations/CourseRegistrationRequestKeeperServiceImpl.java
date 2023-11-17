@@ -1,11 +1,11 @@
 package org.example.service.implementations;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.keeper.KeeperDto;
 import org.example.exception.classes.keeperEX.DifferentKeeperException;
 import org.example.exception.classes.keeperEX.KeeperNotFoundException;
 import org.example.exception.classes.requestEX.RequestNotFoundException;
 import org.example.exception.classes.requestEX.StatusNotFoundException;
+import org.example.grpc.KeepersService;
 import org.example.model.CourseRegistrationRequest;
 import org.example.model.CourseRegistrationRequestKeeper;
 import org.example.model.CourseRegistrationRequestKeeperStatusType;
@@ -42,7 +42,7 @@ public class CourseRegistrationRequestKeeperServiceImpl implements CourseRegistr
     @Override
     @Transactional
     public CourseRegistrationRequestKeeper findCourseRegistrationRequestForAuthenticatedKeeper(CourseRegistrationRequest request) {
-        KeeperDto keeper = keeperRepository
+        KeepersService.Keeper keeper = keeperRepository
                 .findKeeperByPersonIdAndCourseId(
                         personService.getAuthenticatedPersonId(),
                         request.getCourseId()

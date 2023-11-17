@@ -2,10 +2,10 @@ package org.example.service.implementations;
 
 import lombok.RequiredArgsConstructor;
 import org.example.dto.course.CourseDto;
-import org.example.dto.explorer.ExplorerDto;
 import org.example.dto.progress.CourseThemeCompletedDto;
 import org.example.dto.progress.CourseWithThemesProgressDto;
 import org.example.exception.classes.courseEX.CourseNotFoundException;
+import org.example.grpc.ExplorersService;
 import org.example.repository.CourseRepository;
 import org.example.repository.CourseThemeCompletionRepository;
 import org.example.repository.ExplorerGroupRepository;
@@ -27,7 +27,7 @@ public class CourseThemesProgressServiceImpl implements CourseThemesProgressServ
 
     @Override
     @Transactional(readOnly = true)
-    public CourseWithThemesProgressDto getThemesProgress(ExplorerDto explorer) {
+    public CourseWithThemesProgressDto getThemesProgress(ExplorersService.Explorer explorer) {
         Integer courseId = explorerGroupRepository
                 .getReferenceById(explorer.getGroupId()).getCourseId();
         CourseDto course = courseRepository.findById(courseId)

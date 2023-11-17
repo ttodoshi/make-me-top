@@ -1,9 +1,9 @@
 package org.example.repository;
 
-import org.example.dto.person.PersonDto;
+import org.example.grpc.PeopleService;
 
 import java.util.Optional;
 
 public interface PersonRepository {
-    Optional<PersonDto> findById(Integer personId);
+    Optional<PeopleService.Person> findById(Integer personId);
 }
