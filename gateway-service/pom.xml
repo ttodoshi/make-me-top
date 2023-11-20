@@ -61,7 +61,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring.boot.dependencies.version}</version>
                 <configuration>
-                    <mainClass>org.example.Main</mainClass>
+                    <mainClass>org.example.gateway.Main</mainClass>
                     <layout>JAR</layout>
                 </configuration>
                 <executions>
