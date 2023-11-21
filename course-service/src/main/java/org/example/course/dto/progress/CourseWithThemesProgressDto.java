@@ -1,4 +1,4 @@
-package org.example.course.dto.courseprogress;
+package org.example.course.dto.progress;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;

@@ -35,7 +35,7 @@ public class CourseController {
     public ResponseEntity<?> getCourseById(@PathVariable Integer courseId,
                                            @RequestParam(required = false) Boolean detailed) {
         if (detailed != null && detailed)
-            return ResponseEntity.ok(courseService.getDetailedCourseInfo(courseId));
+            return ResponseEntity.ok(courseService.findCourseByCourseIdDetailed(courseId));
         else
             return ResponseEntity.ok(courseService.findCourseByCourseId(courseId));
     }

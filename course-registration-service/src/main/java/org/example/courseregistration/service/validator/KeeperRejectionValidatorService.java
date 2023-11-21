@@ -1,7 +1,7 @@
 package org.example.courseregistration.service.validator;
 
 import lombok.RequiredArgsConstructor;
-import org.example.courseregistration.dto.courserequest.KeeperRejectionDto;
+import org.example.courseregistration.dto.courserequest.CreateKeeperRejectionDto;
 import org.example.courseregistration.exception.classes.request.KeeperRejectionAlreadyExistsException;
 import org.example.courseregistration.exception.classes.request.RejectionReasonNotFoundException;
 import org.example.courseregistration.exception.classes.request.RequestNotRejectedException;
@@ -22,7 +22,7 @@ public class KeeperRejectionValidatorService {
     private final CourseRegistrationRequestKeeperStatusRepository courseRegistrationRequestKeeperStatusRepository;
 
     @Transactional(readOnly = true)
-    public void validateRejectionRequest(KeeperRejectionDto rejection, CourseRegistrationRequestKeeper keeperResponse) {
+    public void validateRejectionRequest(CreateKeeperRejectionDto rejection, CourseRegistrationRequestKeeper keeperResponse) {
         if (!rejectionReasonRepository.existsById(rejection.getReasonId()))
             throw new RejectionReasonNotFoundException();
         CourseRegistrationRequestKeeperStatus currentStatus = courseRegistrationRequestKeeperStatusRepository

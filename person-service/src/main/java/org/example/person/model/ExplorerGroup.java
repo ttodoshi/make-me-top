@@ -10,6 +10,7 @@ import java.util.List;
 @Entity
 @Table(name = "explorer_group")
 @Data
+@With
 @AllArgsConstructor
 @NoArgsConstructor
 public class ExplorerGroup {

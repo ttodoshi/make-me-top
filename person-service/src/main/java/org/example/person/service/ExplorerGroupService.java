@@ -1,8 +1,8 @@
 package org.example.person.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.person.exception.classes.explorer.ExplorerGroupNotFoundException;
 import org.example.grpc.ExplorerGroupsService;
+import org.example.person.exception.classes.explorer.ExplorerGroupNotFoundException;
 import org.example.person.model.ExplorerGroup;
 import org.example.person.repository.ExplorerGroupRepository;
 import org.example.person.service.validator.ExplorerGroupValidatorService;
@@ -12,6 +12,7 @@ import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -52,6 +53,6 @@ public class ExplorerGroupService {
                         group.getCourseId(),
                         group.getKeeperId()
                 )
-        );
+        ).withExplorers(Collections.emptyList());
     }
 }

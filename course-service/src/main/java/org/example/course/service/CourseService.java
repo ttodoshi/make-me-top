@@ -71,7 +71,7 @@ public class CourseService {
     }
 
     @Transactional(readOnly = true)
-    public Map<String, Object> getDetailedCourseInfo(Integer courseId) {
+    public Map<String, Object> findCourseByCourseIdDetailed(Integer courseId) {
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("course", findCourseByCourseId(courseId));
         Integer authenticatedPersonId = personService.getAuthenticatedPersonId();

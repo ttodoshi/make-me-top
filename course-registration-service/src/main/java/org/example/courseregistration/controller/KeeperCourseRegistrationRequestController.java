@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.example.courseregistration.dto.courserequest.KeeperRejectionDto;
+import org.example.courseregistration.dto.courserequest.CreateKeeperRejectionDto;
 import org.example.courseregistration.dto.courserequest.CourseRegistrationRequestReplyDto;
 import org.example.courseregistration.service.KeeperCourseRegistrationRequestService;
 import org.example.courseregistration.service.KeeperRejectionService;
@@ -91,7 +91,7 @@ public class KeeperCourseRegistrationRequestController {
                     })
     })
     public ResponseEntity<?> sendKeeperRejection(@PathVariable("requestId") Integer requestId,
-                                                 @Valid @RequestBody KeeperRejectionDto rejection) {
+                                                 @Valid @RequestBody CreateKeeperRejectionDto rejection) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(

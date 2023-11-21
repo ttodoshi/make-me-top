@@ -5,7 +5,7 @@ import lombok.Data;
 import javax.validation.constraints.NotNull;
 
 @Data
-public class HomeworkMarkDto {
+public class CreateHomeworkMarkDto {
     @NotNull
     private Integer explorerId;
     @NotNull

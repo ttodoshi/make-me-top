@@ -6,7 +6,7 @@ import org.example.course.exception.classes.theme.CourseThemeAlreadyExistsExcept
 import org.example.course.exception.classes.theme.CourseThemeNotFoundException;
 import org.example.course.exception.classes.theme.ThemeClosedException;
 import org.example.course.exception.classes.explorer.ExplorerNotFoundException;
-import org.example.course.dto.courseprogress.CourseThemeCompletedDto;
+import org.example.course.dto.progress.CourseThemeCompletedDto;
 import org.example.course.dto.theme.UpdateCourseThemeDto;
 import org.example.course.repository.CourseRepository;
 import org.example.course.repository.CourseThemeRepository;

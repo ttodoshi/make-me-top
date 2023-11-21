@@ -3,7 +3,7 @@ package org.example.homework.service;
 import lombok.RequiredArgsConstructor;
 import org.example.grpc.ExplorersService;
 import org.example.homework.dto.homework.CreateHomeworkFeedbackDto;
-import org.example.homework.dto.homework.HomeworkMarkDto;
+import org.example.homework.dto.homework.CreateHomeworkMarkDto;
 import org.example.homework.exception.classes.explorer.ExplorerNotFoundException;
 import org.example.homework.exception.classes.homework.HomeworkRequestNotFound;
 import org.example.homework.exception.classes.mark.UnexpectedMarkValueException;
@@ -27,7 +27,7 @@ public class KeeperHomeworkRequestService {
     private final KeeperHomeworkRequestValidatorService keeperHomeworkRequestValidatorService;
 
     @Transactional
-    public HomeworkMark setHomeworkMark(Integer homeworkId, HomeworkMarkDto mark) {
+    public HomeworkMark setHomeworkMark(Integer homeworkId, CreateHomeworkMarkDto mark) {
         HomeworkRequest homeworkRequest = changeRequestStatus(homeworkId, mark.getExplorerId(), HomeworkRequestStatusType.CLOSED);
         if (mark.getValue() < 1 || mark.getValue() > 5)
             throw new UnexpectedMarkValueException();

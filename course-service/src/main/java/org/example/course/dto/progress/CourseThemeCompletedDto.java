@@ -1,4 +1,4 @@
-package org.example.course.dto.courseprogress;
+package org.example.course.dto.progress;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

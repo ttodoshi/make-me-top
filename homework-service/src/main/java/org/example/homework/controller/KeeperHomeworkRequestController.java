@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.example.homework.dto.homework.CreateHomeworkFeedbackDto;
-import org.example.homework.dto.homework.HomeworkMarkDto;
+import org.example.homework.dto.homework.CreateHomeworkMarkDto;
 import org.example.homework.service.KeeperHomeworkRequestService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -52,7 +52,7 @@ public class KeeperHomeworkRequestController {
                     })
     })
     public ResponseEntity<?> setHomeworkMark(@PathVariable("homeworkId") Integer homeworkId,
-                                             @Valid @RequestBody HomeworkMarkDto mark) {
+                                             @Valid @RequestBody CreateHomeworkMarkDto mark) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(

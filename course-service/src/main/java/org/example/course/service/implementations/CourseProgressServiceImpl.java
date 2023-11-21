@@ -3,7 +3,7 @@ package org.example.course.service.implementations;
 import lombok.RequiredArgsConstructor;
 import org.example.course.exception.classes.connect.ConnectException;
 import org.example.course.exception.classes.explorer.ExplorerNotFoundException;
-import org.example.course.dto.courseprogress.CourseWithThemesProgressDto;
+import org.example.course.dto.progress.CourseWithThemesProgressDto;
 import org.example.course.utils.AuthorizationHeaderContextHolder;
 import org.example.course.service.CourseProgressService;
 import org.springframework.http.HttpStatus;

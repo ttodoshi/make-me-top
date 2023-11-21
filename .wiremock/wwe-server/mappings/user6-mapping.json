@@ -14,8 +14,8 @@
     "bodyPatterns": [
       {
         "equalToJson": {
-          "login": "user5",
-          "password": "user5"
+          "login": "user6",
+          "password": "user6"
         },
         "ignoreArrayOrder": true,
         "ignoreExtraElements": true
@@ -32,7 +32,7 @@
         "isHourlyPayment": false,
         "city": "City",
         "telegram": null,
-        "softlineEmail": "user5@softline.com",
+        "softlineEmail": "user6@softline.com",
         "legalEntityId": 2,
         "externalRankId": 2,
         "reasonForSwitchedOffId": null,
@@ -40,7 +40,7 @@
         "isStaffCoordinator": false,
         "lastTeamLeader": null,
         "isSwitchedOn": true,
-        "kindOfActivity": "user5",
+        "kindOfActivity": "user6",
         "groups": null,
         "token": null,
         "numberOfVacationDays": 20,
@@ -52,7 +52,7 @@
         "isGroupManager": false,
         "isDeputyingEmployee": false,
         "isDepartmentManager": false,
-        "id": 16,
+        "id": 17,
         "teamLeaderId": null,
         "isShiftWork": false,
         "employeeDeputies": null,
@@ -65,18 +65,18 @@
         "mainCompetenceName": null,
         "deputyId": null,
         "departments": null,
-        "employeeId": 16,
+        "employeeId": 17,
         "isStudent": false,
         "satisfaction": null,
         "dismissedDate": null,
         "gradeName": null,
-        "lastName": "Силенок",
-        "firstName": "Юрий",
+        "lastName": "Хватит-На-Сегодня-Интернета",
+        "firstName": "Аннета",
         "employmentDate": "2099-06-01",
-        "patronymic": "Белый-Бимович",
+        "patronymic": "Бебровна",
         "dateOfBirth": "2098-06-02",
-        "login": "user5",
-        "email": "user5@mmtr.ru",
+        "login": "user6",
+        "email": "user6@mmtr.ru",
         "workTime": 8,
         "kindOfActivityId": 15,
         "mentorId": 0,
@@ -93,7 +93,7 @@
         "userToken": {
           "expiration": 1686572310641,
           "isDeleted": false,
-          "employeeId": 16,
+          "employeeId": 17,
           "tokenInfo": "098bgj3489gjmsdmf8943jgmidgj934jt093tjh8gn",
           "tokenId": null
         },
