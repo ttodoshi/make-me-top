@@ -3,10 +3,6 @@ package org.example.homework.exception;
 import io.grpc.StatusRuntimeException;
 import lombok.extern.slf4j.Slf4j;
 import org.example.homework.exception.classes.connect.ConnectException;
-import org.example.homework.exception.classes.course.CourseNotFoundException;
-import org.example.homework.exception.classes.theme.CourseThemeNotFoundException;
-import org.example.homework.exception.classes.theme.ThemeClosedException;
-import org.example.homework.exception.classes.theme.ThemeFromDifferentCourseException;
 import org.example.homework.exception.classes.explorer.ExplorerGroupIsNotOnCourseException;
 import org.example.homework.exception.classes.explorer.ExplorerGroupNotFoundException;
 import org.example.homework.exception.classes.explorer.ExplorerNotFoundException;
@@ -20,6 +16,9 @@ import org.example.homework.exception.classes.person.PersonNotFoundException;
 import org.example.homework.exception.classes.planet.PlanetNotFoundException;
 import org.example.homework.exception.classes.progress.UnexpectedCourseThemeException;
 import org.example.homework.exception.classes.request.StatusNotFoundException;
+import org.example.homework.exception.classes.theme.CourseThemeNotFoundException;
+import org.example.homework.exception.classes.theme.ThemeClosedException;
+import org.example.homework.exception.classes.theme.ThemeFromDifferentCourseException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -106,12 +105,6 @@ public class RestControllerExceptionAdvice {
 
     @ExceptionHandler(KeeperNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleKeeperNotFoundException(Exception e) {
-        logWarning(e);
-        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(CourseNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleCourseNotFoundException(Exception e) {
         logWarning(e);
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
     }

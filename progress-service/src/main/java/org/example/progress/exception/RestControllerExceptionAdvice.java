@@ -4,9 +4,7 @@ import io.grpc.StatusRuntimeException;
 import lombok.extern.slf4j.Slf4j;
 import org.example.progress.exception.classes.connect.ConnectException;
 import org.example.progress.exception.classes.course.CourseNotFoundException;
-import org.example.progress.exception.classes.course.CourseThemeNotFoundException;
 import org.example.progress.exception.classes.explorer.ExplorerNotFoundException;
-import org.example.progress.exception.classes.galaxy.GalaxyNotFoundException;
 import org.example.progress.exception.classes.keeper.DifferentKeeperException;
 import org.example.progress.exception.classes.mark.CourseMarkNotFoundException;
 import org.example.progress.exception.classes.mark.ExplorerDoesNotNeedMarkException;
@@ -101,12 +99,6 @@ public class RestControllerExceptionAdvice {
         return handleConnectException(new ConnectException());
     }
 
-    @ExceptionHandler(CourseThemeNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleCourseThemeNotFoundException(Exception e) {
-        logWarning(e);
-        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
-    }
-
     @ExceptionHandler(ExplorerNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleExplorerNotFoundException(Exception e) {
         logWarning(e);
@@ -115,12 +107,6 @@ public class RestControllerExceptionAdvice {
 
     @ExceptionHandler(CourseNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleCourseNotFoundException(Exception e) {
-        logWarning(e);
-        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(GalaxyNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleGalaxyNotFoundException(Exception e) {
         logWarning(e);
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
     }

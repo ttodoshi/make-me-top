@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 public class AuthorizationHeaderContextHolderImpl implements AuthorizationHeaderContextHolder {
     @Override
     public String getAuthorizationHeader() {
-        String accessToken = (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
-        return "Bearer " + accessToken;
+        return "Bearer " + SecurityContextHolder.getContext().getAuthentication().getCredentials();
     }
 }

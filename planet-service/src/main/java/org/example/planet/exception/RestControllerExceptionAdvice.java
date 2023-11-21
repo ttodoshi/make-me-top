@@ -3,7 +3,6 @@ package org.example.planet.exception;
 import io.grpc.StatusRuntimeException;
 import lombok.extern.slf4j.Slf4j;
 import org.example.planet.exception.classes.connect.ConnectException;
-import org.example.planet.exception.classes.galaxy.GalaxyNotFoundException;
 import org.example.planet.exception.classes.person.PersonNotFoundException;
 import org.example.planet.exception.classes.planet.PlanetAlreadyExistsException;
 import org.example.planet.exception.classes.planet.PlanetNotFoundException;
@@ -76,12 +75,6 @@ public class RestControllerExceptionAdvice {
 
     @ExceptionHandler(SystemNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleSystemNotFoundException(Exception e) {
-        logWarning(e);
-        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(GalaxyNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleGalaxyNotFoundException(Exception e) {
         logWarning(e);
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
     }

@@ -3,7 +3,7 @@ package org.example.auth.config.security;
 import lombok.RequiredArgsConstructor;
 import org.example.auth.service.PersonService;
 import org.example.grpc.PeopleService;
-import org.example.auth.repository.PersonRepository;
+import org.springframework.http.HttpHeaders;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -25,29 +25,28 @@ import java.util.Optional;
 public class JwtAuthFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final PersonService personService;
-    private final PersonRepository personRepository;
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
-        Optional<String> jwtTokenOptional = getToken(request);
-        final String jwtToken;
-        if (jwtTokenOptional.isPresent())
-            jwtToken = jwtTokenOptional.get().substring(7);
+        final Optional<String> accessTokenOptional = getToken(request);
+        final String accessToken;
+        if (accessTokenOptional.isPresent())
+            accessToken = accessTokenOptional.get().substring(7);
         else {
             filterChain.doFilter(request, response);
             return;
         }
 
-        final String userId = jwtService.extractId(jwtToken);
+        final String userId = jwtService.extractId(accessToken);
         if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             PeopleService.Person person = personService.findPersonById(Integer.valueOf(userId));
-            if (jwtService.isAccessTokenValid(jwtToken)) {
+            if (jwtService.isAccessTokenValid(accessToken)) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         person,
-                        null,
-                        List.of(new SimpleGrantedAuthority(jwtService.extractRole(jwtToken)))
+                        accessToken,
+                        List.of(new SimpleGrantedAuthority(jwtService.extractRole(accessToken)))
                 );
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
@@ -57,6 +56,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     }
 
     private Optional<String> getToken(HttpServletRequest request) {
-        return Optional.ofNullable(request.getHeader("Authorization"));
+        return Optional.ofNullable(request.getHeader(HttpHeaders.AUTHORIZATION));
     }
 }
