@@ -9,6 +9,8 @@ option java_package = "org.example.grpc";
 service PersonService {
   rpc findPersonById(PersonByIdRequest) returns (Person) {
   }
+  rpc findPeopleByPersonIdIn(PeopleByPersonIdInRequest) returns (PeopleByPersonIdInResponse) {
+  }
 }
 
 message PersonByIdRequest {
@@ -22,6 +24,14 @@ message Person {
   string patronymic = 4;
   google.protobuf.Timestamp registrationDate = 5;
   int32 maxExplorers = 6;
+}
+
+message PeopleByPersonIdInRequest {
+  repeated int32 personIds = 1;
+}
+
+message PeopleByPersonIdInResponse {
+  map<int32, Person> peopleByPersonIdMap = 1;
 }
 
 message PersonWithRating {

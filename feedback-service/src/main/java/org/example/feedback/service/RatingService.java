@@ -1,0 +1,74 @@
+package org.example.feedback.service;
+
+import lombok.RequiredArgsConstructor;
+import org.example.feedback.repository.ExplorerRepository;
+import org.example.grpc.ExplorersService;
+import org.example.grpc.KeepersService;
+import org.example.feedback.repository.KeeperRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+public class RatingService {
+    private final ExplorerRepository explorerRepository;
+    private final KeeperRepository keeperRepository;
+    private final KeeperFeedbackService keeperFeedbackService;
+    private final ExplorerFeedbackService explorerFeedbackService;
+
+    public Double getPersonRatingAsExplorer(Integer personId) {
+        List<Integer> explorerIds = explorerRepository
+                .findExplorersByPersonId(personId)
+                .stream()
+                .map(ExplorersService.Explorer::getExplorerId)
+                .collect(Collectors.toList());
+        return keeperFeedbackService.getRatingByPersonExplorerIds(explorerIds);
+    }
+
+    public Double getPersonRatingAsKeeper(Integer personId) {
+        List<Integer> keeperIds = keeperRepository
+                .findKeepersByPersonId(personId)
+                .stream()
+                .map(KeepersService.Keeper::getKeeperId)
+                .collect(Collectors.toList());
+        return explorerFeedbackService.getRatingByPersonKeeperIds(keeperIds);
+    }
+
+    @Transactional(readOnly = true)
+    public Map<Integer, Double> getPeopleRatingAsExplorer(List<Integer> personIds) {
+        return explorerRepository.findExplorersByPersonIdIn(personIds)
+                .entrySet()
+                .stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        e -> keeperFeedbackService.getRatingByPersonExplorerIds(
+                                e.getValue()
+                                        .getExplorersList()
+                                        .stream()
+                                        .map(ExplorersService.Explorer::getExplorerId)
+                                        .collect(Collectors.toList())
+                        )
+                ));
+    }
+
+    @Transactional(readOnly = true)
+    public Map<Integer, Double> getPeopleRatingAsKeeper(List<Integer> personIds) {
+        return keeperRepository.findKeepersByPersonIdIn(personIds)
+                .entrySet()
+                .stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        e -> explorerFeedbackService.getRatingByPersonKeeperIds(
+                                e.getValue()
+                                        .getKeepersList()
+                                        .stream()
+                                        .map(KeepersService.Keeper::getKeeperId)
+                                        .collect(Collectors.toList())
+                        )
+                ));
+    }
+}

@@ -9,12 +9,39 @@ import "people_service.proto";
 option java_package = "org.example.grpc";
 
 service KeeperService {
+  rpc findKeeperById(KeeperByIdRequest) returns (Keeper) {
+  }
+  rpc findKeepersByPersonId(KeepersByPersonIdRequest) returns (KeeperList) {
+  }
+  rpc findKeeperByPersonIdAndCourseId(KeeperByPersonIdAndCourseIdRequest) returns (Keeper) {
+  }
+  rpc findKeepersByCourseId(KeepersByCourseIdRequest) returns (KeeperList) {
+  }
   rpc findAllKeepers(google.protobuf.Empty) returns (AllKeepersResponse) {
   }
-  rpc findKeepersByKeeperIdIn(KeepersByKeeperIdInRequest) returns (KeepersByKeeperIdInResponse){
+  rpc findKeepersByKeeperIdIn(KeepersByKeeperIdInRequest) returns (KeepersByKeeperIdInResponse) {
   }
-  rpc findKeepersByPersonIdAndGroup_CourseIdIn(KeepersByPersonIdAndGroup_CourseIdInRequest) returns (KeepersByPersonIdAndGroup_CourseIdInResponse) {
+  rpc findKeepersByPersonIdIn(KeepersByPersonIdInRequest) returns (KeepersByPersonIdInResponse) {
   }
+  rpc findKeepersByPersonIdAndCourseIdIn(KeepersByPersonIdAndCourseIdInRequest) returns (KeepersByPersonIdAndCourseIdInResponse) {
+  }
+}
+
+message KeeperByIdRequest {
+  int32 keeperId = 1;
+}
+
+message KeepersByPersonIdRequest {
+  int32 personId = 1;
+}
+
+message KeeperByPersonIdAndCourseIdRequest {
+  int32 personId = 1;
+  int32 courseId = 2;
+}
+
+message KeepersByCourseIdRequest {
+  int32 courseId = 1;
 }
 
 message AllKeepersResponse {
@@ -28,6 +55,27 @@ message KeepersByKeeperIdInRequest {
   repeated int32 keeperIds = 1;
 }
 
+message KeepersByKeeperIdInResponse {
+  map<int32, Keeper> keeperByKeeperIdMap = 1;
+}
+
+message KeepersByPersonIdInRequest {
+  repeated int32 personIds = 1;
+}
+
+message KeepersByPersonIdInResponse {
+  map<int32, KeeperList> keepersByPersonIdMap = 1;
+}
+
+message KeepersByPersonIdAndCourseIdInRequest {
+  int32 personId = 1;
+  repeated int32 courseIds = 2;
+}
+
+message KeepersByPersonIdAndCourseIdInResponse {
+  map<int32, Keeper> keeperWithCourseIdMap = 1;
+}
+
 message Keeper {
   int32 keeperId = 1;
   int32 courseId = 2;
@@ -35,15 +83,6 @@ message Keeper {
   google.protobuf.Timestamp startDate = 4;
 }
 
-message KeepersByKeeperIdInResponse {
+message KeeperList {
   repeated Keeper keepers = 1;
-}
-
-message KeepersByPersonIdAndGroup_CourseIdInRequest {
-  int32 personId = 1;
-  repeated int32 courseIds = 2;
-}
-
-message KeepersByPersonIdAndGroup_CourseIdInResponse {
-  map<int32, Keeper> keepersWithCourseIdMap = 1;
 }
