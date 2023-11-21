@@ -66,7 +66,7 @@ public class GrpcExplorerGroupService extends ExplorerGroupServiceGrpc.ExplorerG
     @Override
     @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.person.enums.AuthenticationRoleType).KEEPER) &&" +
             "@roleService.hasAnyCourseRole(#request.courseId, T(org.example.person.enums.CourseRoleType).KEEPER)")
-    @Transactional(readOnly = true)
+    @Transactional
     public void createGroup(ExplorerGroupsService.CreateGroupRequest request, StreamObserver<ExplorerGroupsService.ExplorerGroup> responseObserver) {
         ExplorerGroup explorerGroup = explorerGroupService.createExplorerGroup(request);
         responseObserver.onNext(mapExplorerGroupToGrpcModel(explorerGroup));
