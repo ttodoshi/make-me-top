@@ -48,6 +48,7 @@ public class ExplorerProfileInformationService {
         CompletableFuture<Void> ratingTable = CompletableFuture.runAsync(() ->
                         response.put("ratingTable", explorerListService.getExplorers()),
                 asyncExecutor);
+        // TODO запросы на проверку домашки
         try {
             CompletableFuture.allOf(currentSystem, studyRequest, investigatedSystems, ratingTable).join();
         } catch (CompletionException completionException) {

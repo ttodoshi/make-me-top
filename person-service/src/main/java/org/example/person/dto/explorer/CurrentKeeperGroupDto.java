@@ -12,6 +12,7 @@ import java.util.List;
 public class CurrentKeeperGroupDto {
     private Integer groupId;
     private Integer courseId;
+    private Integer keeperId;
     private String courseTitle;
     private List<ExplorerBasicInfoDto> explorers;
 }

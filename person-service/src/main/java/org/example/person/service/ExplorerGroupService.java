@@ -29,6 +29,12 @@ public class ExplorerGroupService {
                 .orElseThrow(() -> new ExplorerGroupNotFoundException(groupId));
     }
 
+    @Cacheable(cacheNames = "explorerGroupsByKeeperIdCache", key = "#keeperId")
+    @Transactional(readOnly = true)
+    public List<ExplorerGroup> findExplorerGroupsByKeeperId(Integer keeperId) {
+        return explorerGroupRepository.findExplorerGroupsByKeeperId(keeperId);
+    }
+
     @Cacheable(cacheNames = "explorerGroupsByKeeperIdInCache", key = "#keeperIds")
     @Transactional(readOnly = true)
     public List<ExplorerGroup> findExplorerGroupsByKeeperIdIn(List<Integer> keeperIds) {
@@ -42,6 +48,7 @@ public class ExplorerGroupService {
     }
 
     @Caching(evict = {
+            @CacheEvict(cacheNames = "explorerGroupsByKeeperIdCache", key = "#group.keeperId"),
             @CacheEvict(cacheNames = "explorerGroupsByKeeperIdInCache", allEntries = true),
             @CacheEvict(cacheNames = "explorerGroupsByGroupIdInCache", allEntries = true),
     })

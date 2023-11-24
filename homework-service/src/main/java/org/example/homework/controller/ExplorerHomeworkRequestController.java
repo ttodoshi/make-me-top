@@ -19,7 +19,7 @@ import javax.validation.Valid;
 public class ExplorerHomeworkRequestController {
     private final ExplorerHomeworkRequestService explorerHomeworkRequestService;
 
-    @PostMapping("/homeworks/{homeworkId}")
+    @PostMapping("/homeworks/{homeworkId}/homework-requests/")
     @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.homework.enums.AuthenticationRoleType).EXPLORER) &&" +
             "@roleService.hasAnyCourseRoleByHomeworkId(#homeworkId, T(org.example.homework.enums.CourseRoleType).EXPLORER)")
     @Operation(summary = "Send homework review request", tags = "explorer homework request")
@@ -35,22 +35,5 @@ public class ExplorerHomeworkRequestController {
     public ResponseEntity<?> sendRequest(@PathVariable("homeworkId") Integer homeworkId,
                                          @Valid @RequestBody CreateHomeworkRequestDto request) {
         return ResponseEntity.ok(explorerHomeworkRequestService.sendHomeworkRequest(homeworkId, request));
-    }
-
-    @GetMapping("/themes/{themeId}/homeworks")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.homework.enums.AuthenticationRoleType).EXPLORER) && " +
-            "@roleService.hasAnyCourseRoleByThemeId(#themeId, T(org.example.homework.enums.CourseRoleType).EXPLORER)")
-    @Operation(summary = "Get opened requests by theme id", tags = "explorer homework request")
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Opened homework requests by theme id",
-                    content = {
-                            @Content(
-                                    mediaType = "application/json")
-                    })
-    })
-    public ResponseEntity<?> getHomeworkRequests(@PathVariable("themeId") Integer themeId) {
-        return ResponseEntity.ok(explorerHomeworkRequestService.getHomeworkRequests(themeId));
     }
 }

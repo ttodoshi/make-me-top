@@ -39,4 +39,24 @@ public class KeeperRepositoryImpl implements KeeperRepository {
             return Optional.empty();
         }
     }
+
+    @Override
+    public Optional<KeepersService.Keeper> findById(Integer keeperId) {
+        CallCredentials callCredentials = CallCredentialsHelper.authorizationHeader(
+                authorizationHeaderContextHolder.getAuthorizationHeader()
+        );
+        try {
+            return Optional.of(
+                    keeperServiceBlockingStub
+                            .withCallCredentials(callCredentials)
+                            .findKeeperById(
+                                    KeepersService.KeeperByIdRequest.newBuilder()
+                                            .setKeeperId(keeperId)
+                                            .build()
+                            )
+            );
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
 }

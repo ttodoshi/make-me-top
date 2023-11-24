@@ -14,7 +14,7 @@ public class HomeworkMark {
     @Id
     @Column(name = "request_id")
     private Integer requestId;
-    @ManyToOne(optional = false)
+    @OneToOne(optional = false)
     @JoinColumn(name = "request_id", nullable = false, insertable = false, updatable = false)
     @JsonBackReference
     private HomeworkRequest request;

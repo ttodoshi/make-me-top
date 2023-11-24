@@ -10,4 +10,6 @@ public interface ExplorerGroupRepository {
     Optional<ExplorerGroupsService.ExplorerGroup> findById(Integer groupId);
 
     Map<Integer, ExplorerGroupsService.ExplorerGroup> findExplorerGroupsByGroupIdIn(List<Integer> groupIds);
+
+    List<ExplorerGroupsService.ExplorerGroup> findExplorerGroupsByKeeperId(Integer keeperId);
 }

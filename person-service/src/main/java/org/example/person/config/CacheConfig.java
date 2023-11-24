@@ -25,6 +25,7 @@ public class CacheConfig {
                 "explorersByGroup_CourseIdInCache",
                 "allExplorersCache",
                 "explorerGroupByIdCache",
+                "explorerGroupsByKeeperIdCache",
                 "explorerGroupsByKeeperIdInCache",
                 "explorerGroupsByGroupIdInCache"
         );

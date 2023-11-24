@@ -30,6 +30,22 @@ public class GrpcExplorerGroupService extends ExplorerGroupServiceGrpc.ExplorerG
     @Override
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
+    public void findExplorerGroupsByKeeperId(ExplorerGroupsService.ExplorerGroupsByKeeperIdRequest request, StreamObserver<ExplorerGroupsService.ExplorerGroupList> responseObserver) {
+        responseObserver.onNext(ExplorerGroupsService.ExplorerGroupList
+                .newBuilder()
+                .addAllGroups(explorerGroupService
+                        .findExplorerGroupsByKeeperId(request.getKeeperId())
+                        .stream()
+                        .map(this::mapExplorerGroupToGrpcModel)
+                        .collect(Collectors.toList()))
+                .build()
+        );
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    @PreAuthorize("isAuthenticated()")
+    @Transactional(readOnly = true)
     public void findExplorerGroupsByGroupIdIn(ExplorerGroupsService.ExplorerGroupsByGroupIdInRequest request, StreamObserver<ExplorerGroupsService.ExplorerGroupsByGroupIdInResponse> responseObserver) {
         responseObserver.onNext(ExplorerGroupsService.ExplorerGroupsByGroupIdInResponse
                 .newBuilder()

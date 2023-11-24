@@ -6,4 +6,6 @@ import java.util.Optional;
 
 public interface KeeperRepository {
     Optional<KeepersService.Keeper> findKeeperByPersonIdAndCourseId(Integer personId, Integer courseId);
+
+    Optional<KeepersService.Keeper> findById(Integer keeperId);
 }

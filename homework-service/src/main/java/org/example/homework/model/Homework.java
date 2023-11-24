@@ -1,13 +1,9 @@
 package org.example.homework.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 import javax.persistence.*;
-import java.util.List;
 
 @Entity
 @Table(name = "homework")
@@ -23,15 +19,16 @@ public class Homework {
     private String content;
     @Column(nullable = false)
     private Integer groupId;
-    @OneToMany(mappedBy = "request", cascade = CascadeType.ALL)
-    @JsonBackReference
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
-    private List<HomeworkFeedback> homeworkFeedbacks;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "status_id", nullable = false, insertable = false, updatable = false)
+    private HomeworkStatus status;
+    @Column(name = "status_id")
+    private Integer statusId;
 
-    public Homework(Integer courseThemeId, String content, Integer groupId) {
+    public Homework(Integer courseThemeId, String content, Integer groupId, Integer statusId) {
         this.courseThemeId = courseThemeId;
         this.content = content;
         this.groupId = groupId;
+        this.statusId = statusId;
     }
 }
