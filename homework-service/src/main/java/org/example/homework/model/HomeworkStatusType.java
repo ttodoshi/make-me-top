@@ -1,6 +1,6 @@
 package org.example.homework.model;
 
-public enum HomeworkFeedbackStatusType {
+public enum HomeworkStatusType {
     OPENED,
     CLOSED
 }

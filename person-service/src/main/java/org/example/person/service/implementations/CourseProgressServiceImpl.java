@@ -21,6 +21,7 @@ import org.example.person.repository.*;
 import org.example.person.service.CourseProgressService;
 import org.example.person.service.ExplorerGroupService;
 import org.example.person.service.ExplorerService;
+import org.example.person.service.PersonService;
 import org.example.person.utils.AuthorizationHeaderContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
@@ -46,6 +47,7 @@ public class CourseProgressServiceImpl implements CourseProgressService {
     private final CourseRepository courseRepository;
     private final PlanetRepository planetRepository;
 
+    private final PersonService personService;
     private final ExplorerService explorerService;
     private final ExplorerGroupService explorerGroupService;
 
@@ -202,6 +204,18 @@ public class CourseProgressServiceImpl implements CourseProgressService {
 
     @Override
     @Transactional(readOnly = true)
+    public Optional<CurrentKeeperGroupDto> getCurrentGroup() {
+        List<Keeper> keepers = keeperRepository.findKeepersByPersonId(
+                personService.getAuthenticatedPersonId()
+        );
+        List<ExplorerGroup> explorerGroups = explorerGroupRepository.findExplorerGroupsByKeeperIdIn(
+                keepers.stream().map(Keeper::getKeeperId).collect(Collectors.toList())
+        );
+        return getCurrentGroup(explorerGroups);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public Optional<CurrentKeeperGroupDto> getCurrentGroup(List<ExplorerGroup> keeperGroups) {
         Set<Integer> explorersWithFinalAssessment = new HashSet<>(getExplorersWithFinalAssessment(
                 keeperGroups.stream()
@@ -220,6 +234,7 @@ public class CourseProgressServiceImpl implements CourseProgressService {
                     return new CurrentKeeperGroupDto(
                             g.getGroupId(),
                             g.getCourseId(),
+                            g.getKeeperId(),
                             course.getTitle(),
                             g.getExplorers()
                                     .stream()

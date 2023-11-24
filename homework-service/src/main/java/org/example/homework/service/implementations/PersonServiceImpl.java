@@ -1,8 +1,8 @@
 package org.example.homework.service.implementations;
 
 import lombok.RequiredArgsConstructor;
-import org.example.homework.exception.classes.person.PersonNotFoundException;
 import org.example.grpc.PeopleService;
+import org.example.homework.exception.classes.person.PersonNotFoundException;
 import org.example.homework.repository.PersonRepository;
 import org.example.homework.service.PersonService;
 import org.springframework.cache.annotation.Cacheable;
@@ -18,6 +18,11 @@ public class PersonServiceImpl implements PersonService {
     public Integer getAuthenticatedPersonId() {
         PeopleService.Person authenticatedPerson = (PeopleService.Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return authenticatedPerson.getPersonId();
+    }
+
+    @Override
+    public PeopleService.Person getAuthenticatedPerson() {
+        return (PeopleService.Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 
     @Override

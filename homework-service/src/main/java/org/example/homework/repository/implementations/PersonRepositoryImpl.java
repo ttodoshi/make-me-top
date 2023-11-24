@@ -6,10 +6,12 @@ import net.devh.boot.grpc.client.inject.GrpcClient;
 import net.devh.boot.grpc.client.security.CallCredentialsHelper;
 import org.example.grpc.PeopleService;
 import org.example.grpc.PersonServiceGrpc;
-import org.example.homework.utils.AuthorizationHeaderContextHolder;
 import org.example.homework.repository.PersonRepository;
+import org.example.homework.utils.AuthorizationHeaderContextHolder;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Component
@@ -36,5 +38,19 @@ public class PersonRepositoryImpl implements PersonRepository {
         } catch (Exception e) {
             return Optional.empty();
         }
+    }
+
+    @Override
+    public Map<Integer, PeopleService.Person> findPeopleByPersonIdIn(List<Integer> personIds) {
+        CallCredentials callCredentials = CallCredentialsHelper.authorizationHeader(
+                authorizationHeaderContextHolder.getAuthorizationHeader()
+        );
+        return personServiceBlockingStub
+                .withCallCredentials(callCredentials)
+                .findPeopleByPersonIdIn(
+                        PeopleService.PeopleByPersonIdInRequest.newBuilder()
+                                .addAllPersonIds(personIds)
+                                .build()
+                ).getPeopleByPersonIdMapMap();
     }
 }

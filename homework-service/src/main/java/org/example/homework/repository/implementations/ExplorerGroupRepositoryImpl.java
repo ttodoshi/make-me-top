@@ -54,4 +54,18 @@ public class ExplorerGroupRepositoryImpl implements ExplorerGroupRepository {
                                 .build()
                 ).getGroupByGroupIdMapMap();
     }
+
+    @Override
+    public List<ExplorerGroupsService.ExplorerGroup> findExplorerGroupsByKeeperId(Integer keeperId) {
+        CallCredentials callCredentials = CallCredentialsHelper.authorizationHeader(
+                authorizationHeaderContextHolder.getAuthorizationHeader()
+        );
+        return explorerGroupServiceBlockingStub
+                .withCallCredentials(callCredentials)
+                .findExplorerGroupsByKeeperId(
+                        ExplorerGroupsService.ExplorerGroupsByKeeperIdRequest.newBuilder()
+                                .setKeeperId(keeperId)
+                                .build()
+                ).getGroupsList();
+    }
 }

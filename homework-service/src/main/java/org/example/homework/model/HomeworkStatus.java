@@ -5,13 +5,13 @@ import lombok.Data;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "homework_feedback_status")
+@Table(name = "homework_status")
 @Data
-public class HomeworkFeedbackStatus {
+public class HomeworkStatus {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer statusId;
     @Column(nullable = false, unique = true)
     @Enumerated(EnumType.STRING)
-    private HomeworkFeedbackStatusType status;
+    private HomeworkStatusType status;
 }

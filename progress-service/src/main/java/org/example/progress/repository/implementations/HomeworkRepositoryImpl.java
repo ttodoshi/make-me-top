@@ -49,7 +49,6 @@ public class HomeworkRepositoryImpl implements HomeworkRepository {
                 .get()
                 .uri(uri -> uri
                         .path("themes/{themeId}/groups/{groupId}/homeworks/completed/")
-                        .queryParam("explorerId", explorerId)
                         .build(themeId, groupId)
                 )
                 .header("Authorization", authorizationHeaderContextHolder.getAuthorizationHeader())

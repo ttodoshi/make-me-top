@@ -8,4 +8,6 @@ public class HomeworkDto {
     private Integer courseThemeId;
     private String content;
     private Integer groupId;
+    private HomeworkStatusDto status;
+    private Integer statusId;
 }

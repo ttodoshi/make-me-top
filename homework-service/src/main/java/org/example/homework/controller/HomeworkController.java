@@ -5,8 +5,10 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.example.homework.config.security.RoleService;
 import org.example.homework.dto.homework.CreateHomeworkDto;
 import org.example.homework.dto.homework.UpdateHomeworkDto;
+import org.example.homework.enums.AuthenticationRoleType;
 import org.example.homework.service.HomeworkService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,6 +22,7 @@ import java.util.List;
 @RequestMapping("/api/v1/homework-app")
 public class HomeworkController {
     private final HomeworkService homeworkService;
+    private final RoleService roleService;
 
     @GetMapping("/homeworks/{homeworkId}")
     @PreAuthorize("(@roleService.hasAnyAuthenticationRole(T(org.example.homework.enums.AuthenticationRoleType).EXPLORER) &&" +
@@ -53,9 +56,9 @@ public class HomeworkController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> getHomeworkByThemeIdForGroup(@PathVariable("themeId") Integer themeId,
-                                                          @PathVariable("groupId") Integer groupId) {
-        return ResponseEntity.ok(homeworkService.getHomeworkByThemeIdForGroup(themeId, groupId));
+    public ResponseEntity<?> findHomeworkByCourseThemeIdAndGroupId(@PathVariable("themeId") Integer themeId,
+                                                                   @PathVariable("groupId") Integer groupId) {
+        return ResponseEntity.ok(homeworkService.findHomeworksByCourseThemeIdAndGroupId(themeId, groupId));
     }
 
     @GetMapping("/themes/{themeId}/groups/{groupId}/homeworks/completed")
@@ -72,10 +75,10 @@ public class HomeworkController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> getCompletedHomeworkByThemeIdForGroup(@PathVariable("themeId") Integer themeId,
-                                                                   @PathVariable("groupId") Integer groupId,
-                                                                   @RequestParam Integer explorerId) {
-        return ResponseEntity.ok(homeworkService.getCompletedHomeworkByThemeIdForGroup(themeId, groupId, explorerId));
+    public ResponseEntity<?> findCompletedHomeworkByThemeIdAndGroupIdForExplorer(@PathVariable("themeId") Integer themeId,
+                                                                                 @PathVariable("groupId") Integer groupId,
+                                                                                 @RequestParam Integer explorerId) {
+        return ResponseEntity.ok(homeworkService.findCompletedHomeworksByThemeIdAndGroupIdForExplorer(themeId, groupId, explorerId));
     }
 
     @GetMapping("/homeworks")
@@ -94,6 +97,28 @@ public class HomeworkController {
     })
     public ResponseEntity<?> findHomeworksByHomeworkIdIn(@RequestParam List<Integer> homeworkIds) {
         return ResponseEntity.ok(homeworkService.findHomeworksByHomeworkIdIn(homeworkIds));
+    }
+
+    @GetMapping("/themes/{themeId}/homeworks")
+    @PreAuthorize("(@roleService.hasAnyAuthenticationRole(T(org.example.homework.enums.AuthenticationRoleType).EXPLORER) &&" +
+            "@roleService.hasAnyCourseRoleByThemeId(#themeId, T(org.example.homework.enums.CourseRoleType).EXPLORER)) ||" +
+            "@roleService.hasAnyCourseRoleByThemeId(#themeId, T(org.example.homework.enums.CourseRoleType).KEEPER)")
+    @Operation(summary = "Get homeworks by theme id", tags = "homework")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Requested homeworks",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json")
+                    })
+    })
+    public ResponseEntity<?> findHomeworksByThemeId(@PathVariable Integer themeId) {
+        return ResponseEntity.ok(
+                roleService.hasAnyAuthenticationRole(AuthenticationRoleType.EXPLORER) ?
+                        homeworkService.findHomeworksByThemeIdForExplorer(themeId) :
+                        homeworkService.findHomeworksByThemeIdForKeeper(themeId)
+        );
     }
 
     @PostMapping("/themes/{themeId}/homeworks")

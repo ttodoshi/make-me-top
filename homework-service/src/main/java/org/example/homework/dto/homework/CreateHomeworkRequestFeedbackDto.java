@@ -6,9 +6,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @Data
-public class CreateHomeworkFeedbackDto {
-    @NotNull
-    private Integer explorerId;
+public class CreateHomeworkRequestFeedbackDto {
     @NotBlank
     private String content;
 }
