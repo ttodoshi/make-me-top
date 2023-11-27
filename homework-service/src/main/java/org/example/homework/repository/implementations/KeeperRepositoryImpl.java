@@ -10,6 +10,7 @@ import org.example.homework.repository.KeeperRepository;
 import org.example.homework.utils.AuthorizationHeaderContextHolder;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -58,5 +59,21 @@ public class KeeperRepositoryImpl implements KeeperRepository {
         } catch (Exception e) {
             return Optional.empty();
         }
+    }
+
+    @Override
+    public KeepersService.KeepersByPersonIdAndCourseIdInResponse findKeepersByPersonIdAndGroupCourseIdIn(Integer personId, List<Integer> courseIds) {
+        CallCredentials callCredentials = CallCredentialsHelper.authorizationHeader(
+                authorizationHeaderContextHolder.getAuthorizationHeader()
+        );
+        return keeperServiceBlockingStub
+                .withCallCredentials(callCredentials)
+                .findKeepersByPersonIdAndCourseIdIn(
+                        KeepersService.KeepersByPersonIdAndCourseIdInRequest
+                                .newBuilder()
+                                .setPersonId(personId)
+                                .addAllCourseIds(courseIds)
+                                .build()
+                );
     }
 }

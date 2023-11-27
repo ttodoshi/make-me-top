@@ -37,7 +37,7 @@ public class HomeworkRequest {
     private LocalDateTime requestDate;
     @ManyToOne(optional = false)
     @JoinColumn(name = "status_id", nullable = false, insertable = false, updatable = false)
-    @JsonBackReference
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private HomeworkRequestStatus status;
     @Column(name = "status_id")
     private Integer statusId;

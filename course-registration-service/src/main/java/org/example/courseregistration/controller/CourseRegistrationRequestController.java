@@ -41,11 +41,8 @@ public class CourseRegistrationRequestController {
     }
 
     @GetMapping
-    @PreAuthorize("isAuthenticated()") // TODO
-//    @PreAuthorize("(@roleService.hasAnyAuthenticationRole(T(org.example.enums.AuthenticationRoleType).EXPLORER) && " +
-//            "@roleService.hasAnyCourseRoleByRequestIds(#requestIds, T(org.example.enums.CourseRoleType).EXPLORER)) ||" +
-//            "(@roleService.hasAnyAuthenticationRole(T(org.example.enums.AuthenticationRoleType).KEEPER) && " +
-//            "@roleService.hasAnyCourseRoleByRequestIds(#requestIds, T(org.example.enums.CourseRoleType).KEEPER))")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.courseregistration.enums.AuthenticationRoleType).KEEPER) && " +
+            "@roleService.hasAnyCourseRoleByRequestIds(#requestIds, T(org.example.courseregistration.enums.CourseRoleType).KEEPER)")
     @Operation(summary = "Get course registration requests by request ids", tags = "course request")
     @ApiResponses(value = {
             @ApiResponse(

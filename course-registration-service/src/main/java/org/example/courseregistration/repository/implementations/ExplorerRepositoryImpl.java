@@ -12,6 +12,7 @@ import org.example.courseregistration.repository.ExplorerRepository;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -46,5 +47,21 @@ public class ExplorerRepositoryImpl implements ExplorerRepository {
     @Override
     public void save(ExplorerCreateEvent explorer) {
         kafkaTemplate.send("explorerTopic", explorer);
+    }
+
+    @Override
+    public ExplorersService.ExplorersByPersonIdAndGroup_CourseIdInResponse findExplorersByPersonIdAndGroupCourseIdIn(Integer personId, List<Integer> courseIds) {
+        CallCredentials callCredentials = CallCredentialsHelper.authorizationHeader(
+                authorizationHeaderContextHolder.getAuthorizationHeader()
+        );
+        return explorerServiceBlockingStub
+                .withCallCredentials(callCredentials)
+                .findExplorersByPersonIdAndGroupCourseIdIn(
+                        ExplorersService.ExplorersByPersonIdAndGroup_CourseIdInRequest
+                                .newBuilder()
+                                .setPersonId(personId)
+                                .addAllCourseIds(courseIds)
+                                .build()
+                );
     }
 }

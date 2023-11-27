@@ -4,12 +4,14 @@ import lombok.RequiredArgsConstructor;
 import org.example.grpc.ExplorerGroupsService;
 import org.example.grpc.ExplorersService;
 import org.example.grpc.PeopleService;
+import org.example.homework.dto.planet.PlanetDto;
 import org.example.homework.enums.AuthenticationRoleType;
 import org.example.homework.enums.CourseRoleType;
 import org.example.homework.exception.classes.explorer.ExplorerGroupNotFoundException;
 import org.example.homework.exception.classes.homework.HomeworkNotFoundException;
 import org.example.homework.exception.classes.homework.HomeworkRequestNotFound;
 import org.example.homework.exception.classes.planet.PlanetNotFoundException;
+import org.example.homework.model.Homework;
 import org.example.homework.repository.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -46,6 +48,21 @@ public class RoleService {
             return keeperRepository.findKeeperByPersonIdAndCourseId(person.getPersonId(), courseId).isPresent();
     }
 
+    public boolean hasAnyCoursesRole(List<Integer> courseIds, CourseRoleType role) {
+        PeopleService.Person person = (PeopleService.Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (role.equals(CourseRoleType.EXPLORER)) {
+            return courseIds.stream().allMatch(cId ->
+                    explorerRepository.findExplorersByPersonIdAndGroupCourseIdIn(person.getPersonId(), courseIds)
+                            .getExplorerWithCourseIdMapMap()
+                            .containsKey(cId));
+        } else {
+            return courseIds.stream().allMatch(cId ->
+                    keeperRepository.findKeepersByPersonIdAndGroupCourseIdIn(person.getPersonId(), courseIds)
+                            .getKeeperWithCourseIdMapMap()
+                            .containsKey(cId));
+        }
+    }
+
     public boolean hasAnyCourseRoleByThemeId(Integer themeId, CourseRoleType role) {
         return hasAnyCourseRole(
                 planetRepository.findById(themeId)
@@ -64,10 +81,21 @@ public class RoleService {
         );
     }
 
-    // TODO
     public boolean hasAnyCourseRoleByHomeworkIds(List<Integer> homeworkIds, CourseRoleType role) {
-        return homeworkIds.stream()
-                .allMatch(hId -> hasAnyCourseRoleByHomeworkId(hId, role));
+        Map<Integer, PlanetDto> planets = planetRepository.findPlanetsByPlanetIdIn(
+                homeworkRepository.findAllByHomeworkIdIn(homeworkIds)
+                        .stream()
+                        .map(Homework::getCourseThemeId)
+                        .collect(Collectors.toList())
+        );
+        return hasAnyCoursesRole(
+                planets.values()
+                        .stream()
+                        .map(PlanetDto::getSystemId)
+                        .distinct()
+                        .collect(Collectors.toList()),
+                role
+        );
     }
 
     public boolean hasAnyCourseRoleByHomeworkRequestId(Integer homeworkRequestId, CourseRoleType role) {
@@ -93,11 +121,14 @@ public class RoleService {
         Map<Integer, ExplorerGroupsService.ExplorerGroup> groups = explorerGroupRepository.findExplorerGroupsByGroupIdIn(
                 explorers.values().stream().map(ExplorersService.Explorer::getGroupId).collect(Collectors.toList())
         );
-        return groups
-                .values()
-                .stream()
-                .map(ExplorerGroupsService.ExplorerGroup::getCourseId)
-                .distinct()
-                .allMatch(cId -> hasAnyCourseRole(cId, role)); // TODO
+        return hasAnyCoursesRole(
+                groups
+                        .values()
+                        .stream()
+                        .map(ExplorerGroupsService.ExplorerGroup::getCourseId)
+                        .distinct()
+                        .collect(Collectors.toList()),
+                role
+        );
     }
 }

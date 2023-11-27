@@ -2,7 +2,6 @@ package org.example.person.service.implementations;
 
 import lombok.RequiredArgsConstructor;
 import org.example.person.dto.course.CourseDto;
-import org.example.person.dto.course.CourseThemeDto;
 import org.example.person.dto.homework.GetHomeworkRequestDto;
 import org.example.person.dto.homework.HomeworkDto;
 import org.example.person.dto.homework.HomeworkRequestDto;
@@ -17,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -30,7 +28,6 @@ public class HomeworkServiceImpl implements HomeworkService {
     private final HomeworkRequestRepository homeworkRequestRepository;
     private final CourseRepository courseRepository;
     private final PlanetRepository planetRepository;
-    private final CourseThemeRepository courseThemeRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -76,30 +73,44 @@ public class HomeworkServiceImpl implements HomeworkService {
                             hr.getExplorerId(),
                             currentRequestPlanet.getPlanetId(),
                             currentRequestPlanet.getPlanetName(),
-                            hr.getHomeworkId()
+                            hr.getHomeworkId(),
+                            hr.getStatus()
                     );
                 }).collect(Collectors.toList());
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<GetHomeworkRequestDto> getHomeworkRequestForKeeperFromPerson(Integer keeperPersonId, List<Explorer> personExplorers) {
+    public List<GetHomeworkRequestDto> getHomeworkRequestsFromPerson(List<Explorer> personExplorers) {
         List<HomeworkRequestDto> openedHomeworkRequests = homeworkRequestRepository.findOpenedHomeworkRequestsByExplorerIdIn(
                 personExplorers.stream().map(Explorer::getExplorerId).collect(Collectors.toList())
         );
-        return openedHomeworkRequests.stream()
-                .findAny()
+        Map<Integer, HomeworkDto> homeworks = homeworkRepository.findHomeworksByHomeworkIdIn(
+                openedHomeworkRequests.stream().map(HomeworkRequestDto::getHomeworkId).collect(Collectors.toList())
+        );
+        Map<Integer, PlanetDto> planets = planetRepository.findPlanetsByPlanetIdIn(
+                homeworks.values()
+                        .stream()
+                        .map(HomeworkDto::getCourseThemeId)
+                        .collect(Collectors.toList())
+        );
+        Map<Integer, CourseDto> courses = courseRepository.findCoursesByCourseIdIn(
+                planets.values()
+                        .stream()
+                        .map(PlanetDto::getSystemId)
+                        .collect(Collectors.toList())
+        );
+        return openedHomeworkRequests
+                .stream()
                 .map(hr -> {
                     Explorer explorer = explorerRepository.getReferenceById(hr.getExplorerId());
                     Person person = personRepository.getReferenceById(explorer.getPersonId());
                     Integer courseId = explorerGroupRepository.getReferenceById(
                             explorer.getGroupId()
                     ).getCourseId();
-                    CourseDto requestCourse = courseRepository.getReferenceById(courseId);
-                    CourseThemeDto requestTheme = courseThemeRepository.getReferenceById(
-                            homeworkRepository.getReferenceById(
-                                    hr.getHomeworkId()
-                            ).getCourseThemeId()
+                    CourseDto requestCourse = courses.get(courseId);
+                    PlanetDto requestTheme = planets.get(
+                            homeworks.get(hr.getHomeworkId()).getCourseThemeId()
                     );
                     return new GetHomeworkRequestDto(
                             hr.getRequestId(),
@@ -110,10 +121,11 @@ public class HomeworkServiceImpl implements HomeworkService {
                             requestCourse.getCourseId(),
                             requestCourse.getTitle(),
                             hr.getExplorerId(),
-                            requestTheme.getCourseThemeId(),
-                            requestTheme.getTitle(),
-                            hr.getHomeworkId()
+                            requestTheme.getPlanetId(),
+                            requestTheme.getPlanetName(),
+                            hr.getHomeworkId(),
+                            hr.getStatus()
                     );
-                });
+                }).collect(Collectors.toList());
     }
 }

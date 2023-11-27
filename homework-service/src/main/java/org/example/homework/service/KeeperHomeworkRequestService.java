@@ -31,9 +31,6 @@ public class KeeperHomeworkRequestService {
                 requestId,
                 HomeworkRequestStatusType.CLOSED
         );
-        // TODO протестить
-//        if (mark.getValue() < 1 || mark.getValue() > 5)
-//            throw new UnexpectedMarkValueException();
         return homeworkMarkRepository.save(
                 new HomeworkMark(homeworkRequest.getRequestId(), mark.getValue(), mark.getComment())
         );

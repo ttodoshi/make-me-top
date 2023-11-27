@@ -10,6 +10,7 @@ import org.example.progress.repository.KeeperRepository;
 import org.example.progress.utils.AuthorizationHeaderContextHolder;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -51,5 +52,15 @@ public class KeeperRepositoryImpl implements KeeperRepository {
                                 .setKeeperId(keeperId)
                                 .build()
                 );
+    }
+
+    @Override
+    public List<KeepersService.Keeper> findKeepersByPersonId(Integer personId) {
+        return keeperServiceBlockingStub
+                .findKeepersByPersonId(
+                        KeepersService.KeepersByPersonIdRequest.newBuilder()
+                                .setPersonId(personId)
+                                .build()
+                ).getKeepersList();
     }
 }

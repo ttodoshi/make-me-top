@@ -2,9 +2,9 @@ package org.example.person.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.person.config.security.RoleService;
-import org.example.person.enums.AuthenticationRoleType;
 import org.example.person.dto.feedback.KeeperCommentDto;
 import org.example.person.dto.progress.CurrentCourseProgressDto;
+import org.example.person.enums.AuthenticationRoleType;
 import org.example.person.model.Explorer;
 import org.example.person.model.Person;
 import org.example.person.repository.ExplorerRepository;
@@ -18,6 +18,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.Executor;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -49,17 +50,26 @@ public class ExplorerPublicInformationService {
             Optional<CurrentCourseProgressDto> currentCourseOptional = courseProgressService
                     .getCurrentCourseProgress(personId);
             if (currentCourseOptional.isEmpty()) {
-                courseRegistrationRequestService
-                        .getStudyRequestByExplorerPersonId(authenticatedPersonId, personId)
-                        .ifPresent(
-                                r -> response.put("studyRequest", r));
-            } else {
                 if (roleService.hasAnyAuthenticationRole(AuthenticationRoleType.KEEPER)) {
-                    homeworkService.getHomeworkRequestForKeeperFromPerson(authenticatedPersonId, personExplorers).ifPresent(
-                            hr -> response.put("reviewRequest", hr)
+                    courseRegistrationRequestService
+                            .getStudyRequestByExplorerPersonId(authenticatedPersonId, personId)
+                            .ifPresent(
+                                    r -> response.put("studyRequest", r));
+                }
+            } else {
+                CurrentCourseProgressDto currentCourse = currentCourseOptional.get();
+                if (roleService.hasAnyAuthenticationRole(AuthenticationRoleType.KEEPER) &&
+                        currentCourse.getKeeper().getPersonId().equals(authenticatedPersonId)) {
+                    response.put(
+                            "reviewRequests",
+                            homeworkService.getHomeworkRequestsFromPerson(
+                                    personExplorers.stream()
+                                            .filter(e -> e.getExplorerId().equals(currentCourse.getExplorerId()))
+                                            .collect(Collectors.toList())
+                            )
                     );
                 }
-                response.put("currentSystem", currentCourseOptional.get());
+                response.put("currentSystem", currentCourse);
             }
         }, asyncExecutor);
         CompletableFuture<Void> investigatedSystems = CompletableFuture.runAsync(() ->

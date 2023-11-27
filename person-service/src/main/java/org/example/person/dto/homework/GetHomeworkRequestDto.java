@@ -14,13 +14,15 @@ public class GetHomeworkRequestDto extends ExplorerRequestDto {
     private Integer courseThemeId;
     private String courseThemeTitle;
     private Integer homeworkId;
+    private HomeworkRequestStatusDto status;
 
-    public GetHomeworkRequestDto(Integer requestId, Integer personId, String firstName, String lastName, String patronymic, Integer courseId, String courseTitle, Integer explorerId, Integer courseThemeId, String courseThemeTitle, Integer homeworkId) {
+    public GetHomeworkRequestDto(Integer requestId, Integer personId, String firstName, String lastName, String patronymic, Integer courseId, String courseTitle, Integer explorerId, Integer courseThemeId, String courseThemeTitle, Integer homeworkId, HomeworkRequestStatusDto status) {
         super(personId, firstName, lastName, patronymic, courseId, courseTitle);
         this.requestId = requestId;
         this.explorerId = explorerId;
         this.courseThemeId = courseThemeId;
         this.courseThemeTitle = courseThemeTitle;
         this.homeworkId = homeworkId;
+        this.status = status;
     }
 }

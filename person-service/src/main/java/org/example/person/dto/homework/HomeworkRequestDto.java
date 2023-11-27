@@ -15,6 +15,7 @@ public class HomeworkRequestDto {
     private Integer explorerId;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime requestDate;
+    private HomeworkRequestStatusDto status;
     private Integer statusId;
     private List<HomeworkRequestVersionDto> homeworkRequestVersions;
 }

@@ -24,6 +24,7 @@ public class ExplorerProfileInformationService {
     private final CourseService courseService;
     private final RatingService ratingService;
     private final CourseProgressService courseProgressService;
+    private final HomeworkService homeworkService;
 
     private final Executor asyncExecutor;
 
@@ -48,9 +49,12 @@ public class ExplorerProfileInformationService {
         CompletableFuture<Void> ratingTable = CompletableFuture.runAsync(() ->
                         response.put("ratingTable", explorerListService.getExplorers()),
                 asyncExecutor);
-        // TODO запросы на проверку домашки
+        CompletableFuture<Void> homeworkRequests = CompletableFuture.runAsync(() ->
+                response.put("homeworkRequests", homeworkService.getHomeworkRequestsFromPerson(
+                        personExplorers
+                )), asyncExecutor);
         try {
-            CompletableFuture.allOf(currentSystem, studyRequest, investigatedSystems, ratingTable).join();
+            CompletableFuture.allOf(currentSystem, studyRequest, investigatedSystems, ratingTable, homeworkRequests).join();
         } catch (CompletionException completionException) {
             try {
                 throw completionException.getCause();

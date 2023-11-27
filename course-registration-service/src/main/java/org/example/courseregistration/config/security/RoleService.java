@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.courseregistration.enums.AuthenticationRoleType;
 import org.example.courseregistration.enums.CourseRoleType;
 import org.example.courseregistration.exception.classes.request.RequestNotFoundException;
+import org.example.courseregistration.model.CourseRegistrationRequest;
 import org.example.courseregistration.repository.CourseRegistrationRequestRepository;
 import org.example.courseregistration.repository.ExplorerRepository;
 import org.example.courseregistration.repository.KeeperRepository;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -42,6 +44,21 @@ public class RoleService {
             return keeperRepository.findKeeperByPersonIdAndCourseId(person.getPersonId(), courseId).isPresent();
     }
 
+    public boolean hasAnyCoursesRole(List<Integer> courseIds, CourseRoleType role) {
+        PeopleService.Person person = (PeopleService.Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (role.equals(CourseRoleType.EXPLORER)) {
+            return courseIds.stream().allMatch(cId ->
+                    explorerRepository.findExplorersByPersonIdAndGroupCourseIdIn(person.getPersonId(), courseIds)
+                            .getExplorerWithCourseIdMapMap()
+                            .containsKey(cId));
+        } else {
+            return courseIds.stream().allMatch(cId ->
+                    keeperRepository.findKeepersByPersonIdAndGroupCourseIdIn(person.getPersonId(), courseIds)
+                            .getKeeperWithCourseIdMapMap()
+                            .containsKey(cId));
+        }
+    }
+
     @Transactional(readOnly = true)
     public boolean hasAnyCourseRoleByRequestId(Integer requestId, CourseRoleType role) {
         return hasAnyCourseRole(
@@ -53,7 +70,12 @@ public class RoleService {
 
     @Transactional(readOnly = true)
     public boolean hasAnyCourseRoleByRequestIds(List<Integer> requestIds, CourseRoleType role) {
-        return requestIds.stream().allMatch(rId -> hasAnyCourseRoleByRequestId(rId, role));
+        List<Integer> courseIds = courseRegistrationRequestRepository
+                .findCourseRegistrationRequestsByRequestIdIn(requestIds)
+                .stream()
+                .map(CourseRegistrationRequest::getCourseId)
+                .collect(Collectors.toList());
+        return hasAnyCoursesRole(courseIds, role);
     }
 
     public boolean isPersonInRequest(Integer requestId) {
@@ -67,9 +89,5 @@ public class RoleService {
         return keeperRepository.findKeepersByPersonId(person.getPersonId())
                 .stream()
                 .allMatch(k -> keeperIds.contains(k.getKeeperId()));
-    }
-
-    public boolean isPerson(Integer personId) {
-        return personService.getAuthenticatedPersonId().equals(personId);
     }
 }

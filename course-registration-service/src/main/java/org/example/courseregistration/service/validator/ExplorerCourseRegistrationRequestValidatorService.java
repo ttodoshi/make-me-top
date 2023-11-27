@@ -10,13 +10,15 @@ import org.example.courseregistration.exception.classes.progress.SystemParentsNo
 import org.example.courseregistration.exception.classes.request.PersonIsKeeperException;
 import org.example.courseregistration.exception.classes.request.PersonIsNotPersonInRequestException;
 import org.example.courseregistration.exception.classes.request.RequestAlreadySentException;
-import org.example.courseregistration.exception.classes.request.StatusNotFoundException;
 import org.example.courseregistration.model.CourseRegistrationRequest;
 import org.example.courseregistration.model.CourseRegistrationRequestStatusType;
-import org.example.courseregistration.repository.*;
+import org.example.courseregistration.repository.CourseRegistrationRequestRepository;
+import org.example.courseregistration.repository.CourseRepository;
+import org.example.courseregistration.repository.GalaxyRepository;
+import org.example.courseregistration.repository.KeeperRepository;
 import org.example.courseregistration.service.CourseProgressService;
+import org.example.courseregistration.service.CourseRegistrationRequestStatusService;
 import org.example.courseregistration.service.PersonService;
-import org.example.grpc.KeepersService;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -25,7 +27,7 @@ public class ExplorerCourseRegistrationRequestValidatorService {
     private final CourseRepository courseRepository;
     private final KeeperRepository keeperRepository;
     private final CourseRegistrationRequestRepository courseRegistrationRequestRepository;
-    private final CourseRegistrationRequestStatusRepository courseRegistrationRequestStatusRepository;
+    private final CourseRegistrationRequestStatusService courseRegistrationRequestStatusService;
     private final GalaxyRepository galaxyRepository;
 
     private final PersonService personService;
@@ -34,10 +36,12 @@ public class ExplorerCourseRegistrationRequestValidatorService {
     public void validateSendRequest(Integer personId, CreateCourseRegistrationRequestDto request) {
         if (!courseRepository.existsById(request.getCourseId()))
             throw new CourseNotFoundException(request.getCourseId());
-        request.getKeeperIds().forEach(kId -> {
-            if (!keeperExistsOnCourse(kId, request.getCourseId()))
-                throw new KeeperNotFoundException(kId);
-        });
+        keeperRepository.findKeepersByKeeperIdIn(request.getKeeperIds())
+                .values()
+                .forEach(k -> {
+                    if (!request.getCourseId().equals(k.getCourseId()))
+                        throw new KeeperNotFoundException(k.getKeeperId());
+                });
         if (courseProgressService.isAuthenticatedPersonCurrentlyStudying(
                 galaxyRepository.findGalaxyBySystemId(request.getCourseId()).getGalaxyId())) {
             throw new PersonIsStudyingException();
@@ -50,12 +54,6 @@ public class ExplorerCourseRegistrationRequestValidatorService {
             throw new RequestAlreadySentException();
     }
 
-    private boolean keeperExistsOnCourse(Integer keeperId, Integer courseId) {
-        KeepersService.Keeper keeper = keeperRepository.findById(keeperId)
-                .orElseThrow(() -> new KeeperNotFoundException(keeperId));
-        return courseId.equals(keeper.getCourseId());
-    }
-
     private boolean isPersonKeeperOnCourse(Integer authenticatedPersonId, Integer courseId) {
         return keeperRepository.findKeeperByPersonIdAndCourseId(authenticatedPersonId, courseId).isPresent();
     }
@@ -63,9 +61,8 @@ public class ExplorerCourseRegistrationRequestValidatorService {
     public void validateCancelRequest(CourseRegistrationRequest request) {
         if (!request.getPersonId().equals(personService.getAuthenticatedPersonId()))
             throw new PersonIsNotPersonInRequestException();
-        Integer acceptedStatusId = courseRegistrationRequestStatusRepository
+        Integer acceptedStatusId = courseRegistrationRequestStatusService
                 .findCourseRegistrationRequestStatusByStatus(CourseRegistrationRequestStatusType.ACCEPTED)
-                .orElseThrow(() -> new StatusNotFoundException(CourseRegistrationRequestStatusType.ACCEPTED))
                 .getStatusId();
         if (request.getStatusId().equals(acceptedStatusId))
             throw new AlreadyStudyingException();
