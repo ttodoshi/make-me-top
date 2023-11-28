@@ -104,10 +104,12 @@ public class KeeperCourseRegistrationRequestService {
         KeepersService.Keeper keeper = keeperRepository
                 .findKeeperByPersonIdAndCourseId(authenticatedPerson.getPersonId(), courseId)
                 .orElseThrow(KeeperNotFoundException::new);
+
         List<CourseRegistrationRequest> approvedRequests = courseRegistrationRequestRepository
                 .findApprovedRequestsByKeeperId(keeper.getKeeperId());
         if (approvedRequests.isEmpty())
             throw new NoApprovedRequestsFoundException();
+
         Integer groupId = explorerGroupRepository.save(
                 ExplorerGroupsService.CreateGroupRequest.newBuilder()
                         .setCourseId(courseId)

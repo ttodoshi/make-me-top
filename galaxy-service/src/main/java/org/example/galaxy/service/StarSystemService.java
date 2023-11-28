@@ -55,7 +55,7 @@ public class StarSystemService {
     }
 
     @Transactional(readOnly = true)
-    public GetStarSystemWithDependenciesDto getStarSystemByIdWithDependencies(Integer systemId) {
+    public GetStarSystemWithDependenciesDto findStarSystemByIdWithDependencies(Integer systemId) {
         GetStarSystemWithDependenciesDto system = mapper.map(
                 findStarSystemById(systemId),
                 GetStarSystemWithDependenciesDto.class

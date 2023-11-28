@@ -22,17 +22,15 @@ public class CourseRatingService {
         Map<Integer, ExplorersService.ExplorerList> explorers = explorerRepository.findExplorersByGroup_CourseIdIn(courseIds);
         return explorers.entrySet()
                 .stream()
-                .collect(
-                        Collectors.toMap(
-                                Map.Entry::getKey,
-                                e -> courseRatingRepository.findAvgRatingByExplorerIdIn(
-                                        e.getValue()
-                                                .getExplorersList()
-                                                .stream()
-                                                .map(ExplorersService.Explorer::getExplorerId)
-                                                .collect(Collectors.toList())
-                                ).orElse(0.0)
-                        )
-                );
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        e -> courseRatingRepository.findAvgRatingByExplorerIdIn(
+                                e.getValue()
+                                        .getExplorersList()
+                                        .stream()
+                                        .map(ExplorersService.Explorer::getExplorerId)
+                                        .collect(Collectors.toList())
+                        ).orElse(0.0)
+                ));
     }
 }

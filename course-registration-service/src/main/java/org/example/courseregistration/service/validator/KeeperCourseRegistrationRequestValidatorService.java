@@ -5,15 +5,15 @@ import org.example.courseregistration.exception.classes.connect.ConnectException
 import org.example.courseregistration.exception.classes.keeper.DifferentKeeperException;
 import org.example.courseregistration.exception.classes.progress.TeachingInProcessException;
 import org.example.courseregistration.exception.classes.request.RequestAlreadyClosedException;
+import org.example.courseregistration.model.CourseRegistrationRequest;
+import org.example.courseregistration.model.CourseRegistrationRequestStatus;
+import org.example.courseregistration.model.CourseRegistrationRequestStatusType;
 import org.example.courseregistration.repository.CourseRegistrationRequestStatusRepository;
 import org.example.courseregistration.repository.ExplorerGroupRepository;
 import org.example.courseregistration.repository.KeeperRepository;
 import org.example.courseregistration.utils.AuthorizationHeaderContextHolder;
 import org.example.grpc.ExplorersService;
 import org.example.grpc.KeepersService;
-import org.example.courseregistration.model.CourseRegistrationRequest;
-import org.example.courseregistration.model.CourseRegistrationRequestStatus;
-import org.example.courseregistration.model.CourseRegistrationRequestStatusType;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
@@ -66,11 +66,8 @@ public class KeeperCourseRegistrationRequestValidatorService {
         List<Integer> explorersWithFinalAssessment = getExplorersWithFinalAssessment(
                 keeperExplorers.stream().map(ExplorersService.Explorer::getExplorerId).collect(Collectors.toList())
         );
-        long currentStudyingExplorersCount = keeperExplorers.stream()
-                .filter(e ->
-                        !explorersWithFinalAssessment.contains(e.getExplorerId()))
-                .count();
-        if (currentStudyingExplorersCount > 0)
+
+        if (keeperExplorers.size() > explorersWithFinalAssessment.size())
             throw new TeachingInProcessException();
     }
 

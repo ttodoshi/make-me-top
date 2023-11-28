@@ -43,6 +43,7 @@ public class KeeperRejectionService {
                 .findCourseRegistrationRequestKeeperByRequestIdAndKeeperId(
                         requestId, keeper.getKeeperId()
                 ).orElseThrow(DifferentKeeperException::new);
+
         keeperRejectionValidatorService.validateRejectionRequest(rejection, keeperResponse);
         return keeperRejectionRepository.save(
                 new KeeperRejection(keeperResponse, rejection.getReasonId())

@@ -37,6 +37,7 @@ public class ExplorerCourseRegistrationRequestService {
         Integer keeperProcessingStatusId = courseRegistrationRequestKeeperStatusService
                 .findCourseRegistrationRequestKeeperStatusByStatus(CourseRegistrationRequestKeeperStatusType.PROCESSING)
                 .getStatusId();
+
         request.getKeeperIds().forEach(kId ->
                 courseRegistrationRequestKeeperRepository.save(
                         new CourseRegistrationRequestKeeper(

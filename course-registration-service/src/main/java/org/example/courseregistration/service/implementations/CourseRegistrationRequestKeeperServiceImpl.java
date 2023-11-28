@@ -65,6 +65,7 @@ public class CourseRegistrationRequestKeeperServiceImpl implements CourseRegistr
         Integer rejectedStatusId = courseRegistrationRequestKeeperStatusService
                 .findCourseRegistrationRequestKeeperStatusByStatus(CourseRegistrationRequestKeeperStatusType.REJECTED)
                 .getStatusId();
+
         courseRegistrationRequestKeeperRepository
                 .findCourseRegistrationRequestKeepersByRequestId(request.getRequestId())
                 .stream()

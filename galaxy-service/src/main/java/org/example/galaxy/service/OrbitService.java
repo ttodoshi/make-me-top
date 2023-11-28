@@ -38,7 +38,7 @@ public class OrbitService {
         orbitWithStarSystems.setSystemWithDependenciesList(
                 starSystemRepository.findStarSystemsByOrbitId(orbitId)
                         .stream()
-                        .map(s -> systemService.getStarSystemByIdWithDependencies(s.getSystemId()))
+                        .map(s -> systemService.findStarSystemByIdWithDependencies(s.getSystemId()))
                         .collect(Collectors.toList())
         );
         return orbitWithStarSystems;
@@ -57,12 +57,11 @@ public class OrbitService {
         orbit.setGalaxyId(galaxyId);
         Orbit savedOrbit = orbitRepository.save(orbit);
         createOrbitRequest.getSystemList().forEach(s -> {
-                    StarSystem system = mapper.map(s, StarSystem.class);
-                    system.setOrbitId(savedOrbit.getOrbitId());
-                    StarSystem savedSystem = starSystemRepository.save(system);
-                    systemService.createCourse(savedSystem.getSystemId(), s);
-                }
-        );
+            StarSystem system = mapper.map(s, StarSystem.class);
+            system.setOrbitId(savedOrbit.getOrbitId());
+            StarSystem savedSystem = starSystemRepository.save(system);
+            systemService.createCourse(savedSystem.getSystemId(), s);
+        });
         return findOrbitWithSystemList(savedOrbit.getOrbitId());
     }
 
