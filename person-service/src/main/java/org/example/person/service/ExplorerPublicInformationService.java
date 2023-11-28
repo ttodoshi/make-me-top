@@ -46,9 +46,11 @@ public class ExplorerPublicInformationService {
         response.put("rating", ratingService.getPersonRatingAsExplorer(personId));
         List<Explorer> personExplorers = explorerRepository.findExplorersByPersonId(personId);
         response.put("totalSystems", personExplorers.size());
+
         CompletableFuture<Void> currentSystem = CompletableFuture.runAsync(() -> {
             Optional<CurrentCourseProgressDto> currentCourseOptional = courseProgressService
                     .getCurrentCourseProgress(personId);
+
             if (currentCourseOptional.isEmpty()) {
                 if (roleService.hasAnyAuthenticationRole(AuthenticationRoleType.KEEPER)) {
                     courseRegistrationRequestService
@@ -58,6 +60,7 @@ public class ExplorerPublicInformationService {
                 }
             } else {
                 CurrentCourseProgressDto currentCourse = currentCourseOptional.get();
+
                 if (roleService.hasAnyAuthenticationRole(AuthenticationRoleType.KEEPER) &&
                         currentCourse.getKeeper().getPersonId().equals(authenticatedPersonId)) {
                     response.put(
@@ -72,15 +75,18 @@ public class ExplorerPublicInformationService {
                 response.put("currentSystem", currentCourse);
             }
         }, asyncExecutor);
+
         CompletableFuture<Void> investigatedSystems = CompletableFuture.runAsync(() ->
                 response.put("investigatedSystems", courseService.getCoursesRating(
                         courseProgressService.getInvestigatedSystemIds(personExplorers)
                 )), asyncExecutor);
+
         CompletableFuture<Void> feedback = CompletableFuture.runAsync(() -> {
             List<KeeperCommentDto> feedbackList = feedbackService.getFeedbackForPersonAsExplorer(personExplorers);
             response.put("totalFeedback", feedbackList.size());
             response.put("feedback", feedbackList);
         }, asyncExecutor);
+
         try {
             CompletableFuture.allOf(currentSystem, investigatedSystems, feedback).join();
         } catch (CompletionException completionException) {

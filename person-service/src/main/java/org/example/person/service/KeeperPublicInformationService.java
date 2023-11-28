@@ -39,6 +39,7 @@ public class KeeperPublicInformationService {
         response.put("rating", ratingService.getPersonRatingAsKeeper(personId));
         List<Keeper> keepers = keeperRepository.findKeepersByPersonId(personId);
         response.put("totalSystems", keepers.size());
+
         List<ExplorerGroup> explorerGroups = explorerGroupRepository.findExplorerGroupsByKeeperIdIn(
                 keepers.stream().map(Keeper::getKeeperId).collect(Collectors.toList())
         );
@@ -47,12 +48,16 @@ public class KeeperPublicInformationService {
                 .flatMap(g -> g.getExplorers().stream())
                 .collect(Collectors.toList());
         response.put("totalExplorers", explorers.size());
+
         CompletableFuture<Void> systems = CompletableFuture.runAsync(() ->
                 response.put("systems", courseService.getCoursesRating(
                         keepers.stream().map(Keeper::getCourseId).collect(Collectors.toList())
                 )), asyncExecutor);
+
         CompletableFuture<Void> feedback = CompletableFuture.runAsync(() ->
-                response.put("feedback", feedbackService.getFeedbackForPersonAsKeeper(explorerGroups)), asyncExecutor);
+                response.put("feedback", feedbackService
+                        .getFeedbackForPersonAsKeeper(explorerGroups)), asyncExecutor);
+
         try {
             CompletableFuture.allOf(systems, feedback).join();
         } catch (CompletionException completionException) {

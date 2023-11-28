@@ -40,12 +40,14 @@ public class FeedbackServiceImpl implements FeedbackService {
                 .findKeeperFeedbacksByExplorerIdIn(
                         personExplorers.stream().map(Explorer::getExplorerId).collect(Collectors.toList())
                 );
+
         Map<Integer, Keeper> keepers = keeperService.findKeepersByKeeperIdIn(
                 feedbacks.stream().map(KeeperFeedbackDto::getKeeperId).collect(Collectors.toList())
         );
         Map<Integer, CourseDto> courses = courseRepository.findCoursesByCourseIdIn(
                 keepers.values().stream().map(Keeper::getCourseId).collect(Collectors.toList())
         );
+
         return feedbacks.stream()
                 .map(f -> {
                     Person person = personRepository.getReferenceById(
@@ -72,6 +74,7 @@ public class FeedbackServiceImpl implements FeedbackService {
         List<ExplorerFeedbackDto> feedbacks = explorerFeedbackRepository.findExplorerFeedbacksByKeeperIdIn(
                 groups.stream().map(ExplorerGroup::getKeeperId).collect(Collectors.toList())
         );
+
         Map<Integer, Keeper> keepers = keeperService.findKeepersByKeeperIdIn(
                 feedbacks.stream().map(ExplorerFeedbackDto::getKeeperId).collect(Collectors.toList())
         );
@@ -85,6 +88,7 @@ public class FeedbackServiceImpl implements FeedbackService {
                 .collect(Collectors.toList())
                 .contains(e.getExplorerId())
         ).collect(Collectors.toMap(Explorer::getExplorerId, e -> e));
+
         return feedbacks.stream()
                 .map(f -> {
                     Person person = personRepository.getReferenceById(

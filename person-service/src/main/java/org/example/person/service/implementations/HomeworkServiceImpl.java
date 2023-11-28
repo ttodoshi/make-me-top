@@ -39,12 +39,14 @@ public class HomeworkServiceImpl implements HomeworkService {
         Map<Integer, CourseDto> courses = courseRepository.findCoursesByCourseIdIn(
                 explorerGroups.values().stream().map(ExplorerGroup::getCourseId).collect(Collectors.toList())
         );
+
         List<HomeworkRequestDto> homeworkRequests = homeworkRequestRepository.findOpenedHomeworkRequestsByExplorerIdIn(
                 explorers.values().stream().map(Explorer::getExplorerId).collect(Collectors.toList())
         );
         Map<Integer, HomeworkDto> homeworks = homeworkRepository.findHomeworksByHomeworkIdIn(
                 homeworkRequests.stream().map(HomeworkRequestDto::getHomeworkId).collect(Collectors.toList())
         );
+
         Map<Integer, PlanetDto> planets = planetRepository.findPlanetsByPlanetIdIn(
                 homeworks.values().stream().map(HomeworkDto::getCourseThemeId).collect(Collectors.toList())
         );
@@ -88,6 +90,7 @@ public class HomeworkServiceImpl implements HomeworkService {
         Map<Integer, HomeworkDto> homeworks = homeworkRepository.findHomeworksByHomeworkIdIn(
                 openedHomeworkRequests.stream().map(HomeworkRequestDto::getHomeworkId).collect(Collectors.toList())
         );
+
         Map<Integer, PlanetDto> planets = planetRepository.findPlanetsByPlanetIdIn(
                 homeworks.values()
                         .stream()
@@ -100,6 +103,7 @@ public class HomeworkServiceImpl implements HomeworkService {
                         .map(PlanetDto::getSystemId)
                         .collect(Collectors.toList())
         );
+
         return openedHomeworkRequests
                 .stream()
                 .map(hr -> {
