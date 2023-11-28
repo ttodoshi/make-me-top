@@ -42,12 +42,14 @@ public class CourseRegistrationRequestServiceImpl implements CourseRegistrationR
         Map<Integer, CourseRegistrationRequestDto> requests = courseRegistrationRequestRepository.findCourseRegistrationRequestsByRequestIdIn(
                 openedRequests.stream().map(CourseRegistrationRequestKeeperDto::getRequestId).collect(Collectors.toList())
         );
+
         Map<Integer, CourseDto> courses = courseRepository.findCoursesByCourseIdIn(
                 requests.values().stream().map(CourseRegistrationRequestDto::getCourseId).collect(Collectors.toList())
         );
         Map<Integer, Double> ratings = ratingService.getPeopleRatingAsExplorerByPersonIdIn(
                 requests.values().stream().map(CourseRegistrationRequestDto::getPersonId).collect(Collectors.toList())
         );
+
         return openedRequests.stream()
                 .map(kr -> {
                     CourseRegistrationRequestDto currentRequest = requests.get(kr.getRequestId());
@@ -86,6 +88,7 @@ public class CourseRegistrationRequestServiceImpl implements CourseRegistrationR
                 .map(r -> {
                     CourseDto course = courseRepository.getReferenceById(r.getCourseId());
                     GalaxyDto galaxy = galaxyRepository.findGalaxyBySystemId(r.getCourseId());
+
                     List<Integer> keeperIds = courseRegistrationRequestKeeperRepository
                             .findCourseRegistrationRequestKeepersByRequestId(r.getRequestId())
                             .stream()
@@ -105,6 +108,7 @@ public class CourseRegistrationRequestServiceImpl implements CourseRegistrationR
                                         e.getKey()
                                 );
                             }).collect(Collectors.toList());
+
                     return new CourseRegistrationRequestForExplorerDto(
                             r.getRequestId(),
                             r.getCourseId(),
@@ -149,12 +153,14 @@ public class CourseRegistrationRequestServiceImpl implements CourseRegistrationR
                 courseRegistrationRequestRepository.getApprovedCourseRegistrationRequests(
                         keepers.stream().map(Keeper::getKeeperId).collect(Collectors.toList())
                 );
+
         Map<Integer, CourseDto> courses = courseRepository.findCoursesByCourseIdIn(
                 approvedRequests.stream().map(ApprovedRequestDto::getCourseId).collect(Collectors.toList())
         );
         Map<Integer, Double> ratings = ratingService.getPeopleRatingAsExplorerByPersonIdIn(
                 approvedRequests.stream().map(ApprovedRequestDto::getPersonId).collect(Collectors.toList())
         );
+
         return approvedRequests.stream()
                 .map(r -> {
                     Person person = personService.findPersonById(r.getPersonId());

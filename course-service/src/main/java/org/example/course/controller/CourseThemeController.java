@@ -35,8 +35,8 @@ public class CourseThemeController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> getCourseThemeById(@PathVariable("themeId") Integer themeId) {
-        return ResponseEntity.ok(courseThemeService.getCourseTheme(themeId));
+    public ResponseEntity<?> findCourseThemeById(@PathVariable("themeId") Integer themeId) {
+        return ResponseEntity.ok(courseThemeService.findCourseThemeById(themeId));
     }
 
     @PutMapping("/themes/{themeId}")

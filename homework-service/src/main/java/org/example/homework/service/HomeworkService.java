@@ -100,6 +100,7 @@ public class HomeworkService {
                 .stream()
                 .map(ExplorerGroupsService.ExplorerGroup::getGroupId)
                 .collect(Collectors.toList());
+
         List<Homework> openedHomeworks = homeworkRepository
                 .findHomeworksByCourseThemeIdAndGroupIdInAndStatus_OpenedStatus(
                         themeId,

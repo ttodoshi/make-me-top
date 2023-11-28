@@ -18,7 +18,7 @@ import java.util.List;
 public class CourseRegistrationRequestKeeperController {
     private final CourseRegistrationRequestKeeperService courseRegistrationRequestKeeperService;
 
-    @GetMapping("/{requestId}/keeper")
+    @GetMapping("/{requestId}/keepers")
     @PreAuthorize("(@roleService.hasAnyAuthenticationRole(T(org.example.courseregistration.enums.AuthenticationRoleType).EXPLORER) && " +
             "@roleService.isPersonInRequest(#requestId)) ||" +
             "(@roleService.hasAnyAuthenticationRole(T(org.example.courseregistration.enums.AuthenticationRoleType).KEEPER) && " +
@@ -40,10 +40,9 @@ public class CourseRegistrationRequestKeeperController {
         );
     }
 
-    @GetMapping("/keeper")
-    @PreAuthorize("isAuthenticated()") // TODO
-//    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.enums.AuthenticationRoleType).KEEPER) && " +
-//            "@roleService.isPersonKeepers(#keeperIds)")
+    @GetMapping("/keepers")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.courseregistration.enums.AuthenticationRoleType).KEEPER) && " +
+            "@roleService.isPersonKeepers(#keeperIds)")
     @Operation(summary = "Get request keepers by request id", tags = "course request")
     @ApiResponses(value = {
             @ApiResponse(

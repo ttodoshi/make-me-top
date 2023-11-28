@@ -14,4 +14,6 @@ public interface ExplorerRepository {
     boolean existsById(Integer explorerId);
 
     Map<Integer, ExplorersService.Explorer> findExplorersByExplorerIdIn(List<Integer> explorerIds);
+
+    ExplorersService.ExplorersByPersonIdAndGroup_CourseIdInResponse findExplorersByPersonIdAndGroupCourseIdIn(Integer personId, List<Integer> courseIds);
 }

@@ -25,7 +25,6 @@ public interface SystemDependencyRepository extends JpaRepository<SystemDependen
             "WHERE parent_id = ?1", nativeQuery = true)
     List<SystemDependency> getSystemChildren(Integer id);
 
-
     @Query(value = "WITH RECURSIVE r AS (\n" +
             "   SELECT dependency_id,child_id, parent_id, is_alternative\n" +
             "   FROM system_dependency\n" +

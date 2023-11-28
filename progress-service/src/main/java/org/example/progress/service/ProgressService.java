@@ -49,6 +49,7 @@ public class ProgressService {
                         authenticatedPerson.getPersonId(),
                         systems.stream().map(GetStarSystemWithDependenciesDto::getSystemId).collect(Collectors.toList())
                 ).getExplorerWithCourseIdMapMap();
+
         for (GetStarSystemWithDependenciesDto system : systems) {
             if (explorers.containsKey(system.getSystemId())) {
                 studiedCourses.add(
@@ -116,6 +117,7 @@ public class ProgressService {
         Map<Integer, List<PlanetDto>> planets = planetRepository.findPlanetsBySystemIdIn(
                 explorerGroups.values().stream().map(ExplorerGroupsService.ExplorerGroup::getCourseId).distinct().collect(Collectors.toList())
         );
+
         return explorerIds.stream()
                 .filter(eId -> !explorersWithFinalAssessment.contains(eId))
                 .filter(eId -> {

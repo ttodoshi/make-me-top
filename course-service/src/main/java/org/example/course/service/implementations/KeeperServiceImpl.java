@@ -1,23 +1,23 @@
 package org.example.course.service.implementations;
 
 import lombok.RequiredArgsConstructor;
-import org.example.course.exception.classes.explorer.ExplorerNotFoundException;
 import org.example.course.dto.keeper.KeeperBaseInfoDto;
 import org.example.course.dto.keeper.KeeperWithRatingDto;
-import org.example.grpc.KeepersService;
-import org.example.grpc.PeopleService;
+import org.example.course.exception.classes.explorer.ExplorerNotFoundException;
+import org.example.course.exception.classes.keeper.KeeperNotFoundException;
 import org.example.course.repository.ExplorerGroupRepository;
 import org.example.course.repository.ExplorerRepository;
 import org.example.course.repository.KeeperRepository;
 import org.example.course.repository.PersonRepository;
 import org.example.course.service.KeeperService;
 import org.example.course.service.RatingService;
+import org.example.grpc.KeepersService;
+import org.example.grpc.PeopleService;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -65,7 +65,7 @@ public class KeeperServiceImpl implements KeeperService {
     }
 
     @Override
-    public Optional<KeeperWithRatingDto> getKeeperForExplorer(Integer explorerId, List<KeeperWithRatingDto> keepers) {
+    public KeeperWithRatingDto getKeeperForExplorer(Integer explorerId, List<KeeperWithRatingDto> keepers) {
         Integer explorersKeeperId = explorerGroupRepository.getReferenceById(
                 explorerRepository.findById(explorerId)
                         .orElseThrow(ExplorerNotFoundException::new)
@@ -73,6 +73,7 @@ public class KeeperServiceImpl implements KeeperService {
         ).getKeeperId();
         return keepers.stream()
                 .filter(k -> k.getKeeperId().equals(explorersKeeperId))
-                .findAny();
+                .findAny()
+                .orElseThrow(KeeperNotFoundException::new);
     }
 }

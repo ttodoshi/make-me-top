@@ -58,10 +58,9 @@ public class HomeworkRequestController {
     }
 
     @GetMapping("/homework-requests")
-    @PreAuthorize("isAuthenticated()")
-    // TODO used in keeper-profile(all good) and public explorer page (send if explorer in current group)
-//    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.enums.AuthenticationRoleType).KEEPER) && " +
-//            "@roleService.hasAnyCourseRoleByExplorerIds(#explorerIds, T(org.example.enums.CourseRoleType).KEEPER)")
+    @PreAuthorize("(@roleService.hasAnyAuthenticationRole(T(org.example.homework.enums.AuthenticationRoleType).EXPLORER) &&" +
+            "@roleService.hasAnyCourseRoleByExplorerIds(#explorerIds, T(org.example.homework.enums.CourseRoleType).EXPLORER)) ||" +
+            "@roleService.hasAnyCourseRoleByExplorerIds(#explorerIds, T(org.example.homework.enums.CourseRoleType).KEEPER)")
     @Operation(summary = "Find opened homework requests by explorer id in", tags = "homework request")
     @ApiResponses(value = {
             @ApiResponse(
@@ -73,6 +72,9 @@ public class HomeworkRequestController {
                     })
     })
     public ResponseEntity<?> findOpenedHomeworkRequestsByExplorerIdIn(@RequestParam List<Integer> explorerIds) {
-        return ResponseEntity.ok(homeworkRequestService.findOpenedHomeworkRequestsByExplorerIdIn(explorerIds));
+        return ResponseEntity.ok(
+                homeworkRequestService
+                        .findOpenedHomeworkRequestsByExplorerIdIn(explorerIds)
+        );
     }
 }

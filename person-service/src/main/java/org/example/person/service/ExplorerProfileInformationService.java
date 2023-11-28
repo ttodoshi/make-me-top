@@ -24,6 +24,7 @@ public class ExplorerProfileInformationService {
     private final CourseService courseService;
     private final RatingService ratingService;
     private final CourseProgressService courseProgressService;
+    private final HomeworkService homeworkService;
 
     private final Executor asyncExecutor;
 
@@ -35,22 +36,31 @@ public class ExplorerProfileInformationService {
         response.put("rating", ratingService.getPersonRatingAsExplorer(authenticatedPersonId));
         List<Explorer> personExplorers = explorerRepository.findExplorersByPersonId(authenticatedPersonId);
         response.put("totalSystems", personExplorers.size());
+
         CompletableFuture<Void> currentSystem = CompletableFuture.runAsync(() ->
                 courseProgressService.getCurrentCourseProgress(authenticatedPersonId)
                         .ifPresent(p -> response.put("currentSystem", p)), asyncExecutor);
+
         CompletableFuture<Void> studyRequest = CompletableFuture.runAsync(() ->
                 courseRegistrationRequestService.getStudyRequestForExplorerByPersonId()
                         .ifPresent(r -> response.put("studyRequest", r)), asyncExecutor);
+
         CompletableFuture<Void> investigatedSystems = CompletableFuture.runAsync(() ->
                 response.put("investigatedSystems", courseService.getCoursesRating(
                         courseProgressService.getInvestigatedSystemIds(personExplorers)
                 )), asyncExecutor);
+
         CompletableFuture<Void> ratingTable = CompletableFuture.runAsync(() ->
                         response.put("ratingTable", explorerListService.getExplorers()),
                 asyncExecutor);
-        // TODO запросы на проверку домашки
+
+        CompletableFuture<Void> homeworkRequests = CompletableFuture.runAsync(() ->
+                response.put("homeworkRequests", homeworkService.getHomeworkRequestsFromPerson(
+                        personExplorers
+                )), asyncExecutor);
+
         try {
-            CompletableFuture.allOf(currentSystem, studyRequest, investigatedSystems, ratingTable).join();
+            CompletableFuture.allOf(currentSystem, studyRequest, investigatedSystems, ratingTable, homeworkRequests).join();
         } catch (CompletionException completionException) {
             try {
                 throw completionException.getCause();

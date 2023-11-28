@@ -1,5 +1,6 @@
 package org.example.homework.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -21,6 +22,7 @@ public class Homework {
     private Integer groupId;
     @ManyToOne(optional = false)
     @JoinColumn(name = "status_id", nullable = false, insertable = false, updatable = false)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private HomeworkStatus status;
     @Column(name = "status_id")
     private Integer statusId;

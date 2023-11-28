@@ -11,7 +11,7 @@ public interface KeeperRepository {
 
     List<KeepersService.Keeper> findKeepersByPersonId(Integer personId);
 
-    Optional<KeepersService.Keeper> findById(Integer keeperId);
-
     Map<Integer, KeepersService.Keeper> findKeepersByKeeperIdIn(List<Integer> keeperIds);
+
+    KeepersService.KeepersByPersonIdAndCourseIdInResponse findKeepersByPersonIdAndGroupCourseIdIn(Integer personId, List<Integer> courseIds);
 }

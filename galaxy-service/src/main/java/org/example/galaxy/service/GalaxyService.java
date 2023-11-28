@@ -49,12 +49,11 @@ public class GalaxyService {
                 orbitRepository.findOrbitsByGalaxyId(galaxyId)
                         .stream()
                         .map(o -> mapper.map(
-                                        orbitService.findOrbitWithSystemList(
-                                                o.getOrbitId()
-                                        ),
-                                        GetOrbitWithStarSystemsWithoutGalaxyIdDto.class
-                                )
-                        ).collect(Collectors.toList())
+                                orbitService.findOrbitWithSystemList(
+                                        o.getOrbitId()
+                                ),
+                                GetOrbitWithStarSystemsWithoutGalaxyIdDto.class
+                        )).collect(Collectors.toList())
         );
         return galaxyWithOrbits;
     }

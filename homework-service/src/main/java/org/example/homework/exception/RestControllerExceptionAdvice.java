@@ -11,7 +11,6 @@ import org.example.homework.exception.classes.homework.*;
 import org.example.homework.exception.classes.keeper.DifferentKeeperException;
 import org.example.homework.exception.classes.keeper.KeeperNotForGroupException;
 import org.example.homework.exception.classes.keeper.KeeperNotFoundException;
-import org.example.homework.exception.classes.mark.UnexpectedMarkValueException;
 import org.example.homework.exception.classes.person.PersonNotFoundException;
 import org.example.homework.exception.classes.planet.PlanetNotFoundException;
 import org.example.homework.exception.classes.progress.UnexpectedCourseThemeException;
@@ -155,12 +154,6 @@ public class RestControllerExceptionAdvice {
     public ResponseEntity<ErrorResponse> handleHomeworkRequestNotFound(Exception e) {
         logWarning(e);
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(UnexpectedMarkValueException.class)
-    public ResponseEntity<ErrorResponse> handleUnexpectedMarkValueException(Exception e) {
-        logWarning(e);
-        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), e.getMessage()), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(HomeworkIsStillEditingException.class)

@@ -83,7 +83,7 @@ public class HomeworkController {
 
     @GetMapping("/homeworks")
     @PreAuthorize("(@roleService.hasAnyAuthenticationRole(T(org.example.homework.enums.AuthenticationRoleType).EXPLORER) &&" +
-            "@roleService.hasAnyCourseRoleByHomeworkIds(#homeworkIds, T(org.example.homework.enums.CourseRoleType).EXPLORER)) || " +
+            "@roleService.hasAnyCourseRoleByHomeworkIds(#homeworkIds, T(org.example.homework.enums.CourseRoleType).EXPLORER))||" +
             "@roleService.hasAnyCourseRoleByHomeworkIds(#homeworkIds, T(org.example.homework.enums.CourseRoleType).KEEPER)")
     @Operation(summary = "Get homeworks by homework id in", tags = "homework")
     @ApiResponses(value = {

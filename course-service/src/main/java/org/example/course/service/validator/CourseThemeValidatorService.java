@@ -1,6 +1,8 @@
 package org.example.course.service.validator;
 
 import lombok.RequiredArgsConstructor;
+import org.example.course.config.security.RoleService;
+import org.example.course.enums.AuthenticationRoleType;
 import org.example.course.exception.classes.course.CourseNotFoundException;
 import org.example.course.exception.classes.theme.CourseThemeAlreadyExistsException;
 import org.example.course.exception.classes.theme.CourseThemeNotFoundException;
@@ -28,10 +30,11 @@ public class CourseThemeValidatorService {
     private final ExplorerRepository explorerRepository;
     private final CourseProgressService courseProgressService;
     private final PersonService personService;
+    private final RoleService roleService;
 
     @Transactional(readOnly = true)
     public void validateGetThemeRequest(Integer courseThemeId) {
-        if (!isThemeOpened(courseThemeId))
+        if (roleService.hasAnyAuthenticationRole(AuthenticationRoleType.EXPLORER) && !isThemeOpened(courseThemeId))
             throw new ThemeClosedException(courseThemeId);
     }
 

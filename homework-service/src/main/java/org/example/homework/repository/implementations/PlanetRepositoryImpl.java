@@ -5,6 +5,7 @@ import org.example.homework.dto.planet.PlanetDto;
 import org.example.homework.exception.classes.connect.ConnectException;
 import org.example.homework.repository.PlanetRepository;
 import org.example.homework.utils.AuthorizationHeaderContextHolder;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
@@ -13,6 +14,8 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Component
@@ -43,26 +46,24 @@ public class PlanetRepositoryImpl implements PlanetRepository {
     }
 
     @Override
-    public Boolean existsById(Integer themeId) {
+    public Map<Integer, PlanetDto> findPlanetsByPlanetIdIn(List<Integer> planetIds) {
         return webClientBuilder
                 .baseUrl("http://planet-service/api/v1/planet-app/").build()
                 .get()
                 .uri(uri -> uri
-                        .path("planets/{planetId}/")
-                        .build(themeId)
+                        .path("planets/")
+                        .queryParam("planetIds", planetIds)
+                        .build()
                 )
                 .header("Authorization", authorizationHeaderContextHolder.getAuthorizationHeader())
-                .exchangeToMono(
-                        r -> {
-                            if (r.statusCode().is2xxSuccessful())
-                                return Mono.just(true);
-                            else if (r.statusCode().equals(HttpStatus.NOT_FOUND))
-                                return Mono.just(false);
-                            else return Mono.error(new ConnectException());
-                        }
-                )
+                .retrieve()
+                .onStatus(httpStatus -> httpStatus.isError() && !httpStatus.equals(HttpStatus.UNAUTHORIZED), response -> {
+                    throw new ConnectException();
+                })
+                .bodyToFlux(new ParameterizedTypeReference<Map<Integer, PlanetDto>>() {
+                })
                 .timeout(Duration.ofSeconds(5))
                 .onErrorResume(WebClientResponseException.Unauthorized.class, error -> Mono.error(new AccessDeniedException("Вам закрыт доступ к данной функциональности бортового компьютера")))
-                .block();
+                .blockLast();
     }
 }

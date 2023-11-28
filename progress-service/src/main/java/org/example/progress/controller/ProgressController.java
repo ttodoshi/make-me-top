@@ -19,7 +19,8 @@ public class ProgressController {
     private final ProgressService progressService;
 
     @GetMapping("/explorers/final-assessments")
-    @PreAuthorize("isAuthenticated()") // TODO
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.progress.enums.AuthenticationRoleType).KEEPER) && " +
+            "@roleService.isExplorersKeeper(#explorerIds)")
     @Operation(summary = "Get explorer ids needed final assessment", tags = "explorer")
     @ApiResponses(value = {
             @ApiResponse(
@@ -37,7 +38,7 @@ public class ProgressController {
     }
 
     @GetMapping("/explorers/completed")
-    @PreAuthorize("isAuthenticated()") // TODO
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get explorer ids with final assessment", tags = "explorer")
     @ApiResponses(value = {
             @ApiResponse(
@@ -72,10 +73,6 @@ public class ProgressController {
 
     @GetMapping("/explorers/{explorerId}")
     @PreAuthorize("isAuthenticated()")
-//    @PreAuthorize("(@roleService.hasAnyAuthenticationRole(T(org.example.enums.AuthenticationRoleType).EXPLORER) && " +
-//            "@roleService.hasAnyCourseRoleByExplorerId(#explorerId, T(org.example.enums.CourseRoleType).EXPLORER)) || " +
-//            "(@roleService.hasAnyAuthenticationRole(T(org.example.enums.AuthenticationRoleType).KEEPER) && " +
-//            "@roleService.hasAnyCourseRoleByExplorerId(#explorerId, T(org.example.enums.CourseRoleType).KEEPER))")
     @Operation(summary = "Get explorer themes progress", tags = "system progress")
     @ApiResponses(value = {
             @ApiResponse(

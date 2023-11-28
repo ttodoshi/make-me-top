@@ -8,7 +8,6 @@ import org.example.progress.exception.classes.explorer.ExplorerNotFoundException
 import org.example.progress.exception.classes.keeper.DifferentKeeperException;
 import org.example.progress.exception.classes.mark.CourseMarkNotFoundException;
 import org.example.progress.exception.classes.mark.ExplorerDoesNotNeedMarkException;
-import org.example.progress.exception.classes.mark.UnexpectedMarkValueException;
 import org.example.progress.exception.classes.person.PersonNotFoundException;
 import org.example.progress.exception.classes.planet.PlanetNotFoundException;
 import org.example.progress.exception.classes.progress.HomeworkNotCompletedException;
@@ -119,12 +118,6 @@ public class RestControllerExceptionAdvice {
 
     @ExceptionHandler(DifferentKeeperException.class)
     public ResponseEntity<ErrorResponse> handleDifferentKeeperException(Exception e) {
-        logWarning(e);
-        return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), e.getMessage()), HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(UnexpectedMarkValueException.class)
-    public ResponseEntity<ErrorResponse> handleUnexpectedMarkValueException(Exception e) {
         logWarning(e);
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), e.getMessage()), HttpStatus.BAD_REQUEST);
     }

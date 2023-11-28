@@ -77,6 +77,22 @@ public class ExplorerRepositoryImpl implements ExplorerRepository {
     }
 
     @Override
+    public ExplorersService.ExplorersByPersonIdAndGroup_CourseIdInResponse findExplorersByPersonIdAndGroupCourseIdIn(Integer personId, List<Integer> courseIds) {
+        CallCredentials callCredentials = CallCredentialsHelper.authorizationHeader(
+                authorizationHeaderContextHolder.getAuthorizationHeader()
+        );
+        return explorerServiceBlockingStub
+                .withCallCredentials(callCredentials)
+                .findExplorersByPersonIdAndGroupCourseIdIn(
+                        ExplorersService.ExplorersByPersonIdAndGroup_CourseIdInRequest
+                                .newBuilder()
+                                .setPersonId(personId)
+                                .addAllCourseIds(courseIds)
+                                .build()
+                );
+    }
+
+    @Override
     public boolean existsById(Integer explorerId) {
         CallCredentials callCredentials = CallCredentialsHelper.authorizationHeader(
                 authorizationHeaderContextHolder.getAuthorizationHeader()

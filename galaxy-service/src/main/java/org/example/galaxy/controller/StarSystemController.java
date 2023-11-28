@@ -34,10 +34,10 @@ public class StarSystemController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> getSystemById(@PathVariable("systemId") Integer systemId,
-                                           @RequestParam(name = "withDependencies", required = false) Boolean withDependencies) {
+    public ResponseEntity<?> findStarSystemById(@PathVariable("systemId") Integer systemId,
+                                                @RequestParam(name = "withDependencies", required = false) Boolean withDependencies) {
         if (withDependencies != null && withDependencies)
-            return ResponseEntity.ok(starSystemService.getStarSystemByIdWithDependencies(systemId));
+            return ResponseEntity.ok(starSystemService.findStarSystemByIdWithDependencies(systemId));
         else
             return ResponseEntity.ok(starSystemService.findStarSystemById(systemId));
     }
@@ -54,8 +54,10 @@ public class StarSystemController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> getSystemsByGalaxyId(@PathVariable("galaxyId") Integer galaxyId) {
-        return ResponseEntity.ok(starSystemService.findStarSystemsByGalaxyId(galaxyId));
+    public ResponseEntity<?> findStarSystemsByGalaxyId(@PathVariable("galaxyId") Integer galaxyId) {
+        return ResponseEntity.ok(
+                starSystemService.findStarSystemsByGalaxyId(galaxyId)
+        );
     }
 
     @PostMapping("/orbits/{orbitId}/systems")

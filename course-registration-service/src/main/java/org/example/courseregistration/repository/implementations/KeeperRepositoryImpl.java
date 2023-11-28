@@ -52,26 +52,6 @@ public class KeeperRepositoryImpl implements KeeperRepository {
     }
 
     @Override
-    public Optional<KeepersService.Keeper> findById(Integer keeperId) {
-        CallCredentials callCredentials = CallCredentialsHelper.authorizationHeader(
-                authorizationHeaderContextHolder.getAuthorizationHeader()
-        );
-        try {
-            return Optional.of(
-                    keeperServiceBlockingStub
-                            .withCallCredentials(callCredentials)
-                            .findKeeperById(
-                                    KeepersService.KeeperByIdRequest.newBuilder()
-                                            .setKeeperId(keeperId)
-                                            .build()
-                            )
-            );
-        } catch (Exception e) {
-            return Optional.empty();
-        }
-    }
-
-    @Override
     public Map<Integer, KeepersService.Keeper> findKeepersByKeeperIdIn(List<Integer> keeperIds) {
         CallCredentials callCredentials = CallCredentialsHelper.authorizationHeader(
                 authorizationHeaderContextHolder.getAuthorizationHeader()
@@ -83,5 +63,21 @@ public class KeeperRepositoryImpl implements KeeperRepository {
                                 .addAllKeeperIds(keeperIds)
                                 .build()
                 ).getKeeperByKeeperIdMapMap();
+    }
+
+    @Override
+    public KeepersService.KeepersByPersonIdAndCourseIdInResponse findKeepersByPersonIdAndGroupCourseIdIn(Integer personId, List<Integer> courseIds) {
+        CallCredentials callCredentials = CallCredentialsHelper.authorizationHeader(
+                authorizationHeaderContextHolder.getAuthorizationHeader()
+        );
+        return keeperServiceBlockingStub
+                .withCallCredentials(callCredentials)
+                .findKeepersByPersonIdAndCourseIdIn(
+                        KeepersService.KeepersByPersonIdAndCourseIdInRequest
+                                .newBuilder()
+                                .setPersonId(personId)
+                                .addAllCourseIds(courseIds)
+                                .build()
+                );
     }
 }

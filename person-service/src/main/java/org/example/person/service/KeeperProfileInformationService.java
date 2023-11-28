@@ -42,20 +42,29 @@ public class KeeperProfileInformationService {
                 keepers.stream().map(Keeper::getKeeperId).collect(Collectors.toList())
         );
         response.put("totalExplorers", explorerGroups.stream().mapToLong(g -> g.getExplorers().size()).sum());
+
         CompletableFuture<Void> currentGroup = CompletableFuture.runAsync(() ->
                 courseProgressService.getCurrentGroup(explorerGroups).ifPresent(g ->
                         response.put("currentGroup", g)
                 ), asyncExecutor);
+
         CompletableFuture<Void> studyRequests = CompletableFuture.runAsync(() ->
-                response.put("studyRequests", courseRegistrationRequestService.getStudyRequestsForKeeper(keepers)), asyncExecutor);
+                response.put("studyRequests", courseRegistrationRequestService
+                        .getStudyRequestsForKeeper(keepers)), asyncExecutor);
+
         CompletableFuture<Void> acceptedRequests = CompletableFuture.runAsync(() ->
-                response.put("approvedRequests", courseRegistrationRequestService.getApprovedRequestsForKeeper(keepers)), asyncExecutor);
+                response.put("approvedRequests", courseRegistrationRequestService
+                        .getApprovedRequestsForKeeper(keepers)), asyncExecutor);
+
         CompletableFuture<Void> finalAssessments = CompletableFuture.runAsync(() ->
-                response.put("finalAssessments", courseProgressService.getExplorersNeededFinalAssessment(explorerGroups)), asyncExecutor);
+                response.put("finalAssessments", courseProgressService
+                        .getExplorersNeededFinalAssessment(explorerGroups)), asyncExecutor);
+
         CompletableFuture<Void> reviewRequests = CompletableFuture.runAsync(() ->
                 response.put("reviewRequests", homeworkService.getHomeworkRequestsFromExplorersByGroups(
                         explorerGroups.stream().collect(Collectors.toMap(ExplorerGroup::getGroupId, g -> g))
                 )), asyncExecutor);
+
         try {
             CompletableFuture.allOf(currentGroup, studyRequests, acceptedRequests, finalAssessments, reviewRequests).join();
         } catch (CompletionException completionException) {

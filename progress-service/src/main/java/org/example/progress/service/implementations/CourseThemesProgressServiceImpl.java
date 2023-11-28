@@ -1,13 +1,13 @@
 package org.example.progress.service.implementations;
 
 import lombok.RequiredArgsConstructor;
+import org.example.grpc.ExplorersService;
 import org.example.progress.dto.course.CourseDto;
 import org.example.progress.dto.progress.CourseThemeCompletedDto;
 import org.example.progress.dto.progress.CourseWithThemesProgressDto;
 import org.example.progress.exception.classes.course.CourseNotFoundException;
-import org.example.grpc.ExplorersService;
-import org.example.progress.repository.CourseThemeCompletionRepository;
 import org.example.progress.repository.CourseRepository;
+import org.example.progress.repository.CourseThemeCompletionRepository;
 import org.example.progress.repository.ExplorerGroupRepository;
 import org.example.progress.repository.PlanetRepository;
 import org.example.progress.service.CourseThemesProgressService;
@@ -32,6 +32,7 @@ public class CourseThemesProgressServiceImpl implements CourseThemesProgressServ
                 .getReferenceById(explorer.getGroupId()).getCourseId();
         CourseDto course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new CourseNotFoundException(courseId));
+
         List<CourseThemeCompletedDto> themesProgress = planetRepository.findPlanetsBySystemId(courseId)
                 .stream()
                 .map(p -> {
