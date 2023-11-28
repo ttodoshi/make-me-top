@@ -56,22 +56,6 @@ public class CourseController {
         return ResponseEntity.ok(courseService.findCoursesByCourseIdIn(courseIds));
     }
 
-    @GetMapping("/galaxies/{galaxyId}/courses")
-    @PreAuthorize("isAuthenticated()")
-    @Operation(summary = "Get all courses by galaxy id", tags = "course")
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Requested courses by galaxy id",
-                    content = {
-                            @Content(
-                                    mediaType = "application/json")
-                    })
-    })
-    public ResponseEntity<?> getCoursesByGalaxyId(@PathVariable("galaxyId") Integer galaxyId) {
-        return ResponseEntity.ok(courseService.getCoursesByGalaxyId(galaxyId));
-    }
-
     @PutMapping("/galaxies/{galaxyId}/courses/{courseId}")
     @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.course.enums.AuthenticationRoleType).BIG_BROTHER)")
     @Operation(summary = "Update course by id", tags = "course")

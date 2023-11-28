@@ -16,7 +16,6 @@ import org.example.progress.exception.classes.course.CourseNotFoundException;
 import org.example.progress.exception.classes.explorer.ExplorerNotFoundException;
 import org.example.progress.exception.classes.keeper.DifferentKeeperException;
 import org.example.progress.exception.classes.mark.ExplorerDoesNotNeedMarkException;
-import org.example.progress.exception.classes.mark.UnexpectedMarkValueException;
 import org.example.progress.exception.classes.progress.HomeworkNotCompletedException;
 import org.example.progress.exception.classes.progress.ThemeAlreadyCompletedException;
 import org.example.progress.exception.classes.progress.UnexpectedCourseThemeException;
@@ -60,8 +59,6 @@ public class MarkValidatorService {
                 .orElseThrow(() -> new ExplorerNotFoundException(courseMark.getExplorerId()));
         if (isNotKeeperForThisExplorer(explorer))
             throw new DifferentKeeperException();
-        if (courseMark.getValue() < 1 || courseMark.getValue() > 5)
-            throw new UnexpectedMarkValueException();
         if (!explorerNeedFinalAssessment(courseMark.getExplorerId()))
             throw new ExplorerDoesNotNeedMarkException(courseMark.getExplorerId());
     }
@@ -105,8 +102,6 @@ public class MarkValidatorService {
                 .orElseThrow(() -> new ExplorerNotFoundException(mark.getExplorerId()));
         if (isNotKeeperForThisExplorer(explorer))
             throw new DifferentKeeperException();
-        if (mark.getValue() < 1 || mark.getValue() > 5)
-            throw new UnexpectedMarkValueException();
         Optional<CourseThemeCompletion> courseThemeProgressOptional = courseThemeCompletionRepository
                 .findCourseThemeProgressByExplorerIdAndCourseThemeId(explorer.getExplorerId(), themeId);
         if (courseThemeProgressOptional.isPresent())

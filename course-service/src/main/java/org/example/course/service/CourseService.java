@@ -2,18 +2,16 @@ package org.example.course.service;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.example.course.config.security.RoleService;
+import org.example.course.dto.course.UpdateCourseDto;
 import org.example.course.dto.event.CourseCreateEvent;
 import org.example.course.dto.explorer.ExplorerWithRatingDto;
-import org.example.course.dto.starsystem.StarSystemDto;
-import org.example.course.exception.classes.course.CourseNotFoundException;
-import org.example.course.service.validator.CourseValidatorService;
-import org.example.course.enums.AuthenticationRoleType;
-import org.example.course.dto.course.UpdateCourseDto;
 import org.example.course.dto.keeper.KeeperWithRatingDto;
+import org.example.course.enums.AuthenticationRoleType;
+import org.example.course.exception.classes.course.CourseNotFoundException;
 import org.example.course.model.Course;
 import org.example.course.model.CourseTheme;
 import org.example.course.repository.CourseRepository;
-import org.example.course.repository.StarSystemRepository;
+import org.example.course.service.validator.CourseValidatorService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -29,7 +27,6 @@ import java.util.stream.Collectors;
 @Service
 public class CourseService {
     private final CourseRepository courseRepository;
-    private final StarSystemRepository starSystemRepository;
 
     private final CourseThemeService courseThemeService;
     private final ExplorerService explorerService;
@@ -44,14 +41,13 @@ public class CourseService {
     private final KafkaTemplate<Integer, Integer> deleteKeepersKafkaTemplate;
     private final KafkaTemplate<Integer, Integer> deleteRequestsKafkaTemplate;
 
-    public CourseService(CourseRepository courseRepository, StarSystemRepository starSystemRepository,
-                         CourseThemeService courseThemeService, ExplorerService explorerService, KeeperService keeperService,
-                         CourseValidatorService courseValidatorService, RoleService roleService, PersonService personService,
-                         ModelMapper mapper, @Qualifier("updateSystemKafkaTemplate") KafkaTemplate<Integer, String> updateSystemKafkaTemplate,
+    public CourseService(CourseRepository courseRepository, CourseThemeService courseThemeService, ExplorerService explorerService,
+                         KeeperService keeperService, CourseValidatorService courseValidatorService, RoleService roleService,
+                         PersonService personService, ModelMapper mapper,
+                         @Qualifier("updateSystemKafkaTemplate") KafkaTemplate<Integer, String> updateSystemKafkaTemplate,
                          @Qualifier("deleteKeepersKafkaTemplate") KafkaTemplate<Integer, Integer> deleteKeepersKafkaTemplate,
                          @Qualifier("deleteRequestsKafkaTemplate") KafkaTemplate<Integer, Integer> deleteRequestsKafkaTemplate) {
         this.courseRepository = courseRepository;
-        this.starSystemRepository = starSystemRepository;
         this.courseThemeService = courseThemeService;
         this.explorerService = explorerService;
         this.keeperService = keeperService;
@@ -89,7 +85,7 @@ public class CourseService {
                                         .getKeeperForExplorer(
                                                 e.getExplorerId(),
                                                 keepers
-                                        ).orElse(null));
+                                        ));
                     });
         }
         response.put("explorers", explorers);
@@ -105,15 +101,6 @@ public class CourseService {
                         Course::getCourseId,
                         c -> c
                 ));
-    }
-
-    @Transactional(readOnly = true)
-    public List<Course> getCoursesByGalaxyId(Integer galaxyId) {
-        List<Integer> systemIds = starSystemRepository.findStarSystemsByGalaxyId(galaxyId)
-                .stream()
-                .map(StarSystemDto::getSystemId)
-                .collect(Collectors.toList());
-        return courseRepository.findCoursesByCourseIdIn(systemIds);
     }
 
     @KafkaListener(topics = "createCourseTopic", containerFactory = "createCourseKafkaListenerContainerFactory")

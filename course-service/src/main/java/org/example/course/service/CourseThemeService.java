@@ -44,7 +44,7 @@ public class CourseThemeService {
     }
 
     @Transactional(readOnly = true)
-    public CourseTheme getCourseTheme(Integer courseThemeId) {
+    public CourseTheme findCourseThemeById(Integer courseThemeId) {
         courseThemeValidatorService.validateGetThemeRequest(courseThemeId);
         return courseThemeRepository.findById(courseThemeId)
                 .orElseThrow(() -> new CourseThemeNotFoundException(courseThemeId));

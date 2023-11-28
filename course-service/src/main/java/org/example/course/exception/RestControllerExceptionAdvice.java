@@ -6,12 +6,13 @@ import org.example.course.exception.classes.connect.ConnectException;
 import org.example.course.exception.classes.course.CourseAlreadyExistsException;
 import org.example.course.exception.classes.course.CourseNotFoundException;
 import org.example.course.exception.classes.course.CourseNotFoundInGalaxyException;
+import org.example.course.exception.classes.explorer.ExplorerNotFoundException;
+import org.example.course.exception.classes.galaxy.GalaxyNotFoundException;
+import org.example.course.exception.classes.keeper.KeeperNotFoundException;
+import org.example.course.exception.classes.person.PersonNotFoundException;
 import org.example.course.exception.classes.theme.CourseThemeAlreadyExistsException;
 import org.example.course.exception.classes.theme.CourseThemeNotFoundException;
 import org.example.course.exception.classes.theme.ThemeClosedException;
-import org.example.course.exception.classes.explorer.ExplorerNotFoundException;
-import org.example.course.exception.classes.galaxy.GalaxyNotFoundException;
-import org.example.course.exception.classes.person.PersonNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -148,5 +149,11 @@ public class RestControllerExceptionAdvice {
     public ResponseEntity<ErrorResponse> handleStatusRuntimeException(StatusRuntimeException e) {
         HttpStatus httpStatus = HttpStatus.valueOf(e.getStatus().getCode().name());
         return new ResponseEntity<>(new ErrorResponse(httpStatus.getReasonPhrase(), e.getStatus().getDescription()), httpStatus);
+    }
+
+    @ExceptionHandler(KeeperNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleKeeperNotFoundException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
     }
 }

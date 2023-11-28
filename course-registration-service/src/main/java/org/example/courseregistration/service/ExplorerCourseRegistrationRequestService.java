@@ -34,14 +34,15 @@ public class ExplorerCourseRegistrationRequestService {
 
     private CourseRegistrationRequest sendRequestToKeepers(Integer personId, CreateCourseRegistrationRequestDto request) {
         CourseRegistrationRequest sentRequest = sendRequest(personId, request.getCourseId());
+        Integer keeperProcessingStatusId = courseRegistrationRequestKeeperStatusService
+                .findCourseRegistrationRequestKeeperStatusByStatus(CourseRegistrationRequestKeeperStatusType.PROCESSING)
+                .getStatusId();
         request.getKeeperIds().forEach(kId ->
                 courseRegistrationRequestKeeperRepository.save(
                         new CourseRegistrationRequestKeeper(
                                 sentRequest.getRequestId(),
                                 kId,
-                                courseRegistrationRequestKeeperStatusService
-                                        .findCourseRegistrationRequestKeeperStatusByStatus(CourseRegistrationRequestKeeperStatusType.PROCESSING)
-                                        .getStatusId()
+                                keeperProcessingStatusId
                         )
                 ));
         return sentRequest;
