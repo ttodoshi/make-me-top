@@ -18,8 +18,8 @@ public class CourseRatingService {
     private final ExplorerRepository explorerRepository;
 
     @Transactional(readOnly = true)
-    public Map<Integer, Double> getCoursesRating(List<Integer> courseIds) {
-        Map<Integer, ExplorersService.ExplorerList> explorers = explorerRepository.findExplorersByGroup_CourseIdIn(courseIds);
+    public Map<Long, Double> getCoursesRating(List<Long> courseIds) {
+        Map<Long, ExplorersService.ExplorerList> explorers = explorerRepository.findExplorersByGroup_CourseIdIn(courseIds);
         return explorers.entrySet()
                 .stream()
                 .collect(Collectors.toMap(

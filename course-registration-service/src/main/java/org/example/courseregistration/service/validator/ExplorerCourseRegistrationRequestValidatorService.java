@@ -33,7 +33,7 @@ public class ExplorerCourseRegistrationRequestValidatorService {
     private final PersonService personService;
     private final CourseProgressService courseProgressService;
 
-    public void validateSendRequest(Integer personId, CreateCourseRegistrationRequestDto request) {
+    public void validateSendRequest(Long personId, CreateCourseRegistrationRequestDto request) {
         if (!courseRepository.existsById(request.getCourseId()))
             throw new CourseNotFoundException(request.getCourseId());
         keeperRepository.findKeepersByKeeperIdIn(request.getKeeperIds())
@@ -54,14 +54,14 @@ public class ExplorerCourseRegistrationRequestValidatorService {
             throw new RequestAlreadySentException();
     }
 
-    private boolean isPersonKeeperOnCourse(Integer authenticatedPersonId, Integer courseId) {
+    private boolean isPersonKeeperOnCourse(Long authenticatedPersonId, Long courseId) {
         return keeperRepository.findKeeperByPersonIdAndCourseId(authenticatedPersonId, courseId).isPresent();
     }
 
     public void validateCancelRequest(CourseRegistrationRequest request) {
         if (!request.getPersonId().equals(personService.getAuthenticatedPersonId()))
             throw new PersonIsNotPersonInRequestException();
-        Integer acceptedStatusId = courseRegistrationRequestStatusService
+        Long acceptedStatusId = courseRegistrationRequestStatusService
                 .findCourseRegistrationRequestStatusByStatus(CourseRegistrationRequestStatusType.ACCEPTED)
                 .getStatusId();
         if (request.getStatusId().equals(acceptedStatusId))

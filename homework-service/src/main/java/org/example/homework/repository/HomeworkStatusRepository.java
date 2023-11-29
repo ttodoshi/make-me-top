@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface HomeworkStatusRepository extends JpaRepository<HomeworkStatus, Integer> {
+public interface HomeworkStatusRepository extends JpaRepository<HomeworkStatus, Long> {
     Optional<HomeworkStatus> findHomeworkStatusByStatus(HomeworkStatusType status);
 }

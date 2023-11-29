@@ -21,12 +21,12 @@ public class PlanetValidatorService {
 
     private final StarSystemRepository starSystemRepository;
 
-    public void validateGetPlanetsRequest(Integer systemId) {
+    public void validateGetPlanetsRequest(Long systemId) {
         checkSystemExists(systemId);
     }
 
     @Transactional(readOnly = true)
-    public void validatePostRequest(Integer systemId, List<CreatePlanetDto> planets) {
+    public void validatePostRequest(Long systemId, List<CreatePlanetDto> planets) {
         checkSystemExists(systemId);
         List<CreatePlanetDto> savingPlanetsList = new ArrayList<>();
         for (CreatePlanetDto planet : planets) {
@@ -36,32 +36,32 @@ public class PlanetValidatorService {
         }
     }
 
-    private boolean planetExists(Integer systemId, String planetName) {
+    private boolean planetExists(Long systemId, String planetName) {
         return planetRepository.findPlanetsBySystemIdOrderByPlanetNumber(systemId).stream().anyMatch(
                 p -> p.getPlanetName().equals(planetName)
         );
     }
 
     @Transactional(readOnly = true)
-    public void validatePutRequest(Integer planetId, UpdatePlanetDto planet) {
+    public void validatePutRequest(Long planetId, UpdatePlanetDto planet) {
         checkSystemExists(planet.getSystemId());
         if (planetExists(planet.getSystemId(), planetId, planet.getPlanetName()))
             throw new PlanetAlreadyExistsException(planet.getPlanetName());
     }
 
-    private void checkSystemExists(Integer systemId) {
+    private void checkSystemExists(Long systemId) {
         if (!starSystemRepository.existsById(systemId))
             throw new SystemNotFoundException(systemId);
     }
 
-    private boolean planetExists(Integer systemId, Integer planetId, String planetName) {
+    private boolean planetExists(Long systemId, Long planetId, String planetName) {
         return planetRepository.findPlanetsBySystemIdOrderByPlanetNumber(systemId).stream().anyMatch(
                 p -> p.getPlanetName().equals(planetName) && !p.getPlanetId().equals(planetId)
         );
     }
 
     @Transactional(readOnly = true)
-    public void validateDeleteRequest(Integer planetId) {
+    public void validateDeleteRequest(Long planetId) {
         if (!planetRepository.existsById(planetId))
             throw new PlanetNotFoundException(planetId);
     }

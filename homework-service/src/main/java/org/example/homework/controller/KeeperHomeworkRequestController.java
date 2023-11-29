@@ -34,7 +34,7 @@ public class KeeperHomeworkRequestController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> setHomeworkMark(@PathVariable Integer requestId,
+    public ResponseEntity<?> setHomeworkMark(@PathVariable Long requestId,
                                              @Valid @RequestBody CreateHomeworkMarkDto mark) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -56,7 +56,7 @@ public class KeeperHomeworkRequestController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> sendHomeworkFeedback(@PathVariable Integer requestId,
+    public ResponseEntity<?> sendHomeworkFeedback(@PathVariable Long requestId,
                                                   @Valid @RequestBody CreateHomeworkRequestFeedbackDto feedback) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)

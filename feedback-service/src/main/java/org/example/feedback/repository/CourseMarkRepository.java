@@ -1,5 +1,5 @@
 package org.example.feedback.repository;
 
 public interface CourseMarkRepository {
-    Boolean existsById(Integer explorerId);
+    Boolean existsById(Long explorerId);
 }

@@ -1,7 +1,7 @@
 package org.example.person.config;
 
 import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.common.serialization.IntegerSerializer;
+import org.apache.kafka.common.serialization.LongSerializer;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -20,33 +20,33 @@ public class KafkaProducerConfig {
 
     @Bean
     @Qualifier("deleteProgressAndMarkByExplorerIdProducer")
-    public ProducerFactory<Integer, Integer> deleteProgressAndMarkByExplorerIdProducer() {
+    public ProducerFactory<Long, Long> deleteProgressAndMarkByExplorerIdProducer() {
         return new DefaultKafkaProducerFactory<>(deleteProducerProperties());
     }
 
     @Bean
     @Qualifier("deleteProgressAndMarkByExplorerIdKafkaTemplate")
-    public KafkaTemplate<Integer, Integer> deleteProgressAndMarkByExplorerIdKafkaTemplate() {
+    public KafkaTemplate<Long, Long> deleteProgressAndMarkByExplorerIdKafkaTemplate() {
         return new KafkaTemplate<>(deleteProgressAndMarkByExplorerIdProducer());
     }
 
     @Bean
     @Qualifier("deleteFeedbackByExplorerIdProducer")
-    public ProducerFactory<Integer, Integer> deleteFeedbackByExplorerIdProducer() {
+    public ProducerFactory<Long, Long> deleteFeedbackByExplorerIdProducer() {
         return new DefaultKafkaProducerFactory<>(deleteProducerProperties());
     }
 
     @Bean
     @Qualifier("deleteFeedbackByExplorerIdKafkaTemplate")
-    public KafkaTemplate<Integer, Integer> deleteFeedbackByExplorerIdKafkaTemplate() {
+    public KafkaTemplate<Long, Long> deleteFeedbackByExplorerIdKafkaTemplate() {
         return new KafkaTemplate<>(deleteFeedbackByExplorerIdProducer());
     }
 
     private Map<String, Object> deleteProducerProperties() {
         Map<String, Object> properties = new HashMap<>();
         properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
-        properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, IntegerSerializer.class);
-        properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, IntegerSerializer.class);
+        properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, LongSerializer.class);
+        properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, LongSerializer.class);
         return properties;
     }
 }

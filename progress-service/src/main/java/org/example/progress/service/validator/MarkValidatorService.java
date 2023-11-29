@@ -72,8 +72,8 @@ public class MarkValidatorService {
         return !(authenticatedPerson.getPersonId() == keeper.getPersonId());
     }
 
-    private boolean explorerNeedFinalAssessment(Integer explorerId) {
-        List<Integer> explorerNeededFinalAssessment = webClientBuilder
+    private boolean explorerNeedFinalAssessment(Long explorerId) {
+        List<Long> explorerNeededFinalAssessment = webClientBuilder
                 .baseUrl("http://progress-service/api/v1/progress-app/").build()
                 .get()
                 .uri(uri -> uri
@@ -86,7 +86,7 @@ public class MarkValidatorService {
                 .onStatus(httpStatus -> httpStatus.isError() && !httpStatus.equals(HttpStatus.UNAUTHORIZED), response -> {
                     throw new ConnectException();
                 })
-                .bodyToFlux(Integer.class)
+                .bodyToFlux(Long.class)
                 .timeout(Duration.ofSeconds(5))
                 .onErrorResume(WebClientResponseException.Unauthorized.class, error -> Mono.error(new AccessDeniedException("Вам закрыт доступ к данной функциональности бортового компьютера")))
                 .collectList()
@@ -97,7 +97,7 @@ public class MarkValidatorService {
     }
 
     @Transactional(readOnly = true)
-    public void validateThemeMarkRequest(Integer themeId, MarkDto mark) {
+    public void validateThemeMarkRequest(Long themeId, MarkDto mark) {
         ExplorersService.Explorer explorer = explorerRepository.findById(mark.getExplorerId())
                 .orElseThrow(() -> new ExplorerNotFoundException(mark.getExplorerId()));
         if (isNotKeeperForThisExplorer(explorer))
@@ -106,14 +106,14 @@ public class MarkValidatorService {
                 .findCourseThemeProgressByExplorerIdAndCourseThemeId(explorer.getExplorerId(), themeId);
         if (courseThemeProgressOptional.isPresent())
             throw new ThemeAlreadyCompletedException(courseThemeProgressOptional.get().getCourseThemeId());
-        Integer currentThemeId = getCurrentCourseThemeDtoId(explorer);
+        Long currentThemeId = getCurrentCourseThemeDtoId(explorer);
         if (!currentThemeId.equals(themeId))
             throw new UnexpectedCourseThemeException(themeId, currentThemeId);
         if (homeworkNotCompleted(themeId, explorer))
             throw new HomeworkNotCompletedException(themeId);
     }
 
-    private Integer getCurrentCourseThemeDtoId(ExplorersService.Explorer explorer) {
+    private Long getCurrentCourseThemeDtoId(ExplorersService.Explorer explorer) {
         List<CourseThemeCompletedDto> themesProgress = getThemesProgress(explorer).getThemesWithProgress();
         for (CourseThemeCompletedDto theme : themesProgress) {
             if (!theme.getCompleted())
@@ -123,7 +123,7 @@ public class MarkValidatorService {
     }
 
     private CourseWithThemesProgressDto getThemesProgress(ExplorersService.Explorer explorer) {
-        Integer courseId = explorerGroupRepository
+        Long courseId = explorerGroupRepository
                 .getReferenceById(explorer.getGroupId()).getCourseId();
         CourseDto course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new CourseNotFoundException(courseId));
@@ -142,7 +142,7 @@ public class MarkValidatorService {
                 .build();
     }
 
-    private boolean homeworkNotCompleted(Integer themeId, ExplorersService.Explorer explorer) {
+    private boolean homeworkNotCompleted(Long themeId, ExplorersService.Explorer explorer) {
         List<HomeworkDto> allHomeworksByThemeId = homeworkRepository
                 .findHomeworksByCourseThemeIdAndGroupId(themeId, explorer.getGroupId());
         List<HomeworkDto> allCompletedHomeworkByThemeId = homeworkRepository

@@ -27,14 +27,14 @@ public class ExplorerCourseRegistrationRequestService {
 
     @Transactional
     public CourseRegistrationRequest sendRequest(CreateCourseRegistrationRequestDto request) {
-        Integer authenticatedPersonId = personService.getAuthenticatedPersonId();
+        Long authenticatedPersonId = personService.getAuthenticatedPersonId();
         explorerCourseRegistrationRequestValidatorService.validateSendRequest(authenticatedPersonId, request);
         return sendRequestToKeepers(authenticatedPersonId, request);
     }
 
-    private CourseRegistrationRequest sendRequestToKeepers(Integer personId, CreateCourseRegistrationRequestDto request) {
+    private CourseRegistrationRequest sendRequestToKeepers(Long personId, CreateCourseRegistrationRequestDto request) {
         CourseRegistrationRequest sentRequest = sendRequest(personId, request.getCourseId());
-        Integer keeperProcessingStatusId = courseRegistrationRequestKeeperStatusService
+        Long keeperProcessingStatusId = courseRegistrationRequestKeeperStatusService
                 .findCourseRegistrationRequestKeeperStatusByStatus(CourseRegistrationRequestKeeperStatusType.PROCESSING)
                 .getStatusId();
 
@@ -49,7 +49,7 @@ public class ExplorerCourseRegistrationRequestService {
         return sentRequest;
     }
 
-    private CourseRegistrationRequest sendRequest(Integer personId, Integer courseId) {
+    private CourseRegistrationRequest sendRequest(Long personId, Long courseId) {
         CourseRegistrationRequest courseRegistrationRequest = new CourseRegistrationRequest(
                 courseId,
                 personId,
@@ -61,7 +61,7 @@ public class ExplorerCourseRegistrationRequestService {
     }
 
     @Transactional
-    public MessageDto cancelRequest(Integer requestId) {
+    public MessageDto cancelRequest(Long requestId) {
         CourseRegistrationRequest request = courseRegistrationRequestRepository.findById(requestId)
                 .orElseThrow(() -> new RequestNotFoundException(requestId));
         explorerCourseRegistrationRequestValidatorService.validateCancelRequest(request);

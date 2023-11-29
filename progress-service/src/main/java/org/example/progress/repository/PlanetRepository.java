@@ -7,9 +7,9 @@ import java.util.Map;
 import java.util.Optional;
 
 public interface PlanetRepository {
-    Optional<PlanetDto> findById(Integer planetId);
+    Optional<PlanetDto> findById(Long planetId);
 
-    List<PlanetDto> findPlanetsBySystemId(Integer systemId);
+    List<PlanetDto> findPlanetsBySystemId(Long systemId);
 
-    Map<Integer, List<PlanetDto>> findPlanetsBySystemIdIn(List<Integer> systemIds);
+    Map<Long, List<PlanetDto>> findPlanetsBySystemIdIn(List<Long> systemIds);
 }

@@ -22,7 +22,7 @@ public class CourseProgressServiceImpl implements CourseProgressService {
     private final WebClient.Builder webClientBuilder;
 
     @Override
-    public CourseWithThemesProgressDto getCourseProgress(Integer explorerId) {
+    public CourseWithThemesProgressDto getCourseProgress(Long explorerId) {
         return webClientBuilder
                 .baseUrl("http://progress-service/api/v1/progress-app/").build()
                 .get()

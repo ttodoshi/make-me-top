@@ -23,7 +23,7 @@ public class GrpcSecurityConfig {
         return new BearerAuthenticationReader(accessToken -> {
             if (jwtService.isTokenValid(accessToken)) {
                 final String userId = jwtService.extractId(accessToken);
-                Person person = personService.findPersonById(Integer.valueOf(userId));
+                Person person = personService.findPersonById(Long.valueOf(userId));
                 return new UsernamePasswordAuthenticationToken(
                         person,
                         accessToken,

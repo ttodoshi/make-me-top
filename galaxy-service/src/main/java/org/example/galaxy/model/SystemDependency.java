@@ -13,23 +13,23 @@ import javax.persistence.*;
 public class SystemDependency {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer dependencyId;
+    private Long dependencyId;
     @ManyToOne(optional = false)
     @JoinColumn(name = "child_id", nullable = false, insertable = false, updatable = false)
     @JsonBackReference
     private StarSystem child;
     @Column(name = "child_id")
-    private Integer childId;
+    private Long childId;
     @ManyToOne(optional = false)
     @JoinColumn(name = "parent_id", insertable = false, updatable = false)
     @JsonBackReference
     private StarSystem parent;
     @Column(name = "parent_id")
-    private Integer parentId;
+    private Long parentId;
     @Column(nullable = false)
     private Boolean isAlternative;
 
-    public SystemDependency(Integer childId, Integer parentId, Boolean isAlternative) {
+    public SystemDependency(Long childId, Long parentId, Boolean isAlternative) {
         this.childId = childId;
         this.parentId = parentId;
         this.isAlternative = isAlternative;

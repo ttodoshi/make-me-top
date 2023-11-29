@@ -9,12 +9,12 @@ import org.example.person.dto.explorer.ExplorerRequestDto;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 public class CourseRegistrationRequestForKeeperWithGalaxyDto extends ExplorerRequestDto {
-    private Integer requestId;
+    private Long requestId;
     private Double rating;
-    private Integer galaxyId;
+    private Long galaxyId;
     private String galaxyName;
 
-    public CourseRegistrationRequestForKeeperWithGalaxyDto(Integer requestId, Integer personId, String firstName, String lastName, String patronymic, Integer courseId, String courseTitle, Double rating, Integer galaxyId, String galaxyName) {
+    public CourseRegistrationRequestForKeeperWithGalaxyDto(Long requestId, Long personId, String firstName, String lastName, String patronymic, Long courseId, String courseTitle, Double rating, Long galaxyId, String galaxyName) {
         super(personId, firstName, lastName, patronymic, courseId, courseTitle);
         this.requestId = requestId;
         this.rating = rating;

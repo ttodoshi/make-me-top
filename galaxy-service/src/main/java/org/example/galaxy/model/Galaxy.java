@@ -14,7 +14,7 @@ import java.util.List;
 public class Galaxy {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer galaxyId;
+    private Long galaxyId;
     @Column(nullable = false, unique = true)
     private String galaxyName;
     @Column(columnDefinition = "TEXT", nullable = false)

@@ -23,7 +23,7 @@ public class StarSystemRepositoryImpl implements StarSystemRepository {
 
     private final WebClient.Builder webClientBuilder;
 
-    public List<StarSystemDto> findStarSystemsByGalaxyId(Integer galaxyId) {
+    public List<StarSystemDto> findStarSystemsByGalaxyId(Long galaxyId) {
         return webClientBuilder
                 .baseUrl("http://galaxy-service/api/v1/galaxy-app/").build()
                 .get()

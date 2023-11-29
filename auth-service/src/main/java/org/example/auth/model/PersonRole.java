@@ -11,12 +11,12 @@ import javax.persistence.*;
 @IdClass(PersonRoleId.class)
 public class PersonRole {
     @Id
-    private Integer personId;
+    private Long personId;
     @ManyToOne(optional = false)
     @JoinColumn(name = "role_id", nullable = false, insertable = false, updatable = false)
     @JsonBackReference
     private GeneralRole role;
     @Id
     @Column(name = "role_id")
-    private Integer roleId;
+    private Long roleId;
 }

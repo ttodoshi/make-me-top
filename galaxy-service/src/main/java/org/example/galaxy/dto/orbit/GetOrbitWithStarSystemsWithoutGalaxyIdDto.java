@@ -8,7 +8,7 @@ import java.util.List;
 
 @Data
 public class GetOrbitWithStarSystemsWithoutGalaxyIdDto {
-    private Integer orbitId;
+    private Long orbitId;
     private Integer orbitLevel;
     private Integer systemCount;
     @JsonProperty("systemList")

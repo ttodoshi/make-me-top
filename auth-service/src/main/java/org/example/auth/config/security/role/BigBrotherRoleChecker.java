@@ -12,7 +12,7 @@ public class BigBrotherRoleChecker implements RoleChecker {
     private final GeneralRoleRepository generalRoleRepository;
 
     @Override
-    public boolean isRoleAvailable(Integer personId) {
+    public boolean isRoleAvailable(Long personId) {
         for (GeneralRole role : generalRoleRepository.getRolesForPerson(personId)) {
             if (role.getName().equals(GeneralRoleType.BIG_BROTHER))
                 return true;

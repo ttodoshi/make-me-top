@@ -10,7 +10,7 @@ import javax.persistence.*;
 public class CourseRegistrationRequestKeeperStatus {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer statusId;
+    private Long statusId;
     @Column(nullable = false, unique = true)
     @Enumerated(EnumType.STRING)
     private CourseRegistrationRequestKeeperStatusType status;

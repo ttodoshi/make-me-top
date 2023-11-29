@@ -113,13 +113,13 @@ public class GrpcKeeperService extends KeeperServiceGrpc.KeeperServiceImplBase {
     @Transactional(readOnly = true)
     public void findAllKeepers(Empty request, StreamObserver<KeepersService.AllKeepersResponse> responseObserver) {
         List<Keeper> keepers = keeperService.findAllKeepers();
-        Map<Integer, Double> peopleRating = ratingService.getPeopleRatingAsKeeperByPersonIdIn(
+        Map<Long, Double> peopleRating = ratingService.getPeopleRatingAsKeeperByPersonIdIn(
                 keepers.stream()
                         .map(Keeper::getPersonId)
                         .distinct()
                         .collect(Collectors.toList())
         );
-        Map<Integer, List<PeopleService.PersonWithRating>> collect = keepers
+        Map<Long, List<PeopleService.PersonWithRating>> collect = keepers
                 .stream()
                 .collect(Collectors.groupingBy(
                         Keeper::getCourseId,

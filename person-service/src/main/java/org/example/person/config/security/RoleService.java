@@ -26,7 +26,7 @@ public class RoleService {
         return false;
     }
 
-    public boolean hasAnyCourseRole(Integer courseId, CourseRoleType role) {
+    public boolean hasAnyCourseRole(Long courseId, CourseRoleType role) {
         Person person = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (role.equals(CourseRoleType.EXPLORER))
             return explorerRepository.findExplorerByPersonIdAndGroup_CourseId(person.getPersonId(), courseId).isPresent();
@@ -34,7 +34,7 @@ public class RoleService {
             return keeperRepository.findKeeperByPersonIdAndCourseId(person.getPersonId(), courseId).isPresent();
     }
 
-    public boolean isPersonExplorer(Integer explorerId) {
+    public boolean isPersonExplorer(Long explorerId) {
         Person person = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Explorer explorer = explorerRepository.findById(explorerId)
                 .orElseThrow(ExplorerNotFoundException::new);

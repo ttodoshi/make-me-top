@@ -5,6 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface CourseRepository extends JpaRepository<Course, Integer> {
-    List<Course> findCoursesByCourseIdIn(List<Integer> courseIds);
+public interface CourseRepository extends JpaRepository<Course, Long> {
+    List<Course> findCoursesByCourseIdIn(List<Long> courseIds);
 }

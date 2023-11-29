@@ -11,7 +11,7 @@ import java.util.List;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class GetGalaxyDto extends GalaxyDto {
-    private Integer galaxyId;
+    private Long galaxyId;
     @JsonProperty("orbitList")
     private List<GetOrbitWithStarSystemsWithoutGalaxyIdDto> orbitList;
 }

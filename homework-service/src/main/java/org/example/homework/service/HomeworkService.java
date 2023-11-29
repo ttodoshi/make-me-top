@@ -43,19 +43,19 @@ public class HomeworkService {
     private final HomeworkValidatorService homeworkValidatorService;
 
     @Transactional(readOnly = true)
-    public Homework findHomeworkByHomeworkId(Integer homeworkId) {
+    public Homework findHomeworkByHomeworkId(Long homeworkId) {
         return homeworkRepository.findById(homeworkId)
                 .orElseThrow(() -> new HomeworkNotFoundException(homeworkId));
     }
 
     @Transactional(readOnly = true)
-    public List<Homework> findHomeworksByCourseThemeIdAndGroupId(Integer themeId, Integer groupId) {
+    public List<Homework> findHomeworksByCourseThemeIdAndGroupId(Long themeId, Long groupId) {
         homeworkValidatorService.validateGetRequest(themeId, groupId);
         return homeworkRepository.findHomeworksByCourseThemeIdAndGroupId(themeId, groupId);
     }
 
     @Transactional(readOnly = true)
-    public Map<Integer, Homework> findHomeworksByHomeworkIdIn(List<Integer> homeworkIds) {
+    public Map<Long, Homework> findHomeworksByHomeworkIdIn(List<Long> homeworkIds) {
         return homeworkRepository.findAllByHomeworkIdIn(homeworkIds)
                 .stream()
                 .collect(Collectors.toMap(
@@ -65,7 +65,7 @@ public class HomeworkService {
     }
 
     @Transactional(readOnly = true)
-    public List<Homework> findCompletedHomeworksByThemeIdAndGroupIdForExplorer(Integer themeId, Integer groupId, Integer explorerId) {
+    public List<Homework> findCompletedHomeworksByThemeIdAndGroupIdForExplorer(Long themeId, Long groupId, Long explorerId) {
         homeworkValidatorService.validateGetCompletedRequest(themeId, groupId, explorerId);
         return homeworkRepository.findAllCompletedByCourseThemeIdAndGroupIdForExplorer(
                 themeId, groupId, explorerId
@@ -73,7 +73,7 @@ public class HomeworkService {
     }
 
     @Transactional(readOnly = true)
-    public List<Homework> findHomeworksByThemeIdForExplorer(Integer themeId) {
+    public List<Homework> findHomeworksByThemeIdForExplorer(Long themeId) {
         ExplorersService.Explorer explorer = explorerRepository.findExplorerByPersonIdAndGroup_CourseId(
                 personService.getAuthenticatedPersonId(),
                 planetRepository.findById(themeId)
@@ -87,15 +87,15 @@ public class HomeworkService {
     }
 
     @Transactional(readOnly = true)
-    public GetHomeworksWithRequestsDto findHomeworksByThemeIdForKeeper(Integer themeId) {
-        Integer courseId = planetRepository.findById(themeId)
+    public GetHomeworksWithRequestsDto findHomeworksByThemeIdForKeeper(Long themeId) {
+        Long courseId = planetRepository.findById(themeId)
                 .orElseThrow(() -> new PlanetNotFoundException(themeId))
                 .getSystemId();
-        Integer keeperId = keeperRepository.findKeeperByPersonIdAndCourseId(
+        Long keeperId = keeperRepository.findKeeperByPersonIdAndCourseId(
                 personService.getAuthenticatedPersonId(),
                 courseId
         ).orElseThrow(KeeperNotFoundException::new).getKeeperId();
-        List<Integer> groupIds = explorerGroupRepository
+        List<Long> groupIds = explorerGroupRepository
                 .findExplorerGroupsByKeeperId(keeperId)
                 .stream()
                 .map(ExplorerGroupsService.ExplorerGroup::getGroupId)
@@ -118,29 +118,29 @@ public class HomeworkService {
     }
 
     private List<GetHomeworkDto> mapHomeworkToGetHomeworkDto(List<Homework> homeworks) {
-        Map<Integer, ExplorerGroupsService.ExplorerGroup> groups = explorerGroupRepository.findExplorerGroupsByGroupIdIn(
+        Map<Long, ExplorerGroupsService.ExplorerGroup> groups = explorerGroupRepository.findExplorerGroupsByGroupIdIn(
                 homeworks.stream()
                         .map(Homework::getGroupId)
                         .collect(Collectors.toList())
         );
-        Map<Integer, ExplorersService.Explorer> explorers = groups.values()
+        Map<Long, ExplorersService.Explorer> explorers = groups.values()
                 .stream()
                 .flatMap(g -> g.getExplorersList().stream())
                 .collect(Collectors.toMap(
                         ExplorersService.Explorer::getExplorerId,
                         e -> e
                 ));
-        Map<Integer, PeopleService.Person> people = personRepository.findPeopleByPersonIdIn(
+        Map<Long, PeopleService.Person> people = personRepository.findPeopleByPersonIdIn(
                 groups.values()
                         .stream()
                         .flatMap(g -> g.getExplorersList().stream())
                         .map(ExplorersService.Explorer::getPersonId)
                         .collect(Collectors.toList())
         );
-        Map<Integer, GetExplorerGroupDto> groupMap = mapGroupsToGetExplorerGroupDto(
+        Map<Long, GetExplorerGroupDto> groupMap = mapGroupsToGetExplorerGroupDto(
                 groups, people
         );
-        Map<Integer, List<GetHomeworkRequestWithPersonInfoDto>> requests = mapRequestsToGetHomeworkRequestWithPersonInfoDto(
+        Map<Long, List<GetHomeworkRequestWithPersonInfoDto>> requests = mapRequestsToGetHomeworkRequestWithPersonInfoDto(
                 homeworkRequestRepository.findHomeworkRequestsByHomeworkIdIn(
                         homeworks.stream()
                                 .map(Homework::getHomeworkId)
@@ -163,7 +163,7 @@ public class HomeworkService {
                 )).collect(Collectors.toList());
     }
 
-    private Map<Integer, GetExplorerGroupDto> mapGroupsToGetExplorerGroupDto(Map<Integer, ExplorerGroupsService.ExplorerGroup> groups, Map<Integer, PeopleService.Person> people) {
+    private Map<Long, GetExplorerGroupDto> mapGroupsToGetExplorerGroupDto(Map<Long, ExplorerGroupsService.ExplorerGroup> groups, Map<Long, PeopleService.Person> people) {
         return groups.entrySet().stream().collect(Collectors.toMap(
                 Map.Entry::getKey,
                 entry -> new GetExplorerGroupDto(
@@ -186,7 +186,7 @@ public class HomeworkService {
         ));
     }
 
-    private Map<Integer, List<GetHomeworkRequestWithPersonInfoDto>> mapRequestsToGetHomeworkRequestWithPersonInfoDto(List<HomeworkRequest> requests, Map<Integer, ExplorersService.Explorer> explorers, Map<Integer, PeopleService.Person> people) {
+    private Map<Long, List<GetHomeworkRequestWithPersonInfoDto>> mapRequestsToGetHomeworkRequestWithPersonInfoDto(List<HomeworkRequest> requests, Map<Long, ExplorersService.Explorer> explorers, Map<Long, PeopleService.Person> people) {
         return requests.stream().collect(Collectors.groupingBy(
                 HomeworkRequest::getHomeworkId,
                 Collectors.mapping(
@@ -214,7 +214,7 @@ public class HomeworkService {
     }
 
     @Transactional
-    public Homework addHomework(Integer themeId, CreateHomeworkDto homework) {
+    public Homework addHomework(Long themeId, CreateHomeworkDto homework) {
         homeworkValidatorService.validatePostRequest(themeId, homework.getGroupId());
         return homeworkRepository.save(
                 new Homework(
@@ -227,7 +227,7 @@ public class HomeworkService {
     }
 
     @Transactional
-    public Homework updateHomework(Integer homeworkId, UpdateHomeworkDto homework) {
+    public Homework updateHomework(Long homeworkId, UpdateHomeworkDto homework) {
         homeworkValidatorService.validatePutRequest(homework);
         Homework updatedHomework = homeworkRepository.findById(homeworkId)
                 .orElseThrow(() -> new HomeworkNotFoundException(homeworkId));
@@ -238,7 +238,7 @@ public class HomeworkService {
     }
 
     @Transactional
-    public Map<String, String> deleteHomework(Integer homeworkId) {
+    public Map<String, String> deleteHomework(Long homeworkId) {
         homeworkValidatorService.validateDeleteRequest(homeworkId);
         Map<String, String> response = new HashMap<>();
         homeworkRepository.deleteById(homeworkId);
@@ -248,7 +248,7 @@ public class HomeworkService {
 
     @KafkaListener(topics = "deleteHomeworksTopic", containerFactory = "deleteHomeworksKafkaListenerContainerFactory")
     @Transactional
-    public void deleteHomeworksByThemeId(Integer themeId) {
+    public void deleteHomeworksByThemeId(Long themeId) {
         homeworkRepository.deleteAllByCourseThemeId(themeId);
     }
 }

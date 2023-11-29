@@ -9,14 +9,14 @@ import java.util.Set;
 @Builder
 @Data
 public class CoursesStateDto {
-    private Integer personId;
+    private Long personId;
     private String firstName;
     private String lastName;
     private String patronymic;
     @JsonProperty("openedSystems")
-    private Set<Integer> openedCourses;
+    private Set<Long> openedCourses;
     @JsonProperty("studiedSystems")
     private Set<CourseWithProgressDto> studiedCourses;
     @JsonProperty("closedSystems")
-    private Set<Integer> closedCourses;
+    private Set<Long> closedCourses;
 }

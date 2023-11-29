@@ -8,9 +8,9 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 public class ExplorerNeededFinalAssessmentDto extends ExplorerRequestDto {
-    private Integer explorerId;
+    private Long explorerId;
 
-    public ExplorerNeededFinalAssessmentDto(Integer personId, String firstName, String lastName, String patronymic, Integer courseId, String courseTitle, Integer explorerId) {
+    public ExplorerNeededFinalAssessmentDto(Long personId, String firstName, String lastName, String patronymic, Long courseId, String courseTitle, Long explorerId) {
         super(personId, firstName, lastName, patronymic, courseId, courseTitle);
         this.explorerId = explorerId;
     }

@@ -8,10 +8,10 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
-public interface ExplorerFeedbackRepository extends JpaRepository<ExplorerFeedback, Integer> {
-    List<ExplorerFeedback> findExplorerFeedbacksByKeeperIdIn(List<Integer> keeperIds);
+public interface ExplorerFeedbackRepository extends JpaRepository<ExplorerFeedback, Long> {
+    List<ExplorerFeedback> findExplorerFeedbacksByKeeperIdIn(List<Long> keeperIds);
 
     @Query(value = "SELECT AVG(ef.rating) FROM ExplorerFeedback ef\n" +
             "WHERE ef.keeperId IN :personKeeperIds")
-    Optional<Double> getPersonRatingAsKeeper(@Param("personKeeperIds") List<Integer> personKeeperIds);
+    Optional<Double> getPersonRatingAsKeeper(@Param("personKeeperIds") List<Long> personKeeperIds);
 }

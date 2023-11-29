@@ -24,7 +24,7 @@ public class HomeworkRepositoryImpl implements HomeworkRepository {
     private final AuthorizationHeaderContextHolder authorizationHeaderContextHolder;
 
     @Override
-    public Map<Integer, HomeworkDto> findHomeworksByHomeworkIdIn(List<Integer> homeworkIds) {
+    public Map<Long, HomeworkDto> findHomeworksByHomeworkIdIn(List<Long> homeworkIds) {
         return webClientBuilder
                 .baseUrl("http://homework-service/api/v1/homework-app/").build()
                 .get()
@@ -38,7 +38,7 @@ public class HomeworkRepositoryImpl implements HomeworkRepository {
                 .onStatus(httpStatus -> httpStatus.isError() && !httpStatus.equals(HttpStatus.UNAUTHORIZED), response -> {
                     throw new ConnectException();
                 })
-                .bodyToFlux(new ParameterizedTypeReference<Map<Integer, HomeworkDto>>() {
+                .bodyToFlux(new ParameterizedTypeReference<Map<Long, HomeworkDto>>() {
                 })
                 .timeout(Duration.ofSeconds(5))
                 .onErrorResume(WebClientResponseException.Unauthorized.class, error -> Mono.error(new AccessDeniedException("Вам закрыт доступ к данной функциональности бортового компьютера")))
@@ -46,7 +46,7 @@ public class HomeworkRepositoryImpl implements HomeworkRepository {
     }
 
     @Override
-    public HomeworkDto getReferenceById(Integer homeworkId) {
+    public HomeworkDto getReferenceById(Long homeworkId) {
         return webClientBuilder
                 .baseUrl("http://homework-service/api/v1/homework-app/").build()
                 .get()

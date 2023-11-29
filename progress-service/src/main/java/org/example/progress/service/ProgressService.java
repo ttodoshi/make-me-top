@@ -34,17 +34,17 @@ public class ProgressService {
     private final PersonService personService;
 
     @Transactional(readOnly = true)
-    public CoursesStateDto getCoursesProgressForCurrentUser(Integer galaxyId) {
+    public CoursesStateDto getCoursesProgressForCurrentUser(Long galaxyId) {
         PeopleService.Person authenticatedPerson = personService.getAuthenticatedPerson();
-        Set<Integer> openedCourses = new LinkedHashSet<>();
+        Set<Long> openedCourses = new LinkedHashSet<>();
         Set<CourseWithProgressDto> studiedCourses = new LinkedHashSet<>();
-        Set<Integer> closedCourses = new LinkedHashSet<>();
+        Set<Long> closedCourses = new LinkedHashSet<>();
         GetGalaxyDto galaxy = galaxyRepository.findGalaxyById(galaxyId);
         List<GetStarSystemWithDependenciesDto> systems = galaxy.getOrbitList()
                 .stream()
                 .flatMap(o -> o.getSystemWithDependenciesList().stream())
                 .collect(Collectors.toList());
-        Map<Integer, ExplorersService.Explorer> explorers = explorerRepository
+        Map<Long, ExplorersService.Explorer> explorers = explorerRepository
                 .findExplorersByPersonIdAndGroupCourseIdIn(
                         authenticatedPerson.getPersonId(),
                         systems.stream().map(GetStarSystemWithDependenciesDto::getSystemId).collect(Collectors.toList())
@@ -75,13 +75,13 @@ public class ProgressService {
                 .build();
     }
 
-    public CourseWithThemesProgressDto getExplorerThemesProgress(Integer explorerId) {
+    public CourseWithThemesProgressDto getExplorerThemesProgress(Long explorerId) {
         ExplorersService.Explorer explorer = explorerRepository.findById(explorerId)
                 .orElseThrow(() -> new ExplorerNotFoundException(explorerId));
         return courseThemesProgressService.getThemesProgress(explorer);
     }
 
-    private boolean hasUncompletedParents(Map<Integer, ExplorersService.Explorer> explorers, GetStarSystemWithDependenciesDto system) {
+    private boolean hasUncompletedParents(Map<Long, ExplorersService.Explorer> explorers, GetStarSystemWithDependenciesDto system) {
         for (SystemDependencyModelDto systemDependency : getParentDependencies(system)) {
             if (!explorers.containsKey(systemDependency.getSystemId()) || getCourseProgress(explorers.get(systemDependency.getSystemId()).getExplorerId(), systemDependency.getSystemId()) < 100) {
                 return true;
@@ -92,7 +92,7 @@ public class ProgressService {
         return false;
     }
 
-    private double getCourseProgress(Integer explorerId, Integer systemId) {
+    private double getCourseProgress(Long explorerId, Long systemId) {
         return Math.ceil(
                 courseThemeCompletionRepository.getCourseProgress(
                         explorerId, planetRepository.findPlanetsBySystemId(systemId).size()) * 10
@@ -107,21 +107,21 @@ public class ProgressService {
     }
 
     @Transactional(readOnly = true)
-    public List<Integer> getExplorerIdsNeededFinalAssessment(List<Integer> explorerIds) {
-        List<Integer> explorersWithFinalAssessment = getExplorerIdsWithFinalAssessment(explorerIds);
-        Map<Integer, ExplorersService.Explorer> explorers = explorerRepository.findExplorersByExplorerIdIn(explorerIds);
-        Map<Integer, ExplorerGroupsService.ExplorerGroup> explorerGroups = explorerGroupRepository
+    public List<Long> getExplorerIdsNeededFinalAssessment(List<Long> explorerIds) {
+        List<Long> explorersWithFinalAssessment = getExplorerIdsWithFinalAssessment(explorerIds);
+        Map<Long, ExplorersService.Explorer> explorers = explorerRepository.findExplorersByExplorerIdIn(explorerIds);
+        Map<Long, ExplorerGroupsService.ExplorerGroup> explorerGroups = explorerGroupRepository
                 .findExplorerGroupsByGroupIdIn(
                         explorers.values().stream().map(ExplorersService.Explorer::getGroupId).collect(Collectors.toList())
                 );
-        Map<Integer, List<PlanetDto>> planets = planetRepository.findPlanetsBySystemIdIn(
+        Map<Long, List<PlanetDto>> planets = planetRepository.findPlanetsBySystemIdIn(
                 explorerGroups.values().stream().map(ExplorerGroupsService.ExplorerGroup::getCourseId).distinct().collect(Collectors.toList())
         );
 
         return explorerIds.stream()
                 .filter(eId -> !explorersWithFinalAssessment.contains(eId))
                 .filter(eId -> {
-                    Integer explorerCourseId = explorerGroups.get(
+                    Long explorerCourseId = explorerGroups.get(
                             explorers.get(eId).getGroupId()
                     ).getCourseId();
                     return courseThemeCompletionRepository
@@ -133,11 +133,11 @@ public class ProgressService {
                 .collect(Collectors.toList());
     }
 
-    public List<Integer> getExplorerIdsWithFinalAssessment(List<Integer> explorerIds) {
+    public List<Long> getExplorerIdsWithFinalAssessment(List<Long> explorerIds) {
         return courseMarkRepository.findExplorerIdsWithFinalAssessment(explorerIds);
     }
 
-    public ExplorerProgressDto getExplorerCourseProgress(Integer courseId) {
+    public ExplorerProgressDto getExplorerCourseProgress(Long courseId) {
         ExplorersService.Explorer explorer = explorerRepository.findExplorerByPersonIdAndGroup_CourseId(
                 personService.getAuthenticatedPersonId(),
                 courseId
@@ -151,7 +151,7 @@ public class ProgressService {
         );
     }
 
-    private Integer getCurrentCourseThemeId(CourseWithThemesProgressDto courseProgress) {
+    private Long getCurrentCourseThemeId(CourseWithThemesProgressDto courseProgress) {
         List<CourseThemeCompletedDto> themesProgress = courseProgress.getThemesWithProgress();
         for (CourseThemeCompletedDto planet : themesProgress) {
             if (!planet.getCompleted())

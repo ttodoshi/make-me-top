@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ExplorerRoleChecker implements RoleChecker {
     @Override
-    public boolean isRoleAvailable(Integer personId) {
+    public boolean isRoleAvailable(Long personId) {
         return true;
     }
 

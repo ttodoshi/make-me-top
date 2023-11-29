@@ -19,23 +19,23 @@ service ExplorerGroupService {
 }
 
 message ExplorerGroupByIdRequest {
-  int32 groupId = 1;
+  int64 groupId = 1;
 }
 
 message ExplorerGroupsByKeeperIdRequest {
-  int32 keeperId = 1;
+  int64 keeperId = 1;
 }
 
 message ExplorerGroupsByGroupIdInRequest {
-  repeated int32 groupIds = 1;
+  repeated int64 groupIds = 1;
 }
 
 message ExplorerGroupsByGroupIdInResponse {
-  map<int32, ExplorerGroup> groupByGroupIdMap = 1;
+  map<int64, ExplorerGroup> groupByGroupIdMap = 1;
 }
 
 message ExplorerGroupsByKeeperIdInRequest {
-  repeated int32 keeperIds = 1;
+  repeated int64 keeperIds = 1;
 }
 
 message ExplorerGroupList {
@@ -43,13 +43,13 @@ message ExplorerGroupList {
 }
 
 message CreateGroupRequest {
-  int32 courseId = 1;
-  int32 keeperId = 2;
+  int64 courseId = 1;
+  int64 keeperId = 2;
 }
 
 message ExplorerGroup {
-  int32 groupId = 1;
-  int32 courseId = 2;
-  int32 keeperId = 3;
+  int64 groupId = 1;
+  int64 courseId = 2;
+  int64 keeperId = 3;
   repeated Explorer explorers = 4;
 }

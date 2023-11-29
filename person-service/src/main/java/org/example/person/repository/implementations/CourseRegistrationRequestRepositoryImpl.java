@@ -44,7 +44,7 @@ public class CourseRegistrationRequestRepositoryImpl implements CourseRegistrati
     }
 
     @Override
-    public Map<Integer, CourseRegistrationRequestDto> findCourseRegistrationRequestsByRequestIdIn(List<Integer> requestIds) {
+    public Map<Long, CourseRegistrationRequestDto> findCourseRegistrationRequestsByRequestIdIn(List<Long> requestIds) {
         return webClientBuilder
                 .baseUrl("http://course-registration-service/api/v1/course-registration-app/").build()
                 .get()
@@ -58,7 +58,7 @@ public class CourseRegistrationRequestRepositoryImpl implements CourseRegistrati
                 .onStatus(httpStatus -> httpStatus.isError() && !httpStatus.equals(HttpStatus.UNAUTHORIZED), response -> {
                     throw new ConnectException();
                 })
-                .bodyToFlux(new ParameterizedTypeReference<Map<Integer, CourseRegistrationRequestDto>>() {
+                .bodyToFlux(new ParameterizedTypeReference<Map<Long, CourseRegistrationRequestDto>>() {
                 })
                 .timeout(Duration.ofSeconds(5))
                 .onErrorResume(WebClientResponseException.Unauthorized.class, error -> Mono.error(new AccessDeniedException("Вам закрыт доступ к данной функциональности бортового компьютера")))
@@ -66,7 +66,7 @@ public class CourseRegistrationRequestRepositoryImpl implements CourseRegistrati
     }
 
     @Override
-    public List<ApprovedRequestDto> getApprovedCourseRegistrationRequests(List<Integer> keeperIds) {
+    public List<ApprovedRequestDto> getApprovedCourseRegistrationRequests(List<Long> keeperIds) {
         return webClientBuilder
                 .baseUrl("http://course-registration-service/api/v1/course-registration-app/").build()
                 .get()

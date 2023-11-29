@@ -8,12 +8,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class KeeperCommentDto {
-    private Integer personId;
+    private Long personId;
     private String firstName;
     private String lastName;
     private String patronymic;
-    private Integer keeperId;
-    private Integer courseId;
+    private Long keeperId;
+    private Long courseId;
     private String courseTitle;
     private Integer rating;
     private String comment;

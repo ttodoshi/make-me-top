@@ -32,7 +32,7 @@ public class ExplorerHomeworkRequestController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> sendRequest(@PathVariable("homeworkId") Integer homeworkId,
+    public ResponseEntity<?> sendRequest(@PathVariable("homeworkId") Long homeworkId,
                                          @Valid @RequestBody CreateHomeworkRequestDto request) {
         return ResponseEntity.ok(explorerHomeworkRequestService.sendHomeworkRequest(homeworkId, request));
     }

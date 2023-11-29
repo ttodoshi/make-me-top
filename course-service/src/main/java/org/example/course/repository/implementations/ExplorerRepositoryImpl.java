@@ -21,7 +21,7 @@ public class ExplorerRepositoryImpl implements ExplorerRepository {
     private ExplorerServiceGrpc.ExplorerServiceBlockingStub explorerServiceBlockingStub;
 
     @Override
-    public Optional<ExplorersService.Explorer> findById(Integer explorerId) {
+    public Optional<ExplorersService.Explorer> findById(Long explorerId) {
         CallCredentials callCredentials = CallCredentialsHelper.authorizationHeader(
                 authorizationHeaderContextHolder.getAuthorizationHeader()
         );
@@ -41,7 +41,7 @@ public class ExplorerRepositoryImpl implements ExplorerRepository {
     }
 
     @Override
-    public Optional<ExplorersService.Explorer> findExplorerByPersonIdAndGroup_CourseId(Integer personId, Integer courseId) {
+    public Optional<ExplorersService.Explorer> findExplorerByPersonIdAndGroup_CourseId(Long personId, Long courseId) {
         CallCredentials callCredentials = CallCredentialsHelper.authorizationHeader(
                 authorizationHeaderContextHolder.getAuthorizationHeader()
         );
@@ -62,7 +62,7 @@ public class ExplorerRepositoryImpl implements ExplorerRepository {
     }
 
     @Override
-    public List<ExplorersService.Explorer> findExplorersByCourseId(Integer courseId) {
+    public List<ExplorersService.Explorer> findExplorersByCourseId(Long courseId) {
         CallCredentials callCredentials = CallCredentialsHelper.authorizationHeader(
                 authorizationHeaderContextHolder.getAuthorizationHeader()
         );

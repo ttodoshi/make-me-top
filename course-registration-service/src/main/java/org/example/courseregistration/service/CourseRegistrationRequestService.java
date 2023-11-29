@@ -28,7 +28,7 @@ public class CourseRegistrationRequestService {
     }
 
     @Transactional(readOnly = true)
-    public Map<Integer, CourseRegistrationRequest> findCourseRegistrationRequestsByRequestIdIn(List<Integer> requestIds) {
+    public Map<Long, CourseRegistrationRequest> findCourseRegistrationRequestsByRequestIdIn(List<Long> requestIds) {
         return courseRegistrationRequestRepository
                 .findCourseRegistrationRequestsByRequestIdIn(requestIds)
                 .stream()
@@ -41,7 +41,7 @@ public class CourseRegistrationRequestService {
 
     @KafkaListener(topics = "deleteCourseRegistrationRequestsTopic", containerFactory = "deleteCourseRegistrationRequestsKafkaListenerContainerFactory")
     @Transactional
-    public void deleteCourseRegistrationRequestsByCourseId(Integer courseId) {
+    public void deleteCourseRegistrationRequestsByCourseId(Long courseId) {
         courseRegistrationRequestRepository
                 .deleteCourseRegistrationRequestsByCourseId(courseId);
     }

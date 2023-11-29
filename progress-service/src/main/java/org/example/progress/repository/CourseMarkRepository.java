@@ -7,8 +7,8 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface CourseMarkRepository extends JpaRepository<CourseMark, Integer> {
+public interface CourseMarkRepository extends JpaRepository<CourseMark, Long> {
     @Query("SELECT cm.explorerId FROM CourseMark cm\n" +
             "WHERE cm.explorerId IN :explorerIds")
-    List<Integer> findExplorerIdsWithFinalAssessment(@Param("explorerIds") List<Integer> explorerIds);
+    List<Long> findExplorerIdsWithFinalAssessment(@Param("explorerIds") List<Long> explorerIds);
 }

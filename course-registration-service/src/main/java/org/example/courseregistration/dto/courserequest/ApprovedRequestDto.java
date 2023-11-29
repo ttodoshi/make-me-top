@@ -10,10 +10,10 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ApprovedRequestDto {
-    private Integer requestId;
-    private Integer courseId;
-    private Integer personId;
-    private Integer statusId;
-    private Integer keeperId;
+    private Long requestId;
+    private Long courseId;
+    private Long personId;
+    private Long statusId;
+    private Long keeperId;
     private LocalDateTime responseDate;
 }

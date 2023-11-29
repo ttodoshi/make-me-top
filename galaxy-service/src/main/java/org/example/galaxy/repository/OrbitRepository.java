@@ -5,6 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface OrbitRepository extends JpaRepository<Orbit, Integer> {
-    List<Orbit> findOrbitsByGalaxyId(Integer galaxyId);
+public interface OrbitRepository extends JpaRepository<Orbit, Long> {
+    List<Orbit> findOrbitsByGalaxyId(Long galaxyId);
 }

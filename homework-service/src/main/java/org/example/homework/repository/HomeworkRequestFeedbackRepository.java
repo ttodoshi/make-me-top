@@ -5,6 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface HomeworkRequestFeedbackRepository extends JpaRepository<HomeworkRequestFeedback, Integer> {
-    List<HomeworkRequestFeedback> findHomeworkRequestFeedbacksByRequestVersionIdOrderByCreationDateDesc(Integer requestVersionId);
+public interface HomeworkRequestFeedbackRepository extends JpaRepository<HomeworkRequestFeedback, Long> {
+    List<HomeworkRequestFeedback> findHomeworkRequestFeedbacksByRequestVersionIdOrderByCreationDateDesc(Long requestVersionId);
 }

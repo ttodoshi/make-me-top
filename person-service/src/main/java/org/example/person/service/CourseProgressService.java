@@ -10,11 +10,11 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CourseProgressService {
-    Optional<CurrentCourseProgressDto> getCurrentCourseProgress(Integer personId);
+    Optional<CurrentCourseProgressDto> getCurrentCourseProgress(Long personId);
 
     List<ExplorerNeededFinalAssessmentDto> getExplorersNeededFinalAssessment(List<ExplorerGroup> keeperGroups);
 
-    List<Integer> getInvestigatedSystemIds(List<Explorer> personExplorers);
+    List<Long> getInvestigatedSystemIds(List<Explorer> personExplorers);
 
     Optional<CurrentKeeperGroupDto> getCurrentGroup();
 

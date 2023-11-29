@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface CourseRegistrationRequestKeeperStatusRepository extends JpaRepository<CourseRegistrationRequestKeeperStatus, Integer> {
+public interface CourseRegistrationRequestKeeperStatusRepository extends JpaRepository<CourseRegistrationRequestKeeperStatus, Long> {
     Optional<CourseRegistrationRequestKeeperStatus> findCourseRegistrationRequestKeeperStatusByStatus(CourseRegistrationRequestKeeperStatusType status);
 }

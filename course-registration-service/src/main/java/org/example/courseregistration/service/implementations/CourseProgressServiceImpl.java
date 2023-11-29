@@ -26,14 +26,14 @@ public class CourseProgressServiceImpl implements CourseProgressService {
     private final GalaxyRepository galaxyRepository;
 
     @Override
-    public boolean isCourseOpenedForAuthenticatedPerson(Integer courseId) {
-        Integer galaxyId = galaxyRepository.findGalaxyBySystemId(courseId).getGalaxyId();
+    public boolean isCourseOpenedForAuthenticatedPerson(Long courseId) {
+        Long galaxyId = galaxyRepository.findGalaxyBySystemId(courseId).getGalaxyId();
         CoursesStateDto coursesProgress = getCoursesProgress(galaxyId);
         return !coursesProgress.getClosedCourses().contains(courseId);
     }
 
     @Override
-    public boolean isAuthenticatedPersonCurrentlyStudying(Integer galaxyId) {
+    public boolean isAuthenticatedPersonCurrentlyStudying(Long galaxyId) {
         CoursesStateDto coursesProgress = getCoursesProgress(galaxyId);
         Optional<CourseWithProgressDto> currentCourseProgress = coursesProgress.getStudiedCourses()
                 .stream()
@@ -42,7 +42,7 @@ public class CourseProgressServiceImpl implements CourseProgressService {
         return currentCourseProgress.isPresent();
     }
 
-    private CoursesStateDto getCoursesProgress(Integer galaxyId) {
+    private CoursesStateDto getCoursesProgress(Long galaxyId) {
         return webClientBuilder
                 .baseUrl("http://progress-service/api/v1/progress-app/").build()
                 .get()

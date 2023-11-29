@@ -7,10 +7,10 @@ import java.time.LocalDateTime;
 
 @Data
 public class CourseRegistrationRequestKeeperDto {
-    private Integer responseId;
-    private Integer requestId;
-    private Integer keeperId;
+    private Long responseId;
+    private Long requestId;
+    private Long keeperId;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime responseDate;
-    private Integer statusId;
+    private Long statusId;
 }

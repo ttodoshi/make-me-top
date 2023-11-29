@@ -30,7 +30,7 @@ public class ExplorerGroupRepositoryImpl implements ExplorerGroupRepository {
     }
 
     @Override
-    public List<ExplorerGroupsService.ExplorerGroup> findExplorerGroupsByKeeperIdIn(List<Integer> keeperIds) {
+    public List<ExplorerGroupsService.ExplorerGroup> findExplorerGroupsByKeeperIdIn(List<Long> keeperIds) {
         CallCredentials callCredentials = CallCredentialsHelper.authorizationHeader(
                 authorizationHeaderContextHolder.getAuthorizationHeader()
         );

@@ -8,9 +8,9 @@ import javax.validation.constraints.NotNull;
 @Data
 public class UpdateHomeworkDto {
     @NotNull
-    private Integer courseThemeId;
+    private Long courseThemeId;
     @NotBlank
     private String content;
     @NotNull
-    private Integer groupId;
+    private Long groupId;
 }

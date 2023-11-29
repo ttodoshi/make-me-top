@@ -49,7 +49,7 @@ public class GalaxyController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> findGalaxyById(@PathVariable("galaxyId") Integer galaxyId) {
+    public ResponseEntity<?> findGalaxyById(@PathVariable("galaxyId") Long galaxyId) {
         return ResponseEntity.ok(galaxyService.findGalaxyById(galaxyId));
     }
 
@@ -86,8 +86,8 @@ public class GalaxyController {
                     })
     })
     public ResponseEntity<?> updateGalaxy(@Valid @RequestBody GalaxyDto galaxy,
-                                          @PathVariable("galaxyId") Integer id) {
-        return ResponseEntity.ok(galaxyService.updateGalaxy(id, galaxy));
+                                          @PathVariable("galaxyId") Long galaxyId) {
+        return ResponseEntity.ok(galaxyService.updateGalaxy(galaxyId, galaxy));
     }
 
     @DeleteMapping("/galaxies/{galaxyId}")
@@ -102,7 +102,7 @@ public class GalaxyController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> deleteGalaxy(@PathVariable("galaxyId") Integer galaxyId) {
+    public ResponseEntity<?> deleteGalaxy(@PathVariable("galaxyId") Long galaxyId) {
         return ResponseEntity.ok(galaxyService.deleteGalaxy(galaxyId));
     }
 
@@ -118,7 +118,7 @@ public class GalaxyController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> findGalaxyBySystemId(@PathVariable("systemId") Integer systemId) {
+    public ResponseEntity<?> findGalaxyBySystemId(@PathVariable("systemId") Long systemId) {
         return ResponseEntity.ok(galaxyService.findGalaxyBySystemId(systemId));
     }
 }

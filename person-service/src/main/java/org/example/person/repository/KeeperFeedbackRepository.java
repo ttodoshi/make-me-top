@@ -5,5 +5,5 @@ import org.example.person.dto.feedback.KeeperFeedbackDto;
 import java.util.List;
 
 public interface KeeperFeedbackRepository {
-    List<KeeperFeedbackDto> findKeeperFeedbacksByExplorerIdIn(List<Integer> explorerIds);
+    List<KeeperFeedbackDto> findKeeperFeedbacksByExplorerIdIn(List<Long> explorerIds);
 }

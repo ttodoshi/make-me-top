@@ -7,9 +7,9 @@ import org.example.auth.dto.token.RefreshTokenDto;
 import java.util.function.Function;
 
 public interface JwtService {
-    AccessTokenDto generateAccessToken(Integer personId, String role);
+    AccessTokenDto generateAccessToken(Long personId, String role);
 
-    RefreshTokenDto generateRefreshToken(Integer personId);
+    RefreshTokenDto generateRefreshToken(Long personId);
 
     String extractId(String jwtToken);
 

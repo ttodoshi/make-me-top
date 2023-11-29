@@ -12,5 +12,5 @@ public class UpdatePlanetDto {
     @NotNull
     private Integer planetNumber;
     @NotNull
-    private Integer systemId;
+    private Long systemId;
 }

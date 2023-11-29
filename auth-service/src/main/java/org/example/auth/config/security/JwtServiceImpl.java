@@ -25,7 +25,7 @@ public class JwtServiceImpl implements JwtService {
     private String REFRESH_TOKEN_SECRET_KEY;
 
     @Override
-    public AccessTokenDto generateAccessToken(Integer personId, String role) {
+    public AccessTokenDto generateAccessToken(Long personId, String role) {
         Claims claims = Jwts.claims().setSubject(String.valueOf(personId));
         claims.put("role", role);
         Date now = new Date();
@@ -43,7 +43,7 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public RefreshTokenDto generateRefreshToken(Integer personId) {
+    public RefreshTokenDto generateRefreshToken(Long personId) {
         Claims claims = Jwts.claims().setSubject(String.valueOf(personId));
         Date now = new Date();
         Date kill = new Date(now.getTime() + REFRESH_TOKEN_LIFE_TIME * 1000);

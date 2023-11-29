@@ -16,7 +16,7 @@ import javax.persistence.Table;
 @NoArgsConstructor
 public class CourseRating {
     @Id
-    private Integer explorerId;
+    private Long explorerId;
     @Column(nullable = false)
     private Integer rating;
 }

@@ -18,11 +18,11 @@ import java.util.Optional;
 public class PersonServiceImpl implements PersonService {
     private final PersonRepository personRepository;
 
-    private final KafkaTemplate<Integer, Object> createPersonKafkaTemplate;
+    private final KafkaTemplate<Long, Object> createPersonKafkaTemplate;
 
     @Override
     @Cacheable(cacheNames = "personByIdCache", key = "#personId")
-    public PeopleService.Person findPersonById(Integer personId) {
+    public PeopleService.Person findPersonById(Long personId) {
         return personRepository.findById(personId)
                 .orElseThrow(PersonNotFoundException::new);
     }

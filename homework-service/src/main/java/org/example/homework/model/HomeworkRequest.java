@@ -22,15 +22,15 @@ import java.util.List;
 public class HomeworkRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer requestId;
+    private Long requestId;
     @ManyToOne(optional = false)
     @JoinColumn(name = "homework_id", nullable = false, insertable = false, updatable = false)
     @JsonBackReference
     private Homework homework;
     @Column(name = "homework_id")
-    private Integer homeworkId;
+    private Long homeworkId;
     @Column(nullable = false)
-    private Integer explorerId;
+    private Long explorerId;
     @CreatedDate
     @Column(nullable = false)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
@@ -40,7 +40,7 @@ public class HomeworkRequest {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private HomeworkRequestStatus status;
     @Column(name = "status_id")
-    private Integer statusId;
+    private Long statusId;
     @OneToMany(mappedBy = "request", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
@@ -49,7 +49,7 @@ public class HomeworkRequest {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private HomeworkMark mark;
 
-    public HomeworkRequest(Integer homeworkId, Integer explorerId, Integer statusId) {
+    public HomeworkRequest(Long homeworkId, Long explorerId, Long statusId) {
         this.homeworkId = homeworkId;
         this.explorerId = explorerId;
         this.statusId = statusId;

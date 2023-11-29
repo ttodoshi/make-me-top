@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class GalaxyDto {
-    private Integer galaxyId;
+    private Long galaxyId;
     private String galaxyName;
     private String galaxyDescription;
 }

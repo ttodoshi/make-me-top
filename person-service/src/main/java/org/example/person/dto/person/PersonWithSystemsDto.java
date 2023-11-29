@@ -14,10 +14,10 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @EqualsAndHashCode
 public class PersonWithSystemsDto {
-    private Integer personId;
+    private Long personId;
     private String firstName;
     private String lastName;
     private String patronymic;
     private Double rating;
-    private List<Integer> systems;
+    private List<Long> systems;
 }

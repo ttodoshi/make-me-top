@@ -13,8 +13,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class GetHomeworkRequestVersionDto {
-    private Integer versionId;
-    private Integer requestId;
+    private Long versionId;
+    private Long requestId;
     private String content;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime creationDate;

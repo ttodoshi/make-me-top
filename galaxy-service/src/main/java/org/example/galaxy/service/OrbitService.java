@@ -29,7 +29,7 @@ public class OrbitService {
     private final ModelMapper mapper;
 
     @Transactional(readOnly = true)
-    public GetOrbitWithStarSystemsDto findOrbitWithSystemList(Integer orbitId) {
+    public GetOrbitWithStarSystemsDto findOrbitWithSystemList(Long orbitId) {
         Orbit orbit = findOrbitById(orbitId);
         GetOrbitWithStarSystemsDto orbitWithStarSystems = mapper.map(
                 orbit,
@@ -45,13 +45,13 @@ public class OrbitService {
     }
 
     @Transactional(readOnly = true)
-    public Orbit findOrbitById(Integer orbitId) {
+    public Orbit findOrbitById(Long orbitId) {
         return orbitRepository.findById(orbitId)
                 .orElseThrow(() -> new OrbitNotFoundException(orbitId));
     }
 
     @Transactional
-    public GetOrbitWithStarSystemsDto createOrbit(Integer galaxyId, CreateOrbitWithStarSystemsDto createOrbitRequest) {
+    public GetOrbitWithStarSystemsDto createOrbit(Long galaxyId, CreateOrbitWithStarSystemsDto createOrbitRequest) {
         orbitValidatorService.validatePostRequest(galaxyId, createOrbitRequest);
         Orbit orbit = mapper.map(createOrbitRequest, Orbit.class);
         orbit.setGalaxyId(galaxyId);
@@ -66,7 +66,7 @@ public class OrbitService {
     }
 
     @Transactional
-    public Orbit updateOrbit(Integer orbitId, OrbitDto orbit) {
+    public Orbit updateOrbit(Long orbitId, OrbitDto orbit) {
         orbitValidatorService.validatePutRequest(orbitId, orbit);
         Orbit updatedOrbit = findOrbitById(orbitId);
         updatedOrbit.setOrbitLevel(orbit.getOrbitLevel());
@@ -76,14 +76,14 @@ public class OrbitService {
     }
 
     @Transactional
-    public MessageDto deleteOrbit(Integer orbitId) {
+    public MessageDto deleteOrbit(Long orbitId) {
         Orbit orbit = findOrbitById(orbitId);
         orbit.getSystems().forEach(s -> clearCourseAndPlanets(s.getSystemId()));
         orbitRepository.deleteById(orbitId);
         return new MessageDto("Орбита " + orbitId + " была уничтожена неизвестным оружием инопланетной цивилизации");
     }
 
-    public void clearCourseAndPlanets(Integer systemId) {
+    public void clearCourseAndPlanets(Long systemId) {
         systemService.deleteCourse(systemId);
         systemService.deletePlanetsBySystemId(systemId);
     }

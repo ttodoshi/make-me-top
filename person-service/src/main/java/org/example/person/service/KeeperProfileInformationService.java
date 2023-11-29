@@ -33,7 +33,7 @@ public class KeeperProfileInformationService {
     @Transactional(readOnly = true)
     public Map<String, Object> getKeeperCabinetInformation() {
         Map<String, Object> response = new LinkedHashMap<>();
-        Integer authenticatedPersonId = personService.getAuthenticatedPersonId();
+        Long authenticatedPersonId = personService.getAuthenticatedPersonId();
         response.put("person", personService.getAuthenticatedPerson());
         response.put("rating", ratingService.getPersonRatingAsKeeper(authenticatedPersonId));
         List<Keeper> keepers = keeperRepository.findKeepersByPersonId(authenticatedPersonId);

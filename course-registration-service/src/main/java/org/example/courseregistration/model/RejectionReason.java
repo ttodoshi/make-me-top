@@ -10,7 +10,7 @@ import javax.persistence.*;
 public class RejectionReason {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer reasonId;
+    private Long reasonId;
     @Column(nullable = false, unique = true)
     private String name;
 }

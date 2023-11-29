@@ -4,8 +4,8 @@ import lombok.Data;
 
 @Data
 public class KeeperFeedbackDto {
-    private Integer explorerId;
-    private Integer keeperId;
+    private Long explorerId;
+    private Long keeperId;
     private Integer rating;
     private String comment;
 }

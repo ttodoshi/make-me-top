@@ -9,14 +9,14 @@ import org.example.person.dto.explorer.ExplorerRequestDto;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 public class GetHomeworkRequestDto extends ExplorerRequestDto {
-    private Integer requestId;
-    private Integer explorerId;
-    private Integer courseThemeId;
+    private Long requestId;
+    private Long explorerId;
+    private Long courseThemeId;
     private String courseThemeTitle;
-    private Integer homeworkId;
+    private Long homeworkId;
     private HomeworkRequestStatusDto status;
 
-    public GetHomeworkRequestDto(Integer requestId, Integer personId, String firstName, String lastName, String patronymic, Integer courseId, String courseTitle, Integer explorerId, Integer courseThemeId, String courseThemeTitle, Integer homeworkId, HomeworkRequestStatusDto status) {
+    public GetHomeworkRequestDto(Long requestId, Long personId, String firstName, String lastName, String patronymic, Long courseId, String courseTitle, Long explorerId, Long courseThemeId, String courseThemeTitle, Long homeworkId, HomeworkRequestStatusDto status) {
         super(personId, firstName, lastName, patronymic, courseId, courseTitle);
         this.requestId = requestId;
         this.explorerId = explorerId;

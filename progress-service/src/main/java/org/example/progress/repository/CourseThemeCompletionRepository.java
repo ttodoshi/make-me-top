@@ -7,14 +7,14 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
-public interface CourseThemeCompletionRepository extends JpaRepository<CourseThemeCompletion, Integer> {
+public interface CourseThemeCompletionRepository extends JpaRepository<CourseThemeCompletion, Long> {
     @Query(value = "SELECT COUNT(*) / CAST(:totalThemesCount as double) * 100 FROM CourseThemeCompletion ctc\n" +
             "WHERE ctc.explorerId = :explorerId")
-    Double getCourseProgress(@Param("explorerId") Integer explorerId, @Param("totalThemesCount") Integer totalThemesCount);
+    Double getCourseProgress(@Param("explorerId") Long explorerId, @Param("totalThemesCount") Integer totalThemesCount);
 
-    Optional<CourseThemeCompletion> findCourseThemeProgressByExplorerIdAndCourseThemeId(Integer explorerId, Integer courseThemeId);
+    Optional<CourseThemeCompletion> findCourseThemeProgressByExplorerIdAndCourseThemeId(Long explorerId, Long courseThemeId);
 
-    void deleteCourseThemeCompletionsByCourseThemeId(Integer themeId);
+    void deleteCourseThemeCompletionsByCourseThemeId(Long themeId);
 
-    void deleteCourseThemeCompletionsByExplorerId(Integer explorerId);
+    void deleteCourseThemeCompletionsByExplorerId(Long explorerId);
 }

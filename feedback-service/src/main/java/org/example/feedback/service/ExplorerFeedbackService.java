@@ -38,13 +38,13 @@ public class ExplorerFeedbackService {
     private final ModelMapper mapper;
 
     @Transactional(readOnly = true)
-    public List<ExplorerFeedback> findExplorerFeedbacksByKeeperIdIn(List<Integer> keeperIds) {
+    public List<ExplorerFeedback> findExplorerFeedbacksByKeeperIdIn(List<Long> keeperIds) {
         return explorerFeedbackRepository.findExplorerFeedbacksByKeeperIdIn(keeperIds);
     }
 
     @Transactional
-    public ExplorerFeedback sendFeedbackForKeeper(Integer courseId, CreateExplorerFeedbackDto feedback) {
-        Integer personId = personService.getAuthenticatedPersonId();
+    public ExplorerFeedback sendFeedbackForKeeper(Long courseId, CreateExplorerFeedbackDto feedback) {
+        Long personId = personService.getAuthenticatedPersonId();
         feedbackValidatorService.validateFeedbackForKeeperRequest(personId, feedback);
         ExplorersService.Explorer explorer = explorerRepository
                 .findExplorerByPersonIdAndGroup_CourseId(personId, courseId)
@@ -56,12 +56,12 @@ public class ExplorerFeedbackService {
     }
 
     @Async
-    public void clearKeeperRatingCache(Integer keeperId) {
+    public void clearKeeperRatingCache(Long keeperId) {
         CompletableFuture.runAsync(() -> {
             Cache keeperRatingCache = cacheManager.getCache("keeperRatingCache");
-            Map<List<Integer>, Double> nativeCache = (Map<List<Integer>, Double>)
+            Map<List<Long>, Double> nativeCache = (Map<List<Long>, Double>)
                     Objects.requireNonNull(keeperRatingCache).getNativeCache();
-            for (Map.Entry<List<Integer>, Double> entry : nativeCache.entrySet()) {
+            for (Map.Entry<List<Long>, Double> entry : nativeCache.entrySet()) {
                 if (entry.getKey().contains(keeperId))
                     keeperRatingCache.evict(entry.getKey());
             }
@@ -69,8 +69,8 @@ public class ExplorerFeedbackService {
     }
 
     @Transactional
-    public CourseRating rateCourse(Integer courseId, CreateCourseRatingDto request) {
-        Integer personId = personService.getAuthenticatedPersonId();
+    public CourseRating rateCourse(Long courseId, CreateCourseRatingDto request) {
+        Long personId = personService.getAuthenticatedPersonId();
         feedbackValidatorService.validateCourseRatingRequest(personId, courseId, request);
         ExplorersService.Explorer explorer = explorerRepository
                 .findExplorerByPersonIdAndGroup_CourseId(personId, courseId)
@@ -82,7 +82,7 @@ public class ExplorerFeedbackService {
 
     @Cacheable(cacheNames = "keeperRatingCache", key = "#keeperIds")
     @Transactional(readOnly = true)
-    public Double getRatingByPersonKeeperIds(List<Integer> keeperIds) {
+    public Double getRatingByPersonKeeperIds(List<Long> keeperIds) {
         return Math.ceil(explorerFeedbackRepository.getPersonRatingAsKeeper(keeperIds).orElse(0.0) * 10) / 10;
     }
 }

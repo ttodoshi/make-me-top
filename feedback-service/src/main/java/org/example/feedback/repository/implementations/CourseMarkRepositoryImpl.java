@@ -20,7 +20,7 @@ public class CourseMarkRepositoryImpl implements CourseMarkRepository {
     private final AuthorizationHeaderContextHolder authorizationHeaderContextHolder;
 
     @Override
-    public Boolean existsById(Integer explorerId) {
+    public Boolean existsById(Long explorerId) {
         return webClientBuilder
                 .baseUrl("http://progress-service/api/v1/progress-app/").build()
                 .get()

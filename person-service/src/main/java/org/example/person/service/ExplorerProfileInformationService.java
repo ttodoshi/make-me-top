@@ -31,7 +31,7 @@ public class ExplorerProfileInformationService {
     @Transactional(readOnly = true)
     public Map<String, Object> getExplorerCabinetInformation() {
         Map<String, Object> response = new LinkedHashMap<>();
-        Integer authenticatedPersonId = personService.getAuthenticatedPersonId();
+        Long authenticatedPersonId = personService.getAuthenticatedPersonId();
         response.put("person", personService.getAuthenticatedPerson());
         response.put("rating", ratingService.getPersonRatingAsExplorer(authenticatedPersonId));
         List<Explorer> personExplorers = explorerRepository.findExplorersByPersonId(authenticatedPersonId);

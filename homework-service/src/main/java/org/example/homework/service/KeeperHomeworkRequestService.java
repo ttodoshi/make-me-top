@@ -26,7 +26,7 @@ public class KeeperHomeworkRequestService {
     private final KeeperHomeworkRequestValidatorService keeperHomeworkRequestValidatorService;
 
     @Transactional
-    public HomeworkMark setHomeworkMark(Integer requestId, CreateHomeworkMarkDto mark) {
+    public HomeworkMark setHomeworkMark(Long requestId, CreateHomeworkMarkDto mark) {
         HomeworkRequest homeworkRequest = changeRequestStatus(
                 requestId,
                 HomeworkRequestStatusType.CLOSED
@@ -37,7 +37,7 @@ public class KeeperHomeworkRequestService {
     }
 
     @Transactional
-    public HomeworkRequestFeedback sendHomeworkRequestFeedback(Integer requestId, CreateHomeworkRequestFeedbackDto feedback) {
+    public HomeworkRequestFeedback sendHomeworkRequestFeedback(Long requestId, CreateHomeworkRequestFeedbackDto feedback) {
         HomeworkRequest homeworkRequest = changeRequestStatus(
                 requestId,
                 HomeworkRequestStatusType.EDITING
@@ -53,7 +53,7 @@ public class KeeperHomeworkRequestService {
         );
     }
 
-    private HomeworkRequest changeRequestStatus(Integer requestId, HomeworkRequestStatusType status) {
+    private HomeworkRequest changeRequestStatus(Long requestId, HomeworkRequestStatusType status) {
         HomeworkRequest homeworkRequest = homeworkRequestService
                 .findHomeworkRequestById(requestId);
 

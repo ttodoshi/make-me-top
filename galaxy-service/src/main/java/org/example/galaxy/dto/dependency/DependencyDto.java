@@ -7,6 +7,6 @@ import javax.validation.constraints.NotNull;
 @Data
 public class DependencyDto {
     @NotNull
-    private Integer childId;
-    private Integer parentId;
+    private Long childId;
+    private Long parentId;
 }

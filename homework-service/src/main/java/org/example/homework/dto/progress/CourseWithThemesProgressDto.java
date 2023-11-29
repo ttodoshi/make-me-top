@@ -7,7 +7,7 @@ import java.util.List;
 
 @Data
 public class CourseWithThemesProgressDto {
-    private Integer courseId;
+    private Long courseId;
     private String title;
     @JsonProperty("planets")
     private List<CourseThemeCompletedDto> themesWithProgress;

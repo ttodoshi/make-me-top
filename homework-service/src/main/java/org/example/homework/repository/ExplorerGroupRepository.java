@@ -7,9 +7,9 @@ import java.util.Map;
 import java.util.Optional;
 
 public interface ExplorerGroupRepository {
-    Optional<ExplorerGroupsService.ExplorerGroup> findById(Integer groupId);
+    Optional<ExplorerGroupsService.ExplorerGroup> findById(Long groupId);
 
-    Map<Integer, ExplorerGroupsService.ExplorerGroup> findExplorerGroupsByGroupIdIn(List<Integer> groupIds);
+    Map<Long, ExplorerGroupsService.ExplorerGroup> findExplorerGroupsByGroupIdIn(List<Long> groupIds);
 
-    List<ExplorerGroupsService.ExplorerGroup> findExplorerGroupsByKeeperId(Integer keeperId);
+    List<ExplorerGroupsService.ExplorerGroup> findExplorerGroupsByKeeperId(Long keeperId);
 }

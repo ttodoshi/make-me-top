@@ -30,40 +30,40 @@ public class KeeperService {
 
     @Cacheable(cacheNames = "keeperByIdCache", key = "#keeperId")
     @Transactional(readOnly = true)
-    public Keeper findKeeperByKeeperId(Integer keeperId) {
+    public Keeper findKeeperByKeeperId(Long keeperId) {
         return keeperRepository.findById(keeperId)
                 .orElseThrow(KeeperNotFoundException::new);
     }
 
     @Cacheable(cacheNames = "keeperExistsByIdCache", key = "#keeperId")
     @Transactional(readOnly = true)
-    public boolean keeperExistsById(Integer keeperId) {
+    public boolean keeperExistsById(Long keeperId) {
         return keeperRepository.existsById(keeperId);
     }
 
     @Cacheable(cacheNames = "keeperByPersonIdAndCourseIdCache", key = "{#personId, #courseId}")
     @Transactional(readOnly = true)
-    public Keeper findKeeperByPersonIdAndCourseId(Integer personId, Integer courseId) {
+    public Keeper findKeeperByPersonIdAndCourseId(Long personId, Long courseId) {
         return keeperRepository.findKeeperByPersonIdAndCourseId(personId, courseId)
                 .orElseThrow(KeeperNotFoundException::new);
     }
 
     @Cacheable(cacheNames = "keepersByPersonIdCache", key = "#personId")
     @Transactional(readOnly = true)
-    public List<Keeper> findKeepersByPersonId(Integer personId) {
+    public List<Keeper> findKeepersByPersonId(Long personId) {
         keeperValidatorService.validateKeepersByPersonIdRequest(personId);
         return keeperRepository.findKeepersByPersonId(personId);
     }
 
     @Cacheable(cacheNames = "keepersByCourseIdCache", key = "#courseId")
     @Transactional(readOnly = true)
-    public List<Keeper> findKeepersByCourseId(Integer courseId) {
+    public List<Keeper> findKeepersByCourseId(Long courseId) {
         keeperValidatorService.validateKeepersByCourseIdRequest(courseId);
         return keeperRepository.findKeepersByCourseId(courseId);
     }
 
     @Transactional(readOnly = true)
-    public Map<Integer, Keeper> findKeepersByKeeperIdIn(List<Integer> keeperIds) {
+    public Map<Long, Keeper> findKeepersByKeeperIdIn(List<Long> keeperIds) {
         return keeperRepository.findKeepersByKeeperIdIn(keeperIds)
                 .stream()
                 .collect(
@@ -75,7 +75,7 @@ public class KeeperService {
     }
 
     @Transactional(readOnly = true)
-    public List<Keeper> findKeepersByPersonIdAndCourseIdIn(Integer personId, List<Integer> courseIds) {
+    public List<Keeper> findKeepersByPersonIdAndCourseIdIn(Long personId, List<Long> courseIds) {
         return keeperRepository.findKeepersByPersonIdAndCourseIdIn(personId, courseIds);
     }
 
@@ -90,7 +90,7 @@ public class KeeperService {
             @CacheEvict(cacheNames = "keepersByCourseIdCache", key = "#courseId")
     })
     @Transactional
-    public Keeper setKeeperToCourse(Integer courseId, CreateKeeperDto createKeeper) {
+    public Keeper setKeeperToCourse(Long courseId, CreateKeeperDto createKeeper) {
         keeperValidatorService.validateSetKeeperRequest(courseId, createKeeper);
         personService.setDefaultExplorersValueForPerson(createKeeper.getPersonId());
         return keeperRepository.save(
@@ -100,7 +100,7 @@ public class KeeperService {
 
     @KafkaListener(topics = "deleteKeepersTopic", containerFactory = "deleteKeepersKafkaListenerContainerFactory")
     @Transactional
-    public void deleteKeepersByCourseId(Integer courseId) {
+    public void deleteKeepersByCourseId(Long courseId) {
         explorerGroupRepository.findExplorerGroupsByKeeperIdIn(
                 keeperRepository.findKeepersByCourseId(
                         courseId

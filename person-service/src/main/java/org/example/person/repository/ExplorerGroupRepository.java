@@ -5,10 +5,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface ExplorerGroupRepository extends JpaRepository<ExplorerGroup, Integer> {
-    List<ExplorerGroup> findExplorerGroupsByKeeperId(Integer keeperId);
+public interface ExplorerGroupRepository extends JpaRepository<ExplorerGroup, Long> {
+    List<ExplorerGroup> findExplorerGroupsByKeeperId(Long keeperId);
 
-    List<ExplorerGroup> findExplorerGroupsByGroupIdIn(List<Integer> groupIds);
+    List<ExplorerGroup> findExplorerGroupsByGroupIdIn(List<Long> groupIds);
 
-    List<ExplorerGroup> findExplorerGroupsByKeeperIdIn(List<Integer> keeperIds);
+    List<ExplorerGroup> findExplorerGroupsByKeeperIdIn(List<Long> keeperIds);
 }

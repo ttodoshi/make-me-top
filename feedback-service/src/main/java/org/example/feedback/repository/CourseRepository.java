@@ -1,5 +1,5 @@
 package org.example.feedback.repository;
 
 public interface CourseRepository {
-    Boolean existsById(Integer courseId);
+    Boolean existsById(Long courseId);
 }

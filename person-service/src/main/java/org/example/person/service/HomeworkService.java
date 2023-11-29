@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface HomeworkService {
-    List<GetHomeworkRequestDto> getHomeworkRequestsFromExplorersByGroups(Map<Integer, ExplorerGroup> explorerGroups);
+    List<GetHomeworkRequestDto> getHomeworkRequestsFromExplorersByGroups(Map<Long, ExplorerGroup> explorerGroups);
 
     List<GetHomeworkRequestDto> getHomeworkRequestsFromPerson(List<Explorer> personExplorers);
 }

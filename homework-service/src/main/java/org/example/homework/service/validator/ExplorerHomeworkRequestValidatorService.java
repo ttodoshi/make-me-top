@@ -22,7 +22,7 @@ public class ExplorerHomeworkRequestValidatorService {
 
     @Transactional(readOnly = true)
     public void validateNewRequestVersion(HomeworkRequest request) {
-        Integer closedStatusId = homeworkRequestStatusService.findHomeworkRequestStatusByStatus(
+        Long closedStatusId = homeworkRequestStatusService.findHomeworkRequestStatusByStatus(
                 HomeworkRequestStatusType.CLOSED
         ).getStatusId();
         if (request.getStatusId().equals(closedStatusId))
@@ -30,13 +30,13 @@ public class ExplorerHomeworkRequestValidatorService {
     }
 
     @Transactional(readOnly = true)
-    public void validateNewRequest(Integer themeId, Integer explorerId) {
-        Integer currentThemeId = getCurrentCourseThemeId(explorerId);
+    public void validateNewRequest(Long themeId, Long explorerId) {
+        Long currentThemeId = getCurrentCourseThemeId(explorerId);
         if (!currentThemeId.equals(themeId))
             throw new UnexpectedCourseThemeException(currentThemeId, themeId);
     }
 
-    private Integer getCurrentCourseThemeId(Integer explorerId) {
+    private Long getCurrentCourseThemeId(Long explorerId) {
         List<CourseThemeCompletedDto> themesProgress = courseProgressRepository
                 .getCourseProgress(explorerId)
                 .getThemesWithProgress();

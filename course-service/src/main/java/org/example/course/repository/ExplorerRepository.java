@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ExplorerRepository {
-    Optional<ExplorersService.Explorer> findById(Integer explorerId);
+    Optional<ExplorersService.Explorer> findById(Long explorerId);
 
-    Optional<ExplorersService.Explorer> findExplorerByPersonIdAndGroup_CourseId(Integer personId, Integer courseId);
+    Optional<ExplorersService.Explorer> findExplorerByPersonIdAndGroup_CourseId(Long personId, Long courseId);
 
-    List<ExplorersService.Explorer> findExplorersByCourseId(Integer courseId);
+    List<ExplorersService.Explorer> findExplorersByCourseId(Long courseId);
 }

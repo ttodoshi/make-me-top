@@ -8,11 +8,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ExplorerBasicInfoDto {
-    private Integer personId;
+    private Long personId;
     private String firstName;
     private String lastName;
     private String patronymic;
-    private Integer explorerId;
-    private Integer courseId;
-    private Integer groupId;
+    private Long explorerId;
+    private Long courseId;
+    private Long groupId;
 }

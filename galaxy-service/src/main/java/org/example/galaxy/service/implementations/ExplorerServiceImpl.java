@@ -24,7 +24,7 @@ public class ExplorerServiceImpl implements ExplorerService {
     @Override
     @Cacheable(cacheNames = "explorersWithSystemsCache", key = "{#explorers, #systems}")
     public List<PersonWithSystemsDto> getExplorersWithSystems(
-            Map<Integer, ExplorersService.AllExplorersResponse.ExplorerList> explorers,
+            Map<Long, ExplorersService.AllExplorersResponse.ExplorerList> explorers,
             List<StarSystem> systems) {
         return systems.stream()
                 .flatMap(s ->
@@ -41,7 +41,7 @@ public class ExplorerServiceImpl implements ExplorerService {
     }
 
     @Override
-    public Map<Integer, ExplorersService.AllExplorersResponse.ExplorerList> findExplorersWithCourseIds() {
+    public Map<Long, ExplorersService.AllExplorersResponse.ExplorerList> findExplorersWithCourseIds() {
         return explorerServiceBlockingStub
                 .findAllExplorers(Empty.newBuilder().build())
                 .getExplorersWithCourseIdMapMap();

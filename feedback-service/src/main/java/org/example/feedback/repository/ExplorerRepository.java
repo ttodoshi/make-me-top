@@ -7,13 +7,13 @@ import java.util.Map;
 import java.util.Optional;
 
 public interface ExplorerRepository {
-    Optional<ExplorersService.Explorer> findById(Integer explorerId);
+    Optional<ExplorersService.Explorer> findById(Long explorerId);
 
-    Optional<ExplorersService.Explorer> findExplorerByPersonIdAndGroup_CourseId(Integer personId, Integer courseId);
+    Optional<ExplorersService.Explorer> findExplorerByPersonIdAndGroup_CourseId(Long personId, Long courseId);
 
-    List<ExplorersService.Explorer> findExplorersByPersonId(Integer personId);
+    List<ExplorersService.Explorer> findExplorersByPersonId(Long personId);
 
-    Map<Integer, ExplorersService.ExplorerList> findExplorersByGroup_CourseIdIn(List<Integer> courseIds);
+    Map<Long, ExplorersService.ExplorerList> findExplorersByGroup_CourseIdIn(List<Long> courseIds);
 
-    Map<Integer, ExplorersService.ExplorerList> findExplorersByPersonIdIn(List<Integer> personIds);
+    Map<Long, ExplorersService.ExplorerList> findExplorersByPersonIdIn(List<Long> personIds);
 }

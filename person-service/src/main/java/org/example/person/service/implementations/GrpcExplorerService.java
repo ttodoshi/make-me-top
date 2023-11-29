@@ -95,13 +95,13 @@ public class GrpcExplorerService extends ExplorerServiceGrpc.ExplorerServiceImpl
     @Transactional(readOnly = true)
     public void findAllExplorers(Empty request, StreamObserver<ExplorersService.AllExplorersResponse> responseObserver) {
         List<ExplorerBasicInfoDto> explorers = explorerService.findAllExplorers();
-        Map<Integer, Double> peopleRating = ratingService.getPeopleRatingAsExplorerByPersonIdIn(
+        Map<Long, Double> peopleRating = ratingService.getPeopleRatingAsExplorerByPersonIdIn(
                 explorers.stream()
                         .map(ExplorerBasicInfoDto::getPersonId)
                         .distinct()
                         .collect(Collectors.toList())
         );
-        Map<Integer, List<PeopleService.PersonWithRating>> explorersByCourseId = explorers
+        Map<Long, List<PeopleService.PersonWithRating>> explorersByCourseId = explorers
                 .stream()
                 .collect(Collectors.groupingBy(
                         ExplorerBasicInfoDto::getCourseId,
@@ -175,7 +175,7 @@ public class GrpcExplorerService extends ExplorerServiceGrpc.ExplorerServiceImpl
     @Transactional(readOnly = true)
     public void findExplorersByGroupCourseIdIn(ExplorersService.ExplorersByGroup_CourseIdInRequest request,
                                                StreamObserver<ExplorersService.ExplorersByGroup_CourseIdInResponse> responseObserver) {
-        Map<Integer, ExplorersService.ExplorerList> explorersByCourseId = explorerService.findExplorersByGroup_CourseIdIn(request.getCourseIdsList())
+        Map<Long, ExplorersService.ExplorerList> explorersByCourseId = explorerService.findExplorersByGroup_CourseIdIn(request.getCourseIdsList())
                 .stream()
                 .collect(Collectors.groupingBy(
                         e -> e.getGroup().getCourseId(),

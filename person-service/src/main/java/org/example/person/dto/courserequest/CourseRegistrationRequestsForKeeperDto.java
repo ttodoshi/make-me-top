@@ -14,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CourseRegistrationRequestsForKeeperDto {
-    private Integer courseId;
+    private Long courseId;
     private String courseTitle;
     private List<CourseRegistrationRequestForKeeperDto> requests;
 
@@ -22,13 +22,13 @@ public class CourseRegistrationRequestsForKeeperDto {
     @EqualsAndHashCode(callSuper = true)
     @NoArgsConstructor
     public static class CourseRegistrationRequestForKeeperDto extends ExplorerRequestDto implements Comparable<CourseRegistrationRequestForKeeperDto> {
-        private Integer requestId;
+        private Long requestId;
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
         private LocalDateTime requestDate;
-        private Integer keeperId;
+        private Long keeperId;
         private Double rating;
 
-        public CourseRegistrationRequestForKeeperDto(Integer personId, String firstName, String lastName, String patronymic, Integer courseId, String courseTitle, Integer requestId, LocalDateTime requestDate, Integer keeperId, Double rating) {
+        public CourseRegistrationRequestForKeeperDto(Long personId, String firstName, String lastName, String patronymic, Long courseId, String courseTitle, Long requestId, LocalDateTime requestDate, Long keeperId, Double rating) {
             super(personId, firstName, lastName, patronymic, courseId, courseTitle);
             this.requestId = requestId;
             this.requestDate = requestDate;

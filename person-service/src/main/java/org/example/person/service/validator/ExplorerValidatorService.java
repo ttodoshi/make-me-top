@@ -1,9 +1,9 @@
 package org.example.person.service.validator;
 
 public interface ExplorerValidatorService {
-    void validateGetExplorersByPersonIdRequest(Integer personId);
+    void validateGetExplorersByPersonIdRequest(Long personId);
 
-    void validateGetExplorersByCourseIdRequest(Integer courseId);
+    void validateGetExplorersByCourseIdRequest(Long courseId);
 
-    void validateDeleteExplorerByIdRequest(Integer explorerId);
+    void validateDeleteExplorerByIdRequest(Long explorerId);
 }

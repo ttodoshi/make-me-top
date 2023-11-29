@@ -11,8 +11,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class GetExplorerGroupDto {
-    private Integer groupId;
-    private Integer keeperId;
-    private Integer courseId;
+    private Long groupId;
+    private Long keeperId;
+    private Long courseId;
     private List<ExplorerBaseInfoDto> explorers;
 }

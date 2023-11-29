@@ -21,7 +21,7 @@ public class KeeperRepositoryImpl implements KeeperRepository {
     @GrpcClient("keepers")
     private KeeperServiceGrpc.KeeperServiceBlockingStub keeperServiceBlockingStub;
 
-    public Optional<KeepersService.Keeper> findKeeperByPersonIdAndCourseId(Integer personId, Integer courseId) {
+    public Optional<KeepersService.Keeper> findKeeperByPersonIdAndCourseId(Long personId, Long courseId) {
         CallCredentials callCredentials = CallCredentialsHelper.authorizationHeader(
                 authorizationHeaderContextHolder.getAuthorizationHeader()
         );
@@ -42,7 +42,7 @@ public class KeeperRepositoryImpl implements KeeperRepository {
     }
 
     @Override
-    public List<KeepersService.Keeper> findKeepersByPersonId(Integer personId) {
+    public List<KeepersService.Keeper> findKeepersByPersonId(Long personId) {
         return keeperServiceBlockingStub
                 .findKeepersByPersonId(
                         KeepersService.KeepersByPersonIdRequest.newBuilder()
@@ -52,7 +52,7 @@ public class KeeperRepositoryImpl implements KeeperRepository {
     }
 
     @Override
-    public Map<Integer, KeepersService.Keeper> findKeepersByKeeperIdIn(List<Integer> keeperIds) {
+    public Map<Long, KeepersService.Keeper> findKeepersByKeeperIdIn(List<Long> keeperIds) {
         CallCredentials callCredentials = CallCredentialsHelper.authorizationHeader(
                 authorizationHeaderContextHolder.getAuthorizationHeader()
         );
@@ -66,7 +66,7 @@ public class KeeperRepositoryImpl implements KeeperRepository {
     }
 
     @Override
-    public KeepersService.KeepersByPersonIdAndCourseIdInResponse findKeepersByPersonIdAndGroupCourseIdIn(Integer personId, List<Integer> courseIds) {
+    public KeepersService.KeepersByPersonIdAndCourseIdInResponse findKeepersByPersonIdAndGroupCourseIdIn(Long personId, List<Long> courseIds) {
         CallCredentials callCredentials = CallCredentialsHelper.authorizationHeader(
                 authorizationHeaderContextHolder.getAuthorizationHeader()
         );

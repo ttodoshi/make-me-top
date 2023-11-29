@@ -24,26 +24,26 @@ public class ExplorerGroupService {
 
     @Cacheable(cacheNames = "explorerGroupByIdCache", key = "#groupId")
     @Transactional(readOnly = true)
-    public ExplorerGroup findGroupById(Integer groupId) {
+    public ExplorerGroup findGroupById(Long groupId) {
         return explorerGroupRepository.findById(groupId)
                 .orElseThrow(() -> new ExplorerGroupNotFoundException(groupId));
     }
 
     @Cacheable(cacheNames = "explorerGroupsByKeeperIdCache", key = "#keeperId")
     @Transactional(readOnly = true)
-    public List<ExplorerGroup> findExplorerGroupsByKeeperId(Integer keeperId) {
+    public List<ExplorerGroup> findExplorerGroupsByKeeperId(Long keeperId) {
         return explorerGroupRepository.findExplorerGroupsByKeeperId(keeperId);
     }
 
     @Cacheable(cacheNames = "explorerGroupsByKeeperIdInCache", key = "#keeperIds")
     @Transactional(readOnly = true)
-    public List<ExplorerGroup> findExplorerGroupsByKeeperIdIn(List<Integer> keeperIds) {
+    public List<ExplorerGroup> findExplorerGroupsByKeeperIdIn(List<Long> keeperIds) {
         return explorerGroupRepository.findExplorerGroupsByKeeperIdIn(keeperIds);
     }
 
     @Cacheable(cacheNames = "explorerGroupsByGroupIdInCache", key = "#groupIds")
     @Transactional(readOnly = true)
-    public List<ExplorerGroup> findExplorerGroupsByGroupIdIn(List<Integer> groupIds) {
+    public List<ExplorerGroup> findExplorerGroupsByGroupIdIn(List<Long> groupIds) {
         return explorerGroupRepository.findExplorerGroupsByGroupIdIn(groupIds);
     }
 

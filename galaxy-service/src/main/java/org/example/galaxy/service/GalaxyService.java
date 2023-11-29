@@ -41,7 +41,7 @@ public class GalaxyService {
     private final ModelMapper mapper;
 
     @Transactional(readOnly = true)
-    public GetGalaxyDto findGalaxyById(Integer galaxyId) {
+    public GetGalaxyDto findGalaxyById(Long galaxyId) {
         Galaxy galaxy = galaxyRepository.findById(galaxyId)
                 .orElseThrow(() -> new GalaxyNotFoundException(galaxyId));
         GetGalaxyDto galaxyWithOrbits = mapper.map(galaxy, GetGalaxyDto.class);
@@ -59,7 +59,7 @@ public class GalaxyService {
     }
 
     @Transactional(readOnly = true)
-    public Galaxy findGalaxyBySystemId(Integer systemId) {
+    public Galaxy findGalaxyBySystemId(Long systemId) {
         return galaxyRepository.findGalaxyBySystemId(systemId)
                 .orElseThrow(() -> new SystemNotFoundException(systemId));
     }
@@ -71,8 +71,8 @@ public class GalaxyService {
 
     @Transactional(readOnly = true)
     public List<GetGalaxyInformationDto> findAllGalaxiesDetailed() {
-        Map<Integer, ExplorersService.AllExplorersResponse.ExplorerList> explorers = explorerService.findExplorersWithCourseIds();
-        Map<Integer, KeepersService.AllKeepersResponse.KeeperList> keepers = keeperService.findKeepersWithCourseIds();
+        Map<Long, ExplorersService.AllExplorersResponse.ExplorerList> explorers = explorerService.findExplorersWithCourseIds();
+        Map<Long, KeepersService.AllKeepersResponse.KeeperList> keepers = keeperService.findKeepersWithCourseIds();
         return galaxyRepository.findAll()
                 .stream()
                 .map(g -> {
@@ -96,14 +96,14 @@ public class GalaxyService {
     public GetGalaxyDto createGalaxy(CreateGalaxyDto createGalaxyRequest) {
         galaxyValidatorService.validatePostRequest(createGalaxyRequest);
         Galaxy galaxy = mapper.map(createGalaxyRequest, Galaxy.class);
-        Integer savedGalaxyId = galaxyRepository.save(galaxy).getGalaxyId();
+        Long savedGalaxyId = galaxyRepository.save(galaxy).getGalaxyId();
         createGalaxyRequest.getOrbitList()
                 .forEach(o -> orbitService.createOrbit(savedGalaxyId, o));
         return findGalaxyById(savedGalaxyId);
     }
 
     @Transactional
-    public Galaxy updateGalaxy(Integer galaxyId, GalaxyDto galaxy) {
+    public Galaxy updateGalaxy(Long galaxyId, GalaxyDto galaxy) {
         galaxyValidatorService.validatePutRequest(galaxyId, galaxy);
         Galaxy updatedGalaxy = galaxyRepository.getReferenceById(galaxyId);
         updatedGalaxy.setGalaxyName(galaxy.getGalaxyName());
@@ -112,7 +112,7 @@ public class GalaxyService {
     }
 
     @Transactional
-    public MessageDto deleteGalaxy(Integer galaxyId) {
+    public MessageDto deleteGalaxy(Long galaxyId) {
         Galaxy galaxy = galaxyRepository.findById(galaxyId)
                 .orElseThrow(() -> new GalaxyNotFoundException(galaxyId));
         galaxy.getOrbits()

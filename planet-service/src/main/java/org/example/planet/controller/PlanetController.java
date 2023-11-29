@@ -36,7 +36,7 @@ public class PlanetController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> findPlanetById(@PathVariable Integer planetId) {
+    public ResponseEntity<?> findPlanetById(@PathVariable Long planetId) {
         return ResponseEntity.ok(planetService.findPlanetById(planetId));
     }
 
@@ -52,7 +52,7 @@ public class PlanetController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> findPlanetsBySystemId(@PathVariable Integer systemId) {
+    public ResponseEntity<?> findPlanetsBySystemId(@PathVariable Long systemId) {
         return ResponseEntity.ok(planetService.findPlanetsBySystemId(systemId));
     }
 
@@ -68,7 +68,7 @@ public class PlanetController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> findPlanetsByPlanetIdIn(@RequestParam List<Integer> planetIds) {
+    public ResponseEntity<?> findPlanetsByPlanetIdIn(@RequestParam List<Long> planetIds) {
         return ResponseEntity.ok(planetService.findPlanetsByPlanetIdIn(planetIds));
     }
 
@@ -84,7 +84,7 @@ public class PlanetController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> findPlanetsBySystemIdIn(@RequestParam List<Integer> systemIds) {
+    public ResponseEntity<?> findPlanetsBySystemIdIn(@RequestParam List<Long> systemIds) {
         return ResponseEntity.ok(planetService.findPlanetsBySystemIdIn(systemIds));
     }
 
@@ -101,7 +101,7 @@ public class PlanetController {
                     })
     })
     public ResponseEntity<?> addPlanets(@RequestBody List<@Valid CreatePlanetDto> planetList,
-                                        @PathVariable Integer systemId) {
+                                        @PathVariable Long systemId) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(
@@ -121,7 +121,7 @@ public class PlanetController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> updatePlanetById(@PathVariable Integer planetId,
+    public ResponseEntity<?> updatePlanetById(@PathVariable Long planetId,
                                               @Valid @RequestBody UpdatePlanetDto planet) {
         return ResponseEntity.ok(planetService.updatePlanet(planetId, planet));
     }
@@ -138,7 +138,7 @@ public class PlanetController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> deletePlanetById(@PathVariable Integer planetId) {
+    public ResponseEntity<?> deletePlanetById(@PathVariable Long planetId) {
         return ResponseEntity.ok(planetService.deletePlanetById(planetId));
     }
 }

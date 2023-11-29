@@ -7,11 +7,11 @@ import java.util.Map;
 import java.util.Optional;
 
 public interface KeeperRepository {
-    Optional<KeepersService.Keeper> findKeeperByPersonIdAndCourseId(Integer personId, Integer courseId);
+    Optional<KeepersService.Keeper> findKeeperByPersonIdAndCourseId(Long personId, Long courseId);
 
-    List<KeepersService.Keeper> findKeepersByPersonId(Integer personId);
+    List<KeepersService.Keeper> findKeepersByPersonId(Long personId);
 
-    Map<Integer, KeepersService.Keeper> findKeepersByKeeperIdIn(List<Integer> keeperIds);
+    Map<Long, KeepersService.Keeper> findKeepersByKeeperIdIn(List<Long> keeperIds);
 
-    KeepersService.KeepersByPersonIdAndCourseIdInResponse findKeepersByPersonIdAndGroupCourseIdIn(Integer personId, List<Integer> courseIds);
+    KeepersService.KeepersByPersonIdAndCourseIdInResponse findKeepersByPersonIdAndGroupCourseIdIn(Long personId, List<Long> courseIds);
 }

@@ -21,11 +21,11 @@ import java.util.List;
 public class CourseRegistrationRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer requestId;
+    private Long requestId;
     @Column(nullable = false)
-    private Integer courseId;
+    private Long courseId;
     @Column(nullable = false)
-    private Integer personId;
+    private Long personId;
     @CreatedDate
     @Column(nullable = false)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
@@ -35,14 +35,14 @@ public class CourseRegistrationRequest {
     @JsonBackReference
     private CourseRegistrationRequestStatus status;
     @Column(name = "status_id")
-    private Integer statusId;
+    private Long statusId;
     @OneToMany(mappedBy = "request", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonBackReference
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private List<CourseRegistrationRequestKeeper> keepersRequests;
 
-    public CourseRegistrationRequest(Integer courseId, Integer personId, Integer statusId) {
+    public CourseRegistrationRequest(Long courseId, Long personId, Long statusId) {
         this.courseId = courseId;
         this.personId = personId;
         this.statusId = statusId;

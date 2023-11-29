@@ -5,7 +5,7 @@ import org.example.course.dto.keeper.KeeperWithRatingDto;
 import java.util.List;
 
 public interface KeeperService {
-    List<KeeperWithRatingDto> getKeepersForCourse(Integer courseId);
+    List<KeeperWithRatingDto> getKeepersForCourse(Long courseId);
 
-    KeeperWithRatingDto getKeeperForExplorer(Integer explorerId, List<KeeperWithRatingDto> keepers);
+    KeeperWithRatingDto getKeeperForExplorer(Long explorerId, List<KeeperWithRatingDto> keepers);
 }

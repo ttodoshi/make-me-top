@@ -33,13 +33,13 @@ public class CourseThemeValidatorService {
     private final RoleService roleService;
 
     @Transactional(readOnly = true)
-    public void validateGetThemeRequest(Integer courseThemeId) {
+    public void validateGetThemeRequest(Long courseThemeId) {
         if (roleService.hasAnyAuthenticationRole(AuthenticationRoleType.EXPLORER) && !isThemeOpened(courseThemeId))
             throw new ThemeClosedException(courseThemeId);
     }
 
-    private boolean isThemeOpened(Integer themeId) {
-        Integer courseId = courseThemeRepository.findById(themeId)
+    private boolean isThemeOpened(Long themeId) {
+        Long courseId = courseThemeRepository.findById(themeId)
                 .orElseThrow(() -> new CourseThemeNotFoundException(themeId))
                 .getCourseId();
         List<CourseThemeCompletedDto> themesProgress = courseProgressService
@@ -62,7 +62,7 @@ public class CourseThemeValidatorService {
     }
 
 
-    private Integer getCurrentCourseThemeId(List<CourseThemeCompletedDto> themesProgress) {
+    private Long getCurrentCourseThemeId(List<CourseThemeCompletedDto> themesProgress) {
         for (CourseThemeCompletedDto planet : themesProgress) {
             if (!planet.getCompleted())
                 return planet.getCourseThemeId();
@@ -71,7 +71,7 @@ public class CourseThemeValidatorService {
     }
 
     @Transactional(readOnly = true)
-    public void validatePutRequest(Integer themeId, UpdateCourseThemeDto theme) {
+    public void validatePutRequest(Long themeId, UpdateCourseThemeDto theme) {
         if (!courseRepository.existsById(theme.getCourseId()))
             throw new CourseNotFoundException(theme.getCourseId());
         boolean themeTitleExists = courseThemeRepository.findCourseThemesByCourseIdOrderByCourseThemeNumber(

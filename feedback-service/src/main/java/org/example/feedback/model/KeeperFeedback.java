@@ -14,9 +14,9 @@ import javax.persistence.Table;
 @NoArgsConstructor
 public class KeeperFeedback {
     @Id
-    private Integer explorerId;
+    private Long explorerId;
     @Column(nullable = false)
-    private Integer keeperId;
+    private Long keeperId;
     @Column(nullable = false)
     private Integer rating;
     @Column(length = 1000)

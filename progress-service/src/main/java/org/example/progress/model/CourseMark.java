@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @EntityListeners(AuditingEntityListener.class)
 public class CourseMark {
     @Id
-    private Integer explorerId;
+    private Long explorerId;
     @CreatedDate
     @Column(nullable = false)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
@@ -24,7 +24,7 @@ public class CourseMark {
     @Column(nullable = false)
     private Integer value;
 
-    public CourseMark(Integer explorerId, Integer value) {
+    public CourseMark(Long explorerId, Integer value) {
         this.explorerId = explorerId;
         this.value = value;
     }

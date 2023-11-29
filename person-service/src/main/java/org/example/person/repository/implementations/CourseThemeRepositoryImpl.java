@@ -21,7 +21,7 @@ public class CourseThemeRepositoryImpl implements CourseThemeRepository {
     private final AuthorizationHeaderContextHolder authorizationHeaderContextHolder;
 
     @Override
-    public CourseThemeDto getReferenceById(Integer courseThemeId) {
+    public CourseThemeDto getReferenceById(Long courseThemeId) {
         return webClientBuilder
                 .baseUrl("http://course-service/api/v1/course-app/").build()
                 .get()

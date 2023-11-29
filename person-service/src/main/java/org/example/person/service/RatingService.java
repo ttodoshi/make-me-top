@@ -4,11 +4,11 @@ import java.util.List;
 import java.util.Map;
 
 public interface RatingService {
-    Double getPersonRatingAsKeeper(Integer personId);
+    Double getPersonRatingAsKeeper(Long personId);
 
-    Double getPersonRatingAsExplorer(Integer personId);
+    Double getPersonRatingAsExplorer(Long personId);
 
-    Map<Integer, Double> getPeopleRatingAsExplorerByPersonIdIn(List<Integer> personIds);
+    Map<Long, Double> getPeopleRatingAsExplorerByPersonIdIn(List<Long> personIds);
 
-    Map<Integer, Double> getPeopleRatingAsKeeperByPersonIdIn(List<Integer> personIds);
+    Map<Long, Double> getPeopleRatingAsKeeperByPersonIdIn(List<Long> personIds);
 }

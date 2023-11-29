@@ -32,7 +32,7 @@ public class KeeperController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> setKeeperToCourse(@PathVariable Integer courseId,
+    public ResponseEntity<?> setKeeperToCourse(@PathVariable Long courseId,
                                                @Valid @RequestBody CreateKeeperDto createKeeper) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)

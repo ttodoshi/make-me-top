@@ -33,7 +33,7 @@ public class OrbitController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> getOrbitById(@PathVariable("orbitId") Integer orbitId,
+    public ResponseEntity<?> getOrbitById(@PathVariable("orbitId") Long orbitId,
                                           @RequestParam(required = false) Boolean withSystemList) {
         if (withSystemList != null && withSystemList)
             return ResponseEntity.ok(orbitService.findOrbitWithSystemList(orbitId));
@@ -54,7 +54,7 @@ public class OrbitController {
                     })
     })
     public ResponseEntity<?> createOrbit(@Valid @RequestBody CreateOrbitWithStarSystemsDto orbit,
-                                         @PathVariable Integer galaxyId) {
+                                         @PathVariable Long galaxyId) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(
@@ -74,7 +74,7 @@ public class OrbitController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> updateOrbit(@PathVariable("orbitId") Integer orbitId,
+    public ResponseEntity<?> updateOrbit(@PathVariable("orbitId") Long orbitId,
                                          @Valid @RequestBody OrbitDto orbit) {
         return ResponseEntity.ok(orbitService.updateOrbit(orbitId, orbit));
     }
@@ -91,7 +91,7 @@ public class OrbitController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> deleteOrbit(@PathVariable("orbitId") Integer orbitId) {
+    public ResponseEntity<?> deleteOrbit(@PathVariable("orbitId") Long orbitId) {
         return ResponseEntity.ok(orbitService.deleteOrbit(orbitId));
     }
 }

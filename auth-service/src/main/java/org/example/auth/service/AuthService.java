@@ -71,7 +71,7 @@ public class AuthService {
         );
     }
 
-    private boolean isRoleAvailable(Integer personId, String role) {
+    private boolean isRoleAvailable(Long personId, String role) {
         return roleCheckerMap.containsKey(role) && roleCheckerMap.get(role).isRoleAvailable(personId);
     }
 

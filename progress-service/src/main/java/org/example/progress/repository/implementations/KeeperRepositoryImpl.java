@@ -20,7 +20,7 @@ public class KeeperRepositoryImpl implements KeeperRepository {
     @GrpcClient("keepers")
     private KeeperServiceGrpc.KeeperServiceBlockingStub keeperServiceBlockingStub;
 
-    public Optional<KeepersService.Keeper> findKeeperByPersonIdAndCourseId(Integer personId, Integer courseId) {
+    public Optional<KeepersService.Keeper> findKeeperByPersonIdAndCourseId(Long personId, Long courseId) {
         CallCredentials callCredentials = CallCredentialsHelper.authorizationHeader(
                 authorizationHeaderContextHolder.getAuthorizationHeader()
         );
@@ -41,7 +41,7 @@ public class KeeperRepositoryImpl implements KeeperRepository {
     }
 
     @Override
-    public KeepersService.Keeper getReferenceById(Integer keeperId) {
+    public KeepersService.Keeper getReferenceById(Long keeperId) {
         CallCredentials callCredentials = CallCredentialsHelper.authorizationHeader(
                 authorizationHeaderContextHolder.getAuthorizationHeader()
         );
@@ -55,7 +55,7 @@ public class KeeperRepositoryImpl implements KeeperRepository {
     }
 
     @Override
-    public List<KeepersService.Keeper> findKeepersByPersonId(Integer personId) {
+    public List<KeepersService.Keeper> findKeepersByPersonId(Long personId) {
         return keeperServiceBlockingStub
                 .findKeepersByPersonId(
                         KeepersService.KeepersByPersonIdRequest.newBuilder()

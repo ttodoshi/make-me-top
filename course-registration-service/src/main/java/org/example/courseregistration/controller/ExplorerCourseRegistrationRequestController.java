@@ -54,7 +54,7 @@ public class ExplorerCourseRegistrationRequestController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> cancelRequest(@PathVariable("requestId") Integer requestId) {
+    public ResponseEntity<?> cancelRequest(@PathVariable("requestId") Long requestId) {
         return ResponseEntity.ok(explorerCourseRegistrationRequestService.cancelRequest(requestId));
     }
 }

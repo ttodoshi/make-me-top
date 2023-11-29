@@ -14,7 +14,7 @@ public interface CourseRegistrationRequestService {
 
     Optional<CourseRegistrationRequestForExplorerDto> getStudyRequestForExplorerByPersonId();
 
-    Optional<CourseRegistrationRequestForKeeperWithGalaxyDto> getStudyRequestByExplorerPersonId(Integer authenticatedPersonId, Integer personId);
+    Optional<CourseRegistrationRequestForKeeperWithGalaxyDto> getStudyRequestByExplorerPersonId(Long authenticatedPersonId, Long personId);
 
     List<GetApprovedCourseRegistrationRequestsForKeeperDto> getApprovedRequestsForKeeper(List<Keeper> keepers);
 }

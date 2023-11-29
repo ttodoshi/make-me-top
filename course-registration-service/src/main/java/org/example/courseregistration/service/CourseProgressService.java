@@ -1,7 +1,7 @@
 package org.example.courseregistration.service;
 
 public interface CourseProgressService {
-    boolean isCourseOpenedForAuthenticatedPerson(Integer courseId);
+    boolean isCourseOpenedForAuthenticatedPerson(Long courseId);
 
-    boolean isAuthenticatedPersonCurrentlyStudying(Integer galaxyId);
+    boolean isAuthenticatedPersonCurrentlyStudying(Long galaxyId);
 }

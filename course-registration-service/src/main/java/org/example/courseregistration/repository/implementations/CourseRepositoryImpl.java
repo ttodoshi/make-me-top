@@ -20,7 +20,7 @@ public class CourseRepositoryImpl implements CourseRepository {
     private final AuthorizationHeaderContextHolder authorizationHeaderContextHolder;
 
     @Override
-    public Boolean existsById(Integer courseId) {
+    public Boolean existsById(Long courseId) {
         return webClientBuilder
                 .baseUrl("http://course-service/api/v1/course-app/").build()
                 .get()

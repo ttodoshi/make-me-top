@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SystemDependencyModelDto {
-    private Integer systemId;
+    private Long systemId;
     private String type;
     private Boolean isAlternative;
 }

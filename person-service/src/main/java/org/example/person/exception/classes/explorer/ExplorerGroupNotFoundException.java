@@ -5,7 +5,7 @@ public class ExplorerGroupNotFoundException extends RuntimeException {
         super("Группа не найдена");
     }
 
-    public ExplorerGroupNotFoundException(Integer groupId) {
+    public ExplorerGroupNotFoundException(Long groupId) {
         super("Группа " + groupId + " не найдена");
     }
 }

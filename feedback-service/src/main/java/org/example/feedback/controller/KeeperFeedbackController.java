@@ -33,7 +33,7 @@ public class KeeperFeedbackController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> findKeeperFeedbacksByExplorerIdIn(@RequestParam List<Integer> explorerIds) {
+    public ResponseEntity<?> findKeeperFeedbacksByExplorerIdIn(@RequestParam List<Long> explorerIds) {
         return ResponseEntity.ok(keeperFeedbackService.findKeeperFeedbacksByExplorerIdIn(explorerIds));
     }
 
@@ -50,7 +50,7 @@ public class KeeperFeedbackController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> sendFeedbackForExplorer(@PathVariable Integer courseId,
+    public ResponseEntity<?> sendFeedbackForExplorer(@PathVariable Long courseId,
                                                      @Valid @RequestBody CreateKeeperFeedbackDto feedback) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)

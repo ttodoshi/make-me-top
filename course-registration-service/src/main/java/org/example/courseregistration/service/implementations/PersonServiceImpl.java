@@ -15,7 +15,7 @@ public class PersonServiceImpl implements PersonService {
     private final PersonRepository personRepository;
 
     @Override
-    public Integer getAuthenticatedPersonId() {
+    public Long getAuthenticatedPersonId() {
         PeopleService.Person authenticatedPerson = (PeopleService.Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return authenticatedPerson.getPersonId();
     }
@@ -27,7 +27,7 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     @Cacheable(cacheNames = "personByIdCache", key = "#personId")
-    public PeopleService.Person findPersonById(Integer personId) {
+    public PeopleService.Person findPersonById(Long personId) {
         return personRepository.findById(personId)
                 .orElseThrow(() -> new PersonNotFoundException(personId));
     }

@@ -15,7 +15,7 @@ public class GalaxyValidatorService {
     private final GalaxyRepository galaxyRepository;
 
     @Transactional(readOnly = true)
-    public void validateGetByIdRequest(Integer galaxyId) {
+    public void validateGetByIdRequest(Long galaxyId) {
         if (!galaxyRepository.existsById(galaxyId))
             throw new GalaxyNotFoundException(galaxyId);
     }
@@ -32,14 +32,14 @@ public class GalaxyValidatorService {
     }
 
     @Transactional(readOnly = true)
-    public void validatePutRequest(Integer galaxyId, GalaxyDto galaxy) {
+    public void validatePutRequest(Long galaxyId, GalaxyDto galaxy) {
         if (!galaxyRepository.existsById(galaxyId))
             throw new GalaxyNotFoundException(galaxyId);
         if (galaxyExists(galaxyId, galaxy.getGalaxyName()))
             throw new GalaxyAlreadyExistsException(galaxy.getGalaxyName());
     }
 
-    private boolean galaxyExists(Integer galaxyId, String galaxyName) {
+    private boolean galaxyExists(Long galaxyId, String galaxyName) {
         return galaxyRepository.findAll().stream()
                 .anyMatch(g -> g.getGalaxyName().equals(galaxyName) && !g.getGalaxyId().equals(galaxyId));
     }

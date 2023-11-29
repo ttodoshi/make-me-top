@@ -36,7 +36,7 @@ public class RoleService {
     }
 
 
-    public boolean hasAnyCourseRole(Integer courseId, CourseRoleType role) {
+    public boolean hasAnyCourseRole(Long courseId, CourseRoleType role) {
         PeopleService.Person person = personService.getAuthenticatedPerson();
         if (role.equals(CourseRoleType.EXPLORER))
             return explorerRepository.findExplorerByPersonIdAndGroup_CourseId(person.getPersonId(), courseId).isPresent();
@@ -44,7 +44,7 @@ public class RoleService {
             return keeperRepository.findKeeperByPersonIdAndCourseId(person.getPersonId(), courseId).isPresent();
     }
 
-    public boolean hasAnyCoursesRole(List<Integer> courseIds, CourseRoleType role) {
+    public boolean hasAnyCoursesRole(List<Long> courseIds, CourseRoleType role) {
         PeopleService.Person person = (PeopleService.Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (role.equals(CourseRoleType.EXPLORER)) {
             return courseIds.stream().allMatch(cId ->
@@ -60,7 +60,7 @@ public class RoleService {
     }
 
     @Transactional(readOnly = true)
-    public boolean hasAnyCourseRoleByRequestId(Integer requestId, CourseRoleType role) {
+    public boolean hasAnyCourseRoleByRequestId(Long requestId, CourseRoleType role) {
         return hasAnyCourseRole(
                 courseRegistrationRequestRepository.findById(requestId)
                         .orElseThrow(() -> new RequestNotFoundException(requestId)).getCourseId(),
@@ -69,8 +69,8 @@ public class RoleService {
     }
 
     @Transactional(readOnly = true)
-    public boolean hasAnyCourseRoleByRequestIds(List<Integer> requestIds, CourseRoleType role) {
-        List<Integer> courseIds = courseRegistrationRequestRepository
+    public boolean hasAnyCourseRoleByRequestIds(List<Long> requestIds, CourseRoleType role) {
+        List<Long> courseIds = courseRegistrationRequestRepository
                 .findCourseRegistrationRequestsByRequestIdIn(requestIds)
                 .stream()
                 .map(CourseRegistrationRequest::getCourseId)
@@ -78,13 +78,13 @@ public class RoleService {
         return hasAnyCoursesRole(courseIds, role);
     }
 
-    public boolean isPersonInRequest(Integer requestId) {
+    public boolean isPersonInRequest(Long requestId) {
         return courseRegistrationRequestRepository.findById(requestId)
                 .orElseThrow(() -> new RequestNotFoundException(requestId))
                 .getPersonId().equals(personService.getAuthenticatedPersonId());
     }
 
-    public boolean isPersonKeepers(List<Integer> keeperIds) {
+    public boolean isPersonKeepers(List<Long> keeperIds) {
         PeopleService.Person person = personService.getAuthenticatedPerson();
         return keeperRepository.findKeepersByPersonId(person.getPersonId())
                 .stream()

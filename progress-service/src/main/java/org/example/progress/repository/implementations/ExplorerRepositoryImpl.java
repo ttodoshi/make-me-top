@@ -22,7 +22,7 @@ public class ExplorerRepositoryImpl implements ExplorerRepository {
     private ExplorerServiceGrpc.ExplorerServiceBlockingStub explorerServiceBlockingStub;
 
     @Override
-    public Optional<ExplorersService.Explorer> findById(Integer explorerId) {
+    public Optional<ExplorersService.Explorer> findById(Long explorerId) {
         CallCredentials callCredentials = CallCredentialsHelper.authorizationHeader(
                 authorizationHeaderContextHolder.getAuthorizationHeader()
         );
@@ -42,7 +42,7 @@ public class ExplorerRepositoryImpl implements ExplorerRepository {
     }
 
     @Override
-    public Optional<ExplorersService.Explorer> findExplorerByPersonIdAndGroup_CourseId(Integer personId, Integer courseId) {
+    public Optional<ExplorersService.Explorer> findExplorerByPersonIdAndGroup_CourseId(Long personId, Long courseId) {
         CallCredentials callCredentials = CallCredentialsHelper.authorizationHeader(
                 authorizationHeaderContextHolder.getAuthorizationHeader()
         );
@@ -63,7 +63,7 @@ public class ExplorerRepositoryImpl implements ExplorerRepository {
     }
 
     @Override
-    public Map<Integer, ExplorersService.Explorer> findExplorersByExplorerIdIn(List<Integer> explorerIds) {
+    public Map<Long, ExplorersService.Explorer> findExplorersByExplorerIdIn(List<Long> explorerIds) {
         CallCredentials callCredentials = CallCredentialsHelper.authorizationHeader(
                 authorizationHeaderContextHolder.getAuthorizationHeader()
         );
@@ -77,7 +77,7 @@ public class ExplorerRepositoryImpl implements ExplorerRepository {
     }
 
     @Override
-    public ExplorersService.ExplorersByPersonIdAndGroup_CourseIdInResponse findExplorersByPersonIdAndGroupCourseIdIn(Integer personId, List<Integer> courseIds) {
+    public ExplorersService.ExplorersByPersonIdAndGroup_CourseIdInResponse findExplorersByPersonIdAndGroupCourseIdIn(Long personId, List<Long> courseIds) {
         CallCredentials callCredentials = CallCredentialsHelper.authorizationHeader(
                 authorizationHeaderContextHolder.getAuthorizationHeader()
         );

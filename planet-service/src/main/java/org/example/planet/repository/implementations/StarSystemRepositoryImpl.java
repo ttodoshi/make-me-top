@@ -20,7 +20,7 @@ public class StarSystemRepositoryImpl implements StarSystemRepository {
     private final AuthorizationHeaderContextHolder authorizationHeaderContextHolder;
 
     @Override
-    public Boolean existsById(Integer systemId) {
+    public Boolean existsById(Long systemId) {
         return webClientBuilder
                 .baseUrl("http://galaxy-service/api/v1/galaxy-app/").build()
                 .get()

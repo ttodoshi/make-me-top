@@ -18,15 +18,15 @@ import java.time.LocalDateTime;
 public class CourseRegistrationRequestKeeper {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer responseId;
+    private Long responseId;
     @ManyToOne(optional = false)
     @JoinColumn(name = "request_id", nullable = false, updatable = false, insertable = false)
     @JsonBackReference
     private CourseRegistrationRequest request;
     @Column(name = "request_id")
-    private Integer requestId;
+    private Long requestId;
     @Column(nullable = false)
-    private Integer keeperId;
+    private Long keeperId;
     @LastModifiedDate
     @Column(nullable = false)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
@@ -36,15 +36,15 @@ public class CourseRegistrationRequestKeeper {
     @JsonBackReference
     private CourseRegistrationRequestKeeperStatus status;
     @Column(name = "status_id")
-    private Integer statusId;
+    private Long statusId;
 
-    public CourseRegistrationRequestKeeper(Integer requestId, Integer keeperId, Integer statusId) {
+    public CourseRegistrationRequestKeeper(Long requestId, Long keeperId, Long statusId) {
         this.requestId = requestId;
         this.keeperId = keeperId;
         this.statusId = statusId;
     }
 
-    public Integer getRequestId() {
+    public Long getRequestId() {
         return this.request.getRequestId();
     }
 }

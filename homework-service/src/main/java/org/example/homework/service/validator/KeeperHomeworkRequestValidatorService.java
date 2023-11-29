@@ -41,7 +41,7 @@ public class KeeperHomeworkRequestValidatorService {
                 .orElseThrow(KeeperNotFoundException::new);
         if (!(explorerGroup.getKeeperId() == keeper.getKeeperId()))
             throw new DifferentKeeperException();
-        Integer closedStatusId = homeworkRequestStatusService.findHomeworkRequestStatusByStatus(HomeworkRequestStatusType.CLOSED).getStatusId();
+        Long closedStatusId = homeworkRequestStatusService.findHomeworkRequestStatusByStatus(HomeworkRequestStatusType.CLOSED).getStatusId();
         if (homeworkRequest.getStatusId().equals(closedStatusId))
             throw new HomeworkRequestAlreadyClosedException(homeworkRequest.getRequestId());
     }

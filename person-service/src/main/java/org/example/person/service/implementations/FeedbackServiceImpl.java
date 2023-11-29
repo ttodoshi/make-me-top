@@ -41,10 +41,10 @@ public class FeedbackServiceImpl implements FeedbackService {
                         personExplorers.stream().map(Explorer::getExplorerId).collect(Collectors.toList())
                 );
 
-        Map<Integer, Keeper> keepers = keeperService.findKeepersByKeeperIdIn(
+        Map<Long, Keeper> keepers = keeperService.findKeepersByKeeperIdIn(
                 feedbacks.stream().map(KeeperFeedbackDto::getKeeperId).collect(Collectors.toList())
         );
-        Map<Integer, CourseDto> courses = courseRepository.findCoursesByCourseIdIn(
+        Map<Long, CourseDto> courses = courseRepository.findCoursesByCourseIdIn(
                 keepers.values().stream().map(Keeper::getCourseId).collect(Collectors.toList())
         );
 
@@ -75,13 +75,13 @@ public class FeedbackServiceImpl implements FeedbackService {
                 groups.stream().map(ExplorerGroup::getKeeperId).collect(Collectors.toList())
         );
 
-        Map<Integer, Keeper> keepers = keeperService.findKeepersByKeeperIdIn(
+        Map<Long, Keeper> keepers = keeperService.findKeepersByKeeperIdIn(
                 feedbacks.stream().map(ExplorerFeedbackDto::getKeeperId).collect(Collectors.toList())
         );
-        Map<Integer, CourseDto> courses = courseRepository.findCoursesByCourseIdIn(
+        Map<Long, CourseDto> courses = courseRepository.findCoursesByCourseIdIn(
                 groups.stream().map(ExplorerGroup::getCourseId).collect(Collectors.toList())
         );
-        Map<Integer, Explorer> explorers = groups.stream().flatMap(
+        Map<Long, Explorer> explorers = groups.stream().flatMap(
                 g -> g.getExplorers().stream()
         ).filter(e -> feedbacks.stream()
                 .map(ExplorerFeedbackDto::getExplorerId)

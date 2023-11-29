@@ -39,14 +39,14 @@ public class CourseRegistrationRequestServiceImpl implements CourseRegistrationR
                 .findProcessingCourseRegistrationRequestKeepersByKeeperIdIn(
                         keepers.stream().map(Keeper::getKeeperId).collect(Collectors.toList())
                 );
-        Map<Integer, CourseRegistrationRequestDto> requests = courseRegistrationRequestRepository.findCourseRegistrationRequestsByRequestIdIn(
+        Map<Long, CourseRegistrationRequestDto> requests = courseRegistrationRequestRepository.findCourseRegistrationRequestsByRequestIdIn(
                 openedRequests.stream().map(CourseRegistrationRequestKeeperDto::getRequestId).collect(Collectors.toList())
         );
 
-        Map<Integer, CourseDto> courses = courseRepository.findCoursesByCourseIdIn(
+        Map<Long, CourseDto> courses = courseRepository.findCoursesByCourseIdIn(
                 requests.values().stream().map(CourseRegistrationRequestDto::getCourseId).collect(Collectors.toList())
         );
-        Map<Integer, Double> ratings = ratingService.getPeopleRatingAsExplorerByPersonIdIn(
+        Map<Long, Double> ratings = ratingService.getPeopleRatingAsExplorerByPersonIdIn(
                 requests.values().stream().map(CourseRegistrationRequestDto::getPersonId).collect(Collectors.toList())
         );
 
@@ -89,7 +89,7 @@ public class CourseRegistrationRequestServiceImpl implements CourseRegistrationR
                     CourseDto course = courseRepository.getReferenceById(r.getCourseId());
                     GalaxyDto galaxy = galaxyRepository.findGalaxyBySystemId(r.getCourseId());
 
-                    List<Integer> keeperIds = courseRegistrationRequestKeeperRepository
+                    List<Long> keeperIds = courseRegistrationRequestKeeperRepository
                             .findCourseRegistrationRequestKeepersByRequestId(r.getRequestId())
                             .stream()
                             .map(CourseRegistrationRequestKeeperDto::getKeeperId)
@@ -121,7 +121,7 @@ public class CourseRegistrationRequestServiceImpl implements CourseRegistrationR
     }
 
     @Override
-    public Optional<CourseRegistrationRequestForKeeperWithGalaxyDto> getStudyRequestByExplorerPersonId(Integer authenticatedPersonId, Integer personId) {
+    public Optional<CourseRegistrationRequestForKeeperWithGalaxyDto> getStudyRequestByExplorerPersonId(Long authenticatedPersonId, Long personId) {
         // returns information about the request only if the authorized keeper is the one to whom it was sent
         return getStudyRequestsForKeeper(
                 keeperRepository.findKeepersByPersonId(authenticatedPersonId)
@@ -154,10 +154,10 @@ public class CourseRegistrationRequestServiceImpl implements CourseRegistrationR
                         keepers.stream().map(Keeper::getKeeperId).collect(Collectors.toList())
                 );
 
-        Map<Integer, CourseDto> courses = courseRepository.findCoursesByCourseIdIn(
+        Map<Long, CourseDto> courses = courseRepository.findCoursesByCourseIdIn(
                 approvedRequests.stream().map(ApprovedRequestDto::getCourseId).collect(Collectors.toList())
         );
-        Map<Integer, Double> ratings = ratingService.getPeopleRatingAsExplorerByPersonIdIn(
+        Map<Long, Double> ratings = ratingService.getPeopleRatingAsExplorerByPersonIdIn(
                 approvedRequests.stream().map(ApprovedRequestDto::getPersonId).collect(Collectors.toList())
         );
 

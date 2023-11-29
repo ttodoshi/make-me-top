@@ -34,7 +34,7 @@ public class StarSystemController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> findStarSystemById(@PathVariable("systemId") Integer systemId,
+    public ResponseEntity<?> findStarSystemById(@PathVariable("systemId") Long systemId,
                                                 @RequestParam(name = "withDependencies", required = false) Boolean withDependencies) {
         if (withDependencies != null && withDependencies)
             return ResponseEntity.ok(starSystemService.findStarSystemByIdWithDependencies(systemId));
@@ -54,7 +54,7 @@ public class StarSystemController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> findStarSystemsByGalaxyId(@PathVariable("galaxyId") Integer galaxyId) {
+    public ResponseEntity<?> findStarSystemsByGalaxyId(@PathVariable("galaxyId") Long galaxyId) {
         return ResponseEntity.ok(
                 starSystemService.findStarSystemsByGalaxyId(galaxyId)
         );
@@ -73,7 +73,7 @@ public class StarSystemController {
                     })
     })
     public ResponseEntity<?> createSystem(@Valid @RequestBody CreateStarSystemDto starSystem,
-                                          @PathVariable("orbitId") Integer orbitId) {
+                                          @PathVariable("orbitId") Long orbitId) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(
@@ -95,7 +95,7 @@ public class StarSystemController {
                     })
     })
     public ResponseEntity<?> updateSystem(@Valid @RequestBody StarSystemDto starSystem,
-                                          @PathVariable("systemId") Integer systemId) {
+                                          @PathVariable("systemId") Long systemId) {
         return ResponseEntity.ok(starSystemService.updateSystem(systemId, starSystem));
     }
 
@@ -111,7 +111,7 @@ public class StarSystemController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> deleteSystem(@PathVariable("systemId") Integer systemId) {
+    public ResponseEntity<?> deleteSystem(@PathVariable("systemId") Long systemId) {
         return ResponseEntity.ok(starSystemService.deleteSystem(systemId));
     }
 }

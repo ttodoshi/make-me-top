@@ -24,7 +24,7 @@ public class KeeperServiceImpl implements KeeperService {
     @Override
     @Cacheable(cacheNames = "keepersWithSystemsCache", key = "{#keepers, #systems}")
     public List<PersonWithSystemsDto> getKeepersWithSystems(
-            Map<Integer, KeepersService.AllKeepersResponse.KeeperList> keepers,
+            Map<Long, KeepersService.AllKeepersResponse.KeeperList> keepers,
             List<StarSystem> systems) {
         return systems.stream()
                 .flatMap(s ->
@@ -41,7 +41,7 @@ public class KeeperServiceImpl implements KeeperService {
     }
 
     @Override
-    public Map<Integer, KeepersService.AllKeepersResponse.KeeperList> findKeepersWithCourseIds() {
+    public Map<Long, KeepersService.AllKeepersResponse.KeeperList> findKeepersWithCourseIds() {
         return keeperServiceBlockingStub
                 .findAllKeepers(Empty.newBuilder().build())
                 .getKeepersWithCourseIdMapMap();

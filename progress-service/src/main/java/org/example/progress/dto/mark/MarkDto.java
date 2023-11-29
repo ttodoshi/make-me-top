@@ -13,7 +13,7 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 public class MarkDto {
     @NotNull
-    private Integer explorerId;
+    private Long explorerId;
     @NotNull
     @Min(value = 1)
     @Max(value = 5)

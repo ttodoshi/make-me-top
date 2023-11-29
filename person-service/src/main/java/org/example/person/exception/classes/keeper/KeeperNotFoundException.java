@@ -5,7 +5,7 @@ public class KeeperNotFoundException extends RuntimeException {
         super("Хранитель не найден");
     }
 
-    public KeeperNotFoundException(Integer keeperId) {
+    public KeeperNotFoundException(Long keeperId) {
         super("Хранитель " + keeperId + " не найден");
     }
 }

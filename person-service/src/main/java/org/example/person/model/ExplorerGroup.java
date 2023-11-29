@@ -16,22 +16,22 @@ import java.util.List;
 public class ExplorerGroup {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer groupId;
+    private Long groupId;
     @Column(nullable = false)
-    private Integer courseId;
+    private Long courseId;
     @ManyToOne(optional = false)
     @JoinColumn(name = "keeper_id", nullable = false, insertable = false, updatable = false)
     @JsonBackReference
     private Keeper keeper;
     @Column(name = "keeper_id")
-    private Integer keeperId;
+    private Long keeperId;
     @OneToMany(mappedBy = "group", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private List<Explorer> explorers;
 
-    public ExplorerGroup(Integer courseId, Integer keeperId) {
+    public ExplorerGroup(Long courseId, Long keeperId) {
         this.courseId = courseId;
         this.keeperId = keeperId;
     }

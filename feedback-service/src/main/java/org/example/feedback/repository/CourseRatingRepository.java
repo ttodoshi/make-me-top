@@ -8,8 +8,8 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
-public interface CourseRatingRepository extends JpaRepository<CourseRating, Integer> {
+public interface CourseRatingRepository extends JpaRepository<CourseRating, Long> {
     @Query("SELECT AVG(cr.rating) FROM CourseRating cr\n" +
             "WHERE cr.explorerId IN :explorerIds")
-    Optional<Double> findAvgRatingByExplorerIdIn(@Param("explorerIds") List<Integer> explorerIds);
+    Optional<Double> findAvgRatingByExplorerIdIn(@Param("explorerIds") List<Long> explorerIds);
 }

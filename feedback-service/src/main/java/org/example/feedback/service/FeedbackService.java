@@ -19,7 +19,7 @@ public class FeedbackService {
 
     @KafkaListener(topics = "deleteFeedbackTopic", containerFactory = "deleteFeedbackKafkaListenerContainerFactory")
     @Transactional
-    public void deleteFeedbackByExplorerId(Integer explorerId) {
+    public void deleteFeedbackByExplorerId(Long explorerId) {
         if (explorerFeedbackRepository.existsById(explorerId))
             explorerFeedbackRepository.deleteById(explorerId);
         if (keeperFeedbackRepository.existsById(explorerId))

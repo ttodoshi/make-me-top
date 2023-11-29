@@ -47,7 +47,7 @@ public class KeeperCourseRegistrationRequestValidatorService {
     }
 
     @Transactional(readOnly = true)
-    public void validateGetApprovedRequests(Integer personId, Map<Integer, KeepersService.Keeper> keepers) {
+    public void validateGetApprovedRequests(Long personId, Map<Long, KeepersService.Keeper> keepers) {
         keepers.values().forEach(k -> {
             if (!(k.getPersonId() == personId))
                 throw new DifferentKeeperException();
@@ -55,7 +55,7 @@ public class KeeperCourseRegistrationRequestValidatorService {
     }
 
     @Transactional(readOnly = true)
-    public void validateStartTeachingRequest(Integer personId) {
+    public void validateStartTeachingRequest(Long personId) {
         List<KeepersService.Keeper> personKeepers = keeperRepository.findKeepersByPersonId(personId);
         List<ExplorersService.Explorer> keeperExplorers = explorerGroupRepository
                 .findExplorerGroupsByKeeperIdIn(
@@ -63,7 +63,7 @@ public class KeeperCourseRegistrationRequestValidatorService {
                 ).stream()
                 .flatMap(g -> g.getExplorersList().stream())
                 .collect(Collectors.toList());
-        List<Integer> explorersWithFinalAssessment = getExplorersWithFinalAssessment(
+        List<Long> explorersWithFinalAssessment = getExplorersWithFinalAssessment(
                 keeperExplorers.stream().map(ExplorersService.Explorer::getExplorerId).collect(Collectors.toList())
         );
 
@@ -71,8 +71,8 @@ public class KeeperCourseRegistrationRequestValidatorService {
             throw new TeachingInProcessException();
     }
 
-    private List<Integer> getExplorersWithFinalAssessment(List<Integer> explorerIds) {
-        List<Integer> explorersWithFinalAssessment = webClientBuilder
+    private List<Long> getExplorersWithFinalAssessment(List<Long> explorerIds) {
+        List<Long> explorersWithFinalAssessment = webClientBuilder
                 .baseUrl("http://progress-service/api/v1/progress-app/").build()
                 .get()
                 .uri(uri -> uri
@@ -84,7 +84,7 @@ public class KeeperCourseRegistrationRequestValidatorService {
                 .onStatus(httpStatus -> httpStatus.isError() && !httpStatus.equals(HttpStatus.UNAUTHORIZED), response -> {
                     throw new ConnectException();
                 })
-                .bodyToFlux(Integer.class)
+                .bodyToFlux(Long.class)
                 .timeout(Duration.ofSeconds(5))
                 .onErrorResume(WebClientResponseException.Unauthorized.class, error -> Mono.error(new AccessDeniedException("Вам закрыт доступ к данной функциональности бортового компьютера")))
                 .collectList()

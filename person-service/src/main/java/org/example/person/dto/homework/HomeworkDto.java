@@ -4,10 +4,10 @@ import lombok.Data;
 
 @Data
 public class HomeworkDto {
-    private Integer homeworkId;
-    private Integer courseThemeId;
+    private Long homeworkId;
+    private Long courseThemeId;
     private String content;
-    private Integer groupId;
+    private Long groupId;
     private HomeworkStatusDto status;
-    private Integer statusId;
+    private Long statusId;
 }

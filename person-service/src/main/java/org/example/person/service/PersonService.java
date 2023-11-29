@@ -29,7 +29,7 @@ public class PersonService {
 
     private final CacheManager cacheManager;
 
-    public Integer getAuthenticatedPersonId() {
+    public Long getAuthenticatedPersonId() {
         Person authenticatedPerson = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return authenticatedPerson.getPersonId();
     }
@@ -40,14 +40,14 @@ public class PersonService {
 
     @Cacheable(cacheNames = "personByIdCache", key = "#personId")
     @Transactional(readOnly = true)
-    public Person findPersonById(Integer personId) {
+    public Person findPersonById(Long personId) {
         return personRepository.findById(personId)
                 .orElseThrow(() -> new PersonNotFoundException(personId));
     }
 
     @Cacheable(cacheNames = "personExistsByIdCache", key = "#personId")
     @Transactional(readOnly = true)
-    public boolean personExistsById(Integer personId) {
+    public boolean personExistsById(Long personId) {
         return personRepository.existsById(personId);
     }
 
@@ -67,7 +67,7 @@ public class PersonService {
 
     @Cacheable(cacheNames = "peopleByPersonIdInCache", key = "#personIds")
     @Transactional(readOnly = true)
-    public Map<Integer, Person> findPeopleByPersonIdIn(List<Integer> personIds) {
+    public Map<Long, Person> findPeopleByPersonIdIn(List<Long> personIds) {
         return personRepository.findPeopleByPersonIdIn(personIds)
                 .stream()
                 .collect(Collectors.toMap(
@@ -78,7 +78,7 @@ public class PersonService {
 
     @Transactional
     @CachePut(cacheNames = "personByIdCache", key = "#personId")
-    public Person setMaxExplorersValueForPerson(Integer personId, UpdatePersonDto personDto) {
+    public Person setMaxExplorersValueForPerson(Long personId, UpdatePersonDto personDto) {
         Person updatedPerson = personRepository.findById(personId)
                 .orElseThrow(() -> new PersonNotFoundException(personId));
         updatedPerson.setMaxExplorers(personDto.getMaxExplorers());
@@ -87,12 +87,12 @@ public class PersonService {
     }
 
     @Async
-    public void clearPeopleByPersonIdInCache(Integer personId) {
+    public void clearPeopleByPersonIdInCache(Long personId) {
         CompletableFuture.runAsync(() -> {
             Cache peopleByPersonIdInCache = cacheManager.getCache("peopleByPersonIdInCache");
-            Map<List<Integer>, Map<Integer, Person>> nativeCache = (Map<List<Integer>, Map<Integer, Person>>)
+            Map<List<Long>, Map<Long, Person>> nativeCache = (Map<List<Long>, Map<Long, Person>>)
                     Objects.requireNonNull(peopleByPersonIdInCache).getNativeCache();
-            for (Map.Entry<List<Integer>, Map<Integer, Person>> entry : nativeCache.entrySet()) {
+            for (Map.Entry<List<Long>, Map<Long, Person>> entry : nativeCache.entrySet()) {
                 if (entry.getKey().contains(personId))
                     peopleByPersonIdInCache.evict(entry.getKey());
             }
@@ -100,7 +100,7 @@ public class PersonService {
     }
 
     @Transactional
-    public void setDefaultExplorersValueForPerson(Integer personId) {
+    public void setDefaultExplorersValueForPerson(Long personId) {
         setMaxExplorersValueForPerson(
                 personId,
                 new UpdatePersonDto(3)

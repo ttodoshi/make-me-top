@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface ExplorerService {
-    List<PersonWithSystemsDto> getExplorersWithSystems(Map<Integer, ExplorersService.AllExplorersResponse.ExplorerList> explorers, List<StarSystem> systems);
+    List<PersonWithSystemsDto> getExplorersWithSystems(Map<Long, ExplorersService.AllExplorersResponse.ExplorerList> explorers, List<StarSystem> systems);
 
-    Map<Integer, ExplorersService.AllExplorersResponse.ExplorerList> findExplorersWithCourseIds();
+    Map<Long, ExplorersService.AllExplorersResponse.ExplorerList> findExplorersWithCourseIds();
 }

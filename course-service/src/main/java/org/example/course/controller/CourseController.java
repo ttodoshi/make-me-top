@@ -32,7 +32,7 @@ public class CourseController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> getCourseById(@PathVariable Integer courseId,
+    public ResponseEntity<?> getCourseById(@PathVariable Long courseId,
                                            @RequestParam(required = false) Boolean detailed) {
         if (detailed != null && detailed)
             return ResponseEntity.ok(courseService.findCourseByCourseIdDetailed(courseId));
@@ -52,7 +52,7 @@ public class CourseController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> findCoursesByCourseIdIn(@RequestParam List<Integer> courseIds) {
+    public ResponseEntity<?> findCoursesByCourseIdIn(@RequestParam List<Long> courseIds) {
         return ResponseEntity.ok(courseService.findCoursesByCourseIdIn(courseIds));
     }
 
@@ -68,8 +68,8 @@ public class CourseController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> updateCourse(@PathVariable("galaxyId") Integer galaxyId,
-                                          @PathVariable Integer courseId,
+    public ResponseEntity<?> updateCourse(@PathVariable("galaxyId") Long galaxyId,
+                                          @PathVariable Long courseId,
                                           @Valid @RequestBody UpdateCourseDto course) {
         return ResponseEntity.ok(courseService.updateCourse(galaxyId, courseId, course));
     }

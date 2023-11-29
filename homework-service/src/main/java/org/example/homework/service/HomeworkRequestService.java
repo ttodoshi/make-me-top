@@ -43,13 +43,13 @@ public class HomeworkRequestService {
     private final PersonService personService;
 
     @Transactional(readOnly = true)
-    public HomeworkRequest findHomeworkRequestById(Integer requestId) {
+    public HomeworkRequest findHomeworkRequestById(Long requestId) {
         return homeworkRequestRepository.findById(requestId)
                 .orElseThrow(() -> new HomeworkRequestNotFound(requestId));
     }
 
     @Transactional(readOnly = true)
-    public List<HomeworkRequest> findOpenedHomeworkRequestsByExplorerIdIn(List<Integer> explorerIds) {
+    public List<HomeworkRequest> findOpenedHomeworkRequestsByExplorerIdIn(List<Long> explorerIds) {
         return homeworkRequestRepository.findOpenedHomeworkRequestsByExplorerIdIn(explorerIds);
     }
 
@@ -59,7 +59,7 @@ public class HomeworkRequestService {
     }
 
     @Transactional(readOnly = true)
-    public GetHomeworkWithRequestDto findHomeworkWithRequestByHomeworkId(Integer homeworkId) {
+    public GetHomeworkWithRequestDto findHomeworkWithRequestByHomeworkId(Long homeworkId) {
         Homework homework = homeworkRepository.findById(homeworkId)
                 .orElseThrow(() -> new HomeworkNotFoundException(homeworkId));
         PlanetDto planet = planetRepository.findById(homework.getCourseThemeId())
@@ -110,7 +110,7 @@ public class HomeworkRequestService {
     }
 
     @Transactional(readOnly = true)
-    public GetHomeworkWithRequestDto findHomeworkWithRequestByRequestId(Integer requestId) {
+    public GetHomeworkWithRequestDto findHomeworkWithRequestByRequestId(Long requestId) {
         HomeworkRequest homeworkRequest = homeworkRequestRepository.findById(requestId)
                 .orElseThrow(() -> new HomeworkRequestNotFound(requestId));
         Homework homework = homeworkRepository.findById(homeworkRequest.getHomeworkId())

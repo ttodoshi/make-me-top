@@ -14,5 +14,5 @@ public class StarSystemDto {
     @NotNull
     private Integer systemPosition;
     @NotNull
-    private Integer orbitId;
+    private Long orbitId;
 }

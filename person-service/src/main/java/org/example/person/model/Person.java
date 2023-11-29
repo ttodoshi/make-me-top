@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @EntityListeners(AuditingEntityListener.class)
 public class Person {
     @Id
-    private Integer personId;
+    private Long personId;
     @Column(nullable = false)
     private String firstName;
     @Column(nullable = false)
@@ -29,7 +29,7 @@ public class Person {
     @Column(nullable = false)
     private Integer maxExplorers;
 
-    public Person(Integer personId, String firstName, String lastName, String patronymic, Integer maxExplorers) {
+    public Person(Long personId, String firstName, String lastName, String patronymic, Integer maxExplorers) {
         this.personId = personId;
         this.firstName = firstName;
         this.lastName = lastName;

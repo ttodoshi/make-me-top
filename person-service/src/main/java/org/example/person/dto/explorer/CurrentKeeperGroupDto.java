@@ -10,9 +10,9 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CurrentKeeperGroupDto {
-    private Integer groupId;
-    private Integer courseId;
-    private Integer keeperId;
+    private Long groupId;
+    private Long courseId;
+    private Long keeperId;
     private String courseTitle;
     private List<ExplorerBasicInfoDto> explorers;
 }

@@ -24,7 +24,7 @@ public class CourseRepositoryImpl implements CourseRepository {
     private final AuthorizationHeaderContextHolder authorizationHeaderContextHolder;
 
     @Override
-    public Map<Integer, CourseDto> findCoursesByCourseIdIn(List<Integer> courseIds) {
+    public Map<Long, CourseDto> findCoursesByCourseIdIn(List<Long> courseIds) {
         return webClientBuilder
                 .baseUrl("http://course-service/api/v1/course-app/").build()
                 .get()
@@ -38,7 +38,7 @@ public class CourseRepositoryImpl implements CourseRepository {
                 .onStatus(httpStatus -> httpStatus.isError() && !httpStatus.equals(HttpStatus.UNAUTHORIZED), response -> {
                     throw new ConnectException();
                 })
-                .bodyToFlux(new ParameterizedTypeReference<Map<Integer, CourseDto>>() {
+                .bodyToFlux(new ParameterizedTypeReference<Map<Long, CourseDto>>() {
                 })
                 .timeout(Duration.ofSeconds(5))
                 .onErrorResume(WebClientResponseException.Unauthorized.class, error -> Mono.error(new AccessDeniedException("Вам закрыт доступ к данной функциональности бортового компьютера")))
@@ -46,7 +46,7 @@ public class CourseRepositoryImpl implements CourseRepository {
     }
 
     @Override
-    public CourseDto getReferenceById(Integer courseId) {
+    public CourseDto getReferenceById(Long courseId) {
         return webClientBuilder
                 .baseUrl("http://course-service/api/v1/course-app/").build()
                 .get()
@@ -66,7 +66,7 @@ public class CourseRepositoryImpl implements CourseRepository {
     }
 
     @Override
-    public Boolean existsById(Integer courseId) {
+    public Boolean existsById(Long courseId) {
         return webClientBuilder
                 .baseUrl("http://course-service/api/v1/course-app/").build()
                 .get()

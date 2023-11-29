@@ -12,20 +12,20 @@ import javax.persistence.*;
 @NoArgsConstructor
 public class KeeperRejection {
     @Id
-    private Integer responseId;
+    private Long responseId;
     @ManyToOne(optional = false)
     @JoinColumn(name = "reason_id", nullable = false, insertable = false, updatable = false)
     @JsonBackReference
     private RejectionReason reason;
     @Column(name = "reason_id")
-    private Integer reasonId;
+    private Long reasonId;
     @OneToOne(optional = false)
     @JoinColumn(name = "response_id", nullable = false, insertable = false, updatable = false)
     @MapsId
     @JsonBackReference
     private CourseRegistrationRequestKeeper response;
 
-    public KeeperRejection(CourseRegistrationRequestKeeper response, Integer reasonId) {
+    public KeeperRejection(CourseRegistrationRequestKeeper response, Long reasonId) {
         this.response = response;
         this.reasonId = reasonId;
     }

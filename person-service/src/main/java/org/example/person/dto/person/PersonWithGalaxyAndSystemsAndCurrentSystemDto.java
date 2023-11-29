@@ -8,10 +8,10 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 public class PersonWithGalaxyAndSystemsAndCurrentSystemDto extends PersonWithGalaxyAndSystemsDto {
-    private Integer currentCourseId;
+    private Long currentCourseId;
     private String currentCourseName;
 
-    public PersonWithGalaxyAndSystemsAndCurrentSystemDto(PersonWithGalaxyAndSystemsDto personWithGalaxyAndSystemsDto, Integer currentCourseId, String currentCourseName) {
+    public PersonWithGalaxyAndSystemsAndCurrentSystemDto(PersonWithGalaxyAndSystemsDto personWithGalaxyAndSystemsDto, Long currentCourseId, String currentCourseName) {
         super(personWithGalaxyAndSystemsDto.getPersonId(), personWithGalaxyAndSystemsDto.getFirstName(), personWithGalaxyAndSystemsDto.getLastName(), personWithGalaxyAndSystemsDto.getPatronymic(), personWithGalaxyAndSystemsDto.getRating(), personWithGalaxyAndSystemsDto.getGalaxyId(), personWithGalaxyAndSystemsDto.getGalaxyName(), personWithGalaxyAndSystemsDto.getSystems());
         this.currentCourseId = currentCourseId;
         this.currentCourseName = currentCourseName;

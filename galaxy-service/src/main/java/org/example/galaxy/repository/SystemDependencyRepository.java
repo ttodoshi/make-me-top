@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 import java.util.Optional;
 
-public interface SystemDependencyRepository extends JpaRepository<SystemDependency, Integer> {
+public interface SystemDependencyRepository extends JpaRepository<SystemDependency, Long> {
     @Query(value = "WITH RECURSIVE r AS (\n" +
             "   SELECT dependency_id,child_id, parent_id, is_alternative\n" +
             "   FROM system_dependency\n" +
@@ -23,7 +23,7 @@ public interface SystemDependencyRepository extends JpaRepository<SystemDependen
             "\n" +
             "SELECT * FROM r\n" +
             "WHERE parent_id = ?1", nativeQuery = true)
-    List<SystemDependency> getSystemChildren(Integer id);
+    List<SystemDependency> getSystemChildren(Long systemId);
 
     @Query(value = "WITH RECURSIVE r AS (\n" +
             "   SELECT dependency_id,child_id, parent_id, is_alternative\n" +
@@ -40,11 +40,11 @@ public interface SystemDependencyRepository extends JpaRepository<SystemDependen
             "\n" +
             "SELECT * FROM r\n" +
             "WHERE child_id = ?1", nativeQuery = true)
-    List<SystemDependency> getSystemParents(Integer id);
+    List<SystemDependency> getSystemParents(Long systemId);
 
     @Query(value = "SELECT * FROM system_dependency WHERE child_id=?1 and parent_id = ?2", nativeQuery = true)
-    Optional<SystemDependency> getSystemDependencyByChildIdAndParentId(Integer childId, Integer parentId);
+    Optional<SystemDependency> getSystemDependencyByChildIdAndParentId(Long childId, Long parentId);
 
     @Query(value = "SELECT * FROM system_dependency WHERE child_id=?1 and parent_id ISNULL", nativeQuery = true)
-    Optional<SystemDependency> getSystemDependencyByChildIdAndParentNull(Integer childId);
+    Optional<SystemDependency> getSystemDependencyByChildIdAndParentNull(Long childId);
 }

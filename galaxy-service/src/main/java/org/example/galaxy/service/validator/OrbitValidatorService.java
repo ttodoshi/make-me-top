@@ -25,7 +25,7 @@ public class OrbitValidatorService {
     private final StarSystemRepository starSystemRepository;
 
     @Transactional(readOnly = true)
-    public void validatePostRequest(Integer galaxyId, CreateOrbitWithStarSystemsDto request) {
+    public void validatePostRequest(Long galaxyId, CreateOrbitWithStarSystemsDto request) {
         if (!galaxyRepository.existsById(galaxyId))
             throw new GalaxyNotFoundException(galaxyId);
         if (orbitExists(galaxyId, request.getOrbitLevel()))
@@ -38,25 +38,25 @@ public class OrbitValidatorService {
         }
     }
 
-    private boolean systemExists(Integer galaxyId, String systemName) {
+    private boolean systemExists(Long galaxyId, String systemName) {
         return starSystemRepository.findStarSystemsByOrbit_GalaxyId(galaxyId)
                 .stream().anyMatch(s -> Objects.equals(s.getSystemName(), systemName));
     }
 
-    private boolean orbitExists(Integer galaxyId, Integer orbitLevel) {
+    private boolean orbitExists(Long galaxyId, Integer orbitLevel) {
         return orbitRepository.findOrbitsByGalaxyId(galaxyId).stream()
                 .anyMatch(o -> o.getOrbitLevel().equals(orbitLevel));
     }
 
     @Transactional(readOnly = true)
-    public void validatePutRequest(Integer orbitId, OrbitDto orbit) {
+    public void validatePutRequest(Long orbitId, OrbitDto orbit) {
         if (!galaxyRepository.existsById(orbit.getGalaxyId()))
             throw new GalaxyNotFoundException(orbit.getGalaxyId());
         if (orbitExists(orbit.getGalaxyId(), orbitId, orbit.getOrbitLevel()))
             throw new OrbitCoordinatesException();
     }
 
-    private boolean orbitExists(Integer galaxyId, Integer orbitId, Integer orbitLevel) {
+    private boolean orbitExists(Long galaxyId, Long orbitId, Integer orbitLevel) {
         return orbitRepository.findOrbitsByGalaxyId(galaxyId).stream()
                 .anyMatch(o -> o.getOrbitLevel().equals(orbitLevel) && !o.getOrbitId().equals(orbitId));
     }

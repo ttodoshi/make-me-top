@@ -9,11 +9,11 @@ import org.example.person.dto.keeper.KeeperBasicInfoDto;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CurrentCourseProgressDto {
-    private Integer explorerId;
-    private Integer groupId;
-    private Integer courseThemeId;
+    private Long explorerId;
+    private Long groupId;
+    private Long courseThemeId;
     private String courseThemeTitle;
-    private Integer courseId;
+    private Long courseId;
     private String courseTitle;
     private KeeperBasicInfoDto keeper;
     private Double progress;

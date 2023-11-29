@@ -22,7 +22,7 @@ public class CourseRepositoryImpl implements CourseRepository {
     private final AuthorizationHeaderContextHolder authorizationHeaderContextHolder;
 
     @Override
-    public Optional<CourseDto> findById(Integer courseId) {
+    public Optional<CourseDto> findById(Long courseId) {
         return webClientBuilder
                 .baseUrl("http://course-service/api/v1/course-app/").build()
                 .get()
