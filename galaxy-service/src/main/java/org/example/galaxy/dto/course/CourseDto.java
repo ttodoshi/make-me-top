@@ -6,6 +6,6 @@ import lombok.Data;
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CourseDto {
-    private Integer courseId;
+    private Long courseId;
     private String title;
 }

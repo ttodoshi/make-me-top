@@ -32,20 +32,20 @@ service ExplorerService {
 }
 
 message ExplorerByIdRequest {
-  int32 explorerId = 1;
+  int64 explorerId = 1;
 }
 
 message ExplorersByPersonIdRequest {
-  int32 personId = 1;
+  int64 personId = 1;
 }
 
 message ExplorersByPersonIdAndGroupCourseIdRequest {
-  int32 personId = 1;
-  int32 courseId = 2;
+  int64 personId = 1;
+  int64 courseId = 2;
 }
 
 message ExplorersByGroup_CourseIdRequest {
-  int32 courseId = 1;
+  int64 courseId = 1;
 }
 
 message ExplorerExistsByIdResponse {
@@ -56,46 +56,46 @@ message AllExplorersResponse {
   message ExplorerList {
     repeated PersonWithRating person = 1;
   }
-  map<int32, ExplorerList> explorersWithCourseIdMap = 1;
+  map<int64, ExplorerList> explorersWithCourseIdMap = 1;
 }
 
 message ExplorersByExplorerIdInRequest {
-  repeated int32 explorerIds = 1;
+  repeated int64 explorerIds = 1;
 }
 
 message ExplorersByExplorerIdInResponse {
-  map<int32, Explorer> explorerByExplorerIdMap = 1;
+  map<int64, Explorer> explorerByExplorerIdMap = 1;
 }
 
 message ExplorersByGroup_CourseIdInRequest {
-  repeated int32 courseIds = 1;
+  repeated int64 courseIds = 1;
 }
 
 message ExplorersByGroup_CourseIdInResponse {
-  map<int32, ExplorerList> explorersByCourseIdMap = 1;
+  map<int64, ExplorerList> explorersByCourseIdMap = 1;
 }
 
 message ExplorersByPersonIdInRequest {
-  repeated int32 personIds = 1;
+  repeated int64 personIds = 1;
 }
 
 message ExplorersByPersonIdInResponse {
-  map<int32, ExplorerList> explorersByPersonIdMap = 1;
+  map<int64, ExplorerList> explorersByPersonIdMap = 1;
 }
 
 message ExplorersByPersonIdAndGroup_CourseIdInRequest {
-  int32 personId = 1;
-  repeated int32 courseIds = 2;
+  int64 personId = 1;
+  repeated int64 courseIds = 2;
 }
 
 message ExplorersByPersonIdAndGroup_CourseIdInResponse {
-  map<int32, Explorer> explorerWithCourseIdMap = 1;
+  map<int64, Explorer> explorerWithCourseIdMap = 1;
 }
 
 message Explorer {
-  int32 explorerId = 1;
-  int32 personId = 2;
-  int32 groupId = 3;
+  int64 explorerId = 1;
+  int64 personId = 2;
+  int64 groupId = 3;
   google.protobuf.Timestamp startDate = 4;
 }
 

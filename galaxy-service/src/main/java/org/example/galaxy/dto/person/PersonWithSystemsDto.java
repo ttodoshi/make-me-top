@@ -10,9 +10,9 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PersonWithSystemsDto extends PersonWithRatingDto {
-    private List<Integer> systems;
+    private List<Long> systems;
 
-    public PersonWithSystemsDto(Integer personId, String firstName, String lastName, String patronymic, Double rating, List<Integer> systems) {
+    public PersonWithSystemsDto(Long personId, String firstName, String lastName, String patronymic, Double rating, List<Long> systems) {
         super(personId, firstName, lastName, patronymic, rating);
         this.systems = systems;
     }

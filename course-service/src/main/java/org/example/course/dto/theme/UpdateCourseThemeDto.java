@@ -15,5 +15,5 @@ public class UpdateCourseThemeDto {
     @NotNull
     private Integer courseThemeNumber;
     @NotNull
-    private Integer courseId;
+    private Long courseId;
 }

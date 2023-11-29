@@ -6,16 +6,16 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 import java.util.Optional;
 
-public interface KeeperRepository extends JpaRepository<Keeper, Integer> {
-    Optional<Keeper> findKeeperByPersonIdAndCourseId(Integer personId, Integer courseId);
+public interface KeeperRepository extends JpaRepository<Keeper, Long> {
+    Optional<Keeper> findKeeperByPersonIdAndCourseId(Long personId, Long courseId);
 
-    List<Keeper> findKeepersByPersonId(Integer personId);
+    List<Keeper> findKeepersByPersonId(Long personId);
 
-    List<Keeper> findKeepersByCourseId(Integer courseId);
+    List<Keeper> findKeepersByCourseId(Long courseId);
 
-    List<Keeper> findKeepersByKeeperIdIn(List<Integer> keeperIds);
+    List<Keeper> findKeepersByKeeperIdIn(List<Long> keeperIds);
 
-    List<Keeper> findKeepersByPersonIdAndCourseIdIn(Integer personId, List<Integer> courseIds);
+    List<Keeper> findKeepersByPersonIdAndCourseIdIn(Long personId, List<Long> courseIds);
 
-    void deleteKeepersByCourseId(Integer courseId);
+    void deleteKeepersByCourseId(Long courseId);
 }

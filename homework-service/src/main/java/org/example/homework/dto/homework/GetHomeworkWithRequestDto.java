@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class GetHomeworkWithRequestDto {
-    private Integer homeworkId;
+    private Long homeworkId;
     private String content;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private GetHomeworkRequestWithVersionsDto request;

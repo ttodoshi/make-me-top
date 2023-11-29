@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Optional;
 
 public interface ExplorerGroupRepository {
-    ExplorerGroupsService.ExplorerGroup getReferenceById(Integer groupId);
+    ExplorerGroupsService.ExplorerGroup getReferenceById(Long groupId);
 
-    Map<Integer, ExplorerGroupsService.ExplorerGroup> findExplorerGroupsByGroupIdIn(List<Integer> groupIds);
+    Map<Long, ExplorerGroupsService.ExplorerGroup> findExplorerGroupsByGroupIdIn(List<Long> groupIds);
 }

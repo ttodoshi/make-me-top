@@ -16,7 +16,7 @@ import java.util.List;
 public class Orbit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer orbitId;
+    private Long orbitId;
     @Column(nullable = false)
     private Integer orbitLevel;
     @Column(nullable = false)
@@ -26,7 +26,7 @@ public class Orbit {
     @JsonBackReference
     private Galaxy galaxy;
     @Column(name = "galaxy_id")
-    private Integer galaxyId;
+    private Long galaxyId;
     @OneToMany(mappedBy = "orbit", cascade = CascadeType.ALL)
     @JsonBackReference
     @EqualsAndHashCode.Exclude

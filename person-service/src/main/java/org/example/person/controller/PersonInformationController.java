@@ -67,7 +67,7 @@ public class PersonInformationController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> getPublicInformation(@PathVariable Integer personId,
+    public ResponseEntity<?> getPublicInformation(@PathVariable Long personId,
                                                   @RequestParam String as) {
         if (as.equals("explorer"))
             return ResponseEntity.ok(explorerPublicInformationService.getExplorerPublicInformation(personId));

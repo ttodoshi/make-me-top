@@ -5,7 +5,7 @@ public class CourseNotFoundException extends RuntimeException {
         super("Система не обнаружила у себя в памяти запрошенный курс");
     }
 
-    public CourseNotFoundException(Integer courseId) {
+    public CourseNotFoundException(Long courseId) {
         super("Система не обнаружила у себя в памяти курс " + courseId);
     }
 }

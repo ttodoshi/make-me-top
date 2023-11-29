@@ -22,7 +22,7 @@ public class HomeworkRepositoryImpl implements HomeworkRepository {
     private final AuthorizationHeaderContextHolder authorizationHeaderContextHolder;
 
     @Override
-    public List<HomeworkDto> findHomeworksByCourseThemeIdAndGroupId(Integer themeId, Integer groupId) {
+    public List<HomeworkDto> findHomeworksByCourseThemeIdAndGroupId(Long themeId, Long groupId) {
         return webClientBuilder
                 .baseUrl("http://homework-service/api/v1/homework-app/").build()
                 .get()
@@ -43,7 +43,7 @@ public class HomeworkRepositoryImpl implements HomeworkRepository {
     }
 
     @Override
-    public List<HomeworkDto> findAllCompletedByCourseThemeIdAndGroupIdForExplorer(Integer themeId, Integer groupId, Integer explorerId) {
+    public List<HomeworkDto> findAllCompletedByCourseThemeIdAndGroupIdForExplorer(Long themeId, Long groupId, Long explorerId) {
         return webClientBuilder
                 .baseUrl("http://homework-service/api/v1/homework-app/").build()
                 .get()

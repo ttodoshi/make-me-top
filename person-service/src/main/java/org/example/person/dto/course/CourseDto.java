@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @Data
 public class CourseDto {
-    private Integer courseId;
+    private Long courseId;
     private String title;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime creationDate;

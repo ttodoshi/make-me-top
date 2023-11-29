@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CourseThemeCreateEvent {
-    private Integer courseThemeId;
+    private Long courseThemeId;
     private String title;
     private String description;
     private String content;

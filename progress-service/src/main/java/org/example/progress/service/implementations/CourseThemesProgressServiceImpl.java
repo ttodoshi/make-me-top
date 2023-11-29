@@ -28,7 +28,7 @@ public class CourseThemesProgressServiceImpl implements CourseThemesProgressServ
     @Override
     @Transactional(readOnly = true)
     public CourseWithThemesProgressDto getThemesProgress(ExplorersService.Explorer explorer) {
-        Integer courseId = explorerGroupRepository
+        Long courseId = explorerGroupRepository
                 .getReferenceById(explorer.getGroupId()).getCourseId();
         CourseDto course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new CourseNotFoundException(courseId));

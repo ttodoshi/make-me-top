@@ -22,7 +22,7 @@ public class Course {
     @Id
     @Column(nullable = false)
     @NotNull
-    private Integer courseId;
+    private Long courseId;
     @Column(nullable = false)
     @NotNull
     private String title;

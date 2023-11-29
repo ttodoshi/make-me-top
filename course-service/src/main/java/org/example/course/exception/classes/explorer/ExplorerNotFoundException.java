@@ -1,7 +1,7 @@
 package org.example.course.exception.classes.explorer;
 
 public class ExplorerNotFoundException extends RuntimeException {
-    public ExplorerNotFoundException(Integer explorerId) {
+    public ExplorerNotFoundException(Long explorerId) {
         super("Исследователь " + explorerId + " не найден");
     }
 

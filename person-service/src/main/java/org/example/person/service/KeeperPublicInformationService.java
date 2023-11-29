@@ -32,7 +32,7 @@ public class KeeperPublicInformationService {
     private final Executor asyncExecutor;
 
     @Transactional(readOnly = true)
-    public Map<String, Object> getKeeperPublicInformation(Integer personId) {
+    public Map<String, Object> getKeeperPublicInformation(Long personId) {
         Map<String, Object> response = new LinkedHashMap<>();
         Person person = personService.findPersonById(personId);
         response.put("person", person);

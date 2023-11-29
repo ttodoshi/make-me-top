@@ -28,22 +28,22 @@ public class PlanetService {
 
     private final PlanetValidatorService planetValidatorService;
     private final ModelMapper mapper;
-    private final KafkaTemplate<Integer, Object> createThemeKafkaTemplate;
-    private final KafkaTemplate<Integer, String> updateThemeKafkaTemplate;
-    private final KafkaTemplate<Integer, Integer> deleteThemeKafkaTemplate;
+    private final KafkaTemplate<Long, Object> createThemeKafkaTemplate;
+    private final KafkaTemplate<Long, String> updateThemeKafkaTemplate;
+    private final KafkaTemplate<Long, Long> deleteThemeKafkaTemplate;
 
-    public Planet findPlanetById(Integer planetId) {
+    public Planet findPlanetById(Long planetId) {
         return planetRepository.findById(planetId)
                 .orElseThrow(() -> new PlanetNotFoundException(planetId));
     }
 
     @Transactional(readOnly = true)
-    public List<Planet> findPlanetsBySystemId(Integer systemId) {
+    public List<Planet> findPlanetsBySystemId(Long systemId) {
         planetValidatorService.validateGetPlanetsRequest(systemId);
         return planetRepository.findPlanetsBySystemIdOrderByPlanetNumber(systemId);
     }
 
-    public Map<Integer, Planet> findPlanetsByPlanetIdIn(List<Integer> planetIds) {
+    public Map<Long, Planet> findPlanetsByPlanetIdIn(List<Long> planetIds) {
         return planetRepository.findPlanetsByPlanetIdIn(planetIds)
                 .stream()
                 .collect(Collectors.toMap(
@@ -53,7 +53,7 @@ public class PlanetService {
     }
 
     @Transactional(readOnly = true)
-    public Map<Integer, List<Planet>> findPlanetsBySystemIdIn(List<Integer> systemIds) {
+    public Map<Long, List<Planet>> findPlanetsBySystemIdIn(List<Long> systemIds) {
         return planetRepository.findPlanetsBySystemIdIn(systemIds)
                 .stream()
                 .collect(Collectors.groupingBy(
@@ -66,7 +66,7 @@ public class PlanetService {
     }
 
     @Transactional
-    public List<Planet> addPlanets(Integer systemId, List<CreatePlanetDto> planets) {
+    public List<Planet> addPlanets(Long systemId, List<CreatePlanetDto> planets) {
         planetValidatorService.validatePostRequest(systemId, planets);
         List<Planet> savedPlanets = new ArrayList<>();
         for (CreatePlanetDto currentPlanet : planets) {
@@ -79,14 +79,14 @@ public class PlanetService {
         return savedPlanets;
     }
 
-    private void createCourseTheme(Integer systemId, Integer courseThemeId, CreatePlanetDto planet) {
+    private void createCourseTheme(Long systemId, Long courseThemeId, CreatePlanetDto planet) {
         createThemeKafkaTemplate.send("createCourseThemeTopic", systemId, new CourseThemeCreateEvent(
                 courseThemeId, planet.getPlanetName(),
                 planet.getDescription(), planet.getContent(), planet.getPlanetNumber()));
     }
 
     @Transactional
-    public Planet updatePlanet(Integer planetId, UpdatePlanetDto planet) {
+    public Planet updatePlanet(Long planetId, UpdatePlanetDto planet) {
         Planet updatedPlanet = planetRepository.findById(planetId)
                 .orElseThrow(() -> new PlanetNotFoundException(planetId));
         planetValidatorService.validatePutRequest(planetId, planet);
@@ -99,19 +99,19 @@ public class PlanetService {
 
     @KafkaListener(topics = "updatePlanetTopic", containerFactory = "updatePlanetKafkaListenerContainerFactory")
     @Transactional
-    public void updatePlanetName(ConsumerRecord<Integer, String> record) {
+    public void updatePlanetName(ConsumerRecord<Long, String> record) {
         Planet planet = planetRepository.findById(record.key())
                 .orElseThrow(() -> new PlanetNotFoundException(record.key()));
         planet.setPlanetName(record.value());
         planetRepository.save(planet);
     }
 
-    private void updateCourseThemeTitle(Integer planetId, String planetName) {
+    private void updateCourseThemeTitle(Long planetId, String planetName) {
         updateThemeKafkaTemplate.send("updateCourseThemeTopic", planetId, planetName);
     }
 
     @Transactional
-    public MessageDto deletePlanetById(Integer planetId) {
+    public MessageDto deletePlanetById(Long planetId) {
         planetValidatorService.validateDeleteRequest(planetId);
         planetRepository.deleteById(planetId);
         deleteCourseTheme(planetId);
@@ -120,11 +120,11 @@ public class PlanetService {
 
     @KafkaListener(topics = "deletePlanetsTopic", containerFactory = "deletePlanetsKafkaListenerContainerFactory")
     @Transactional
-    public void deletePlanets(Integer systemId) {
+    public void deletePlanets(Long systemId) {
         planetRepository.deletePlanetsBySystemId(systemId);
     }
 
-    private void deleteCourseTheme(Integer planetId) {
+    private void deleteCourseTheme(Long planetId) {
         deleteThemeKafkaTemplate.send("deleteCourseThemeTopic", planetId);
     }
 }

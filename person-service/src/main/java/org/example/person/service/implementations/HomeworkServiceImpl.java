@@ -31,23 +31,23 @@ public class HomeworkServiceImpl implements HomeworkService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<GetHomeworkRequestDto> getHomeworkRequestsFromExplorersByGroups(Map<Integer, ExplorerGroup> explorerGroups) {
-        Map<Integer, Explorer> explorers = explorerGroups.values()
+    public List<GetHomeworkRequestDto> getHomeworkRequestsFromExplorersByGroups(Map<Long, ExplorerGroup> explorerGroups) {
+        Map<Long, Explorer> explorers = explorerGroups.values()
                 .stream()
                 .flatMap(g -> g.getExplorers().stream())
                 .collect(Collectors.toMap(Explorer::getExplorerId, e -> e));
-        Map<Integer, CourseDto> courses = courseRepository.findCoursesByCourseIdIn(
+        Map<Long, CourseDto> courses = courseRepository.findCoursesByCourseIdIn(
                 explorerGroups.values().stream().map(ExplorerGroup::getCourseId).collect(Collectors.toList())
         );
 
         List<HomeworkRequestDto> homeworkRequests = homeworkRequestRepository.findOpenedHomeworkRequestsByExplorerIdIn(
                 explorers.values().stream().map(Explorer::getExplorerId).collect(Collectors.toList())
         );
-        Map<Integer, HomeworkDto> homeworks = homeworkRepository.findHomeworksByHomeworkIdIn(
+        Map<Long, HomeworkDto> homeworks = homeworkRepository.findHomeworksByHomeworkIdIn(
                 homeworkRequests.stream().map(HomeworkRequestDto::getHomeworkId).collect(Collectors.toList())
         );
 
-        Map<Integer, PlanetDto> planets = planetRepository.findPlanetsByPlanetIdIn(
+        Map<Long, PlanetDto> planets = planetRepository.findPlanetsByPlanetIdIn(
                 homeworks.values().stream().map(HomeworkDto::getCourseThemeId).collect(Collectors.toList())
         );
         return homeworkRequests.stream()
@@ -87,17 +87,17 @@ public class HomeworkServiceImpl implements HomeworkService {
         List<HomeworkRequestDto> openedHomeworkRequests = homeworkRequestRepository.findOpenedHomeworkRequestsByExplorerIdIn(
                 personExplorers.stream().map(Explorer::getExplorerId).collect(Collectors.toList())
         );
-        Map<Integer, HomeworkDto> homeworks = homeworkRepository.findHomeworksByHomeworkIdIn(
+        Map<Long, HomeworkDto> homeworks = homeworkRepository.findHomeworksByHomeworkIdIn(
                 openedHomeworkRequests.stream().map(HomeworkRequestDto::getHomeworkId).collect(Collectors.toList())
         );
 
-        Map<Integer, PlanetDto> planets = planetRepository.findPlanetsByPlanetIdIn(
+        Map<Long, PlanetDto> planets = planetRepository.findPlanetsByPlanetIdIn(
                 homeworks.values()
                         .stream()
                         .map(HomeworkDto::getCourseThemeId)
                         .collect(Collectors.toList())
         );
-        Map<Integer, CourseDto> courses = courseRepository.findCoursesByCourseIdIn(
+        Map<Long, CourseDto> courses = courseRepository.findCoursesByCourseIdIn(
                 planets.values()
                         .stream()
                         .map(PlanetDto::getSystemId)
@@ -109,7 +109,7 @@ public class HomeworkServiceImpl implements HomeworkService {
                 .map(hr -> {
                     Explorer explorer = explorerRepository.getReferenceById(hr.getExplorerId());
                     Person person = personRepository.getReferenceById(explorer.getPersonId());
-                    Integer courseId = explorerGroupRepository.getReferenceById(
+                    Long courseId = explorerGroupRepository.getReferenceById(
                             explorer.getGroupId()
                     ).getCourseId();
                     CourseDto requestCourse = courses.get(courseId);

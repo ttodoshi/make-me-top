@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CourseWithProgressDto {
-    private Integer systemId;
+    private Long systemId;
     private Double progress;
 }

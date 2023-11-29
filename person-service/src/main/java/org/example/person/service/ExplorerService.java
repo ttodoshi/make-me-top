@@ -25,12 +25,12 @@ public class ExplorerService {
 
     private final ExplorerValidatorService explorerValidatorService;
 
-    private final KafkaTemplate<Integer, Integer> deleteProgressAndMarkByExplorerIdKafkaTemplate;
-    private final KafkaTemplate<Integer, Integer> deleteFeedbackByExplorerIdKafkaTemplate;
+    private final KafkaTemplate<Long, Long> deleteProgressAndMarkByExplorerIdKafkaTemplate;
+    private final KafkaTemplate<Long, Long> deleteFeedbackByExplorerIdKafkaTemplate;
 
     public ExplorerService(ExplorerRepository explorerRepository, ExplorerValidatorService explorerValidatorService,
-                           @Qualifier("deleteProgressAndMarkByExplorerIdKafkaTemplate") KafkaTemplate<Integer, Integer> deleteProgressAndMarkByExplorerIdKafkaTemplate,
-                           @Qualifier("deleteFeedbackByExplorerIdKafkaTemplate") KafkaTemplate<Integer, Integer> deleteFeedbackByExplorerIdKafkaTemplate) {
+                           @Qualifier("deleteProgressAndMarkByExplorerIdKafkaTemplate") KafkaTemplate<Long, Long> deleteProgressAndMarkByExplorerIdKafkaTemplate,
+                           @Qualifier("deleteFeedbackByExplorerIdKafkaTemplate") KafkaTemplate<Long, Long> deleteFeedbackByExplorerIdKafkaTemplate) {
         this.explorerRepository = explorerRepository;
         this.explorerValidatorService = explorerValidatorService;
         this.deleteProgressAndMarkByExplorerIdKafkaTemplate = deleteProgressAndMarkByExplorerIdKafkaTemplate;
@@ -39,48 +39,48 @@ public class ExplorerService {
 
     @Cacheable(cacheNames = "explorerByIdCache", key = "#explorerId")
     @Transactional(readOnly = true)
-    public Explorer findExplorerById(Integer explorerId) {
+    public Explorer findExplorerById(Long explorerId) {
         return explorerRepository.findById(explorerId)
                 .orElseThrow(ExplorerNotFoundException::new);
     }
 
     @Cacheable(cacheNames = "explorerExistsByIdCache", key = "#explorerId")
     @Transactional(readOnly = true)
-    public boolean explorerExistsById(Integer explorerId) {
+    public boolean explorerExistsById(Long explorerId) {
         return explorerRepository.existsById(explorerId);
     }
 
     @Transactional(readOnly = true)
-    public Explorer findExplorerByPersonIdAndCourseId(Integer personId, Integer courseId) {
+    public Explorer findExplorerByPersonIdAndCourseId(Long personId, Long courseId) {
         return explorerRepository.findExplorerByPersonIdAndGroup_CourseId(personId, courseId)
                 .orElseThrow(ExplorerNotFoundException::new);
     }
 
     @Transactional(readOnly = true)
-    public List<Explorer> findExplorersByPersonId(Integer personId) {
+    public List<Explorer> findExplorersByPersonId(Long personId) {
         explorerValidatorService.validateGetExplorersByPersonIdRequest(personId);
         return explorerRepository.findExplorersByPersonId(personId);
     }
 
     @Transactional(readOnly = true)
-    public List<Explorer> findExplorersByCourseId(Integer courseId) {
+    public List<Explorer> findExplorersByCourseId(Long courseId) {
         explorerValidatorService.validateGetExplorersByCourseIdRequest(courseId);
         return explorerRepository.findExplorersByGroup_CourseId(courseId);
     }
 
     @Transactional(readOnly = true)
-    public List<Explorer> findExplorersByExplorerIdIn(List<Integer> explorerIds) {
+    public List<Explorer> findExplorersByExplorerIdIn(List<Long> explorerIds) {
         return explorerRepository.findExplorersByExplorerIdIn(explorerIds);
     }
 
     @Cacheable(cacheNames = "explorersByGroup_CourseIdInCache")
     @Transactional(readOnly = true)
-    public List<Explorer> findExplorersByGroup_CourseIdIn(List<Integer> courseIds) {
+    public List<Explorer> findExplorersByGroup_CourseIdIn(List<Long> courseIds) {
         return explorerRepository.findExplorersByGroup_CourseIdIn(courseIds);
     }
 
     @Transactional(readOnly = true)
-    public List<Explorer> findExplorersByPersonIdAndGroup_CourseIdIn(Integer personId, List<Integer> courseIds) {
+    public List<Explorer> findExplorersByPersonIdAndGroup_CourseIdIn(Long personId, List<Long> courseIds) {
         return explorerRepository.findExplorersByPersonIdAndGroup_CourseIdIn(personId, courseIds);
     }
 
@@ -122,14 +122,14 @@ public class ExplorerService {
             @CacheEvict(cacheNames = "allExplorersCache", allEntries = true),
     })
     @Transactional
-    public MessageDto deleteExplorerById(Integer explorerId) {
+    public MessageDto deleteExplorerById(Long explorerId) {
         explorerValidatorService.validateDeleteExplorerByIdRequest(explorerId);
         explorerRepository.deleteById(explorerId);
         deleteExplorerRelatedData(explorerId);
         return new MessageDto("Вы ушли с курса");
     }
 
-    public void deleteExplorerRelatedData(Integer explorerId) {
+    public void deleteExplorerRelatedData(Long explorerId) {
         deleteProgressAndMarkByExplorerIdKafkaTemplate.send(
                 "deleteProgressAndMarkTopic",
                 explorerId);

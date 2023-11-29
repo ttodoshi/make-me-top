@@ -8,7 +8,7 @@ import javax.validation.constraints.NotNull;
 @Data
 public class CourseThemeCreateEvent {
     @NotNull
-    private Integer courseThemeId;
+    private Long courseThemeId;
     @NotBlank
     private String title;
     @NotNull

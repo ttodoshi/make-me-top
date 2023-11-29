@@ -31,7 +31,7 @@ public class HomeworkRequestController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> findHomeworkWithRequestByHomeworkId(@PathVariable Integer homeworkId) {
+    public ResponseEntity<?> findHomeworkWithRequestByHomeworkId(@PathVariable Long homeworkId) {
         return ResponseEntity.ok(
                 homeworkRequestService
                         .findHomeworkWithRequestByHomeworkId(homeworkId)
@@ -51,7 +51,7 @@ public class HomeworkRequestController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> findHomeworkWithRequestByRequestId(@PathVariable Integer requestId) {
+    public ResponseEntity<?> findHomeworkWithRequestByRequestId(@PathVariable Long requestId) {
         return ResponseEntity.ok(
                 homeworkRequestService.findHomeworkWithRequestByRequestId(requestId)
         );
@@ -71,7 +71,7 @@ public class HomeworkRequestController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> findOpenedHomeworkRequestsByExplorerIdIn(@RequestParam List<Integer> explorerIds) {
+    public ResponseEntity<?> findOpenedHomeworkRequestsByExplorerIdIn(@RequestParam List<Long> explorerIds) {
         return ResponseEntity.ok(
                 homeworkRequestService
                         .findOpenedHomeworkRequestsByExplorerIdIn(explorerIds)

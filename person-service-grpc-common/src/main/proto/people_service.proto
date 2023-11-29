@@ -14,11 +14,11 @@ service PersonService {
 }
 
 message PersonByIdRequest {
-  int32 personId = 1;
+  int64 personId = 1;
 }
 
 message Person {
-  int32 personId = 1;
+  int64 personId = 1;
   string firstName = 2;
   string lastName = 3;
   string patronymic = 4;
@@ -27,15 +27,15 @@ message Person {
 }
 
 message PeopleByPersonIdInRequest {
-  repeated int32 personIds = 1;
+  repeated int64 personIds = 1;
 }
 
 message PeopleByPersonIdInResponse {
-  map<int32, Person> peopleByPersonIdMap = 1;
+  map<int64, Person> peopleByPersonIdMap = 1;
 }
 
 message PersonWithRating {
-  int32 personId = 1;
+  int64 personId = 1;
   string firstName = 2;
   string lastName = 3;
   string patronymic = 4;

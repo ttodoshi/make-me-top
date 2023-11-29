@@ -12,15 +12,15 @@ import javax.persistence.*;
 public class CourseThemeCompletion {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer courseThemeCompletionId;
+    private Long courseThemeCompletionId;
     @Column(nullable = false)
-    private Integer explorerId;
+    private Long explorerId;
     @Column(nullable = false)
-    private Integer courseThemeId;
+    private Long courseThemeId;
     @Column(nullable = false)
     private Integer mark;
 
-    public CourseThemeCompletion(Integer explorerId, Integer courseThemeId, Integer mark) {
+    public CourseThemeCompletion(Long explorerId, Long courseThemeId, Integer mark) {
         this.explorerId = explorerId;
         this.courseThemeId = courseThemeId;
         this.mark = mark;

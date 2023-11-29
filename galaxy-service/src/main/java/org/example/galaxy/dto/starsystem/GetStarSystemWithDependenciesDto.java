@@ -7,7 +7,7 @@ import java.util.List;
 
 @Data
 public class GetStarSystemWithDependenciesDto {
-    private Integer systemId;
+    private Long systemId;
     private String systemName;
     private Integer systemLevel;
     private Integer systemPosition;

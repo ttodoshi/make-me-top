@@ -7,6 +7,6 @@ public class MmtrAuthResponseEmployeeDto {
     private String firstName;
     private String lastName;
     private String patronymic;
-    private Integer employeeId;
+    private Long employeeId;
     private MmtrTokenInfoDto userToken;
 }

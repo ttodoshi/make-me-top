@@ -10,21 +10,21 @@ import org.springframework.lang.NonNull;
 import java.util.List;
 import java.util.Optional;
 
-public interface ExplorerRepository extends JpaRepository<Explorer, Integer> {
-    List<Explorer> findExplorersByGroup_CourseId(Integer courseId);
+public interface ExplorerRepository extends JpaRepository<Explorer, Long> {
+    List<Explorer> findExplorersByGroup_CourseId(Long courseId);
 
-    Optional<Explorer> findExplorerByPersonIdAndGroup_CourseId(Integer personId, Integer courseId);
+    Optional<Explorer> findExplorerByPersonIdAndGroup_CourseId(Long personId, Long courseId);
 
-    List<Explorer> findExplorersByPersonId(Integer personId);
+    List<Explorer> findExplorersByPersonId(Long personId);
 
-    List<Explorer> findExplorersByExplorerIdIn(List<Integer> explorerIds);
+    List<Explorer> findExplorersByExplorerIdIn(List<Long> explorerIds);
 
-    List<Explorer> findExplorersByGroup_CourseIdIn(List<Integer> courseIds);
+    List<Explorer> findExplorersByGroup_CourseIdIn(List<Long> courseIds);
 
-    List<Explorer> findExplorersByPersonIdAndGroup_CourseIdIn(Integer personId, List<Integer> courseIds);
+    List<Explorer> findExplorersByPersonIdAndGroup_CourseIdIn(Long personId, List<Long> courseIds);
 
     @Override
     @Modifying
     @Query("DELETE FROM Explorer e WHERE e.explorerId = :explorerId")
-    void deleteById(@NonNull @Param("explorerId") Integer explorerId);
+    void deleteById(@NonNull @Param("explorerId") Long explorerId);
 }

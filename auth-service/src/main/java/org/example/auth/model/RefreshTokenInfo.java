@@ -14,18 +14,18 @@ import java.util.Date;
 public class RefreshTokenInfo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer tokenId;
+    private Long tokenId;
     @Column(nullable = false, unique = true)
     private String refreshToken;
     @Column(nullable = false)
-    private Integer personId;
+    private Long personId;
     @Column(nullable = false)
     private String role;
     @Column(nullable = false)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
     private Date expirationTime;
 
-    public RefreshTokenInfo(String refreshToken, Integer personId, String role, Date expirationTime) {
+    public RefreshTokenInfo(String refreshToken, Long personId, String role, Date expirationTime) {
         this.refreshToken = refreshToken;
         this.personId = personId;
         this.role = role;

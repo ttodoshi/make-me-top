@@ -16,7 +16,7 @@ public class GalaxyRepositoryImpl implements GalaxyRepository {
     private final WebClient.Builder webClientBuilder;
 
     @Override
-    public GetGalaxyDto findGalaxyById(Integer galaxyId) {
+    public GetGalaxyDto findGalaxyById(Long galaxyId) {
         return webClientBuilder
                 .baseUrl("http://galaxy-service/api/v1/galaxy-app/").build()
                 .get()

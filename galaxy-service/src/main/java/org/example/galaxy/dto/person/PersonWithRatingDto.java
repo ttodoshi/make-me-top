@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PersonWithRatingDto {
-    private Integer personId;
+    private Long personId;
     private String firstName;
     private String lastName;
     private String patronymic;

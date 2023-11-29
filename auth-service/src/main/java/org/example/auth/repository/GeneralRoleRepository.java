@@ -7,9 +7,9 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.Set;
 
-public interface GeneralRoleRepository extends JpaRepository<GeneralRole, Integer> {
+public interface GeneralRoleRepository extends JpaRepository<GeneralRole, Long> {
     @Query(value = "SELECT gr FROM PersonRole pr\n" +
             "JOIN GeneralRole gr ON gr.roleId = pr.roleId\n" +
             "WHERE pr.personId = :personId")
-    Set<GeneralRole> getRolesForPerson(@Param("personId") Integer personId);
+    Set<GeneralRole> getRolesForPerson(@Param("personId") Long personId);
 }

@@ -1,7 +1,7 @@
 package org.example.progress.exception.classes.person;
 
 public class PersonNotFoundException extends RuntimeException {
-    public PersonNotFoundException(Integer personId) {
+    public PersonNotFoundException(Long personId) {
         super(String.format("Бортовой компьютер не смог найти человека с id %d", personId));
     }
 }

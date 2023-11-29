@@ -18,13 +18,13 @@ import java.time.LocalDateTime;
 public class HomeworkRequestFeedback {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer feedbackId;
+    private Long feedbackId;
     @ManyToOne(optional = false)
     @JoinColumn(name = "request_version_id", nullable = false, insertable = false, updatable = false)
     @JsonBackReference
     private HomeworkRequestVersion requestVersion;
     @Column(name = "request_version_id")
-    private Integer requestVersionId;
+    private Long requestVersionId;
     @Column(columnDefinition = "TEXT", nullable = false)
     private String comment;
     @CreatedDate
@@ -32,7 +32,7 @@ public class HomeworkRequestFeedback {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime creationDate;
 
-    public HomeworkRequestFeedback(Integer requestVersionId, String comment) {
+    public HomeworkRequestFeedback(Long requestVersionId, String comment) {
         this.requestVersionId = requestVersionId;
         this.comment = comment;
     }

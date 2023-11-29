@@ -15,7 +15,7 @@ import java.util.List;
 public class CourseValidatorService {
     private final StarSystemRepository starSystemRepository;
 
-    public void validatePutRequest(Integer galaxyId, Integer courseId, Course course) {
+    public void validatePutRequest(Long galaxyId, Long courseId, Course course) {
         List<StarSystemDto> systems = starSystemRepository.findStarSystemsByGalaxyId(galaxyId);
         boolean courseNotFound = systems.stream()
                 .noneMatch(s -> s.getSystemName().equals(course.getTitle()) &&

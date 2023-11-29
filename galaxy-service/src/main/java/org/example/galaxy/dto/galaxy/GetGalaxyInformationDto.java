@@ -11,14 +11,14 @@ import java.util.Collection;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 public class GetGalaxyInformationDto extends GalaxyDto {
-    private Integer galaxyId;
+    private Long galaxyId;
     private Integer systemCount;
     private Integer explorerCount;
     private Collection<PersonWithSystemsDto> explorers;
     private Integer keeperCount;
     private Collection<PersonWithSystemsDto> keepers;
 
-    public GetGalaxyInformationDto(Integer galaxyId, String galaxyName, String galaxyDescription, Integer systemCount, Integer explorerCount, Collection<PersonWithSystemsDto> explorers, Integer keeperCount, Collection<PersonWithSystemsDto> keepers) {
+    public GetGalaxyInformationDto(Long galaxyId, String galaxyName, String galaxyDescription, Integer systemCount, Integer explorerCount, Collection<PersonWithSystemsDto> explorers, Integer keeperCount, Collection<PersonWithSystemsDto> keepers) {
         super(galaxyName, galaxyDescription);
         this.galaxyId = galaxyId;
         this.systemCount = systemCount;

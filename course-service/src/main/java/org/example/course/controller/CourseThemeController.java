@@ -35,7 +35,7 @@ public class CourseThemeController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> findCourseThemeById(@PathVariable("themeId") Integer themeId) {
+    public ResponseEntity<?> findCourseThemeById(@PathVariable("themeId") Long themeId) {
         return ResponseEntity.ok(courseThemeService.findCourseThemeById(themeId));
     }
 
@@ -52,7 +52,7 @@ public class CourseThemeController {
                     })
     })
     public ResponseEntity<?> updateCourseTheme(@Valid @RequestBody UpdateCourseThemeDto theme,
-                                               @PathVariable Integer themeId) {
+                                               @PathVariable Long themeId) {
         return ResponseEntity.ok(courseThemeService.updateCourseTheme(themeId, theme));
     }
 }

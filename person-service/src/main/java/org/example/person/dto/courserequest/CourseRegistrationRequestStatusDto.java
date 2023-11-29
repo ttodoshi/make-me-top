@@ -8,7 +8,7 @@ import javax.persistence.*;
 public class CourseRegistrationRequestStatusDto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer statusId;
+    private Long statusId;
     @Column(nullable = false, unique = true)
     @Enumerated(EnumType.STRING)
     private CourseRegistrationRequestStatusType status;

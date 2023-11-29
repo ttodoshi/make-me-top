@@ -20,25 +20,25 @@ import java.time.LocalDateTime;
 public class Explorer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer explorerId;
+    private Long explorerId;
     @ManyToOne(optional = false)
     @JoinColumn(name = "person_id", nullable = false, insertable = false, updatable = false)
     @JsonBackReference
     private Person person;
     @Column(name = "person_id")
-    private Integer personId;
+    private Long personId;
     @ManyToOne(optional = false)
     @JoinColumn(name = "group_id", nullable = false, insertable = false, updatable = false)
     @JsonBackReference
     private ExplorerGroup group;
     @Column(name = "group_id")
-    private Integer groupId;
+    private Long groupId;
     @CreatedDate
     @Column(nullable = false)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime startDate;
 
-    public Explorer(Integer personId, Integer groupId) {
+    public Explorer(Long personId, Long groupId) {
         this.personId = personId;
         this.groupId = groupId;
     }

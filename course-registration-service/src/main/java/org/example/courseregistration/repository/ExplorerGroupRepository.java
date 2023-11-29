@@ -7,5 +7,5 @@ import java.util.List;
 public interface ExplorerGroupRepository {
     ExplorerGroupsService.ExplorerGroup save(ExplorerGroupsService.CreateGroupRequest explorerGroup);
 
-    List<ExplorerGroupsService.ExplorerGroup> findExplorerGroupsByKeeperIdIn(List<Integer> keeperIds);
+    List<ExplorerGroupsService.ExplorerGroup> findExplorerGroupsByKeeperIdIn(List<Long> keeperIds);
 }

@@ -35,7 +35,7 @@ public class GrpcPersonService extends PersonServiceGrpc.PersonServiceImplBase {
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public void findPeopleByPersonIdIn(PeopleService.PeopleByPersonIdInRequest request, StreamObserver<PeopleService.PeopleByPersonIdInResponse> responseObserver) {
-        Map<Integer, PeopleService.Person> personMap = personService.findPeopleByPersonIdIn(request.getPersonIdsList())
+        Map<Long, PeopleService.Person> personMap = personService.findPeopleByPersonIdIn(request.getPersonIdsList())
                 .entrySet()
                 .stream()
                 .collect(Collectors.toMap(

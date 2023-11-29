@@ -13,9 +13,9 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class GetHomeworkRequestWithVersionsDto {
-    private Integer requestId;
-    private Integer homeworkId;
-    private Integer explorerId;
+    private Long requestId;
+    private Long homeworkId;
+    private Long explorerId;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime requestDate;
     private HomeworkRequestStatus status;

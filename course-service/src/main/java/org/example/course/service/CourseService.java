@@ -37,16 +37,16 @@ public class CourseService {
 
     private final ModelMapper mapper;
 
-    private final KafkaTemplate<Integer, String> updateSystemKafkaTemplate;
-    private final KafkaTemplate<Integer, Integer> deleteKeepersKafkaTemplate;
-    private final KafkaTemplate<Integer, Integer> deleteRequestsKafkaTemplate;
+    private final KafkaTemplate<Long, String> updateSystemKafkaTemplate;
+    private final KafkaTemplate<Long, Long> deleteKeepersKafkaTemplate;
+    private final KafkaTemplate<Long, Long> deleteRequestsKafkaTemplate;
 
     public CourseService(CourseRepository courseRepository, CourseThemeService courseThemeService, ExplorerService explorerService,
                          KeeperService keeperService, CourseValidatorService courseValidatorService, RoleService roleService,
                          PersonService personService, ModelMapper mapper,
-                         @Qualifier("updateSystemKafkaTemplate") KafkaTemplate<Integer, String> updateSystemKafkaTemplate,
-                         @Qualifier("deleteKeepersKafkaTemplate") KafkaTemplate<Integer, Integer> deleteKeepersKafkaTemplate,
-                         @Qualifier("deleteRequestsKafkaTemplate") KafkaTemplate<Integer, Integer> deleteRequestsKafkaTemplate) {
+                         @Qualifier("updateSystemKafkaTemplate") KafkaTemplate<Long, String> updateSystemKafkaTemplate,
+                         @Qualifier("deleteKeepersKafkaTemplate") KafkaTemplate<Long, Long> deleteKeepersKafkaTemplate,
+                         @Qualifier("deleteRequestsKafkaTemplate") KafkaTemplate<Long, Long> deleteRequestsKafkaTemplate) {
         this.courseRepository = courseRepository;
         this.courseThemeService = courseThemeService;
         this.explorerService = explorerService;
@@ -61,16 +61,16 @@ public class CourseService {
     }
 
     @Transactional(readOnly = true)
-    public Course findCourseByCourseId(Integer courseId) {
+    public Course findCourseByCourseId(Long courseId) {
         return courseRepository.findById(courseId)
                 .orElseThrow(() -> new CourseNotFoundException(courseId));
     }
 
     @Transactional(readOnly = true)
-    public Map<String, Object> findCourseByCourseIdDetailed(Integer courseId) {
+    public Map<String, Object> findCourseByCourseIdDetailed(Long courseId) {
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("course", findCourseByCourseId(courseId));
-        Integer authenticatedPersonId = personService.getAuthenticatedPersonId();
+        Long authenticatedPersonId = personService.getAuthenticatedPersonId();
         List<ExplorerWithRatingDto> explorers = explorerService.getExplorersForCourse(courseId);
         List<KeeperWithRatingDto> keepers = keeperService.getKeepersForCourse(courseId);
         if (roleService.hasAnyAuthenticationRole(AuthenticationRoleType.EXPLORER)) {
@@ -94,7 +94,7 @@ public class CourseService {
     }
 
     @Transactional(readOnly = true)
-    public Map<Integer, Course> findCoursesByCourseIdIn(List<Integer> courseIds) {
+    public Map<Long, Course> findCoursesByCourseIdIn(List<Long> courseIds) {
         return courseRepository.findCoursesByCourseIdIn(courseIds)
                 .stream()
                 .collect(Collectors.toMap(
@@ -110,7 +110,7 @@ public class CourseService {
 
     @KafkaListener(topics = "updateCourseTopic", containerFactory = "updateCourseKafkaListenerContainerFactory")
     @Transactional
-    public void updateCourseTitle(ConsumerRecord<Integer, String> record) {
+    public void updateCourseTitle(ConsumerRecord<Long, String> record) {
         Course course = courseRepository.findById(record.key())
                 .orElseThrow(() -> new CourseNotFoundException(record.key()));
         course.setTitle(record.value());
@@ -118,7 +118,7 @@ public class CourseService {
     }
 
     @Transactional
-    public Course updateCourse(Integer galaxyId, Integer courseId, UpdateCourseDto course) {
+    public Course updateCourse(Long galaxyId, Long courseId, UpdateCourseDto course) {
         Course updatedCourse = courseRepository.findById(courseId)
                 .orElseThrow(() -> new CourseNotFoundException(courseId));
         courseValidatorService.validatePutRequest(galaxyId, courseId, updatedCourse);
@@ -128,13 +128,13 @@ public class CourseService {
         return courseRepository.save(updatedCourse);
     }
 
-    private void updateSystemName(Integer courseId, String title) {
+    private void updateSystemName(Long courseId, String title) {
         updateSystemKafkaTemplate.send("updateSystemTopic", courseId, title);
     }
 
     @KafkaListener(topics = "deleteCourseTopic", containerFactory = "deleteCourseKafkaListenerContainerFactory")
     @Transactional
-    public void deleteCourse(Integer courseId) {
+    public void deleteCourse(Long courseId) {
         courseThemeService.deleteDataRelatedToThemes(
                 this.findCourseByCourseId(courseId)
                         .getCourseThemes()
@@ -146,11 +146,11 @@ public class CourseService {
         courseRepository.deleteById(courseId);
     }
 
-    private void deleteRequestsByCourseId(Integer courseId) {
+    private void deleteRequestsByCourseId(Long courseId) {
         deleteRequestsKafkaTemplate.send("deleteCourseRegistrationRequestsTopic", courseId);
     }
 
-    private void deleteKeepersByCourseId(Integer courseId) {
+    private void deleteKeepersByCourseId(Long courseId) {
         deleteKeepersKafkaTemplate.send("deleteKeepersTopic", courseId);
     }
 }

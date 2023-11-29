@@ -32,9 +32,9 @@ public class KeeperServiceImpl implements KeeperService {
     private final ModelMapper mapper;
 
     @Override
-    public List<KeeperWithRatingDto> getKeepersForCourse(Integer courseId) {
+    public List<KeeperWithRatingDto> getKeepersForCourse(Long courseId) {
         List<KeeperBaseInfoDto> keepers = getKeepersFromCourse(courseId);
-        Map<Integer, Double> ratings = ratingService.getPeopleRatingAsKeeperByPersonIdIn(
+        Map<Long, Double> ratings = ratingService.getPeopleRatingAsKeeperByPersonIdIn(
                 keepers.stream().map(KeeperBaseInfoDto::getPersonId).collect(Collectors.toList())
         );
         return keepers.stream()
@@ -46,9 +46,9 @@ public class KeeperServiceImpl implements KeeperService {
                 .collect(Collectors.toList());
     }
 
-    private List<KeeperBaseInfoDto> getKeepersFromCourse(Integer courseId) {
+    private List<KeeperBaseInfoDto> getKeepersFromCourse(Long courseId) {
         List<KeepersService.Keeper> keepers = keeperRepository.findKeepersByCourseId(courseId);
-        Map<Integer, PeopleService.Person> people = personRepository.findPeopleByPersonIdIn(
+        Map<Long, PeopleService.Person> people = personRepository.findPeopleByPersonIdIn(
                 keepers.stream().map(KeepersService.Keeper::getPersonId).collect(Collectors.toList())
         );
         return keepers.stream()
@@ -65,8 +65,8 @@ public class KeeperServiceImpl implements KeeperService {
     }
 
     @Override
-    public KeeperWithRatingDto getKeeperForExplorer(Integer explorerId, List<KeeperWithRatingDto> keepers) {
-        Integer explorersKeeperId = explorerGroupRepository.getReferenceById(
+    public KeeperWithRatingDto getKeeperForExplorer(Long explorerId, List<KeeperWithRatingDto> keepers) {
+        Long explorersKeeperId = explorerGroupRepository.getReferenceById(
                 explorerRepository.findById(explorerId)
                         .orElseThrow(ExplorerNotFoundException::new)
                         .getGroupId()

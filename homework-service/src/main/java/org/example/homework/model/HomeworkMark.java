@@ -13,7 +13,7 @@ import javax.persistence.*;
 public class HomeworkMark {
     @Id
     @Column(name = "request_id")
-    private Integer requestId;
+    private Long requestId;
     @OneToOne(optional = false)
     @JoinColumn(name = "request_id", nullable = false, insertable = false, updatable = false)
     @JsonBackReference
@@ -23,7 +23,7 @@ public class HomeworkMark {
     @Column(columnDefinition = "TEXT")
     private String comment;
 
-    public HomeworkMark(Integer requestId, Integer mark, String comment) {
+    public HomeworkMark(Long requestId, Integer mark, String comment) {
         this.requestId = requestId;
         this.mark = mark;
         this.comment = comment;

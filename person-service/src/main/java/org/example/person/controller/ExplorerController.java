@@ -32,7 +32,7 @@ public class ExplorerController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> deleteExplorerById(@PathVariable Integer explorerId) {
+    public ResponseEntity<?> deleteExplorerById(@PathVariable Long explorerId) {
         return ResponseEntity.ok(explorerService.deleteExplorerById(explorerId));
     }
 }

@@ -12,9 +12,9 @@ import javax.persistence.Table;
 @Data
 public class ExplorerFeedback {
     @Column(nullable = false)
-    private Integer keeperId;
+    private Long keeperId;
     @Id
-    private Integer explorerId;
+    private Long explorerId;
     @Column(nullable = false)
     private Integer rating;
     @Column(length = 1000)

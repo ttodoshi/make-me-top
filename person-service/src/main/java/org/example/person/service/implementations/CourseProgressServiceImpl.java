@@ -53,7 +53,7 @@ public class CourseProgressServiceImpl implements CourseProgressService {
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<CurrentCourseProgressDto> getCurrentCourseProgress(Integer personId) {
+    public Optional<CurrentCourseProgressDto> getCurrentCourseProgress(Long personId) {
         return getCurrentSystemExplorer(personId)
                 .map(e -> {
                     CourseWithThemesProgressDto courseProgress = getCourseProgress(
@@ -61,7 +61,7 @@ public class CourseProgressServiceImpl implements CourseProgressService {
                     );
                     double progress = getCourseProgressValue(courseProgress);
 
-                    Integer currentThemeId = getCurrentCourseThemeId(courseProgress);
+                    Long currentThemeId = getCurrentCourseThemeId(courseProgress);
                     PlanetDto currentPlanet = planetRepository.findById(currentThemeId)
                             .orElseThrow(() -> new PlanetNotFoundException(currentThemeId));
                     CourseDto currentCourse = courseRepository
@@ -92,9 +92,9 @@ public class CourseProgressServiceImpl implements CourseProgressService {
                 });
     }
 
-    private Optional<Explorer> getCurrentSystemExplorer(Integer personId) {
+    private Optional<Explorer> getCurrentSystemExplorer(Long personId) {
         List<Explorer> personExplorers = explorerService.findExplorersByPersonId(personId);
-        List<Integer> explorersWithFinalAssessment = getExplorersWithFinalAssessment(
+        List<Long> explorersWithFinalAssessment = getExplorersWithFinalAssessment(
                 personExplorers.stream().map(Explorer::getExplorerId).collect(Collectors.toList())
         );
         return personExplorers.stream()
@@ -102,7 +102,7 @@ public class CourseProgressServiceImpl implements CourseProgressService {
                 .findAny();
     }
 
-    private CourseWithThemesProgressDto getCourseProgress(Integer explorerId) {
+    private CourseWithThemesProgressDto getCourseProgress(Long explorerId) {
         return webClientBuilder
                 .baseUrl("http://progress-service/api/v1/progress-app/").build()
                 .get()
@@ -129,7 +129,7 @@ public class CourseProgressServiceImpl implements CourseProgressService {
         return Math.ceil((double) completedThemes / totalThemes * 10) / 10 * 100;
     }
 
-    private Integer getCurrentCourseThemeId(CourseWithThemesProgressDto courseProgress) {
+    private Long getCurrentCourseThemeId(CourseWithThemesProgressDto courseProgress) {
         List<CourseThemeCompletedDto> themesProgress = courseProgress.getThemesWithProgress();
         for (CourseThemeCompletedDto planet : themesProgress) {
             if (!planet.getCompleted())
@@ -141,12 +141,12 @@ public class CourseProgressServiceImpl implements CourseProgressService {
     @Override
     @Transactional(readOnly = true)
     public List<ExplorerNeededFinalAssessmentDto> getExplorersNeededFinalAssessment(List<ExplorerGroup> keeperGroups) {
-        List<Integer> explorerIds = keeperGroups.stream()
+        List<Long> explorerIds = keeperGroups.stream()
                 .flatMap(g -> g.getExplorers().stream())
                 .map(Explorer::getExplorerId)
                 .collect(Collectors.toList());
 
-        List<Integer> explorerNeededFinalAssessment = webClientBuilder
+        List<Long> explorerNeededFinalAssessment = webClientBuilder
                 .baseUrl("http://progress-service/api/v1/progress-app/").build()
                 .get()
                 .uri(uri -> uri
@@ -159,7 +159,7 @@ public class CourseProgressServiceImpl implements CourseProgressService {
                 .onStatus(httpStatus -> httpStatus.isError() && !httpStatus.equals(HttpStatus.UNAUTHORIZED), response -> {
                     throw new ConnectException();
                 })
-                .bodyToFlux(Integer.class)
+                .bodyToFlux(Long.class)
                 .timeout(Duration.ofSeconds(5))
                 .onErrorResume(WebClientResponseException.Unauthorized.class, error -> Mono.error(new AccessDeniedException("Вам закрыт доступ к данной функциональности бортового компьютера")))
                 .collectList()
@@ -167,7 +167,7 @@ public class CourseProgressServiceImpl implements CourseProgressService {
         if (explorerNeededFinalAssessment == null)
             return Collections.emptyList();
 
-        Map<Integer, CourseDto> courses = courseRepository.findCoursesByCourseIdIn(
+        Map<Long, CourseDto> courses = courseRepository.findCoursesByCourseIdIn(
                 keeperGroups.stream().map(ExplorerGroup::getCourseId).collect(Collectors.toList())
         );
 
@@ -192,8 +192,8 @@ public class CourseProgressServiceImpl implements CourseProgressService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Integer> getInvestigatedSystemIds(List<Explorer> personExplorers) {
-        List<Integer> explorersWithFinalAssessment = getExplorersWithFinalAssessment(
+    public List<Long> getInvestigatedSystemIds(List<Explorer> personExplorers) {
+        List<Long> explorersWithFinalAssessment = getExplorersWithFinalAssessment(
                 personExplorers.stream()
                         .map(Explorer::getExplorerId)
                         .collect(Collectors.toList())
@@ -222,7 +222,7 @@ public class CourseProgressServiceImpl implements CourseProgressService {
     @Override
     @Transactional(readOnly = true)
     public Optional<CurrentKeeperGroupDto> getCurrentGroup(List<ExplorerGroup> keeperGroups) {
-        Set<Integer> explorersWithFinalAssessment = new HashSet<>(getExplorersWithFinalAssessment(
+        Set<Long> explorersWithFinalAssessment = new HashSet<>(getExplorersWithFinalAssessment(
                 keeperGroups.stream()
                         .flatMap(g -> g.getExplorers().stream())
                         .map(Explorer::getExplorerId)
@@ -231,7 +231,7 @@ public class CourseProgressServiceImpl implements CourseProgressService {
         return keeperGroups
                 .stream()
                 .filter(g -> {
-                    List<Integer> explorerIds = g.getExplorers().stream().map(Explorer::getExplorerId).collect(Collectors.toList());
+                    List<Long> explorerIds = g.getExplorers().stream().map(Explorer::getExplorerId).collect(Collectors.toList());
                     return !explorersWithFinalAssessment.containsAll(explorerIds);
                 }).findAny()
                 .map(g -> {
@@ -259,8 +259,8 @@ public class CourseProgressServiceImpl implements CourseProgressService {
                 });
     }
 
-    private List<Integer> getExplorersWithFinalAssessment(List<Integer> explorerIds) {
-        List<Integer> explorersWithFinalAssessment = webClientBuilder
+    private List<Long> getExplorersWithFinalAssessment(List<Long> explorerIds) {
+        List<Long> explorersWithFinalAssessment = webClientBuilder
                 .baseUrl("http://progress-service/api/v1/progress-app/").build()
                 .get()
                 .uri(uri -> uri
@@ -272,7 +272,7 @@ public class CourseProgressServiceImpl implements CourseProgressService {
                 .onStatus(httpStatus -> httpStatus.isError() && !httpStatus.equals(HttpStatus.UNAUTHORIZED), response -> {
                     throw new ConnectException();
                 })
-                .bodyToFlux(Integer.class)
+                .bodyToFlux(Long.class)
                 .timeout(Duration.ofSeconds(5))
                 .onErrorResume(WebClientResponseException.Unauthorized.class, error -> Mono.error(new AccessDeniedException("Вам закрыт доступ к данной функциональности бортового компьютера")))
                 .collectList()

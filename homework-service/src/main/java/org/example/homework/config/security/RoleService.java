@@ -40,7 +40,7 @@ public class RoleService {
         return false;
     }
 
-    public boolean hasAnyCourseRole(Integer courseId, CourseRoleType role) {
+    public boolean hasAnyCourseRole(Long courseId, CourseRoleType role) {
         PeopleService.Person person = (PeopleService.Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (role.equals(CourseRoleType.EXPLORER))
             return explorerRepository.findExplorerByPersonIdAndGroup_CourseId(person.getPersonId(), courseId).isPresent();
@@ -48,7 +48,7 @@ public class RoleService {
             return keeperRepository.findKeeperByPersonIdAndCourseId(person.getPersonId(), courseId).isPresent();
     }
 
-    public boolean hasAnyCoursesRole(List<Integer> courseIds, CourseRoleType role) {
+    public boolean hasAnyCoursesRole(List<Long> courseIds, CourseRoleType role) {
         PeopleService.Person person = (PeopleService.Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (role.equals(CourseRoleType.EXPLORER)) {
             return courseIds.stream().allMatch(cId ->
@@ -63,7 +63,7 @@ public class RoleService {
         }
     }
 
-    public boolean hasAnyCourseRoleByThemeId(Integer themeId, CourseRoleType role) {
+    public boolean hasAnyCourseRoleByThemeId(Long themeId, CourseRoleType role) {
         return hasAnyCourseRole(
                 planetRepository.findById(themeId)
                         .orElseThrow(() -> new PlanetNotFoundException(themeId))
@@ -72,7 +72,7 @@ public class RoleService {
         );
     }
 
-    public boolean hasAnyCourseRoleByHomeworkId(Integer homeworkId, CourseRoleType role) {
+    public boolean hasAnyCourseRoleByHomeworkId(Long homeworkId, CourseRoleType role) {
         return hasAnyCourseRoleByThemeId(
                 homeworkRepository.findById(homeworkId)
                         .orElseThrow(() -> new HomeworkNotFoundException(homeworkId))
@@ -81,8 +81,8 @@ public class RoleService {
         );
     }
 
-    public boolean hasAnyCourseRoleByHomeworkIds(List<Integer> homeworkIds, CourseRoleType role) {
-        Map<Integer, PlanetDto> planets = planetRepository.findPlanetsByPlanetIdIn(
+    public boolean hasAnyCourseRoleByHomeworkIds(List<Long> homeworkIds, CourseRoleType role) {
+        Map<Long, PlanetDto> planets = planetRepository.findPlanetsByPlanetIdIn(
                 homeworkRepository.findAllByHomeworkIdIn(homeworkIds)
                         .stream()
                         .map(Homework::getCourseThemeId)
@@ -98,7 +98,7 @@ public class RoleService {
         );
     }
 
-    public boolean hasAnyCourseRoleByHomeworkRequestId(Integer homeworkRequestId, CourseRoleType role) {
+    public boolean hasAnyCourseRoleByHomeworkRequestId(Long homeworkRequestId, CourseRoleType role) {
         return hasAnyCourseRoleByHomeworkId(
                 homeworkRequestRepository.findById(homeworkRequestId).orElseThrow(
                         () -> new HomeworkRequestNotFound(homeworkRequestId)
@@ -107,7 +107,7 @@ public class RoleService {
         );
     }
 
-    public boolean hasAnyCourseRoleByGroupId(Integer groupId, CourseRoleType role) {
+    public boolean hasAnyCourseRoleByGroupId(Long groupId, CourseRoleType role) {
         return hasAnyCourseRole(
                 explorerGroupRepository.findById(groupId)
                         .orElseThrow(() -> new ExplorerGroupNotFoundException(groupId)).getCourseId(),
@@ -116,9 +116,9 @@ public class RoleService {
     }
 
     @Transactional(readOnly = true)
-    public boolean hasAnyCourseRoleByExplorerIds(List<Integer> explorerIds, CourseRoleType role) {
-        Map<Integer, ExplorersService.Explorer> explorers = explorerRepository.findExplorersByExplorerIdIn(explorerIds);
-        Map<Integer, ExplorerGroupsService.ExplorerGroup> groups = explorerGroupRepository.findExplorerGroupsByGroupIdIn(
+    public boolean hasAnyCourseRoleByExplorerIds(List<Long> explorerIds, CourseRoleType role) {
+        Map<Long, ExplorersService.Explorer> explorers = explorerRepository.findExplorersByExplorerIdIn(explorerIds);
+        Map<Long, ExplorerGroupsService.ExplorerGroup> groups = explorerGroupRepository.findExplorerGroupsByGroupIdIn(
                 explorers.values().stream().map(ExplorersService.Explorer::getGroupId).collect(Collectors.toList())
         );
         return hasAnyCoursesRole(

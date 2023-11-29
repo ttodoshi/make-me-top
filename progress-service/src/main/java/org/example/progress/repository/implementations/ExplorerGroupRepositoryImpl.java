@@ -21,7 +21,7 @@ public class ExplorerGroupRepositoryImpl implements ExplorerGroupRepository {
     private ExplorerGroupServiceGrpc.ExplorerGroupServiceBlockingStub explorerGroupServiceBlockingStub;
 
     @Override
-    public ExplorerGroupsService.ExplorerGroup getReferenceById(Integer groupId) {
+    public ExplorerGroupsService.ExplorerGroup getReferenceById(Long groupId) {
         CallCredentials callCredentials = CallCredentialsHelper.authorizationHeader(
                 authorizationHeaderContextHolder.getAuthorizationHeader()
         );
@@ -35,7 +35,7 @@ public class ExplorerGroupRepositoryImpl implements ExplorerGroupRepository {
     }
 
     @Override
-    public Map<Integer, ExplorerGroupsService.ExplorerGroup> findExplorerGroupsByGroupIdIn(List<Integer> groupIds) {
+    public Map<Long, ExplorerGroupsService.ExplorerGroup> findExplorerGroupsByGroupIdIn(List<Long> groupIds) {
         CallCredentials callCredentials = CallCredentialsHelper.authorizationHeader(
                 authorizationHeaderContextHolder.getAuthorizationHeader()
         );

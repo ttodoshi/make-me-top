@@ -37,11 +37,11 @@ public class ExplorerPublicInformationService {
     private final Executor asyncExecutor;
 
     @Transactional(readOnly = true)
-    public Map<String, Object> getExplorerPublicInformation(Integer personId) {
+    public Map<String, Object> getExplorerPublicInformation(Long personId) {
         Map<String, Object> response = new LinkedHashMap<>();
         Person person = personService.findPersonById(personId);
         Person authenticatedPerson = personService.getAuthenticatedPerson();
-        Integer authenticatedPersonId = authenticatedPerson.getPersonId();
+        Long authenticatedPersonId = authenticatedPerson.getPersonId();
         response.put("person", person);
         response.put("rating", ratingService.getPersonRatingAsExplorer(personId));
         List<Explorer> personExplorers = explorerRepository.findExplorersByPersonId(personId);

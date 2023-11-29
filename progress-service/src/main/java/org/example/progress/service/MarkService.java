@@ -22,7 +22,7 @@ public class MarkService {
 
     private final MarkValidatorService markValidatorService;
 
-    public CourseMark getCourseMark(Integer explorerId) {
+    public CourseMark getCourseMark(Long explorerId) {
         return courseMarkRepository.findById(explorerId)
                 .orElseThrow(() -> new CourseMarkNotFoundException(explorerId));
     }
@@ -36,7 +36,7 @@ public class MarkService {
     }
 
     @Transactional
-    public CourseThemeCompletion setThemeMark(Integer themeId, MarkDto mark) {
+    public CourseThemeCompletion setThemeMark(Long themeId, MarkDto mark) {
         markValidatorService.validateThemeMarkRequest(themeId, mark);
         return courseThemeCompletionRepository.save(
                 new CourseThemeCompletion(mark.getExplorerId(), themeId, mark.getValue())
@@ -45,14 +45,14 @@ public class MarkService {
 
     @KafkaListener(topics = "deleteExplorersProgressTopic", containerFactory = "deleteExplorersProgressKafkaListenerContainerFactory")
     @Transactional
-    public void deleteExplorersProgressByThemeId(Integer themeId) {
+    public void deleteExplorersProgressByThemeId(Long themeId) {
         courseThemeCompletionRepository
                 .deleteCourseThemeCompletionsByCourseThemeId(themeId);
     }
 
     @KafkaListener(topics = "deleteProgressAndMarkTopic", containerFactory = "deleteProgressAndMarkKafkaListenerContainerFactory")
     @Transactional
-    public void deleteProgressAndMarkByExplorerId(Integer explorerId) {
+    public void deleteProgressAndMarkByExplorerId(Long explorerId) {
         courseThemeCompletionRepository
                 .deleteCourseThemeCompletionsByExplorerId(explorerId);
         if (courseMarkRepository.existsById(explorerId))

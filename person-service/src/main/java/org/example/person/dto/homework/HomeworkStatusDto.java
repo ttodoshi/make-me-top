@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class HomeworkStatusDto {
-    private Integer statusId;
+    private Long statusId;
     private HomeworkStatusType status;
 }

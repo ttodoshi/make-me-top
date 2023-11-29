@@ -22,7 +22,7 @@ public class ExplorerFeedbackRepositoryImpl implements ExplorerFeedbackRepositor
     private final AuthorizationHeaderContextHolder authorizationHeaderContextHolder;
 
     @Override
-    public List<ExplorerFeedbackDto> findExplorerFeedbacksByKeeperIdIn(List<Integer> keeperIds) {
+    public List<ExplorerFeedbackDto> findExplorerFeedbacksByKeeperIdIn(List<Long> keeperIds) {
         return webClientBuilder
                 .baseUrl("http://feedback-service/api/v1/feedback-app/").build()
                 .get()

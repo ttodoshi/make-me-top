@@ -25,7 +25,7 @@ public class PlanetRepositoryImpl implements PlanetRepository {
     private final AuthorizationHeaderContextHolder authorizationHeaderContextHolder;
 
     @Override
-    public Optional<PlanetDto> findById(Integer planetId) {
+    public Optional<PlanetDto> findById(Long planetId) {
         return webClientBuilder
                 .baseUrl("http://planet-service/api/v1/planet-app/").build()
                 .get()
@@ -46,7 +46,7 @@ public class PlanetRepositoryImpl implements PlanetRepository {
     }
 
     @Override
-    public Map<Integer, PlanetDto> findPlanetsByPlanetIdIn(List<Integer> planetIds) {
+    public Map<Long, PlanetDto> findPlanetsByPlanetIdIn(List<Long> planetIds) {
         return webClientBuilder
                 .baseUrl("http://planet-service/api/v1/planet-app/").build()
                 .get()
@@ -60,7 +60,7 @@ public class PlanetRepositoryImpl implements PlanetRepository {
                 .onStatus(httpStatus -> httpStatus.isError() && !httpStatus.equals(HttpStatus.UNAUTHORIZED), response -> {
                     throw new ConnectException();
                 })
-                .bodyToFlux(new ParameterizedTypeReference<Map<Integer, PlanetDto>>() {
+                .bodyToFlux(new ParameterizedTypeReference<Map<Long, PlanetDto>>() {
                 })
                 .timeout(Duration.ofSeconds(5))
                 .onErrorResume(WebClientResponseException.Unauthorized.class, error -> Mono.error(new AccessDeniedException("Вам закрыт доступ к данной функциональности бортового компьютера")))

@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface KeeperRepository {
-    Optional<KeepersService.Keeper> findKeeperByPersonIdAndCourseId(Integer personId, Integer courseId);
+    Optional<KeepersService.Keeper> findKeeperByPersonIdAndCourseId(Long personId, Long courseId);
 
-    KeepersService.Keeper getReferenceById(Integer keeperId);
+    KeepersService.Keeper getReferenceById(Long keeperId);
 
-    List<KeepersService.Keeper> findKeepersByPersonId(Integer personId);
+    List<KeepersService.Keeper> findKeepersByPersonId(Long personId);
 }

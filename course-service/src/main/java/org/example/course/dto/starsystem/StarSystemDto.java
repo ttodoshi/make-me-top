@@ -7,7 +7,7 @@ import javax.validation.constraints.NotNull;
 @Data
 public class StarSystemDto {
     @NotNull
-    private Integer systemId;
+    private Long systemId;
     @NotNull
     private String systemName;
     @NotNull
@@ -15,5 +15,5 @@ public class StarSystemDto {
     @NotNull
     private Integer systemPosition;
     @NotNull
-    private Integer orbitId;
+    private Long orbitId;
 }

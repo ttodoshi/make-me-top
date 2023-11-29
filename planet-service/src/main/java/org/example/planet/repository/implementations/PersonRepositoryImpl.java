@@ -19,7 +19,7 @@ public class PersonRepositoryImpl implements PersonRepository {
     @GrpcClient("people")
     private PersonServiceGrpc.PersonServiceBlockingStub personServiceBlockingStub;
 
-    public Optional<PeopleService.Person> findById(Integer personId) {
+    public Optional<PeopleService.Person> findById(Long personId) {
         CallCredentials callCredentials = CallCredentialsHelper.authorizationHeader(
                 authorizationHeaderContextHolder.getAuthorizationHeader()
         );

@@ -19,21 +19,21 @@ public class ExplorerValidatorServiceImpl implements ExplorerValidatorService {
 
     @Override
     @Transactional(readOnly = true)
-    public void validateGetExplorersByPersonIdRequest(Integer personId) {
+    public void validateGetExplorersByPersonIdRequest(Long personId) {
         if (!personService.personExistsById(personId))
             throw new PersonNotFoundException(personId);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public void validateGetExplorersByCourseIdRequest(Integer courseId) {
+    public void validateGetExplorersByCourseIdRequest(Long courseId) {
         if (!courseRepository.existsById(courseId))
             throw new CourseNotFoundException(courseId);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public void validateDeleteExplorerByIdRequest(Integer explorerId) {
+    public void validateDeleteExplorerByIdRequest(Long explorerId) {
         if (!explorerRepository.existsById(explorerId))
             throw new ExplorerNotFoundException(explorerId);
     }

@@ -5,8 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface StarSystemRepository extends JpaRepository<StarSystem, Integer> {
-    List<StarSystem> findStarSystemsByOrbitId(Integer orbitId);
+public interface StarSystemRepository extends JpaRepository<StarSystem, Long> {
+    List<StarSystem> findStarSystemsByOrbitId(Long orbitId);
 
-    List<StarSystem> findStarSystemsByOrbit_GalaxyId(Integer galaxyId);
+    List<StarSystem> findStarSystemsByOrbit_GalaxyId(Long galaxyId);
 }

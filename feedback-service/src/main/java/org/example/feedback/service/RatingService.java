@@ -20,8 +20,8 @@ public class RatingService {
     private final KeeperFeedbackService keeperFeedbackService;
     private final ExplorerFeedbackService explorerFeedbackService;
 
-    public Double getPersonRatingAsExplorer(Integer personId) {
-        List<Integer> explorerIds = explorerRepository
+    public Double getPersonRatingAsExplorer(Long personId) {
+        List<Long> explorerIds = explorerRepository
                 .findExplorersByPersonId(personId)
                 .stream()
                 .map(ExplorersService.Explorer::getExplorerId)
@@ -29,8 +29,8 @@ public class RatingService {
         return keeperFeedbackService.getRatingByPersonExplorerIds(explorerIds);
     }
 
-    public Double getPersonRatingAsKeeper(Integer personId) {
-        List<Integer> keeperIds = keeperRepository
+    public Double getPersonRatingAsKeeper(Long personId) {
+        List<Long> keeperIds = keeperRepository
                 .findKeepersByPersonId(personId)
                 .stream()
                 .map(KeepersService.Keeper::getKeeperId)
@@ -39,7 +39,7 @@ public class RatingService {
     }
 
     @Transactional(readOnly = true)
-    public Map<Integer, Double> getPeopleRatingAsExplorer(List<Integer> personIds) {
+    public Map<Long, Double> getPeopleRatingAsExplorer(List<Long> personIds) {
         return explorerRepository.findExplorersByPersonIdIn(personIds)
                 .entrySet()
                 .stream()
@@ -56,7 +56,7 @@ public class RatingService {
     }
 
     @Transactional(readOnly = true)
-    public Map<Integer, Double> getPeopleRatingAsKeeper(List<Integer> personIds) {
+    public Map<Long, Double> getPeopleRatingAsKeeper(List<Long> personIds) {
         return keeperRepository.findKeepersByPersonIdIn(personIds)
                 .entrySet()
                 .stream()

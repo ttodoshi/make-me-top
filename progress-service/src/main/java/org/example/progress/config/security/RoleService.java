@@ -37,7 +37,7 @@ public class RoleService {
         return false;
     }
 
-    public boolean hasAnyCourseRole(Integer courseId, CourseRoleType role) {
+    public boolean hasAnyCourseRole(Long courseId, CourseRoleType role) {
         PeopleService.Person person = (PeopleService.Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (role.equals(CourseRoleType.EXPLORER))
             return explorerRepository.findExplorerByPersonIdAndGroup_CourseId(person.getPersonId(), courseId).isPresent();
@@ -46,7 +46,7 @@ public class RoleService {
     }
 
     @Transactional(readOnly = true)
-    public boolean hasAnyCourseRoleByExplorerId(Integer explorerId, CourseRoleType role) {
+    public boolean hasAnyCourseRoleByExplorerId(Long explorerId, CourseRoleType role) {
         return hasAnyCourseRole(
                 explorerGroupRepository.getReferenceById(
                                 explorerRepository.findById(explorerId)
@@ -58,7 +58,7 @@ public class RoleService {
         );
     }
 
-    public boolean hasAnyCourseRoleByThemeId(Integer themeId, CourseRoleType role) {
+    public boolean hasAnyCourseRoleByThemeId(Long themeId, CourseRoleType role) {
         return hasAnyCourseRole(
                 planetRepository.findById(themeId)
                         .orElseThrow(() -> new PlanetNotFoundException(themeId))
@@ -67,14 +67,14 @@ public class RoleService {
         );
     }
 
-    public boolean isExplorersKeeper(List<Integer> explorerIds) {
+    public boolean isExplorersKeeper(List<Long> explorerIds) {
         PeopleService.Person person = (PeopleService.Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        List<Integer> groupIds = explorerRepository.findExplorersByExplorerIdIn(explorerIds)
+        List<Long> groupIds = explorerRepository.findExplorersByExplorerIdIn(explorerIds)
                 .values()
                 .stream()
                 .map(ExplorersService.Explorer::getGroupId)
                 .collect(Collectors.toList());
-        List<Integer> groupsKeeperIds = explorerGroupRepository
+        List<Long> groupsKeeperIds = explorerGroupRepository
                 .findExplorerGroupsByGroupIdIn(groupIds)
                 .values()
                 .stream()

@@ -5,7 +5,7 @@ public class ExplorerNotFoundException extends RuntimeException {
         super("Исследователь не найден");
     }
 
-    public ExplorerNotFoundException(Integer explorerId) {
+    public ExplorerNotFoundException(Long explorerId) {
         super("Исследователь " + explorerId + " не найден");
     }
 }

@@ -22,7 +22,7 @@ public class PersonRepositoryImpl implements PersonRepository {
         this.authorizationHeaderContextHolder = authorizationHeaderContextHolder;
     }
 
-    public Optional<PeopleService.Person> findById(Integer personId) {
+    public Optional<PeopleService.Person> findById(Long personId) {
         CallCredentials callCredentials = CallCredentialsHelper.authorizationHeader(
                 authorizationHeaderContextHolder.getAuthorizationHeader()
         );

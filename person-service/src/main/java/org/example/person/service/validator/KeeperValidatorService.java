@@ -16,19 +16,19 @@ public class KeeperValidatorService {
     private final PersonService personService;
 
     @Transactional(readOnly = true)
-    public void validateKeepersByPersonIdRequest(Integer personId) {
+    public void validateKeepersByPersonIdRequest(Long personId) {
         if (!personService.personExistsById(personId))
             throw new PersonNotFoundException(personId);
     }
 
     @Transactional(readOnly = true)
-    public void validateKeepersByCourseIdRequest(Integer courseId) {
+    public void validateKeepersByCourseIdRequest(Long courseId) {
         if (!courseRepository.existsById(courseId))
             throw new CourseNotFoundException(courseId);
     }
 
     @Transactional(readOnly = true)
-    public void validateSetKeeperRequest(Integer courseId, CreateKeeperDto request) {
+    public void validateSetKeeperRequest(Long courseId, CreateKeeperDto request) {
         if (!courseRepository.existsById(courseId))
             throw new CourseNotFoundException(courseId);
         if (!personService.personExistsById(request.getPersonId()))

@@ -14,7 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 public class CreateCourseRegistrationRequestDto {
     @NotNull
-    private Integer courseId;
+    private Long courseId;
     @NotEmpty
-    private List<@Valid Integer> keeperIds;
+    private List<@Valid Long> keeperIds;
 }

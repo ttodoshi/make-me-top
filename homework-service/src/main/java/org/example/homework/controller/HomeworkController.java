@@ -38,7 +38,7 @@ public class HomeworkController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> findHomeworkByHomeworkId(@PathVariable Integer homeworkId) {
+    public ResponseEntity<?> findHomeworkByHomeworkId(@PathVariable Long homeworkId) {
         return ResponseEntity.ok(homeworkService.findHomeworkByHomeworkId(homeworkId));
     }
 
@@ -56,8 +56,8 @@ public class HomeworkController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> findHomeworkByCourseThemeIdAndGroupId(@PathVariable("themeId") Integer themeId,
-                                                                   @PathVariable("groupId") Integer groupId) {
+    public ResponseEntity<?> findHomeworkByCourseThemeIdAndGroupId(@PathVariable("themeId") Long themeId,
+                                                                   @PathVariable("groupId") Long groupId) {
         return ResponseEntity.ok(homeworkService.findHomeworksByCourseThemeIdAndGroupId(themeId, groupId));
     }
 
@@ -75,9 +75,9 @@ public class HomeworkController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> findCompletedHomeworkByThemeIdAndGroupIdForExplorer(@PathVariable("themeId") Integer themeId,
-                                                                                 @PathVariable("groupId") Integer groupId,
-                                                                                 @RequestParam Integer explorerId) {
+    public ResponseEntity<?> findCompletedHomeworkByThemeIdAndGroupIdForExplorer(@PathVariable("themeId") Long themeId,
+                                                                                 @PathVariable("groupId") Long groupId,
+                                                                                 @RequestParam Long explorerId) {
         return ResponseEntity.ok(homeworkService.findCompletedHomeworksByThemeIdAndGroupIdForExplorer(themeId, groupId, explorerId));
     }
 
@@ -95,7 +95,7 @@ public class HomeworkController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> findHomeworksByHomeworkIdIn(@RequestParam List<Integer> homeworkIds) {
+    public ResponseEntity<?> findHomeworksByHomeworkIdIn(@RequestParam List<Long> homeworkIds) {
         return ResponseEntity.ok(homeworkService.findHomeworksByHomeworkIdIn(homeworkIds));
     }
 
@@ -113,7 +113,7 @@ public class HomeworkController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> findHomeworksByThemeId(@PathVariable Integer themeId) {
+    public ResponseEntity<?> findHomeworksByThemeId(@PathVariable Long themeId) {
         return ResponseEntity.ok(
                 roleService.hasAnyAuthenticationRole(AuthenticationRoleType.EXPLORER) ?
                         homeworkService.findHomeworksByThemeIdForExplorer(themeId) :
@@ -133,7 +133,7 @@ public class HomeworkController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> addHomework(@PathVariable("themeId") Integer themeId,
+    public ResponseEntity<?> addHomework(@PathVariable("themeId") Long themeId,
                                          @Valid @RequestBody CreateHomeworkDto homework) {
         return ResponseEntity.ok(homeworkService.addHomework(themeId, homework));
     }
@@ -150,7 +150,7 @@ public class HomeworkController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> updateHomework(@PathVariable("homeworkId") Integer homeworkId,
+    public ResponseEntity<?> updateHomework(@PathVariable("homeworkId") Long homeworkId,
                                             @Valid @RequestBody UpdateHomeworkDto homework) {
         return ResponseEntity.ok(homeworkService.updateHomework(homeworkId, homework));
     }
@@ -167,7 +167,7 @@ public class HomeworkController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> deleteHomework(@PathVariable("homeworkId") Integer homeworkId) {
+    public ResponseEntity<?> deleteHomework(@PathVariable("homeworkId") Long homeworkId) {
         return ResponseEntity.ok(homeworkService.deleteHomework(homeworkId));
     }
 }

@@ -10,12 +10,12 @@ import java.util.List;
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class HomeworkRequestDto {
-    private Integer requestId;
-    private Integer homeworkId;
-    private Integer explorerId;
+    private Long requestId;
+    private Long homeworkId;
+    private Long explorerId;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime requestDate;
     private HomeworkRequestStatusDto status;
-    private Integer statusId;
+    private Long statusId;
     private List<HomeworkRequestVersionDto> homeworkRequestVersions;
 }

@@ -21,15 +21,15 @@ import java.util.List;
 public class Keeper {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer keeperId;
+    private Long keeperId;
     @Column(nullable = false)
-    private Integer courseId;
+    private Long courseId;
     @ManyToOne(optional = false)
     @JoinColumn(name = "person_id", nullable = false, insertable = false, updatable = false)
     @JsonBackReference
     private Person person;
     @Column(name = "person_id")
-    private Integer personId;
+    private Long personId;
     @CreatedDate
     @Column(nullable = false)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
@@ -40,7 +40,7 @@ public class Keeper {
     @ToString.Exclude
     private List<ExplorerGroup> explorerGroups;
 
-    public Keeper(Integer courseId, Integer personId) {
+    public Keeper(Long courseId, Long personId) {
         this.courseId = courseId;
         this.personId = personId;
     }

@@ -28,58 +28,58 @@ service KeeperService {
 }
 
 message KeeperByIdRequest {
-  int32 keeperId = 1;
+  int64 keeperId = 1;
 }
 
 message KeepersByPersonIdRequest {
-  int32 personId = 1;
+  int64 personId = 1;
 }
 
 message KeeperByPersonIdAndCourseIdRequest {
-  int32 personId = 1;
-  int32 courseId = 2;
+  int64 personId = 1;
+  int64 courseId = 2;
 }
 
 message KeepersByCourseIdRequest {
-  int32 courseId = 1;
+  int64 courseId = 1;
 }
 
 message AllKeepersResponse {
   message KeeperList {
     repeated PersonWithRating person = 1;
   }
-  map<int32, KeeperList> keepersWithCourseIdMap = 1;
+  map<int64, KeeperList> keepersWithCourseIdMap = 1;
 }
 
 message KeepersByKeeperIdInRequest {
-  repeated int32 keeperIds = 1;
+  repeated int64 keeperIds = 1;
 }
 
 message KeepersByKeeperIdInResponse {
-  map<int32, Keeper> keeperByKeeperIdMap = 1;
+  map<int64, Keeper> keeperByKeeperIdMap = 1;
 }
 
 message KeepersByPersonIdInRequest {
-  repeated int32 personIds = 1;
+  repeated int64 personIds = 1;
 }
 
 message KeepersByPersonIdInResponse {
-  map<int32, KeeperList> keepersByPersonIdMap = 1;
+  map<int64, KeeperList> keepersByPersonIdMap = 1;
 }
 
 message KeepersByPersonIdAndCourseIdInRequest {
-  int32 personId = 1;
-  repeated int32 courseIds = 2;
+  int64 personId = 1;
+  repeated int64 courseIds = 2;
 }
 
 message KeepersByPersonIdAndCourseIdInResponse {
-  map<int32, Keeper> keeperWithCourseIdMap = 1;
+  map<int64, Keeper> keeperWithCourseIdMap = 1;
 }
 
 message Keeper {
-  int32 keeperId = 1;
-  int32 courseId = 2;
-  int32 personId = 3;
+  int64 keeperId = 1;
+  int64 courseId = 2;
+  int64 personId = 3;
   google.protobuf.Timestamp startDate = 4;
 }
 

@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ExplorerCreateEvent {
-    private Integer personId;
-    private Integer groupId;
+    private Long personId;
+    private Long groupId;
 }

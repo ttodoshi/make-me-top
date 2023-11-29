@@ -10,7 +10,7 @@ import java.util.Optional;
 public interface CourseRegistrationRequestRepository {
     Optional<CourseRegistrationRequestDto> findProcessingCourseRegistrationRequestByPersonId();
 
-    Map<Integer, CourseRegistrationRequestDto> findCourseRegistrationRequestsByRequestIdIn(List<Integer> requestIds);
+    Map<Long, CourseRegistrationRequestDto> findCourseRegistrationRequestsByRequestIdIn(List<Long> requestIds);
 
-    List<ApprovedRequestDto> getApprovedCourseRegistrationRequests(List<Integer> keeperIds);
+    List<ApprovedRequestDto> getApprovedCourseRegistrationRequests(List<Long> keeperIds);
 }

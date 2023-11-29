@@ -13,8 +13,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class GetHomeworkRequestWithPersonInfoDto {
-    private Integer requestId;
-    private Integer homeworkId;
+    private Long requestId;
+    private Long homeworkId;
     private ExplorerBaseInfoDto explorer;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime requestDate;

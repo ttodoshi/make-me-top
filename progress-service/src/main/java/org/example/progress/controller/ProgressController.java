@@ -31,7 +31,7 @@ public class ProgressController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> getExplorerIdsNeededFinalAssessment(@RequestParam List<Integer> explorerIds) {
+    public ResponseEntity<?> getExplorerIdsNeededFinalAssessment(@RequestParam List<Long> explorerIds) {
         return ResponseEntity.ok(
                 progressService.getExplorerIdsNeededFinalAssessment(explorerIds)
         );
@@ -49,7 +49,7 @@ public class ProgressController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> getExplorerIdsWithFinalAssessment(@RequestParam List<Integer> explorerIds) {
+    public ResponseEntity<?> getExplorerIdsWithFinalAssessment(@RequestParam List<Long> explorerIds) {
         return ResponseEntity.ok(
                 progressService.getExplorerIdsWithFinalAssessment(explorerIds));
     }
@@ -66,7 +66,7 @@ public class ProgressController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> getCoursesProgressForCurrentUser(@PathVariable("galaxyId") Integer galaxyId) {
+    public ResponseEntity<?> getCoursesProgressForCurrentUser(@PathVariable("galaxyId") Long galaxyId) {
         return ResponseEntity.ok(
                 progressService.getCoursesProgressForCurrentUser(galaxyId));
     }
@@ -83,7 +83,7 @@ public class ProgressController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> getExplorerThemesProgress(@PathVariable Integer explorerId) {
+    public ResponseEntity<?> getExplorerThemesProgress(@PathVariable Long explorerId) {
         return ResponseEntity.ok(
                 progressService.getExplorerThemesProgress(explorerId));
     }
@@ -101,7 +101,7 @@ public class ProgressController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> getExplorerCourseProgress(@PathVariable Integer courseId) {
+    public ResponseEntity<?> getExplorerCourseProgress(@PathVariable Long courseId) {
         return ResponseEntity.ok(
                 progressService.getExplorerCourseProgress(courseId));
     }

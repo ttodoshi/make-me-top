@@ -53,7 +53,7 @@ public class CourseRegistrationRequestController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> findCourseRegistrationRequestsByRequestIdIn(@RequestParam List<Integer> requestIds) {
+    public ResponseEntity<?> findCourseRegistrationRequestsByRequestIdIn(@RequestParam List<Long> requestIds) {
         return ResponseEntity.ok(
                 courseRegistrationRequestService
                         .findCourseRegistrationRequestsByRequestIdIn(requestIds)

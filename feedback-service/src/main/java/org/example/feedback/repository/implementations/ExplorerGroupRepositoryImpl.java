@@ -18,7 +18,7 @@ public class ExplorerGroupRepositoryImpl implements ExplorerGroupRepository {
     private ExplorerGroupServiceGrpc.ExplorerGroupServiceBlockingStub explorerGroupServiceBlockingStub;
 
     @Override
-    public ExplorerGroupsService.ExplorerGroup getReferenceById(Integer groupId) {
+    public ExplorerGroupsService.ExplorerGroup getReferenceById(Long groupId) {
         CallCredentials callCredentials = CallCredentialsHelper.authorizationHeader(
                 authorizationHeaderContextHolder.getAuthorizationHeader()
         );

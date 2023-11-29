@@ -12,8 +12,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class GetHomeworkRequestFeedbackDto {
-    private Integer feedbackId;
-    private Integer requestVersionId;
+    private Long feedbackId;
+    private Long requestVersionId;
     private String comment;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime creationDate;

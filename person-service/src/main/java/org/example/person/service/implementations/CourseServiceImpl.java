@@ -19,9 +19,9 @@ public class CourseServiceImpl implements CourseService {
     private final CourseRatingRepository courseRatingRepository;
 
     @Override
-    public List<CourseWithRatingDto> getCoursesRating(List<Integer> courseIds) {
-        Map<Integer, CourseDto> courses = courseRepository.findCoursesByCourseIdIn(courseIds);
-        Map<Integer, Double> courseRatings = courseRatingRepository
+    public List<CourseWithRatingDto> getCoursesRating(List<Long> courseIds) {
+        Map<Long, CourseDto> courses = courseRepository.findCoursesByCourseIdIn(courseIds);
+        Map<Long, Double> courseRatings = courseRatingRepository
                 .findCourseRatingsByCourseIdIn(courseIds);
         return courses.values()
                 .stream()

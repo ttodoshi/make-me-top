@@ -31,7 +31,7 @@ public class KeeperRejectionService {
     private final KeeperRejectionValidatorService keeperRejectionValidatorService;
 
     @Transactional
-    public KeeperRejection sendRejection(Integer requestId, CreateKeeperRejectionDto rejection) {
+    public KeeperRejection sendRejection(Long requestId, CreateKeeperRejectionDto rejection) {
         CourseRegistrationRequest request = courseRegistrationRequestRepository
                 .findById(requestId).orElseThrow(() -> new RequestNotFoundException(requestId));
         PeopleService.Person authenticatedPerson = personService.getAuthenticatedPerson();

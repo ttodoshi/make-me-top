@@ -29,7 +29,7 @@ public class PersonRatingController {
                                     mediaType = "*")
                     })
     })
-    public ResponseEntity<?> getRating(@PathVariable("personId") Integer personId,
+    public ResponseEntity<?> getRating(@PathVariable("personId") Long personId,
                                        @RequestParam String as) {
         if (as.equals("explorer"))
             return ResponseEntity.ok(ratingService.getPersonRatingAsExplorer(personId));
@@ -49,7 +49,7 @@ public class PersonRatingController {
                                     mediaType = "*")
                     })
     })
-    public ResponseEntity<?> getPeopleRating(@RequestParam List<Integer> personIds,
+    public ResponseEntity<?> getPeopleRating(@RequestParam List<Long> personIds,
                                              @RequestParam String as) {
         if (as.equals("explorer"))
             return ResponseEntity.ok(ratingService.getPeopleRatingAsExplorer(personIds));

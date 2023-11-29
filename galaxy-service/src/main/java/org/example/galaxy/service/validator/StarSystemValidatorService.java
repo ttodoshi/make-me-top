@@ -23,26 +23,26 @@ public class StarSystemValidatorService {
     private final StarSystemRepository starSystemRepository;
 
     @Transactional(readOnly = true)
-    public void validateGetSystemsByGalaxyId(Integer galaxyId) {
+    public void validateGetSystemsByGalaxyId(Long galaxyId) {
         if (!galaxyRepository.existsById(galaxyId))
             throw new GalaxyNotFoundException(galaxyId);
     }
 
     @Transactional(readOnly = true)
-    public void validatePostRequest(Integer orbitId, CreateStarSystemDto request) {
+    public void validatePostRequest(Long orbitId, CreateStarSystemDto request) {
         if (!orbitRepository.existsById(orbitId))
             throw new OrbitNotFoundException(orbitId);
         if (systemExists(orbitRepository.getReferenceById(orbitId).getGalaxyId(), request.getSystemName()))
             throw new SystemAlreadyExistsException(request.getSystemName());
     }
 
-    private boolean systemExists(Integer galaxyId, String systemName) {
+    private boolean systemExists(Long galaxyId, String systemName) {
         return starSystemRepository.findStarSystemsByOrbit_GalaxyId(galaxyId)
                 .stream().anyMatch(s -> s.getSystemName().equals(systemName));
     }
 
     @Transactional(readOnly = true)
-    public void validatePutRequest(Integer systemId, StarSystemDto system) {
+    public void validatePutRequest(Long systemId, StarSystemDto system) {
         if (!starSystemRepository.existsById(systemId))
             throw new SystemNotFoundException(systemId);
         if (!orbitRepository.existsById(system.getOrbitId()))
@@ -51,13 +51,13 @@ public class StarSystemValidatorService {
             throw new SystemAlreadyExistsException(system.getSystemName());
     }
 
-    private boolean systemExists(Integer galaxyId, Integer systemId, String systemName) {
+    private boolean systemExists(Long galaxyId, Long systemId, String systemName) {
         return starSystemRepository.findStarSystemsByOrbit_GalaxyId(galaxyId)
                 .stream().anyMatch(s -> Objects.equals(s.getSystemName(), systemName) && !s.getSystemId().equals(systemId));
     }
 
     @Transactional(readOnly = true)
-    public void validateDeleteRequest(Integer systemId) {
+    public void validateDeleteRequest(Long systemId) {
         if (!starSystemRepository.existsById(systemId))
             throw new SystemNotFoundException(systemId);
     }

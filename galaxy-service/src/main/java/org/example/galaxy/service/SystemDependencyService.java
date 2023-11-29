@@ -37,7 +37,7 @@ public class SystemDependencyService {
 
     @Transactional
     public MessageDto deleteDependency(DependencyDto dependency) {
-        Integer dependencyId = findDependency(dependency).getDependencyId();
+        Long dependencyId = findDependency(dependency).getDependencyId();
         systemDependencyRepository.deleteById(dependencyId);
         return new MessageDto("Зависимость " + dependencyId + " удалена");
     }

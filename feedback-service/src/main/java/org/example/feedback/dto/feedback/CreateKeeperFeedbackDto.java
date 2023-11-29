@@ -12,7 +12,7 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 public class CreateKeeperFeedbackDto {
     @NotNull
-    private Integer explorerId;
+    private Long explorerId;
     @NotNull
     private Integer rating;
     @NotBlank

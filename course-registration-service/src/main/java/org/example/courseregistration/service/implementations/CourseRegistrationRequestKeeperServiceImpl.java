@@ -59,10 +59,10 @@ public class CourseRegistrationRequestKeeperServiceImpl implements CourseRegistr
     @Override
     @Transactional
     public void closeRequestToOtherKeepers(CourseRegistrationRequest request) {
-        Integer processingStatusId = courseRegistrationRequestKeeperStatusService
+        Long processingStatusId = courseRegistrationRequestKeeperStatusService
                 .findCourseRegistrationRequestKeeperStatusByStatus(CourseRegistrationRequestKeeperStatusType.PROCESSING)
                 .getStatusId();
-        Integer rejectedStatusId = courseRegistrationRequestKeeperStatusService
+        Long rejectedStatusId = courseRegistrationRequestKeeperStatusService
                 .findCourseRegistrationRequestKeeperStatusByStatus(CourseRegistrationRequestKeeperStatusType.REJECTED)
                 .getStatusId();
 
@@ -81,7 +81,7 @@ public class CourseRegistrationRequestKeeperServiceImpl implements CourseRegistr
 
     @Override
     @Transactional(readOnly = true)
-    public List<CourseRegistrationRequestKeeper> findCourseRegistrationRequestKeepersByRequestId(Integer requestId) {
+    public List<CourseRegistrationRequestKeeper> findCourseRegistrationRequestKeepersByRequestId(Long requestId) {
         if (!courseRegistrationRequestRepository.existsById(requestId)) {
             throw new RequestNotFoundException(requestId);
         }
@@ -90,7 +90,7 @@ public class CourseRegistrationRequestKeeperServiceImpl implements CourseRegistr
 
     @Override
     @Transactional(readOnly = true)
-    public List<CourseRegistrationRequestKeeper> findProcessingCourseRegistrationRequestKeepersByKeeperIdIn(List<Integer> keeperIds) {
+    public List<CourseRegistrationRequestKeeper> findProcessingCourseRegistrationRequestKeepersByKeeperIdIn(List<Long> keeperIds) {
         return courseRegistrationRequestKeeperRepository
                 .findProcessingCourseRegistrationRequestKeepersByKeeperIdIn(keeperIds);
     }

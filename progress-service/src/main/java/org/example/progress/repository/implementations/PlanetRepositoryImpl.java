@@ -27,7 +27,7 @@ public class PlanetRepositoryImpl implements PlanetRepository {
     private final AuthorizationHeaderContextHolder authorizationHeaderContextHolder;
 
     @Override
-    public Optional<PlanetDto> findById(Integer planetId) {
+    public Optional<PlanetDto> findById(Long planetId) {
         return webClientBuilder
                 .baseUrl("http://planet-service/api/v1/planet-app/").build()
                 .get()
@@ -48,7 +48,7 @@ public class PlanetRepositoryImpl implements PlanetRepository {
     }
 
     @Override
-    public List<PlanetDto> findPlanetsBySystemId(Integer systemId) {
+    public List<PlanetDto> findPlanetsBySystemId(Long systemId) {
         return webClientBuilder
                 .baseUrl("http://planet-service/api/v1/planet-app/").build()
                 .get()
@@ -70,7 +70,7 @@ public class PlanetRepositoryImpl implements PlanetRepository {
     }
 
     @Override
-    public Map<Integer, List<PlanetDto>> findPlanetsBySystemIdIn(List<Integer> systemIds) {
+    public Map<Long, List<PlanetDto>> findPlanetsBySystemIdIn(List<Long> systemIds) {
         return webClientBuilder
                 .baseUrl("http://planet-service/api/v1/planet-app/").build()
                 .get()
@@ -84,7 +84,7 @@ public class PlanetRepositoryImpl implements PlanetRepository {
                 .onStatus(httpStatus -> httpStatus.isError() && !httpStatus.equals(HttpStatus.UNAUTHORIZED), response -> {
                     throw new ConnectException();
                 })
-                .bodyToFlux(new ParameterizedTypeReference<Map<Integer, List<PlanetDto>>>() {
+                .bodyToFlux(new ParameterizedTypeReference<Map<Long, List<PlanetDto>>>() {
                 })
                 .timeout(Duration.ofSeconds(5))
                 .onErrorResume(WebClientResponseException.Unauthorized.class, error -> Mono.error(new AccessDeniedException("Вам закрыт доступ к данной функциональности бортового компьютера")))

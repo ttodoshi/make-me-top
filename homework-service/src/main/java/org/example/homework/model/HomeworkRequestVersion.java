@@ -21,13 +21,13 @@ import java.util.List;
 public class HomeworkRequestVersion {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer versionId;
+    private Long versionId;
     @ManyToOne(optional = false)
     @JoinColumn(name = "request_id", nullable = false, insertable = false, updatable = false)
     @JsonBackReference
     private HomeworkRequest request;
     @Column(name = "request_id")
-    private Integer requestId;
+    private Long requestId;
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
     @CreatedDate
@@ -40,7 +40,7 @@ public class HomeworkRequestVersion {
     @ToString.Exclude
     private List<HomeworkRequestFeedback> homeworkRequestFeedbacks;
 
-    public HomeworkRequestVersion(Integer requestId, String content) {
+    public HomeworkRequestVersion(Long requestId, String content) {
         this.requestId = requestId;
         this.content = content;
     }

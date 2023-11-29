@@ -11,8 +11,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class GetHomeworkDto {
-    private Integer homeworkId;
-    private Integer courseThemeId;
+    private Long homeworkId;
+    private Long courseThemeId;
     private String content;
     private GetExplorerGroupDto group;
     private Long waitingRequestsCount;

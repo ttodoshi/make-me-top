@@ -11,5 +11,5 @@ public class OrbitDto {
     @NotNull
     private Integer systemCount;
     @NotNull
-    private Integer galaxyId;
+    private Long galaxyId;
 }

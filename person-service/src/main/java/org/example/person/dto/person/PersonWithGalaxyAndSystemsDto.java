@@ -12,10 +12,10 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PersonWithGalaxyAndSystemsDto extends PersonWithSystemsDto {
-    private Integer galaxyId;
+    private Long galaxyId;
     private String galaxyName;
 
-    public PersonWithGalaxyAndSystemsDto(Integer personId, String firstName, String lastName, String patronymic, Double rating, Integer galaxyId, String galaxyName, List<Integer> systems) {
+    public PersonWithGalaxyAndSystemsDto(Long personId, String firstName, String lastName, String patronymic, Double rating, Long galaxyId, String galaxyName, List<Long> systems) {
         super(personId, firstName, lastName, patronymic, rating, systems);
         this.galaxyId = galaxyId;
         this.galaxyName = galaxyName;

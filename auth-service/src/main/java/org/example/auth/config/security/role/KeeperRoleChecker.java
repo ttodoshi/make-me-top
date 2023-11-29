@@ -29,7 +29,7 @@ public class KeeperRoleChecker implements RoleChecker {
     }
 
     @Override
-    public boolean isRoleAvailable(Integer personId) {
+    public boolean isRoleAvailable(Long personId) {
         return webClientBuilder
                 .baseUrl(MMTR_AUTH_URL).build()
                 .get()

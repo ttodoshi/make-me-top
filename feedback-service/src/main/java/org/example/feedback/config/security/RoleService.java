@@ -24,7 +24,7 @@ public class RoleService {
         return false;
     }
 
-    public boolean hasAnyCourseRole(Integer courseId, CourseRoleType role) {
+    public boolean hasAnyCourseRole(Long courseId, CourseRoleType role) {
         PeopleService.Person person = (PeopleService.Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (role.equals(CourseRoleType.EXPLORER))
             return explorerRepository.findExplorerByPersonIdAndGroup_CourseId(person.getPersonId(), courseId).isPresent();

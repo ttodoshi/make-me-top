@@ -22,7 +22,7 @@ public class RatingServiceImpl implements RatingService {
     private final WebClient.Builder webClientBuilder;
 
     @Override
-    public Double getPersonRatingAsKeeper(Integer personId) {
+    public Double getPersonRatingAsKeeper(Long personId) {
         return webClientBuilder
                 .baseUrl("http://feedback-service/api/v1/feedback-app/").build()
                 .get()
@@ -43,7 +43,7 @@ public class RatingServiceImpl implements RatingService {
     }
 
     @Override
-    public Double getPersonRatingAsExplorer(Integer personId) {
+    public Double getPersonRatingAsExplorer(Long personId) {
         return webClientBuilder
                 .baseUrl("http://feedback-service/api/v1/feedback-app/").build()
                 .get()
@@ -64,7 +64,7 @@ public class RatingServiceImpl implements RatingService {
     }
 
     @Override
-    public Map<Integer, Double> getPeopleRatingAsExplorerByPersonIdIn(List<Integer> personIds) {
+    public Map<Long, Double> getPeopleRatingAsExplorerByPersonIdIn(List<Long> personIds) {
         return webClientBuilder
                 .baseUrl("http://feedback-service/api/v1/feedback-app/").build()
                 .get()
@@ -78,7 +78,7 @@ public class RatingServiceImpl implements RatingService {
                 .onStatus(httpStatus -> httpStatus.isError() && !httpStatus.equals(HttpStatus.UNAUTHORIZED), response -> {
                     throw new ConnectException();
                 })
-                .bodyToFlux(new ParameterizedTypeReference<Map<Integer, Double>>() {
+                .bodyToFlux(new ParameterizedTypeReference<Map<Long, Double>>() {
                 })
                 .timeout(Duration.ofSeconds(5))
                 .onErrorResume(WebClientResponseException.Unauthorized.class, error -> Mono.error(new AccessDeniedException("Вам закрыт доступ к данной функциональности бортового компьютера")))
@@ -86,7 +86,7 @@ public class RatingServiceImpl implements RatingService {
     }
 
     @Override
-    public Map<Integer, Double> getPeopleRatingAsKeeperByPersonIdIn(List<Integer> personIds) {
+    public Map<Long, Double> getPeopleRatingAsKeeperByPersonIdIn(List<Long> personIds) {
         return webClientBuilder
                 .baseUrl("http://feedback-service/api/v1/feedback-app/").build()
                 .get()
@@ -100,7 +100,7 @@ public class RatingServiceImpl implements RatingService {
                 .onStatus(httpStatus -> httpStatus.isError() && !httpStatus.equals(HttpStatus.UNAUTHORIZED), response -> {
                     throw new ConnectException();
                 })
-                .bodyToFlux(new ParameterizedTypeReference<Map<Integer, Double>>() {
+                .bodyToFlux(new ParameterizedTypeReference<Map<Long, Double>>() {
                 })
                 .timeout(Duration.ofSeconds(5))
                 .onErrorResume(WebClientResponseException.Unauthorized.class, error -> Mono.error(new AccessDeniedException("Вам закрыт доступ к данной функциональности бортового компьютера")))

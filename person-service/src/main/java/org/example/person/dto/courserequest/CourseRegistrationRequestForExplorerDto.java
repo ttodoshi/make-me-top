@@ -11,10 +11,10 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CourseRegistrationRequestForExplorerDto {
-    private Integer requestId;
-    private Integer courseId;
+    private Long requestId;
+    private Long courseId;
     private String courseTitle;
-    private Integer galaxyId;
+    private Long galaxyId;
     private String galaxyName;
     private List<KeeperBasicInfoDto> keepers;
 }

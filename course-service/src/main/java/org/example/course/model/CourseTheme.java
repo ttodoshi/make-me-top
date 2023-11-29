@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 public class CourseTheme {
     @Id
     @Column(nullable = false)
-    private Integer courseThemeId;
+    private Long courseThemeId;
     @Column(nullable = false)
     private String title;
     @LastModifiedDate
@@ -38,5 +38,5 @@ public class CourseTheme {
     @JsonBackReference
     private Course course;
     @Column(name = "course_id")
-    private Integer courseId;
+    private Long courseId;
 }

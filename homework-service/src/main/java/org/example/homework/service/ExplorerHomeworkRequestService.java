@@ -34,11 +34,11 @@ public class ExplorerHomeworkRequestService {
     private final ExplorerHomeworkRequestValidatorService explorerHomeworkRequestValidatorService;
 
     @Transactional
-    public HomeworkRequest sendHomeworkRequest(Integer homeworkId, CreateHomeworkRequestDto request) {
-        Integer themeId = homeworkRepository.findById(homeworkId)
+    public HomeworkRequest sendHomeworkRequest(Long homeworkId, CreateHomeworkRequestDto request) {
+        Long themeId = homeworkRepository.findById(homeworkId)
                 .orElseThrow(() -> new HomeworkNotFoundException(homeworkId))
                 .getCourseThemeId();
-        Integer courseId = planetRepository.findById(themeId)
+        Long courseId = planetRepository.findById(themeId)
                 .orElseThrow(() -> new PlanetNotFoundException(themeId))
                 .getSystemId();
         ExplorersService.Explorer explorer = explorerRepository
@@ -79,7 +79,7 @@ public class ExplorerHomeworkRequestService {
         return homeworkRequest;
     }
 
-    private HomeworkRequest createNewRequestWithFirstVersion(Integer themeId, Integer homeworkId, Integer explorerId, String content) {
+    private HomeworkRequest createNewRequestWithFirstVersion(Long themeId, Long homeworkId, Long explorerId, String content) {
         explorerHomeworkRequestValidatorService.validateNewRequest(themeId, explorerId);
         HomeworkRequest homeworkRequest = homeworkRequestService.saveHomeworkRequest(
                 new HomeworkRequest(

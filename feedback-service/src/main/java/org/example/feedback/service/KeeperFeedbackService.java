@@ -37,15 +37,15 @@ public class KeeperFeedbackService {
     private final ModelMapper mapper;
 
     @Transactional(readOnly = true)
-    public List<KeeperFeedback> findKeeperFeedbacksByExplorerIdIn(List<Integer> explorerIds) {
+    public List<KeeperFeedback> findKeeperFeedbacksByExplorerIdIn(List<Long> explorerIds) {
         return keeperFeedbackRepository.findKeeperFeedbacksByExplorerIdIn(explorerIds);
     }
 
     @Transactional
-    public KeeperFeedback sendFeedbackForExplorer(Integer courseId, CreateKeeperFeedbackDto feedback) {
+    public KeeperFeedback sendFeedbackForExplorer(Long courseId, CreateKeeperFeedbackDto feedback) {
         if (!courseRepository.existsById(courseId))
             throw new CourseNotFoundException(courseId);
-        Integer personId = personService.getAuthenticatedPersonId();
+        Long personId = personService.getAuthenticatedPersonId();
         KeepersService.Keeper keeper = keeperRepository.findKeeperByPersonIdAndCourseId(personId, courseId)
                 .orElseThrow(KeeperNotFoundException::new);
         feedbackValidatorService.validateFeedbackForExplorerRequest(keeper.getKeeperId(), feedback);
@@ -56,12 +56,12 @@ public class KeeperFeedbackService {
     }
 
     @Async
-    public void clearExplorerRatingCache(Integer explorerId) {
+    public void clearExplorerRatingCache(Long explorerId) {
         CompletableFuture.runAsync(() -> {
             Cache explorerRatingCache = cacheManager.getCache("explorerRatingCache");
-            Map<List<Integer>, Double> nativeCache = (Map<List<Integer>, Double>)
+            Map<List<Long>, Double> nativeCache = (Map<List<Long>, Double>)
                     Objects.requireNonNull(explorerRatingCache).getNativeCache();
-            for (Map.Entry<List<Integer>, Double> entry : nativeCache.entrySet()) {
+            for (Map.Entry<List<Long>, Double> entry : nativeCache.entrySet()) {
                 if (entry.getKey().contains(explorerId))
                     explorerRatingCache.evict(entry.getKey());
             }
@@ -70,7 +70,7 @@ public class KeeperFeedbackService {
 
     @Cacheable(cacheNames = "explorerRatingCache", key = "#explorerIds")
     @Transactional(readOnly = true)
-    public Double getRatingByPersonExplorerIds(List<Integer> explorerIds) {
+    public Double getRatingByPersonExplorerIds(List<Long> explorerIds) {
         return Math.ceil(keeperFeedbackRepository.getPersonRatingAsExplorer(explorerIds).orElse(0.0) * 10) / 10;
     }
 }

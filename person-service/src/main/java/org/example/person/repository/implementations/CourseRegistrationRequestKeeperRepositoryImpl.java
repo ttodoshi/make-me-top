@@ -23,7 +23,7 @@ public class CourseRegistrationRequestKeeperRepositoryImpl implements CourseRegi
     private final AuthorizationHeaderContextHolder authorizationHeaderContextHolder;
 
     @Override
-    public List<CourseRegistrationRequestKeeperDto> findCourseRegistrationRequestKeepersByRequestId(Integer requestId) {
+    public List<CourseRegistrationRequestKeeperDto> findCourseRegistrationRequestKeepersByRequestId(Long requestId) {
         return webClientBuilder
                 .baseUrl("http://course-registration-service/api/v1/course-registration-app/").build()
                 .get()
@@ -45,7 +45,7 @@ public class CourseRegistrationRequestKeeperRepositoryImpl implements CourseRegi
     }
 
     @Override
-    public List<CourseRegistrationRequestKeeperDto> findProcessingCourseRegistrationRequestKeepersByKeeperIdIn(List<Integer> keeperIds) {
+    public List<CourseRegistrationRequestKeeperDto> findProcessingCourseRegistrationRequestKeepersByKeeperIdIn(List<Long> keeperIds) {
         return webClientBuilder
                 .baseUrl("http://course-registration-service/api/v1/course-registration-app/").build()
                 .get()

@@ -22,7 +22,7 @@ public class HomeworkRequestRepositoryImpl implements HomeworkRequestRepository 
     private final AuthorizationHeaderContextHolder authorizationHeaderContextHolder;
 
     @Override
-    public List<HomeworkRequestDto> findOpenedHomeworkRequestsByExplorerIdIn(List<Integer> explorerIds) {
+    public List<HomeworkRequestDto> findOpenedHomeworkRequestsByExplorerIdIn(List<Long> explorerIds) {
         return webClientBuilder
                 .baseUrl("http://homework-service/api/v1/homework-app/").build()
                 .get()

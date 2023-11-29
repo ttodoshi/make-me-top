@@ -32,7 +32,7 @@ public class MarkController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> getCourseMark(@PathVariable Integer explorerId) {
+    public ResponseEntity<?> getCourseMark(@PathVariable Long explorerId) {
         return ResponseEntity.ok(markService.getCourseMark(explorerId));
     }
 
@@ -70,7 +70,7 @@ public class MarkController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> setThemeMark(@PathVariable("themeId") Integer themeId,
+    public ResponseEntity<?> setThemeMark(@PathVariable("themeId") Long themeId,
                                           @Valid @RequestBody MarkDto completeThemeRequest) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)

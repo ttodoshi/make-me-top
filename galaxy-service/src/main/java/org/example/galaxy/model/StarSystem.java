@@ -15,7 +15,7 @@ import java.util.List;
 public class StarSystem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer systemId;
+    private Long systemId;
     @Column(nullable = false, unique = true)
     private String systemName;
     @Column(nullable = false)
@@ -27,7 +27,7 @@ public class StarSystem {
     @JsonBackReference
     private Orbit orbit;
     @Column(name = "orbit_id")
-    private Integer orbitId;
+    private Long orbitId;
     @OneToMany(mappedBy = "child", cascade = CascadeType.ALL)
     @JsonBackReference
     @EqualsAndHashCode.Exclude

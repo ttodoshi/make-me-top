@@ -1,7 +1,7 @@
 package org.example.course.config;
 
 import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.common.serialization.IntegerSerializer;
+import org.apache.kafka.common.serialization.LongSerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,89 +21,89 @@ public class KafkaProducerConfig {
 
     @Bean
     @Qualifier("updateSystemProducer")
-    public ProducerFactory<Integer, String> updateSystemProducer() {
+    public ProducerFactory<Long, String> updateSystemProducer() {
         return defaultProperties();
     }
 
     @Bean
     @Qualifier("updateSystemKafkaTemplate")
-    public KafkaTemplate<Integer, String> updateSystemKafkaTemplate() {
+    public KafkaTemplate<Long, String> updateSystemKafkaTemplate() {
         return new KafkaTemplate<>(updateSystemProducer());
     }
 
     @Bean
     @Qualifier("updatePlanetProducer")
-    public ProducerFactory<Integer, String> updatePlanetProducer() {
+    public ProducerFactory<Long, String> updatePlanetProducer() {
         return defaultProperties();
     }
 
     @Bean
     @Qualifier("updatePlanetKafkaTemplate")
-    public KafkaTemplate<Integer, String> updatePlanetKafkaTemplate() {
+    public KafkaTemplate<Long, String> updatePlanetKafkaTemplate() {
         return new KafkaTemplate<>(updatePlanetProducer());
     }
 
-    private ProducerFactory<Integer, String> defaultProperties() {
+    private ProducerFactory<Long, String> defaultProperties() {
         Map<String, Object> properties = new HashMap<>();
         properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
-        properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, IntegerSerializer.class);
+        properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, LongSerializer.class);
         properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         return new DefaultKafkaProducerFactory<>(properties);
     }
 
     @Bean
     @Qualifier("deleteKeepersProducer")
-    public ProducerFactory<Integer, Integer> deleteKeepersProducer() {
+    public ProducerFactory<Long, Long> deleteKeepersProducer() {
         return new DefaultKafkaProducerFactory<>(deleteProducerProperties());
     }
 
     @Bean
     @Qualifier("deleteKeepersKafkaTemplate")
-    public KafkaTemplate<Integer, Integer> deleteKeepersKafkaTemplate() {
+    public KafkaTemplate<Long, Long> deleteKeepersKafkaTemplate() {
         return new KafkaTemplate<>(deleteKeepersProducer());
     }
 
     @Bean
     @Qualifier("deleteRequestsProducer")
-    public ProducerFactory<Integer, Integer> deleteRequestsProducer() {
+    public ProducerFactory<Long, Long> deleteRequestsProducer() {
         return new DefaultKafkaProducerFactory<>(deleteProducerProperties());
     }
 
     @Bean
     @Qualifier("deleteRequestsKafkaTemplate")
-    public KafkaTemplate<Integer, Integer> deleteRequestsKafkaTemplate() {
+    public KafkaTemplate<Long, Long> deleteRequestsKafkaTemplate() {
         return new KafkaTemplate<>(deleteRequestsProducer());
     }
 
     @Bean
     @Qualifier("deleteExplorersProgressProducer")
-    public ProducerFactory<Integer, Integer> deleteExplorersProgressProducer() {
+    public ProducerFactory<Long, Long> deleteExplorersProgressProducer() {
         return new DefaultKafkaProducerFactory<>(deleteProducerProperties());
     }
 
     @Bean
     @Qualifier("deleteExplorersProgressKafkaTemplate")
-    public KafkaTemplate<Integer, Integer> deleteExplorersProgressKafkaTemplate() {
+    public KafkaTemplate<Long, Long> deleteExplorersProgressKafkaTemplate() {
         return new KafkaTemplate<>(deleteExplorersProgressProducer());
     }
 
     @Bean
     @Qualifier("deleteHomeworksProducer")
-    public ProducerFactory<Integer, Integer> deleteHomeworksProducer() {
+    public ProducerFactory<Long, Long> deleteHomeworksProducer() {
         return new DefaultKafkaProducerFactory<>(deleteProducerProperties());
     }
 
     @Bean
     @Qualifier("deleteHomeworksKafkaTemplate")
-    public KafkaTemplate<Integer, Integer> deleteHomeworksKafkaTemplate() {
+    public KafkaTemplate<Long, Long> deleteHomeworksKafkaTemplate() {
         return new KafkaTemplate<>(deleteHomeworksProducer());
     }
 
     private Map<String, Object> deleteProducerProperties() {
         Map<String, Object> properties = new HashMap<>();
         properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
-        properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, IntegerSerializer.class);
-        properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, IntegerSerializer.class);
+        properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, LongSerializer.class);
+        properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, LongSerializer.class);
         return properties;
     }
 }

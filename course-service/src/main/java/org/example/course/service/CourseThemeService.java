@@ -27,14 +27,14 @@ public class CourseThemeService {
 
     private final ModelMapper mapper;
 
-    private final KafkaTemplate<Integer, String> updatePlanetKafkaTemplate;
-    private final KafkaTemplate<Integer, Integer> deleteExplorersProgressKafkaTemplate;
-    private final KafkaTemplate<Integer, Integer> deleteHomeworksKafkaTemplate;
+    private final KafkaTemplate<Long, String> updatePlanetKafkaTemplate;
+    private final KafkaTemplate<Long, Long> deleteExplorersProgressKafkaTemplate;
+    private final KafkaTemplate<Long, Long> deleteHomeworksKafkaTemplate;
 
     public CourseThemeService(CourseThemeRepository courseThemeRepository, CourseThemeValidatorService courseThemeValidatorService,
-                              ModelMapper mapper, @Qualifier("updatePlanetKafkaTemplate") KafkaTemplate<Integer, String> updatePlanetKafkaTemplate,
-                              @Qualifier("deleteExplorersProgressKafkaTemplate") KafkaTemplate<Integer, Integer> deleteExplorersProgressKafkaTemplate,
-                              @Qualifier("deleteHomeworksKafkaTemplate") KafkaTemplate<Integer, Integer> deleteHomeworksKafkaTemplate) {
+                              ModelMapper mapper, @Qualifier("updatePlanetKafkaTemplate") KafkaTemplate<Long, String> updatePlanetKafkaTemplate,
+                              @Qualifier("deleteExplorersProgressKafkaTemplate") KafkaTemplate<Long, Long> deleteExplorersProgressKafkaTemplate,
+                              @Qualifier("deleteHomeworksKafkaTemplate") KafkaTemplate<Long, Long> deleteHomeworksKafkaTemplate) {
         this.courseThemeRepository = courseThemeRepository;
         this.courseThemeValidatorService = courseThemeValidatorService;
         this.mapper = mapper;
@@ -44,7 +44,7 @@ public class CourseThemeService {
     }
 
     @Transactional(readOnly = true)
-    public CourseTheme findCourseThemeById(Integer courseThemeId) {
+    public CourseTheme findCourseThemeById(Long courseThemeId) {
         courseThemeValidatorService.validateGetThemeRequest(courseThemeId);
         return courseThemeRepository.findById(courseThemeId)
                 .orElseThrow(() -> new CourseThemeNotFoundException(courseThemeId));
@@ -52,7 +52,7 @@ public class CourseThemeService {
 
     @KafkaListener(topics = "createCourseThemeTopic", containerFactory = "createThemeKafkaListenerContainerFactory")
     @Transactional
-    public CourseTheme createCourseTheme(@Header(KafkaHeaders.RECEIVED_MESSAGE_KEY) Integer courseId,
+    public CourseTheme createCourseTheme(@Header(KafkaHeaders.RECEIVED_MESSAGE_KEY) Long courseId,
                                          @Payload CourseThemeCreateEvent courseThemeRequest) {
         CourseTheme theme = mapper.map(courseThemeRequest, CourseTheme.class);
         theme.setCourseId(courseId);
@@ -61,7 +61,7 @@ public class CourseThemeService {
 
     @KafkaListener(topics = "updateCourseThemeTopic", containerFactory = "updateThemeKafkaListenerContainerFactory")
     @Transactional
-    public void updateCourseThemeTitle(ConsumerRecord<Integer, String> record) {
+    public void updateCourseThemeTitle(ConsumerRecord<Long, String> record) {
         CourseTheme courseTheme = courseThemeRepository.findById(record.key())
                 .orElseThrow(() -> new CourseThemeNotFoundException(record.key()));
         courseTheme.setTitle(record.value());
@@ -69,7 +69,7 @@ public class CourseThemeService {
     }
 
     @Transactional
-    public CourseTheme updateCourseTheme(Integer courseThemeId, UpdateCourseThemeDto courseTheme) {
+    public CourseTheme updateCourseTheme(Long courseThemeId, UpdateCourseThemeDto courseTheme) {
         CourseTheme updatedTheme = courseThemeRepository.findById(courseThemeId)
                 .orElseThrow(() -> new CourseThemeNotFoundException(courseThemeId));
         courseThemeValidatorService.validatePutRequest(courseThemeId, courseTheme);
@@ -82,30 +82,30 @@ public class CourseThemeService {
         return courseThemeRepository.save(updatedTheme);
     }
 
-    private void updatePlanetName(Integer courseThemeId, String title) {
+    private void updatePlanetName(Long courseThemeId, String title) {
         updatePlanetKafkaTemplate.send("updatePlanetTopic", courseThemeId, title);
     }
 
     @KafkaListener(topics = "deleteCourseThemeTopic", containerFactory = "deleteThemeKafkaListenerContainerFactory")
     @Transactional
-    public void deleteCourseTheme(Integer courseThemeId) {
+    public void deleteCourseTheme(Long courseThemeId) {
         courseThemeRepository.deleteById(courseThemeId);
     }
 
-    public void deleteDataRelatedToTheme(Integer themeId) {
+    public void deleteDataRelatedToTheme(Long themeId) {
         deleteHomeworksByThemeId(themeId);
         deleteExplorersProgressByThemeId(themeId);
     }
 
-    private void deleteExplorersProgressByThemeId(Integer themeId) {
+    private void deleteExplorersProgressByThemeId(Long themeId) {
         deleteExplorersProgressKafkaTemplate.send("deleteExplorersProgressTopic", themeId);
     }
 
-    private void deleteHomeworksByThemeId(Integer themeId) {
+    private void deleteHomeworksByThemeId(Long themeId) {
         deleteHomeworksKafkaTemplate.send("deleteHomeworksTopic", themeId);
     }
 
-    public void deleteDataRelatedToThemes(List<Integer> themeIds) {
+    public void deleteDataRelatedToThemes(List<Long> themeIds) {
         themeIds.forEach(this::deleteDataRelatedToTheme);
     }
 }

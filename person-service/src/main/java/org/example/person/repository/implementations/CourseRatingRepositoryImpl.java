@@ -24,7 +24,7 @@ public class CourseRatingRepositoryImpl implements CourseRatingRepository {
     private final AuthorizationHeaderContextHolder authorizationHeaderContextHolder;
 
     @Override
-    public Map<Integer, Double> findCourseRatingsByCourseIdIn(List<Integer> courseIds) {
+    public Map<Long, Double> findCourseRatingsByCourseIdIn(List<Long> courseIds) {
         return webClientBuilder
                 .baseUrl("http://feedback-service/api/v1/feedback-app/").build()
                 .get()
@@ -38,7 +38,7 @@ public class CourseRatingRepositoryImpl implements CourseRatingRepository {
                 .onStatus(httpStatus -> httpStatus.isError() && !httpStatus.equals(HttpStatus.NOT_FOUND) && !httpStatus.equals(HttpStatus.UNAUTHORIZED), response -> {
                     throw new ConnectException();
                 })
-                .bodyToFlux(new ParameterizedTypeReference<Map<Integer, Double>>() {
+                .bodyToFlux(new ParameterizedTypeReference<Map<Long, Double>>() {
                 })
                 .timeout(Duration.ofSeconds(5))
                 .onErrorResume(WebClientResponseException.Unauthorized.class, error -> Mono.error(new AccessDeniedException("Вам закрыт доступ к данной функциональности бортового компьютера")))

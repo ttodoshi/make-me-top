@@ -5,7 +5,7 @@ import org.example.person.dto.courserequest.CourseRegistrationRequestKeeperDto;
 import java.util.List;
 
 public interface CourseRegistrationRequestKeeperRepository {
-    List<CourseRegistrationRequestKeeperDto> findCourseRegistrationRequestKeepersByRequestId(Integer requestId);
+    List<CourseRegistrationRequestKeeperDto> findCourseRegistrationRequestKeepersByRequestId(Long requestId);
 
-    List<CourseRegistrationRequestKeeperDto> findProcessingCourseRegistrationRequestKeepersByKeeperIdIn(List<Integer> keeperIds);
+    List<CourseRegistrationRequestKeeperDto> findProcessingCourseRegistrationRequestKeepersByKeeperIdIn(List<Long> keeperIds);
 }

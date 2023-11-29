@@ -37,7 +37,7 @@ public class KeeperCourseRegistrationRequestController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> replyToRequest(@PathVariable("requestId") Integer requestId,
+    public ResponseEntity<?> replyToRequest(@PathVariable("requestId") Long requestId,
                                             @Valid @RequestBody CourseRegistrationRequestReplyDto reply) {
         return ResponseEntity.ok(keeperCourseRegistrationRequestService.replyToRequest(requestId, reply));
     }
@@ -54,7 +54,7 @@ public class KeeperCourseRegistrationRequestController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> getApprovedRequests(@RequestParam List<Integer> keeperIds) {
+    public ResponseEntity<?> getApprovedRequests(@RequestParam List<Long> keeperIds) {
         return ResponseEntity.ok(
                 keeperCourseRegistrationRequestService.getApprovedRequests(keeperIds)
         );
@@ -73,7 +73,7 @@ public class KeeperCourseRegistrationRequestController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> startTeaching(@PathVariable Integer courseId) {
+    public ResponseEntity<?> startTeaching(@PathVariable Long courseId) {
         return ResponseEntity.ok(keeperCourseRegistrationRequestService.startTeaching(courseId));
     }
 
@@ -90,7 +90,7 @@ public class KeeperCourseRegistrationRequestController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> sendKeeperRejection(@PathVariable("requestId") Integer requestId,
+    public ResponseEntity<?> sendKeeperRejection(@PathVariable("requestId") Long requestId,
                                                  @Valid @RequestBody CreateKeeperRejectionDto rejection) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)

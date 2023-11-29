@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Optional;
 
 public interface PersonRepository {
-    Optional<PeopleService.Person> findById(Integer personId);
+    Optional<PeopleService.Person> findById(Long personId);
 
-    Map<Integer, PeopleService.Person> findPeopleByPersonIdIn(List<Integer> personIds);
+    Map<Long, PeopleService.Person> findPeopleByPersonIdIn(List<Long> personIds);
 }

@@ -33,7 +33,7 @@ public class CourseRatingController {
                                     mediaType = "*")
                     })
     })
-    public ResponseEntity<?> getCoursesRating(@RequestParam List<Integer> courseIds) {
+    public ResponseEntity<?> getCoursesRating(@RequestParam List<Long> courseIds) {
         return ResponseEntity.ok(courseRatingService.getCoursesRating(courseIds));
     }
 }

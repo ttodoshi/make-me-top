@@ -27,9 +27,9 @@ public class ExplorerServiceImpl implements ExplorerService {
     private final ModelMapper mapper;
 
     @Override
-    public List<ExplorerWithRatingDto> getExplorersForCourse(Integer courseId) {
+    public List<ExplorerWithRatingDto> getExplorersForCourse(Long courseId) {
         List<ExplorerBaseInfoDto> explorers = getExplorersFromCourse(courseId);
-        Map<Integer, Double> ratings = ratingService.getPeopleRatingAsExplorerByPersonIdIn(
+        Map<Long, Double> ratings = ratingService.getPeopleRatingAsExplorerByPersonIdIn(
                 explorers.stream().map(ExplorerBaseInfoDto::getPersonId).collect(Collectors.toList())
         );
         return explorers.stream()
@@ -41,9 +41,9 @@ public class ExplorerServiceImpl implements ExplorerService {
                 .collect(Collectors.toList());
     }
 
-    private List<ExplorerBaseInfoDto> getExplorersFromCourse(Integer courseId) {
+    private List<ExplorerBaseInfoDto> getExplorersFromCourse(Long courseId) {
         List<ExplorersService.Explorer> explorers = explorerRepository.findExplorersByCourseId(courseId);
-        Map<Integer, PeopleService.Person> people = personRepository.findPeopleByPersonIdIn(
+        Map<Long, PeopleService.Person> people = personRepository.findPeopleByPersonIdIn(
                 explorers.stream().map(ExplorersService.Explorer::getPersonId).collect(Collectors.toList())
         );
         return explorers.stream()

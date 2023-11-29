@@ -3,9 +3,9 @@ package org.example.courseregistration.service;
 import org.example.grpc.PeopleService;
 
 public interface PersonService {
-    Integer getAuthenticatedPersonId();
+    Long getAuthenticatedPersonId();
 
     PeopleService.Person getAuthenticatedPerson();
 
-    PeopleService.Person findPersonById(Integer personId);
+    PeopleService.Person findPersonById(Long personId);
 }

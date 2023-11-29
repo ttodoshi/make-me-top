@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Map;
 
 public interface CourseRepository {
-    Map<Integer, CourseDto> findCoursesByCourseIdIn(List<Integer> courseIds);
+    Map<Long, CourseDto> findCoursesByCourseIdIn(List<Long> courseIds);
 
-    CourseDto getReferenceById(Integer courseId);
+    CourseDto getReferenceById(Long courseId);
 
-    Boolean existsById(Integer courseId);
+    Boolean existsById(Long courseId);
 }

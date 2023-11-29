@@ -8,5 +8,5 @@ import java.util.List;
 public interface GalaxyRepository {
     List<GetGalaxyInformationDto> findAll();
 
-    GalaxyDto findGalaxyBySystemId(Integer systemId);
+    GalaxyDto findGalaxyBySystemId(Long systemId);
 }

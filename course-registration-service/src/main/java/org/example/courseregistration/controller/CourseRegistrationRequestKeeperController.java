@@ -33,7 +33,7 @@ public class CourseRegistrationRequestKeeperController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> findCourseRegistrationRequestKeepersByRequestId(@PathVariable Integer requestId) {
+    public ResponseEntity<?> findCourseRegistrationRequestKeepersByRequestId(@PathVariable Long requestId) {
         return ResponseEntity.ok(
                 courseRegistrationRequestKeeperService
                         .findCourseRegistrationRequestKeepersByRequestId(requestId)
@@ -53,7 +53,7 @@ public class CourseRegistrationRequestKeeperController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> findProcessingCourseRegistrationRequestKeepersByKeeperIdIn(@RequestParam List<Integer> keeperIds) {
+    public ResponseEntity<?> findProcessingCourseRegistrationRequestKeepersByKeeperIdIn(@RequestParam List<Long> keeperIds) {
         return ResponseEntity.ok(
                 courseRegistrationRequestKeeperService
                         .findProcessingCourseRegistrationRequestKeepersByKeeperIdIn(keeperIds)
