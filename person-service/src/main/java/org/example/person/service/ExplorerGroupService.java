@@ -7,6 +7,7 @@ import org.example.person.model.ExplorerGroup;
 import org.example.person.repository.ExplorerGroupRepository;
 import org.example.person.service.validator.ExplorerGroupValidatorService;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
@@ -51,6 +52,8 @@ public class ExplorerGroupService {
             @CacheEvict(cacheNames = "explorerGroupsByKeeperIdCache", key = "#group.keeperId"),
             @CacheEvict(cacheNames = "explorerGroupsByKeeperIdInCache", allEntries = true),
             @CacheEvict(cacheNames = "explorerGroupsByGroupIdInCache", allEntries = true),
+    }, put = {
+            @CachePut(cacheNames = "explorerGroupByIdCache", key = "#result.groupId")
     })
     @Transactional
     public ExplorerGroup createExplorerGroup(ExplorerGroupsService.CreateGroupRequest group) {

@@ -62,6 +62,7 @@ public class KeeperService {
         return keeperRepository.findKeepersByCourseId(courseId);
     }
 
+    @Cacheable(cacheNames = "keepersByKeeperIdInCache", key = "{#keeperIds}")
     @Transactional(readOnly = true)
     public Map<Long, Keeper> findKeepersByKeeperIdIn(List<Long> keeperIds) {
         return keeperRepository.findKeepersByKeeperIdIn(keeperIds)
@@ -74,11 +75,13 @@ public class KeeperService {
                 );
     }
 
+    @Cacheable(cacheNames = "keepersByPersonIdAndCourseIdInCache", key = "{#personId, #courseIds}")
     @Transactional(readOnly = true)
     public List<Keeper> findKeepersByPersonIdAndCourseIdIn(Long personId, List<Long> courseIds) {
         return keeperRepository.findKeepersByPersonIdAndCourseIdIn(personId, courseIds);
     }
 
+    @Cacheable(cacheNames = "allKeepersCache")
     @Transactional(readOnly = true)
     public List<Keeper> findAllKeepers() {
         return keeperRepository.findAll();
@@ -87,7 +90,8 @@ public class KeeperService {
     @Caching(evict = {
             @CacheEvict(cacheNames = "keepersByPersonIdCache", key = "#createKeeper.personId"),
             @CacheEvict(cacheNames = "keeperExistsByIdCache", key = "#result.keeperId"),
-            @CacheEvict(cacheNames = "keepersByCourseIdCache", key = "#courseId")
+            @CacheEvict(cacheNames = "keepersByCourseIdCache", key = "#courseId"),
+            @CacheEvict(cacheNames = {"keepersByKeeperIdInCache", "keepersByPersonIdAndCourseIdInCache", "allKeepersCache"}, allEntries = true),
     })
     @Transactional
     public Keeper setKeeperToCourse(Long courseId, CreateKeeperDto createKeeper) {
@@ -99,6 +103,7 @@ public class KeeperService {
     }
 
     @KafkaListener(topics = "deleteKeepersTopic", containerFactory = "deleteKeepersKafkaListenerContainerFactory")
+    @CacheEvict(cacheNames = {"keeperByIdCache", "keeperExistsByIdCache", "keeperByPersonIdAndCourseIdCache", "keepersByPersonIdCache", "keepersByCourseIdCache", "keepersByKeeperIdInCache", "keepersByPersonIdAndCourseIdInCache", "allKeepersCache"}, allEntries = true)
     @Transactional
     public void deleteKeepersByCourseId(Long courseId) {
         explorerGroupRepository.findExplorerGroupsByKeeperIdIn(
