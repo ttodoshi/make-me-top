@@ -2,16 +2,13 @@ package org.example.person.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.person.dto.galaxy.GetGalaxyInformationDto;
-import org.example.person.dto.person.PersonWithGalaxyAndSystemsAndCurrentSystemDto;
 import org.example.person.dto.person.PersonWithGalaxyAndSystemsDto;
-import org.example.person.dto.progress.CurrentCourseProgressDto;
 import org.example.person.repository.GalaxyRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,16 +32,6 @@ public class ExplorerListService {
                                     return explorer;
                                 }
                         )
-                ).map(p -> {
-                    // TODO n + 1
-                    Optional<CurrentCourseProgressDto> currentCourseProgress = courseProgressService
-                            .getCurrentCourseProgress(p.getPersonId());
-                    if (currentCourseProgress.isPresent()) {
-                        CurrentCourseProgressDto progress = currentCourseProgress.get();
-                        return new PersonWithGalaxyAndSystemsAndCurrentSystemDto(p, progress.getCourseId(), progress.getCourseTitle());
-                    }
-                    return p;
-                })
-                .collect(Collectors.toList());
+                ).collect(Collectors.toList());
     }
 }

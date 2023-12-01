@@ -182,7 +182,8 @@ public class HomeworkRequestService {
                                                 f.getCreationDate(),
                                                 keeper
                                         )).collect(Collectors.toList())
-                        )).collect(Collectors.toList())
+                        )).collect(Collectors.toList()),
+                homeworkRequest.getMark()
         );
     }
 }
