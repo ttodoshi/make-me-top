@@ -1,14 +1,13 @@
 package org.example.course.service.implementations;
 
 import lombok.RequiredArgsConstructor;
-import org.example.course.dto.explorer.ExplorerBaseInfoDto;
 import org.example.course.dto.explorer.ExplorerWithRatingDto;
-import org.example.grpc.ExplorersService;
-import org.example.grpc.PeopleService;
 import org.example.course.repository.ExplorerRepository;
 import org.example.course.repository.PersonRepository;
 import org.example.course.service.ExplorerService;
 import org.example.course.service.RatingService;
+import org.example.grpc.ExplorersService;
+import org.example.grpc.PeopleService;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
@@ -28,34 +27,25 @@ public class ExplorerServiceImpl implements ExplorerService {
 
     @Override
     public List<ExplorerWithRatingDto> getExplorersForCourse(Long courseId) {
-        List<ExplorerBaseInfoDto> explorers = getExplorersFromCourse(courseId);
-        Map<Long, Double> ratings = ratingService.getPeopleRatingAsExplorerByPersonIdIn(
-                explorers.stream().map(ExplorerBaseInfoDto::getPersonId).collect(Collectors.toList())
-        );
-        return explorers.stream()
-                .map(e -> {
-                    ExplorerWithRatingDto explorer = mapper.map(e, ExplorerWithRatingDto.class);
-                    explorer.setRating(ratings.get(e.getPersonId()));
-                    return explorer;
-                }).sorted()
-                .collect(Collectors.toList());
-    }
-
-    private List<ExplorerBaseInfoDto> getExplorersFromCourse(Long courseId) {
         List<ExplorersService.Explorer> explorers = explorerRepository.findExplorersByCourseId(courseId);
         Map<Long, PeopleService.Person> people = personRepository.findPeopleByPersonIdIn(
                 explorers.stream().map(ExplorersService.Explorer::getPersonId).collect(Collectors.toList())
         );
+        Map<Long, Double> ratings = ratingService.getPeopleRatingAsExplorerByPersonIdIn(
+                explorers.stream().map(ExplorersService.Explorer::getPersonId).collect(Collectors.toList())
+        );
         return explorers.stream()
                 .map(e -> {
-                    PeopleService.Person currentKeeperPerson = people.get(e.getPersonId());
-                    return new ExplorerBaseInfoDto(
-                            currentKeeperPerson.getPersonId(),
-                            currentKeeperPerson.getFirstName(),
-                            currentKeeperPerson.getLastName(),
-                            currentKeeperPerson.getPatronymic(),
-                            e.getExplorerId()
+                    PeopleService.Person currentExplorerPerson = people.get(e.getPersonId());
+                    return new ExplorerWithRatingDto(
+                            currentExplorerPerson.getPersonId(),
+                            currentExplorerPerson.getFirstName(),
+                            currentExplorerPerson.getLastName(),
+                            currentExplorerPerson.getPatronymic(),
+                            e.getExplorerId(),
+                            ratings.get(e.getPersonId())
                     );
-                }).collect(Collectors.toList());
+                }).sorted()
+                .collect(Collectors.toList());
     }
 }
