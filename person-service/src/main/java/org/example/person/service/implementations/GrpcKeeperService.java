@@ -142,7 +142,6 @@ public class GrpcKeeperService extends KeeperServiceGrpc.KeeperServiceImplBase {
                                         entry -> KeepersService.AllKeepersResponse.KeeperList
                                                 .newBuilder()
                                                 .addAllPerson(entry.getValue())
-                                                .addAllPerson(entry.getValue())
                                                 .build()
                                 ))).build()
         );
