@@ -37,6 +37,7 @@ public class KeeperCourseRegistrationRequestService {
     private final PersonService personService;
     private final CourseRegistrationRequestStatusService courseRegistrationRequestStatusService;
     private final CourseRegistrationRequestKeeperService courseRegistrationRequestKeeperService;
+    private final CourseRegistrationRequestKeeperStatusService courseRegistrationRequestKeeperStatusService;
 
     private final KeeperCourseRegistrationRequestValidatorService keeperCourseRegistrationRequestValidatorService;
 
@@ -44,9 +45,14 @@ public class KeeperCourseRegistrationRequestService {
     public CourseRegistrationRequestKeeper replyToRequest(Long requestId, CourseRegistrationRequestReplyDto requestReply) {
         CourseRegistrationRequest request = courseRegistrationRequestRepository
                 .findById(requestId).orElseThrow(() -> new RequestNotFoundException(requestId));
+        keeperCourseRegistrationRequestValidatorService.validateReply(request);
+
         CourseRegistrationRequestKeeper keeperResponse = courseRegistrationRequestKeeperService
-                .findCourseRegistrationRequestForAuthenticatedKeeper(request);
-        keeperCourseRegistrationRequestValidatorService.validateRequest(request);
+                .findCourseRegistrationRequestKeeperForPerson(
+                        personService.getAuthenticatedPersonId(),
+                        request
+                );
+
         return sendKeeperResponse(request, keeperResponse, requestReply.getApproved());
     }
 
@@ -54,34 +60,32 @@ public class KeeperCourseRegistrationRequestService {
         CourseRegistrationRequestKeeperStatusType keeperResponseStatus;
         if (approved) {
             keeperResponseStatus = CourseRegistrationRequestKeeperStatusType.APPROVED;
-            changeRequestStatusToApproved(request);
-            courseRegistrationRequestKeeperService.closeRequestToOtherKeepers(request);
+
+            request.setStatusId(
+                    courseRegistrationRequestStatusService
+                            .findCourseRegistrationRequestStatusByStatus(CourseRegistrationRequestStatusType.APPROVED)
+                            .getStatusId()
+            );
+
+            courseRegistrationRequestKeeperService.closeRequestForKeepers(request);
         } else {
             keeperResponseStatus = CourseRegistrationRequestKeeperStatusType.REJECTED;
         }
-        return courseRegistrationRequestKeeperService
-                .saveKeeperResponseWithStatus(keeperResponse, keeperResponseStatus);
-    }
 
-    private void changeRequestStatusToApproved(CourseRegistrationRequest request) {
-        request.setStatusId(
-                courseRegistrationRequestStatusService
-                        .findCourseRegistrationRequestStatusByStatus(CourseRegistrationRequestStatusType.APPROVED)
+        keeperResponse.setStatusId(
+                courseRegistrationRequestKeeperStatusService
+                        .findCourseRegistrationRequestKeeperStatusByStatus(keeperResponseStatus)
                         .getStatusId()
         );
-        courseRegistrationRequestRepository.save(request);
-    }
-
-    private void addExplorer(Long personId, Long groupId) {
-        explorerRepository.save(
-                new ExplorerCreateEvent(personId, groupId)
-        );
+        return keeperResponse;
     }
 
     @Transactional(readOnly = true)
     public List<ApprovedRequestDto> getApprovedRequests(List<Long> keeperIds) {
         Map<Long, KeepersService.Keeper> keepers = keeperRepository.findKeepersByKeeperIdIn(keeperIds);
-        keeperCourseRegistrationRequestValidatorService.validateGetApprovedRequests(personService.getAuthenticatedPersonId(), keepers);
+        keeperCourseRegistrationRequestValidatorService
+                .validateGetApprovedRequests(personService.getAuthenticatedPersonId(), keepers);
+
         return courseRegistrationRequestRepository.findApprovedKeeperRequestsByKeeperIdIn(keeperIds)
                 .stream()
                 .map(r -> new ApprovedRequestDto(
@@ -97,10 +101,10 @@ public class KeeperCourseRegistrationRequestService {
     @Transactional
     public List<CourseRegistrationRequest> startTeaching(Long courseId) {
         PeopleService.Person authenticatedPerson = personService.getAuthenticatedPerson();
-        keeperCourseRegistrationRequestValidatorService.validateStartTeachingRequest(authenticatedPerson.getPersonId());
-        Long acceptedStatusId = courseRegistrationRequestStatusService
-                .findCourseRegistrationRequestStatusByStatus(CourseRegistrationRequestStatusType.ACCEPTED)
-                .getStatusId();
+
+        keeperCourseRegistrationRequestValidatorService
+                .validateStartTeachingRequest(authenticatedPerson.getPersonId());
+
         KeepersService.Keeper keeper = keeperRepository
                 .findKeeperByPersonIdAndCourseId(authenticatedPerson.getPersonId(), courseId)
                 .orElseThrow(KeeperNotFoundException::new);
@@ -110,18 +114,21 @@ public class KeeperCourseRegistrationRequestService {
         if (approvedRequests.isEmpty())
             throw new NoApprovedRequestsFoundException();
 
-        Long groupId = explorerGroupRepository.save(
+        Long acceptedStatusId = courseRegistrationRequestStatusService
+                .findCourseRegistrationRequestStatusByStatus(CourseRegistrationRequestStatusType.ACCEPTED)
+                .getStatusId();
+        Long createdGroupId = explorerGroupRepository.save(
                 ExplorerGroupsService.CreateGroupRequest.newBuilder()
                         .setCourseId(courseId)
                         .setKeeperId(keeper.getKeeperId())
                         .build()
         ).getGroupId();
+
         return approvedRequests.stream()
                 .limit(authenticatedPerson.getMaxExplorers())
-                .peek(r -> {
-                    addExplorer(r.getPersonId(), groupId);
-                    r.setStatusId(acceptedStatusId);
-                })
-                .collect(Collectors.toList());
+                .peek(r -> r.setStatusId(acceptedStatusId))
+                .peek(r -> explorerRepository.save(
+                        new ExplorerCreateEvent(r.getPersonId(), createdGroupId))
+                ).collect(Collectors.toList());
     }
 }

@@ -33,7 +33,7 @@ public class ExplorerCourseRegistrationRequestService {
     }
 
     private CourseRegistrationRequest sendRequestToKeepers(Long personId, CreateCourseRegistrationRequestDto request) {
-        CourseRegistrationRequest sentRequest = sendRequest(personId, request.getCourseId());
+        CourseRegistrationRequest sentRequest = createRequest(personId, request.getCourseId());
         Long keeperProcessingStatusId = courseRegistrationRequestKeeperStatusService
                 .findCourseRegistrationRequestKeeperStatusByStatus(CourseRegistrationRequestKeeperStatusType.PROCESSING)
                 .getStatusId();
@@ -49,7 +49,7 @@ public class ExplorerCourseRegistrationRequestService {
         return sentRequest;
     }
 
-    private CourseRegistrationRequest sendRequest(Long personId, Long courseId) {
+    private CourseRegistrationRequest createRequest(Long personId, Long courseId) {
         CourseRegistrationRequest courseRegistrationRequest = new CourseRegistrationRequest(
                 courseId,
                 personId,

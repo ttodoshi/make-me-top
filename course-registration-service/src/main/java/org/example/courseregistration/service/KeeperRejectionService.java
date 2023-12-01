@@ -35,6 +35,7 @@ public class KeeperRejectionService {
         CourseRegistrationRequest request = courseRegistrationRequestRepository
                 .findById(requestId).orElseThrow(() -> new RequestNotFoundException(requestId));
         PeopleService.Person authenticatedPerson = personService.getAuthenticatedPerson();
+
         KeepersService.Keeper keeper = keeperRepository
                 .findKeeperByPersonIdAndCourseId(
                         authenticatedPerson.getPersonId(), request.getCourseId()
