@@ -31,10 +31,12 @@ public class OrbitService {
     @Transactional(readOnly = true)
     public GetOrbitWithStarSystemsDto findOrbitWithSystemList(Long orbitId) {
         Orbit orbit = findOrbitById(orbitId);
+
         GetOrbitWithStarSystemsDto orbitWithStarSystems = mapper.map(
                 orbit,
                 GetOrbitWithStarSystemsDto.class
         );
+
         orbitWithStarSystems.setSystemWithDependenciesList(
                 starSystemRepository.findStarSystemsByOrbitId(orbitId)
                         .stream()
@@ -53,9 +55,11 @@ public class OrbitService {
     @Transactional
     public GetOrbitWithStarSystemsDto createOrbit(Long galaxyId, CreateOrbitWithStarSystemsDto createOrbitRequest) {
         orbitValidatorService.validatePostRequest(galaxyId, createOrbitRequest);
+
         Orbit orbit = mapper.map(createOrbitRequest, Orbit.class);
         orbit.setGalaxyId(galaxyId);
         Orbit savedOrbit = orbitRepository.save(orbit);
+
         createOrbitRequest.getSystemList().forEach(s -> {
             StarSystem system = mapper.map(s, StarSystem.class);
             system.setOrbitId(savedOrbit.getOrbitId());
@@ -77,14 +81,12 @@ public class OrbitService {
 
     @Transactional
     public MessageDto deleteOrbit(Long orbitId) {
-        Orbit orbit = findOrbitById(orbitId);
-        orbit.getSystems().forEach(s -> clearCourseAndPlanets(s.getSystemId()));
+        findOrbitById(orbitId)
+                .getSystems()
+                .forEach(s -> systemService
+                        .clearCourseAndPlanets(s.getSystemId())
+                );
         orbitRepository.deleteById(orbitId);
         return new MessageDto("Орбита " + orbitId + " была уничтожена неизвестным оружием инопланетной цивилизации");
-    }
-
-    public void clearCourseAndPlanets(Long systemId) {
-        systemService.deleteCourse(systemId);
-        systemService.deletePlanetsBySystemId(systemId);
     }
 }

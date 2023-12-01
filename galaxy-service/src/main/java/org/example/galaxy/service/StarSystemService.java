@@ -1,8 +1,8 @@
 package org.example.galaxy.service;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.example.galaxy.config.mapper.DependencyMapper;
 import org.example.course.dto.event.CourseCreateEvent;
+import org.example.galaxy.config.mapper.DependencyMapper;
 import org.example.galaxy.dto.message.MessageDto;
 import org.example.galaxy.dto.starsystem.CreateStarSystemDto;
 import org.example.galaxy.dto.starsystem.GetStarSystemWithDependenciesDto;
@@ -60,6 +60,7 @@ public class StarSystemService {
                 findStarSystemById(systemId),
                 GetStarSystemWithDependenciesDto.class
         );
+
         List<SystemDependencyModelDto> dependencies = new ArrayList<>();
         systemDependencyRepository.getSystemChildren(systemId)
                 .stream()
@@ -70,6 +71,7 @@ public class StarSystemService {
                 .filter(d -> d.getParent() != null)
                 .map(dependencyMapper::dependencyToDependencyParentModel)
                 .forEach(dependencies::add);
+
         system.setDependencyList(dependencies);
         return system;
     }
@@ -136,16 +138,12 @@ public class StarSystemService {
     public MessageDto deleteSystem(Long systemId) {
         starSystemValidatorService.validateDeleteRequest(systemId);
         starSystemRepository.deleteById(systemId);
-        deletePlanetsBySystemId(systemId);
-        deleteCourse(systemId);
+        clearCourseAndPlanets(systemId);
         return new MessageDto("Система " + systemId + " была уничтожена чёрной дырой");
     }
 
-    public void deletePlanetsBySystemId(Long systemId) {
+    public void clearCourseAndPlanets(Long systemId) {
         deletePlanetsKafkaTemplate.send("deletePlanetsTopic", systemId);
-    }
-
-    public void deleteCourse(Long systemId) {
         deleteCourseKafkaTemplate.send("deleteCourseTopic", systemId);
     }
 }
