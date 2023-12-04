@@ -9,6 +9,7 @@ import org.example.person.repository.ExplorerRepository;
 import org.example.person.service.validator.ExplorerValidatorService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -50,35 +51,40 @@ public class ExplorerService {
         return explorerRepository.existsById(explorerId);
     }
 
+    @Cacheable(cacheNames = "explorersByPersonIdAndCourseIdCache", key = "{#personId, #courseId}")
     @Transactional(readOnly = true)
     public Explorer findExplorerByPersonIdAndCourseId(Long personId, Long courseId) {
         return explorerRepository.findExplorerByPersonIdAndGroup_CourseId(personId, courseId)
                 .orElseThrow(ExplorerNotFoundException::new);
     }
 
+    @Cacheable(cacheNames = "explorersByPersonIdCache", key = "#personId")
     @Transactional(readOnly = true)
     public List<Explorer> findExplorersByPersonId(Long personId) {
         explorerValidatorService.validateGetExplorersByPersonIdRequest(personId);
         return explorerRepository.findExplorersByPersonId(personId);
     }
 
+    @Cacheable(cacheNames = "explorersByCourseIdCache", key = "#courseId")
     @Transactional(readOnly = true)
     public List<Explorer> findExplorersByCourseId(Long courseId) {
         explorerValidatorService.validateGetExplorersByCourseIdRequest(courseId);
         return explorerRepository.findExplorersByGroup_CourseId(courseId);
     }
 
+    @Cacheable(cacheNames = "explorersByExplorerIdInCache", key = "#explorerIds")
     @Transactional(readOnly = true)
     public List<Explorer> findExplorersByExplorerIdIn(List<Long> explorerIds) {
         return explorerRepository.findExplorersByExplorerIdIn(explorerIds);
     }
 
-    @Cacheable(cacheNames = "explorersByGroup_CourseIdInCache")
+    @Cacheable(cacheNames = "explorersByGroup_CourseIdInCache", key = "#courseIds")
     @Transactional(readOnly = true)
     public List<Explorer> findExplorersByGroup_CourseIdIn(List<Long> courseIds) {
         return explorerRepository.findExplorersByGroup_CourseIdIn(courseIds);
     }
 
+    @Cacheable(cacheNames = "explorersByPersonIdAndGroup_CourseIdInCache", key = "{#personId, #courseIds}")
     @Transactional(readOnly = true)
     public List<Explorer> findExplorersByPersonIdAndGroup_CourseIdIn(Long personId, List<Long> courseIds) {
         return explorerRepository.findExplorersByPersonIdAndGroup_CourseIdIn(personId, courseIds);
@@ -103,8 +109,9 @@ public class ExplorerService {
     @KafkaListener(topics = "explorerTopic", containerFactory = "createExplorerKafkaListenerContainerFactory")
     @Caching(evict = {
             @CacheEvict(cacheNames = "explorerExistsByIdCache", key = "#result.explorerId"),
-            @CacheEvict(cacheNames = "explorersByGroup_CourseIdInCache", allEntries = true),
-            @CacheEvict(cacheNames = "allExplorersCache", allEntries = true),
+            @CacheEvict(cacheNames = {"explorersByPersonIdAndCourseIdCache", "explorersByPersonIdCache", "explorersByCourseIdCache", "explorersByExplorerIdInCache", "explorersByGroup_CourseIdInCache", "explorersByPersonIdAndGroup_CourseIdInCache", "allExplorersCache"}, allEntries = true),
+    }, put = {
+            @CachePut(cacheNames = "explorerByIdCache", key = "#result.explorerId")
     })
     @Transactional
     public Explorer createExplorer(ExplorerCreateEvent explorer) {
@@ -118,8 +125,7 @@ public class ExplorerService {
 
     @Caching(evict = {
             @CacheEvict(cacheNames = {"explorerByIdCache", "explorerExistsByIdCache"}, key = "#explorerId"),
-            @CacheEvict(cacheNames = "explorersByGroup_CourseIdInCache", allEntries = true),
-            @CacheEvict(cacheNames = "allExplorersCache", allEntries = true),
+            @CacheEvict(cacheNames = {"explorersByPersonIdAndCourseIdCache", "explorersByPersonIdCache", "explorersByCourseIdCache", "explorersByExplorerIdInCache", "explorersByGroup_CourseIdInCache", "explorersByPersonIdAndGroup_CourseIdInCache", "allExplorersCache"}, allEntries = true),
     })
     @Transactional
     public MessageDto deleteExplorerById(Long explorerId) {

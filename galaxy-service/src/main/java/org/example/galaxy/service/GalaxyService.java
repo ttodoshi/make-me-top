@@ -35,6 +35,7 @@ public class GalaxyService {
 
     private final GalaxyValidatorService galaxyValidatorService;
     private final OrbitService orbitService;
+    private final StarSystemService systemService;
     private final ExplorerService explorerService;
     private final KeeperService keeperService;
 
@@ -73,12 +74,15 @@ public class GalaxyService {
     public List<GetGalaxyInformationDto> findAllGalaxiesDetailed() {
         Map<Long, ExplorersService.AllExplorersResponse.ExplorerList> explorers = explorerService.findExplorersWithCourseIds();
         Map<Long, KeepersService.AllKeepersResponse.KeeperList> keepers = keeperService.findKeepersWithCourseIds();
+
         return galaxyRepository.findAll()
                 .stream()
                 .map(g -> {
                     List<StarSystem> systems = starSystemRepository.findStarSystemsByOrbit_GalaxyId(g.getGalaxyId());
+
                     List<PersonWithSystemsDto> personAsExplorerList = explorerService.getExplorersWithSystems(explorers, systems);
                     List<PersonWithSystemsDto> personAsKeeperList = keeperService.getKeepersWithSystems(keepers, systems);
+
                     return new GetGalaxyInformationDto(
                             g.getGalaxyId(),
                             g.getGalaxyName(),
@@ -118,7 +122,7 @@ public class GalaxyService {
         galaxy.getOrbits()
                 .stream()
                 .flatMap(g -> g.getSystems().stream())
-                .forEach(s -> orbitService.clearCourseAndPlanets(s.getSystemId()));
+                .forEach(s -> systemService.clearCourseAndPlanets(s.getSystemId()));
         galaxyRepository.deleteById(galaxyId);
         return new MessageDto("Галактика " + galaxyId + " была уничтожена квазаром");
     }

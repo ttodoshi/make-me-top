@@ -80,12 +80,11 @@ public class CourseService {
                     .findAny()
                     .ifPresent(e -> {
                         response.put("you", e);
-                        response.put("yourKeeper",
-                                keeperService
-                                        .getKeeperForExplorer(
-                                                e.getExplorerId(),
-                                                keepers
-                                        ));
+                        response.put("yourKeeper", keeperService
+                                .getKeeperForExplorer(
+                                        e.getExplorerId(),
+                                        keepers
+                                ));
                     });
         }
         response.put("explorers", explorers);

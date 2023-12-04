@@ -29,21 +29,8 @@ public class CourseRegistrationRequestKeeperServiceImpl implements CourseRegistr
 
     private final PersonService personService;
 
-    @Override
     @Transactional
-    public CourseRegistrationRequestKeeper saveKeeperResponseWithStatus(CourseRegistrationRequestKeeper keeperResponse,
-                                                                        CourseRegistrationRequestKeeperStatusType status) {
-        keeperResponse.setStatusId(
-                courseRegistrationRequestKeeperStatusService
-                        .findCourseRegistrationRequestKeeperStatusByStatus(status)
-                        .getStatusId()
-        );
-        return courseRegistrationRequestKeeperRepository.save(keeperResponse);
-    }
-
-    @Override
-    @Transactional
-    public CourseRegistrationRequestKeeper findCourseRegistrationRequestForAuthenticatedKeeper(CourseRegistrationRequest request) {
+    public CourseRegistrationRequestKeeper findCourseRegistrationRequestKeeperForPerson(Long personId, CourseRegistrationRequest request) {
         KeepersService.Keeper keeper = keeperRepository
                 .findKeeperByPersonIdAndCourseId(
                         personService.getAuthenticatedPersonId(),
@@ -58,24 +45,15 @@ public class CourseRegistrationRequestKeeperServiceImpl implements CourseRegistr
 
     @Override
     @Transactional
-    public void closeRequestToOtherKeepers(CourseRegistrationRequest request) {
-        Long processingStatusId = courseRegistrationRequestKeeperStatusService
-                .findCourseRegistrationRequestKeeperStatusByStatus(CourseRegistrationRequestKeeperStatusType.PROCESSING)
-                .getStatusId();
+    public void closeRequestForKeepers(CourseRegistrationRequest request) {
         Long rejectedStatusId = courseRegistrationRequestKeeperStatusService
                 .findCourseRegistrationRequestKeeperStatusByStatus(CourseRegistrationRequestKeeperStatusType.REJECTED)
                 .getStatusId();
 
         courseRegistrationRequestKeeperRepository
                 .findCourseRegistrationRequestKeepersByRequestId(request.getRequestId())
-                .stream()
-                .filter(
-                        r -> r.getStatusId().equals(processingStatusId)
-                ).forEach(
-                        r -> {
-                            r.setStatusId(rejectedStatusId);
-                            courseRegistrationRequestKeeperRepository.save(r);
-                        }
+                .forEach(
+                        r -> r.setStatusId(rejectedStatusId)
                 );
     }
 

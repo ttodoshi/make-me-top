@@ -44,9 +44,12 @@ public class AuthService {
 
     @Transactional
     public AuthResponseDto login(LoginRequestDto loginRequest) {
-        MmtrAuthResponseDto authResponse = authRequestSenderService.sendAuthenticateRequest(loginRequest);
+        MmtrAuthResponseDto authResponse = authRequestSenderService
+                .sendAuthenticateRequest(loginRequest);
+
         if (!isRoleAvailable(authResponse.getObject().getEmployeeId(), loginRequest.getRole()))
             throw new RoleNotAvailableException();
+
         AccessTokenDto accessToken = jwtService.generateAccessToken(
                 authResponse.getObject().getEmployeeId(),
                 loginRequest.getRole()
@@ -54,6 +57,7 @@ public class AuthService {
         RefreshTokenDto refreshToken = jwtService.generateRefreshToken(
                 authResponse.getObject().getEmployeeId()
         );
+
         refreshTokenInfoRepository.save(
                 new RefreshTokenInfo(
                         refreshToken.getRefreshToken(),
@@ -62,8 +66,10 @@ public class AuthService {
                         refreshToken.getExpirationTime()
                 )
         );
+
         authorizationHeaderContextHolder.setAuthorizationHeader("Bearer " + accessToken.getAccessToken());
         personService.savePersonIfNotExists(authResponse.getObject());
+
         return new AuthResponseDto(
                 accessToken,
                 refreshToken,
@@ -79,14 +85,17 @@ public class AuthService {
     public AuthResponseDto refresh(String refreshTokenValue) {
         if (refreshTokenValue == null || !jwtService.isRefreshTokenValid(refreshTokenValue))
             throw new FailedRefreshException();
+
         RefreshTokenInfo refreshTokenInfo = refreshTokenInfoRepository
                 .findRefreshTokenInfoByRefreshToken(refreshTokenValue)
                 .orElseThrow(FailedRefreshException::new);
+
         RefreshTokenDto newRefreshToken = jwtService.generateRefreshToken(
                 refreshTokenInfo.getPersonId()
         );
         refreshTokenInfo.setRefreshToken(newRefreshToken.getRefreshToken());
         refreshTokenInfo.setExpirationTime(newRefreshToken.getExpirationTime());
+
         return new AuthResponseDto(
                 jwtService.generateAccessToken(
                         refreshTokenInfo.getPersonId(),

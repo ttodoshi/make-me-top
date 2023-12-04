@@ -40,7 +40,7 @@ public class KeeperCourseRegistrationRequestValidatorService {
     private final ExplorerGroupRepository explorerGroupRepository;
 
     @Transactional(readOnly = true)
-    public void validateRequest(CourseRegistrationRequest request) {
+    public void validateReply(CourseRegistrationRequest request) {
         CourseRegistrationRequestStatus currentStatus = courseRegistrationRequestStatusRepository.getReferenceById(request.getStatusId());
         if (!currentStatus.getStatus().equals(CourseRegistrationRequestStatusType.PROCESSING))
             throw new RequestAlreadyClosedException(request.getRequestId());
