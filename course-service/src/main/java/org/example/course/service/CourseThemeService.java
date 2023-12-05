@@ -1,8 +1,8 @@
 package org.example.course.service;
 
 import lombok.RequiredArgsConstructor;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.example.course.dto.event.CourseThemeCreateEvent;
+import org.example.course.dto.event.CourseThemeUpdateEvent;
 import org.example.course.dto.theme.CourseThemeDto;
 import org.example.course.dto.theme.UpdateCourseThemeDto;
 import org.example.course.exception.classes.theme.CourseThemeNotFoundException;
@@ -45,10 +45,14 @@ public class CourseThemeService {
 
     @KafkaListener(topics = "updateCourseThemeTopic", containerFactory = "updateThemeKafkaListenerContainerFactory")
     @Transactional
-    public void updateCourseThemeTitle(ConsumerRecord<Long, String> record) {
-        CourseTheme courseTheme = courseThemeRepository.findById(record.key())
-                .orElseThrow(() -> new CourseThemeNotFoundException(record.key()));
-        courseTheme.setTitle(record.value());
+    public void updateCourseThemeListener(@Header(KafkaHeaders.RECEIVED_MESSAGE_KEY) Long themeId,
+                                          @Payload CourseThemeUpdateEvent courseThemeRequest) {
+        CourseTheme courseTheme = courseThemeRepository.findById(themeId)
+                .orElseThrow(() -> new CourseThemeNotFoundException(themeId));
+
+        courseTheme.setTitle(courseThemeRequest.getTitle());
+        courseTheme.setCourseThemeNumber(courseThemeRequest.getCourseThemeNumber());
+        courseTheme.setCourseId(courseThemeRequest.getCourseId());
         courseThemeRepository.save(courseTheme);
     }
 

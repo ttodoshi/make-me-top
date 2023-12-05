@@ -4,10 +4,12 @@ import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.example.course.dto.event.CourseThemeCreateEvent;
+import org.example.course.dto.event.CourseThemeUpdateEvent;
 import org.example.planet.dto.message.MessageDto;
 import org.example.planet.dto.planet.CreatePlanetDto;
 import org.example.planet.dto.planet.PlanetDto;
 import org.example.planet.dto.planet.UpdatePlanetDto;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
@@ -17,10 +19,13 @@ import java.util.List;
 @Component
 public class CourseThemeAspect {
     private final KafkaTemplate<Long, Object> createThemeKafkaTemplate;
-    private final KafkaTemplate<Long, String> updateThemeKafkaTemplate;
+    private final KafkaTemplate<Long, Object> updateThemeKafkaTemplate;
     private final KafkaTemplate<Long, Long> deleteThemeKafkaTemplate;
 
-    public CourseThemeAspect(KafkaTemplate<Long, Object> createThemeKafkaTemplate, KafkaTemplate<Long, String> updateThemeKafkaTemplate, KafkaTemplate<Long, Long> deleteThemeKafkaTemplate) {
+    public CourseThemeAspect(
+            @Qualifier("createCourseThemeKafkaTemplate") KafkaTemplate<Long, Object> createThemeKafkaTemplate,
+            @Qualifier("updateCourseThemeKafkaTemplate") KafkaTemplate<Long, Object> updateThemeKafkaTemplate,
+            KafkaTemplate<Long, Long> deleteThemeKafkaTemplate) {
         this.createThemeKafkaTemplate = createThemeKafkaTemplate;
         this.updateThemeKafkaTemplate = updateThemeKafkaTemplate;
         this.deleteThemeKafkaTemplate = deleteThemeKafkaTemplate;
@@ -54,8 +59,16 @@ public class CourseThemeAspect {
     }
 
     @AfterReturning(pointcut = "updateCourseThemeTitlePointcut(planetId, planet)", returning = "result", argNames = "planetId, planet, result")
-    public void updateCourseThemeTitleAfterPlanetUpdated(Long planetId, UpdatePlanetDto planet, PlanetDto result) {
-        updateThemeKafkaTemplate.send("updateCourseThemeTopic", planetId, planet.getPlanetName());
+    public void updateCourseThemeAfterPlanetUpdated(Long planetId, UpdatePlanetDto planet, PlanetDto result) {
+        updateThemeKafkaTemplate.send(
+                "updateCourseThemeTopic",
+                planetId,
+                new CourseThemeUpdateEvent(
+                        planet.getPlanetName(),
+                        planet.getPlanetNumber(),
+                        planet.getSystemId()
+                )
+        );
     }
 
     @Pointcut(value = "execution(* org.example.planet.service.PlanetService.deletePlanetById(..)) " +

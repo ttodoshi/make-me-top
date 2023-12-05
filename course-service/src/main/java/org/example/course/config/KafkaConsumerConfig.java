@@ -88,16 +88,17 @@ public class KafkaConsumerConfig {
     }
 
     @Bean
-    public ConsumerFactory<Long, String> updateThemeFactory() {
+    public ConsumerFactory<Long, Object> updateThemeFactory() {
         Map<String, Object> properties = objectProperties();
         properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, LongDeserializer.class);
-        properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
+        properties.put(JsonDeserializer.TYPE_MAPPINGS, "theme:org.example.course.dto.event.CourseThemeUpdateEvent");
         return new DefaultKafkaConsumerFactory<>(properties);
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<Long, String> updateThemeKafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<Long, String> factory =
+    public ConcurrentKafkaListenerContainerFactory<Long, Object> updateThemeKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<Long, Object> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(updateThemeFactory());
         return factory;

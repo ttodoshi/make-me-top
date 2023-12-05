@@ -1,7 +1,7 @@
 package org.example.planet.service;
 
 import lombok.RequiredArgsConstructor;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.example.planet.dto.event.PlanetUpdateEvent;
 import org.example.planet.dto.message.MessageDto;
 import org.example.planet.dto.planet.CreatePlanetDto;
 import org.example.planet.dto.planet.PlanetDto;
@@ -12,6 +12,9 @@ import org.example.planet.repository.PlanetRepository;
 import org.example.planet.service.validator.PlanetValidatorService;
 import org.modelmapper.ModelMapper;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.support.KafkaHeaders;
+import org.springframework.messaging.handler.annotation.Header;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -101,11 +104,14 @@ public class PlanetService {
 
     @KafkaListener(topics = "updatePlanetTopic", containerFactory = "updatePlanetKafkaListenerContainerFactory")
     @Transactional
-    public void updatePlanetName(ConsumerRecord<Long, String> record) {
-        Planet planet = planetRepository.findById(record.key())
-                .orElseThrow(() -> new PlanetNotFoundException(record.key()));
-        planet.setPlanetName(record.value());
+    public void updatePlanetListener(@Header(KafkaHeaders.RECEIVED_MESSAGE_KEY) Long planetId,
+                                     @Payload PlanetUpdateEvent planetRequest) {
+        Planet planet = planetRepository.findById(planetId)
+                .orElseThrow(() -> new PlanetNotFoundException(planetId));
 
+        planet.setPlanetName(planetRequest.getPlanetName());
+        planet.setPlanetNumber(planetRequest.getPlanetNumber());
+        planet.setSystemId(planetRequest.getSystemId());
         planetRepository.save(planet);
     }
 

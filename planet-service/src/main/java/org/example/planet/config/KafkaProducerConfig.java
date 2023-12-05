@@ -2,7 +2,7 @@ package org.example.planet.config;
 
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.LongSerializer;
-import org.apache.kafka.common.serialization.StringSerializer;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,31 +20,35 @@ public class KafkaProducerConfig {
     private String bootstrapAddress;
 
     @Bean
+    @Qualifier("createCourseThemeProducer")
     public ProducerFactory<Long, Object> createCourseThemeProducer() {
-        Map<String, Object> properties = new HashMap<>();
-        properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
-        properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, LongSerializer.class);
-        properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
-        return new DefaultKafkaProducerFactory<>(properties);
+        return jsonValueProducer();
     }
 
     @Bean
+    @Qualifier("createCourseThemeKafkaTemplate")
     public KafkaTemplate<Long, Object> createCourseThemeKafkaTemplate() {
         return new KafkaTemplate<>(createCourseThemeProducer());
     }
 
     @Bean
-    public ProducerFactory<Long, String> updateCourseThemeProducer() {
-        Map<String, Object> properties = new HashMap<>();
-        properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
-        properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, LongSerializer.class);
-        properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        return new DefaultKafkaProducerFactory<>(properties);
+    @Qualifier("updateCourseThemeProducer")
+    public ProducerFactory<Long, Object> updateCourseThemeProducer() {
+        return jsonValueProducer();
     }
 
     @Bean
-    public KafkaTemplate<Long, String> updateCourseThemeKafkaTemplate() {
+    @Qualifier("updateCourseThemeKafkaTemplate")
+    public KafkaTemplate<Long, Object> updateCourseThemeKafkaTemplate() {
         return new KafkaTemplate<>(updateCourseThemeProducer());
+    }
+
+    private ProducerFactory<Long, Object> jsonValueProducer() {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
+        properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, LongSerializer.class);
+        properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
+        return new DefaultKafkaProducerFactory<>(properties);
     }
 
     @Bean
