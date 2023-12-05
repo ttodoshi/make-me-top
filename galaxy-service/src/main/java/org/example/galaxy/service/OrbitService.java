@@ -5,9 +5,9 @@ import org.example.galaxy.dto.message.MessageDto;
 import org.example.galaxy.dto.orbit.CreateOrbitWithStarSystemsDto;
 import org.example.galaxy.dto.orbit.GetOrbitWithStarSystemsDto;
 import org.example.galaxy.dto.orbit.OrbitDto;
+import org.example.galaxy.dto.orbit.UpdateOrbitDto;
 import org.example.galaxy.exception.classes.orbit.OrbitNotFoundException;
 import org.example.galaxy.model.Orbit;
-import org.example.galaxy.model.StarSystem;
 import org.example.galaxy.repository.OrbitRepository;
 import org.example.galaxy.repository.StarSystemRepository;
 import org.example.galaxy.service.validator.OrbitValidatorService;
@@ -30,10 +30,8 @@ public class OrbitService {
 
     @Transactional(readOnly = true)
     public GetOrbitWithStarSystemsDto findOrbitWithSystemList(Long orbitId) {
-        Orbit orbit = findOrbitById(orbitId);
-
         GetOrbitWithStarSystemsDto orbitWithStarSystems = mapper.map(
-                orbit,
+                findOrbitById(orbitId),
                 GetOrbitWithStarSystemsDto.class
         );
 
@@ -47,45 +45,44 @@ public class OrbitService {
     }
 
     @Transactional(readOnly = true)
-    public Orbit findOrbitById(Long orbitId) {
+    public OrbitDto findOrbitById(Long orbitId) {
         return orbitRepository.findById(orbitId)
+                .map(o -> mapper.map(o, OrbitDto.class))
                 .orElseThrow(() -> new OrbitNotFoundException(orbitId));
     }
 
     @Transactional
-    public GetOrbitWithStarSystemsDto createOrbit(Long galaxyId, CreateOrbitWithStarSystemsDto createOrbitRequest) {
-        orbitValidatorService.validatePostRequest(galaxyId, createOrbitRequest);
+    public GetOrbitWithStarSystemsDto createOrbit(Long galaxyId, CreateOrbitWithStarSystemsDto orbitRequest) {
+        orbitValidatorService.validatePostRequest(galaxyId, orbitRequest);
 
-        Orbit orbit = mapper.map(createOrbitRequest, Orbit.class);
+        Orbit orbit = mapper.map(orbitRequest, Orbit.class);
         orbit.setGalaxyId(galaxyId);
-        Orbit savedOrbit = orbitRepository.save(orbit);
+        Long savedOrbitId = orbitRepository.save(orbit).getOrbitId();
 
-        createOrbitRequest.getSystemList().forEach(s -> {
-            StarSystem system = mapper.map(s, StarSystem.class);
-            system.setOrbitId(savedOrbit.getOrbitId());
-            StarSystem savedSystem = starSystemRepository.save(system);
-            systemService.createCourse(savedSystem.getSystemId(), s);
-        });
-        return findOrbitWithSystemList(savedOrbit.getOrbitId());
+        orbitRequest.getSystemList().forEach(s ->
+                systemService.createSystem(savedOrbitId, s));
+
+        return findOrbitWithSystemList(savedOrbitId);
     }
 
     @Transactional
-    public Orbit updateOrbit(Long orbitId, OrbitDto orbit) {
+    public OrbitDto updateOrbit(Long orbitId, UpdateOrbitDto orbit) {
         orbitValidatorService.validatePutRequest(orbitId, orbit);
-        Orbit updatedOrbit = findOrbitById(orbitId);
+
+        Orbit updatedOrbit = orbitRepository.findById(orbitId)
+                .orElseThrow(() -> new OrbitNotFoundException(orbitId));
         updatedOrbit.setOrbitLevel(orbit.getOrbitLevel());
         updatedOrbit.setSystemCount(orbit.getSystemCount());
         updatedOrbit.setGalaxyId(orbit.getGalaxyId());
-        return orbitRepository.save(updatedOrbit);
+
+        return mapper.map(
+                orbitRepository.save(updatedOrbit),
+                OrbitDto.class
+        );
     }
 
     @Transactional
     public MessageDto deleteOrbit(Long orbitId) {
-        findOrbitById(orbitId)
-                .getSystems()
-                .forEach(s -> systemService
-                        .clearCourseAndPlanets(s.getSystemId())
-                );
         orbitRepository.deleteById(orbitId);
         return new MessageDto("Орбита " + orbitId + " была уничтожена неизвестным оружием инопланетной цивилизации");
     }

@@ -32,8 +32,8 @@ public class MarkController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> getCourseMark(@PathVariable Long explorerId) {
-        return ResponseEntity.ok(markService.getCourseMark(explorerId));
+    public ResponseEntity<?> findCourseMark(@PathVariable Long explorerId) {
+        return ResponseEntity.ok(markService.findCourseMarkById(explorerId));
     }
 
     @PostMapping("/marks")

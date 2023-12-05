@@ -57,6 +57,7 @@ public class MarkValidatorService {
     public void validateCourseMarkRequest(MarkDto courseMark) {
         ExplorersService.Explorer explorer = explorerRepository.findById(courseMark.getExplorerId())
                 .orElseThrow(() -> new ExplorerNotFoundException(courseMark.getExplorerId()));
+
         if (isNotKeeperForThisExplorer(explorer))
             throw new DifferentKeeperException();
         if (!explorerNeedFinalAssessment(courseMark.getExplorerId()))
@@ -66,9 +67,11 @@ public class MarkValidatorService {
     private boolean isNotKeeperForThisExplorer(ExplorersService.Explorer explorer) {
         ExplorerGroupsService.ExplorerGroup explorerGroup = explorerGroupRepository
                 .getReferenceById(explorer.getGroupId());
-        PeopleService.Person authenticatedPerson = personService.getAuthenticatedPerson();
         KeepersService.Keeper keeper = keeperRepository
                 .getReferenceById(explorerGroup.getKeeperId());
+
+        PeopleService.Person authenticatedPerson = personService.getAuthenticatedPerson();
+
         return !(authenticatedPerson.getPersonId() == keeper.getPersonId());
     }
 
@@ -100,10 +103,13 @@ public class MarkValidatorService {
     public void validateThemeMarkRequest(Long themeId, MarkDto mark) {
         ExplorersService.Explorer explorer = explorerRepository.findById(mark.getExplorerId())
                 .orElseThrow(() -> new ExplorerNotFoundException(mark.getExplorerId()));
+
         if (isNotKeeperForThisExplorer(explorer))
             throw new DifferentKeeperException();
+
         Optional<CourseThemeCompletion> courseThemeProgressOptional = courseThemeCompletionRepository
                 .findCourseThemeProgressByExplorerIdAndCourseThemeId(explorer.getExplorerId(), themeId);
+
         if (courseThemeProgressOptional.isPresent())
             throw new ThemeAlreadyCompletedException(courseThemeProgressOptional.get().getCourseThemeId());
         Long currentThemeId = getCurrentCourseThemeDtoId(explorer);
@@ -127,6 +133,7 @@ public class MarkValidatorService {
                 .getReferenceById(explorer.getGroupId()).getCourseId();
         CourseDto course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new CourseNotFoundException(courseId));
+
         List<CourseThemeCompletedDto> themesCompletion = new ArrayList<>();
         for (PlanetDto p : planetRepository.findPlanetsBySystemId(courseId)) {
             Boolean themeCompleted = courseThemeCompletionRepository

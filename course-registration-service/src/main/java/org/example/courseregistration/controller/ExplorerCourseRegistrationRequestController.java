@@ -55,6 +55,8 @@ public class ExplorerCourseRegistrationRequestController {
                     })
     })
     public ResponseEntity<?> cancelRequest(@PathVariable("requestId") Long requestId) {
-        return ResponseEntity.ok(explorerCourseRegistrationRequestService.cancelRequest(requestId));
+        return ResponseEntity.ok(
+                explorerCourseRegistrationRequestService.cancelRequest(requestId)
+        );
     }
 }

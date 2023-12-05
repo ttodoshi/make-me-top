@@ -8,7 +8,6 @@ import org.example.course.service.ExplorerService;
 import org.example.course.service.RatingService;
 import org.example.grpc.ExplorersService;
 import org.example.grpc.PeopleService;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -22,8 +21,6 @@ public class ExplorerServiceImpl implements ExplorerService {
     private final ExplorerRepository explorerRepository;
 
     private final RatingService ratingService;
-
-    private final ModelMapper mapper;
 
     @Override
     public List<ExplorerWithRatingDto> getExplorersForCourse(Long courseId) {

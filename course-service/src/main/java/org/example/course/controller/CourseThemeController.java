@@ -51,8 +51,8 @@ public class CourseThemeController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> updateCourseTheme(@Valid @RequestBody UpdateCourseThemeDto theme,
-                                               @PathVariable Long themeId) {
+    public ResponseEntity<?> updateCourseTheme(@PathVariable Long themeId,
+                                               @Valid @RequestBody UpdateCourseThemeDto theme) {
         return ResponseEntity.ok(courseThemeService.updateCourseTheme(themeId, theme));
     }
 }

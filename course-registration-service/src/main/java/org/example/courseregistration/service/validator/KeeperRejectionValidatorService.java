@@ -5,12 +5,12 @@ import org.example.courseregistration.dto.courserequest.CreateKeeperRejectionDto
 import org.example.courseregistration.exception.classes.request.KeeperRejectionAlreadyExistsException;
 import org.example.courseregistration.exception.classes.request.RejectionReasonNotFoundException;
 import org.example.courseregistration.exception.classes.request.RequestNotRejectedException;
-import org.example.courseregistration.repository.CourseRegistrationRequestKeeperStatusRepository;
-import org.example.courseregistration.repository.KeeperRejectionRepository;
-import org.example.courseregistration.repository.RejectionReasonRepository;
 import org.example.courseregistration.model.CourseRegistrationRequestKeeper;
 import org.example.courseregistration.model.CourseRegistrationRequestKeeperStatus;
 import org.example.courseregistration.model.CourseRegistrationRequestKeeperStatusType;
+import org.example.courseregistration.repository.CourseRegistrationRequestKeeperStatusRepository;
+import org.example.courseregistration.repository.KeeperRejectionRepository;
+import org.example.courseregistration.repository.RejectionReasonRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +25,7 @@ public class KeeperRejectionValidatorService {
     public void validateRejectionRequest(CreateKeeperRejectionDto rejection, CourseRegistrationRequestKeeper keeperResponse) {
         if (!rejectionReasonRepository.existsById(rejection.getReasonId()))
             throw new RejectionReasonNotFoundException();
+
         CourseRegistrationRequestKeeperStatus currentStatus = courseRegistrationRequestKeeperStatusRepository
                 .getReferenceById(keeperResponse.getStatusId());
         if (!currentStatus.getStatus().equals(CourseRegistrationRequestKeeperStatusType.REJECTED))

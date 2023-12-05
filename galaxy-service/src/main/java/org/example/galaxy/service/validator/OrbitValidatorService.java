@@ -2,7 +2,7 @@ package org.example.galaxy.service.validator;
 
 import lombok.RequiredArgsConstructor;
 import org.example.galaxy.dto.orbit.CreateOrbitWithStarSystemsDto;
-import org.example.galaxy.dto.orbit.OrbitDto;
+import org.example.galaxy.dto.orbit.UpdateOrbitDto;
 import org.example.galaxy.dto.starsystem.CreateStarSystemDto;
 import org.example.galaxy.exception.classes.galaxy.GalaxyNotFoundException;
 import org.example.galaxy.exception.classes.orbit.OrbitCoordinatesException;
@@ -13,9 +13,9 @@ import org.example.galaxy.repository.StarSystemRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
@@ -30,7 +30,7 @@ public class OrbitValidatorService {
             throw new GalaxyNotFoundException(galaxyId);
         if (orbitExists(galaxyId, request.getOrbitLevel()))
             throw new OrbitCoordinatesException();
-        List<CreateStarSystemDto> savingSystemsList = new ArrayList<>();
+        Set<CreateStarSystemDto> savingSystemsList = new HashSet<>();
         for (CreateStarSystemDto system : request.getSystemList()) {
             if (savingSystemsList.contains(system) || systemExists(galaxyId, system.getSystemName()))
                 throw new SystemAlreadyExistsException(system.getSystemName());
@@ -49,7 +49,7 @@ public class OrbitValidatorService {
     }
 
     @Transactional(readOnly = true)
-    public void validatePutRequest(Long orbitId, OrbitDto orbit) {
+    public void validatePutRequest(Long orbitId, UpdateOrbitDto orbit) {
         if (!galaxyRepository.existsById(orbit.getGalaxyId()))
             throw new GalaxyNotFoundException(orbit.getGalaxyId());
         if (orbitExists(orbit.getGalaxyId(), orbitId, orbit.getOrbitLevel()))

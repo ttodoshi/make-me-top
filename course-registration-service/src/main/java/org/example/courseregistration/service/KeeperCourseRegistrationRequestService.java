@@ -2,6 +2,8 @@ package org.example.courseregistration.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.courseregistration.dto.courserequest.ApprovedRequestDto;
+import org.example.courseregistration.dto.courserequest.CourseRegistrationRequestDto;
+import org.example.courseregistration.dto.courserequest.CourseRegistrationRequestKeeperDto;
 import org.example.courseregistration.dto.courserequest.CourseRegistrationRequestReplyDto;
 import org.example.courseregistration.exception.classes.keeper.KeeperNotFoundException;
 import org.example.courseregistration.exception.classes.request.NoApprovedRequestsFoundException;
@@ -19,6 +21,7 @@ import org.example.grpc.ExplorerGroupsService;
 import org.example.grpc.KeepersService;
 import org.example.grpc.PeopleService;
 import org.example.person.dto.event.ExplorerCreateEvent;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,8 +44,10 @@ public class KeeperCourseRegistrationRequestService {
 
     private final KeeperCourseRegistrationRequestValidatorService keeperCourseRegistrationRequestValidatorService;
 
+    private final ModelMapper mapper;
+
     @Transactional
-    public CourseRegistrationRequestKeeper replyToRequest(Long requestId, CourseRegistrationRequestReplyDto requestReply) {
+    public CourseRegistrationRequestKeeperDto replyToRequest(Long requestId, CourseRegistrationRequestReplyDto requestReply) {
         CourseRegistrationRequest request = courseRegistrationRequestRepository
                 .findById(requestId).orElseThrow(() -> new RequestNotFoundException(requestId));
         keeperCourseRegistrationRequestValidatorService.validateReply(request);
@@ -53,7 +58,10 @@ public class KeeperCourseRegistrationRequestService {
                         request
                 );
 
-        return sendKeeperResponse(request, keeperResponse, requestReply.getApproved());
+        return mapper.map(
+                sendKeeperResponse(request, keeperResponse, requestReply.getApproved()),
+                CourseRegistrationRequestKeeperDto.class
+        );
     }
 
     private CourseRegistrationRequestKeeper sendKeeperResponse(CourseRegistrationRequest request, CourseRegistrationRequestKeeper keeperResponse, boolean approved) {
@@ -99,7 +107,7 @@ public class KeeperCourseRegistrationRequestService {
     }
 
     @Transactional
-    public List<CourseRegistrationRequest> startTeaching(Long courseId) {
+    public List<CourseRegistrationRequestDto> startTeaching(Long courseId) {
         PeopleService.Person authenticatedPerson = personService.getAuthenticatedPerson();
 
         keeperCourseRegistrationRequestValidatorService
@@ -129,6 +137,7 @@ public class KeeperCourseRegistrationRequestService {
                 .peek(r -> r.setStatusId(acceptedStatusId))
                 .peek(r -> explorerRepository.save(
                         new ExplorerCreateEvent(r.getPersonId(), createdGroupId))
-                ).collect(Collectors.toList());
+                ).map(r -> mapper.map(r, CourseRegistrationRequestDto.class))
+                .collect(Collectors.toList());
     }
 }

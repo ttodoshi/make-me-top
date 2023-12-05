@@ -7,6 +7,8 @@ import org.example.grpc.PeopleService;
 import org.example.homework.dto.explorer.ExplorerBaseInfoDto;
 import org.example.homework.dto.group.GetExplorerGroupDto;
 import org.example.homework.dto.homework.*;
+import org.example.homework.dto.homeworkrequest.GetHomeworkRequestWithPersonInfoDto;
+import org.example.homework.dto.message.MessageDto;
 import org.example.homework.exception.classes.explorer.ExplorerNotFoundException;
 import org.example.homework.exception.classes.homework.HomeworkNotFoundException;
 import org.example.homework.exception.classes.keeper.KeeperNotFoundException;
@@ -17,12 +19,12 @@ import org.example.homework.model.HomeworkRequestStatusType;
 import org.example.homework.model.HomeworkStatusType;
 import org.example.homework.repository.*;
 import org.example.homework.service.validator.HomeworkValidatorService;
+import org.modelmapper.ModelMapper;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -42,48 +44,61 @@ public class HomeworkService {
     private final PersonService personService;
     private final HomeworkValidatorService homeworkValidatorService;
 
+    private final ModelMapper mapper;
+
     @Transactional(readOnly = true)
-    public Homework findHomeworkByHomeworkId(Long homeworkId) {
+    public HomeworkDto findHomeworkByHomeworkId(Long homeworkId) {
         return homeworkRepository.findById(homeworkId)
+                .map(h -> mapper.map(h, HomeworkDto.class))
                 .orElseThrow(() -> new HomeworkNotFoundException(homeworkId));
     }
 
     @Transactional(readOnly = true)
-    public List<Homework> findHomeworksByCourseThemeIdAndGroupId(Long themeId, Long groupId) {
+    public List<HomeworkDto> findHomeworksByCourseThemeIdAndGroupId(Long themeId, Long groupId) {
         homeworkValidatorService.validateGetRequest(themeId, groupId);
-        return homeworkRepository.findHomeworksByCourseThemeIdAndGroupId(themeId, groupId);
+        return homeworkRepository
+                .findHomeworksByCourseThemeIdAndGroupId(themeId, groupId)
+                .stream()
+                .map(h -> mapper.map(h, HomeworkDto.class))
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public Map<Long, Homework> findHomeworksByHomeworkIdIn(List<Long> homeworkIds) {
+    public Map<Long, HomeworkDto> findHomeworksByHomeworkIdIn(List<Long> homeworkIds) {
         return homeworkRepository.findAllByHomeworkIdIn(homeworkIds)
                 .stream()
                 .collect(Collectors.toMap(
                         Homework::getHomeworkId,
-                        h -> h
+                        h -> mapper.map(h, HomeworkDto.class)
                 ));
     }
 
     @Transactional(readOnly = true)
-    public List<Homework> findCompletedHomeworksByThemeIdAndGroupIdForExplorer(Long themeId, Long groupId, Long explorerId) {
+    public List<HomeworkDto> findCompletedHomeworksByThemeIdAndGroupIdForExplorer(Long themeId, Long groupId, Long explorerId) {
         homeworkValidatorService.validateGetCompletedRequest(themeId, groupId, explorerId);
-        return homeworkRepository.findAllCompletedByCourseThemeIdAndGroupIdForExplorer(
-                themeId, groupId, explorerId
-        );
+        return homeworkRepository
+                .findAllCompletedByCourseThemeIdAndGroupIdForExplorer(
+                        themeId, groupId, explorerId
+                ).stream()
+                .map(h -> mapper.map(h, HomeworkDto.class))
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public List<Homework> findHomeworksByThemeIdForExplorer(Long themeId) {
+    public List<HomeworkDto> findHomeworksByThemeIdForExplorer(Long themeId) {
         ExplorersService.Explorer explorer = explorerRepository.findExplorerByPersonIdAndGroup_CourseId(
                 personService.getAuthenticatedPersonId(),
                 planetRepository.findById(themeId)
                         .orElseThrow(() -> new PlanetNotFoundException(themeId))
                         .getSystemId()
         ).orElseThrow(ExplorerNotFoundException::new);
+
         return homeworkRepository.findHomeworksByCourseThemeIdAndGroupId(
-                themeId,
-                explorer.getGroupId()
-        );
+                        themeId,
+                        explorer.getGroupId()
+                ).stream()
+                .map(h -> mapper.map(h, HomeworkDto.class))
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
@@ -214,36 +229,42 @@ public class HomeworkService {
     }
 
     @Transactional
-    public Homework addHomework(Long themeId, CreateHomeworkDto homework) {
+    public HomeworkDto addHomework(Long themeId, CreateHomeworkDto homework) {
         homeworkValidatorService.validatePostRequest(themeId, homework.getGroupId());
-        return homeworkRepository.save(
-                new Homework(
-                        themeId,
-                        homework.getContent(),
-                        homework.getGroupId(),
-                        homeworkStatusService.findHomeworkStatusByStatus(HomeworkStatusType.OPENED).getStatusId()
-                )
+
+        return mapper.map(
+                homeworkRepository.save(
+                        new Homework(
+                                themeId,
+                                homework.getContent(),
+                                homework.getGroupId(),
+                                homeworkStatusService.findHomeworkStatusByStatus(HomeworkStatusType.OPENED).getStatusId()
+                        )
+                ), HomeworkDto.class
         );
     }
 
     @Transactional
-    public Homework updateHomework(Long homeworkId, UpdateHomeworkDto homework) {
+    public HomeworkDto updateHomework(Long homeworkId, UpdateHomeworkDto homework) {
         homeworkValidatorService.validatePutRequest(homework);
+
         Homework updatedHomework = homeworkRepository.findById(homeworkId)
                 .orElseThrow(() -> new HomeworkNotFoundException(homeworkId));
         updatedHomework.setContent(homework.getContent());
         updatedHomework.setCourseThemeId(homework.getCourseThemeId());
         updatedHomework.setGroupId(homework.getGroupId());
-        return homeworkRepository.save(updatedHomework);
+
+        return mapper.map(
+                homeworkRepository.save(updatedHomework),
+                HomeworkDto.class
+        );
     }
 
     @Transactional
-    public Map<String, String> deleteHomework(Long homeworkId) {
+    public MessageDto deleteHomework(Long homeworkId) {
         homeworkValidatorService.validateDeleteRequest(homeworkId);
-        Map<String, String> response = new HashMap<>();
         homeworkRepository.deleteById(homeworkId);
-        response.put("message", "Удалено задание " + homeworkId);
-        return response;
+        return new MessageDto("Удалено задание " + homeworkId);
     }
 
     @KafkaListener(topics = "deleteHomeworksTopic", containerFactory = "deleteHomeworksKafkaListenerContainerFactory")

@@ -1,4 +1,4 @@
-package org.example.homework.dto.homework;
+package org.example.homework.dto.homeworkrequest;
 
 import lombok.Data;
 

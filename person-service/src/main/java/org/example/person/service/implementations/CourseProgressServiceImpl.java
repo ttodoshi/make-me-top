@@ -94,6 +94,7 @@ public class CourseProgressServiceImpl implements CourseProgressService {
 
     private Optional<Explorer> getCurrentSystemExplorer(Long personId) {
         List<Explorer> personExplorers = explorerService.findExplorersByPersonId(personId);
+
         List<Long> explorersWithFinalAssessment = getExplorersWithFinalAssessment(
                 personExplorers.stream().map(Explorer::getExplorerId).collect(Collectors.toList())
         );

@@ -1,14 +1,15 @@
 package org.example.homework.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.homework.dto.homework.CreateHomeworkMarkDto;
-import org.example.homework.dto.homework.CreateHomeworkRequestFeedbackDto;
+import org.example.homework.dto.homeworkmark.CreateHomeworkMarkDto;
+import org.example.homework.dto.homeworkrequest.CreateHomeworkRequestFeedbackDto;
 import org.example.homework.model.HomeworkMark;
 import org.example.homework.model.HomeworkRequest;
 import org.example.homework.model.HomeworkRequestFeedback;
 import org.example.homework.model.HomeworkRequestStatusType;
 import org.example.homework.repository.HomeworkMarkRepository;
 import org.example.homework.repository.HomeworkRequestFeedbackRepository;
+import org.example.homework.repository.HomeworkRequestRepository;
 import org.example.homework.repository.HomeworkRequestVersionRepository;
 import org.example.homework.service.validator.KeeperHomeworkRequestValidatorService;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class KeeperHomeworkRequestService {
+    private final HomeworkRequestRepository homeworkRequestRepository;
     private final HomeworkMarkRepository homeworkMarkRepository;
     private final HomeworkRequestFeedbackRepository homeworkRequestFeedbackRepository;
     private final HomeworkRequestVersionRepository homeworkRequestVersionRepository;
@@ -26,18 +28,18 @@ public class KeeperHomeworkRequestService {
     private final KeeperHomeworkRequestValidatorService keeperHomeworkRequestValidatorService;
 
     @Transactional
-    public HomeworkMark setHomeworkMark(Long requestId, CreateHomeworkMarkDto mark) {
+    public Long setHomeworkMark(Long requestId, CreateHomeworkMarkDto mark) {
         HomeworkRequest homeworkRequest = changeRequestStatus(
                 requestId,
                 HomeworkRequestStatusType.CLOSED
         );
         return homeworkMarkRepository.save(
                 new HomeworkMark(homeworkRequest.getRequestId(), mark.getValue(), mark.getComment())
-        );
+        ).getRequestId();
     }
 
     @Transactional
-    public HomeworkRequestFeedback sendHomeworkRequestFeedback(Long requestId, CreateHomeworkRequestFeedbackDto feedback) {
+    public Long sendHomeworkRequestFeedback(Long requestId, CreateHomeworkRequestFeedbackDto feedback) {
         HomeworkRequest homeworkRequest = changeRequestStatus(
                 requestId,
                 HomeworkRequestStatusType.EDITING
@@ -50,7 +52,7 @@ public class KeeperHomeworkRequestService {
                                 ).getVersionId(),
                         feedback.getContent()
                 )
-        );
+        ).getFeedbackId();
     }
 
     private HomeworkRequest changeRequestStatus(Long requestId, HomeworkRequestStatusType status) {
@@ -65,6 +67,6 @@ public class KeeperHomeworkRequestService {
                         .findHomeworkRequestStatusByStatus(status)
                         .getStatusId()
         );
-        return homeworkRequestService.saveHomeworkRequest(homeworkRequest);
+        return homeworkRequestRepository.save(homeworkRequest);
     }
 }

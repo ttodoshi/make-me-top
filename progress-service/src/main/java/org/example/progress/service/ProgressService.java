@@ -36,14 +36,18 @@ public class ProgressService {
     @Transactional(readOnly = true)
     public CoursesStateDto getCoursesProgressForCurrentUser(Long galaxyId) {
         PeopleService.Person authenticatedPerson = personService.getAuthenticatedPerson();
+
         Set<Long> openedCourses = new LinkedHashSet<>();
         Set<CourseWithProgressDto> studiedCourses = new LinkedHashSet<>();
         Set<Long> closedCourses = new LinkedHashSet<>();
+
         GetGalaxyDto galaxy = galaxyRepository.findGalaxyById(galaxyId);
+
         List<GetStarSystemWithDependenciesDto> systems = galaxy.getOrbitList()
                 .stream()
                 .flatMap(o -> o.getSystemWithDependenciesList().stream())
                 .collect(Collectors.toList());
+
         Map<Long, ExplorersService.Explorer> explorers = explorerRepository
                 .findExplorersByPersonIdAndGroupCourseIdIn(
                         authenticatedPerson.getPersonId(),
@@ -64,6 +68,7 @@ public class ProgressService {
                 openedCourses.add(system.getSystemId());
             }
         }
+
         return CoursesStateDto.builder()
                 .personId(authenticatedPerson.getPersonId())
                 .firstName(authenticatedPerson.getFirstName())
@@ -109,11 +114,14 @@ public class ProgressService {
     @Transactional(readOnly = true)
     public List<Long> getExplorerIdsNeededFinalAssessment(List<Long> explorerIds) {
         List<Long> explorersWithFinalAssessment = getExplorerIdsWithFinalAssessment(explorerIds);
-        Map<Long, ExplorersService.Explorer> explorers = explorerRepository.findExplorersByExplorerIdIn(explorerIds);
+
+        Map<Long, ExplorersService.Explorer> explorers = explorerRepository
+                .findExplorersByExplorerIdIn(explorerIds);
         Map<Long, ExplorerGroupsService.ExplorerGroup> explorerGroups = explorerGroupRepository
                 .findExplorerGroupsByGroupIdIn(
                         explorers.values().stream().map(ExplorersService.Explorer::getGroupId).collect(Collectors.toList())
                 );
+
         Map<Long, List<PlanetDto>> planets = planetRepository.findPlanetsBySystemIdIn(
                 explorerGroups.values().stream().map(ExplorerGroupsService.ExplorerGroup::getCourseId).distinct().collect(Collectors.toList())
         );
@@ -142,7 +150,9 @@ public class ProgressService {
                 personService.getAuthenticatedPersonId(),
                 courseId
         ).orElseThrow(ExplorerNotFoundException::new);
+
         CourseWithThemesProgressDto themesProgress = courseThemesProgressService.getThemesProgress(explorer);
+
         return new ExplorerProgressDto(
                 explorer.getExplorerId(),
                 explorer.getGroupId(),

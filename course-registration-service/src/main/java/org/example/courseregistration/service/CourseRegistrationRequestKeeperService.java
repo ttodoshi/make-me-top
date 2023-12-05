@@ -1,5 +1,6 @@
 package org.example.courseregistration.service;
 
+import org.example.courseregistration.dto.courserequest.CourseRegistrationRequestKeeperDto;
 import org.example.courseregistration.model.CourseRegistrationRequest;
 import org.example.courseregistration.model.CourseRegistrationRequestKeeper;
 import org.springframework.stereotype.Service;
@@ -12,7 +13,7 @@ public interface CourseRegistrationRequestKeeperService {
 
     void closeRequestForKeepers(CourseRegistrationRequest request);
 
-    List<CourseRegistrationRequestKeeper> findCourseRegistrationRequestKeepersByRequestId(Long requestId);
+    List<CourseRegistrationRequestKeeperDto> findCourseRegistrationRequestKeepersByRequestId(Long requestId);
 
-    List<CourseRegistrationRequestKeeper> findProcessingCourseRegistrationRequestKeepersByKeeperIdIn(List<Long> keeperIds);
+    List<CourseRegistrationRequestKeeperDto> findProcessingCourseRegistrationRequestKeepersByKeeperIdIn(List<Long> keeperIds);
 }

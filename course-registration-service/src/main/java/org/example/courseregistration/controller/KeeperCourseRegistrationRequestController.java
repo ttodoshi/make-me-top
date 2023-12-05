@@ -5,8 +5,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.example.courseregistration.dto.courserequest.CreateKeeperRejectionDto;
 import org.example.courseregistration.dto.courserequest.CourseRegistrationRequestReplyDto;
+import org.example.courseregistration.dto.courserequest.CreateKeeperRejectionDto;
 import org.example.courseregistration.service.KeeperCourseRegistrationRequestService;
 import org.example.courseregistration.service.KeeperRejectionService;
 import org.springframework.http.HttpStatus;
@@ -39,7 +39,9 @@ public class KeeperCourseRegistrationRequestController {
     })
     public ResponseEntity<?> replyToRequest(@PathVariable("requestId") Long requestId,
                                             @Valid @RequestBody CourseRegistrationRequestReplyDto reply) {
-        return ResponseEntity.ok(keeperCourseRegistrationRequestService.replyToRequest(requestId, reply));
+        return ResponseEntity.ok(
+                keeperCourseRegistrationRequestService.replyToRequest(requestId, reply)
+        );
     }
 
     @GetMapping("/course-requests/approved")
@@ -74,7 +76,9 @@ public class KeeperCourseRegistrationRequestController {
                     })
     })
     public ResponseEntity<?> startTeaching(@PathVariable Long courseId) {
-        return ResponseEntity.ok(keeperCourseRegistrationRequestService.startTeaching(courseId));
+        return ResponseEntity.ok(
+                keeperCourseRegistrationRequestService.startTeaching(courseId)
+        );
     }
 
     @PostMapping("/course-requests/{requestId}/rejections")

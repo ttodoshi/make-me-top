@@ -8,7 +8,6 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -21,10 +20,8 @@ import java.util.List;
 public class Course {
     @Id
     @Column(nullable = false)
-    @NotNull
     private Long courseId;
     @Column(nullable = false)
-    @NotNull
     private String title;
     @CreatedDate
     @Column(nullable = false)
@@ -35,7 +32,6 @@ public class Course {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime lastModified;
     @Column(nullable = false)
-    @NotNull
     private String description;
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
     @JsonBackReference

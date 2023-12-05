@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.example.homework.dto.group.GetExplorerGroupDto;
+import org.example.homework.dto.homeworkrequest.GetHomeworkRequestWithPersonInfoDto;
 
 import java.util.List;
 

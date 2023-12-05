@@ -100,12 +100,12 @@ public class PlanetController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> addPlanets(@RequestBody List<@Valid CreatePlanetDto> planetList,
-                                        @PathVariable Long systemId) {
+    public ResponseEntity<?> createPlanets(@PathVariable Long systemId,
+                                           @RequestBody List<@Valid CreatePlanetDto> planetList) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(
-                        planetService.addPlanets(systemId, planetList)
+                        planetService.createPlanets(systemId, planetList)
                 );
     }
 

@@ -28,6 +28,7 @@ public class PlanetValidatorService {
     @Transactional(readOnly = true)
     public void validatePostRequest(Long systemId, List<CreatePlanetDto> planets) {
         checkSystemExists(systemId);
+
         List<CreatePlanetDto> savingPlanetsList = new ArrayList<>();
         for (CreatePlanetDto planet : planets) {
             if (savingPlanetsList.contains(planet) || planetExists(systemId, planet.getPlanetName()))
@@ -45,6 +46,7 @@ public class PlanetValidatorService {
     @Transactional(readOnly = true)
     public void validatePutRequest(Long planetId, UpdatePlanetDto planet) {
         checkSystemExists(planet.getSystemId());
+
         if (planetExists(planet.getSystemId(), planetId, planet.getPlanetName()))
             throw new PlanetAlreadyExistsException(planet.getPlanetName());
     }

@@ -1,6 +1,7 @@
 package org.example.courseregistration.service.implementations;
 
 import lombok.RequiredArgsConstructor;
+import org.example.courseregistration.dto.courserequest.CourseRegistrationRequestKeeperDto;
 import org.example.courseregistration.exception.classes.keeper.DifferentKeeperException;
 import org.example.courseregistration.exception.classes.keeper.KeeperNotFoundException;
 import org.example.courseregistration.exception.classes.request.RequestNotFoundException;
@@ -14,10 +15,12 @@ import org.example.courseregistration.service.CourseRegistrationRequestKeeperSer
 import org.example.courseregistration.service.CourseRegistrationRequestKeeperStatusService;
 import org.example.courseregistration.service.PersonService;
 import org.example.grpc.KeepersService;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +32,8 @@ public class CourseRegistrationRequestKeeperServiceImpl implements CourseRegistr
 
     private final PersonService personService;
 
+    private final ModelMapper mapper;
+
     @Transactional
     public CourseRegistrationRequestKeeper findCourseRegistrationRequestKeeperForPerson(Long personId, CourseRegistrationRequest request) {
         KeepersService.Keeper keeper = keeperRepository
@@ -36,6 +41,7 @@ public class CourseRegistrationRequestKeeperServiceImpl implements CourseRegistr
                         personService.getAuthenticatedPersonId(),
                         request.getCourseId()
                 ).orElseThrow(KeeperNotFoundException::new);
+
         return courseRegistrationRequestKeeperRepository
                 .findCourseRegistrationRequestKeeperByRequestIdAndKeeperId(
                         request.getRequestId(),
@@ -59,17 +65,24 @@ public class CourseRegistrationRequestKeeperServiceImpl implements CourseRegistr
 
     @Override
     @Transactional(readOnly = true)
-    public List<CourseRegistrationRequestKeeper> findCourseRegistrationRequestKeepersByRequestId(Long requestId) {
+    public List<CourseRegistrationRequestKeeperDto> findCourseRegistrationRequestKeepersByRequestId(Long requestId) {
         if (!courseRegistrationRequestRepository.existsById(requestId)) {
             throw new RequestNotFoundException(requestId);
         }
-        return courseRegistrationRequestKeeperRepository.findCourseRegistrationRequestKeepersByRequestId(requestId);
+        return courseRegistrationRequestKeeperRepository
+                .findCourseRegistrationRequestKeepersByRequestId(requestId)
+                .stream()
+                .map(kr -> mapper.map(kr, CourseRegistrationRequestKeeperDto.class))
+                .collect(Collectors.toList());
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<CourseRegistrationRequestKeeper> findProcessingCourseRegistrationRequestKeepersByKeeperIdIn(List<Long> keeperIds) {
+    public List<CourseRegistrationRequestKeeperDto> findProcessingCourseRegistrationRequestKeepersByKeeperIdIn(List<Long> keeperIds) {
         return courseRegistrationRequestKeeperRepository
-                .findProcessingCourseRegistrationRequestKeepersByKeeperIdIn(keeperIds);
+                .findProcessingCourseRegistrationRequestKeepersByKeeperIdIn(keeperIds)
+                .stream()
+                .map(kr -> mapper.map(kr, CourseRegistrationRequestKeeperDto.class))
+                .collect(Collectors.toList());
     }
 }

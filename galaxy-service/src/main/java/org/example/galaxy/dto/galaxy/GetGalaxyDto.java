@@ -1,17 +1,15 @@
 package org.example.galaxy.dto.galaxy;
 
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import org.example.galaxy.dto.orbit.GetOrbitWithStarSystemsWithoutGalaxyIdDto;
+import org.example.galaxy.dto.orbit.GetOrbitWithStarSystemsDto;
 
 import java.util.List;
 
 @Data
-@EqualsAndHashCode(callSuper = true)
-public class GetGalaxyDto extends GalaxyDto {
+public class GetGalaxyDto {
     private Long galaxyId;
-    @JsonProperty("orbitList")
-    private List<GetOrbitWithStarSystemsWithoutGalaxyIdDto> orbitList;
+    private String galaxyName;
+    private String galaxyDescription;
+    private List<GetOrbitWithStarSystemsDto> orbitList;
 }

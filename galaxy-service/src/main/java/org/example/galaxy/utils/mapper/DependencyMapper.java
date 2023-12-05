@@ -1,12 +1,10 @@
-package org.example.galaxy.config.mapper;
+package org.example.galaxy.utils.mapper;
 
 import org.example.galaxy.dto.starsystem.SystemDependencyModelDto;
 import org.example.galaxy.model.SystemDependency;
-import org.springframework.stereotype.Component;
 
-@Component
 public class DependencyMapper {
-    public SystemDependencyModelDto dependencyToDependencyChildModel(SystemDependency systemDependency) {
+    public static SystemDependencyModelDto dependencyToDependencyChildModel(SystemDependency systemDependency) {
         return new SystemDependencyModelDto(
                 systemDependency.getChild().getSystemId(),
                 systemDependency.getChild().getSystemName(),
@@ -15,7 +13,7 @@ public class DependencyMapper {
         );
     }
 
-    public SystemDependencyModelDto dependencyToDependencyParentModel(SystemDependency systemDependency) {
+    public static SystemDependencyModelDto dependencyToDependencyParentModel(SystemDependency systemDependency) {
         return new SystemDependencyModelDto(
                 systemDependency.getParent().getSystemId(),
                 systemDependency.getParent().getSystemName(),

@@ -2,7 +2,7 @@ package org.example.homework.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.grpc.ExplorersService;
-import org.example.homework.dto.homework.CreateHomeworkRequestDto;
+import org.example.homework.dto.homeworkrequest.CreateHomeworkRequestDto;
 import org.example.homework.exception.classes.explorer.ExplorerNotFoundException;
 import org.example.homework.exception.classes.homework.HomeworkNotFoundException;
 import org.example.homework.exception.classes.planet.PlanetNotFoundException;
@@ -28,13 +28,12 @@ public class ExplorerHomeworkRequestService {
     private final PlanetRepository planetRepository;
     private final HomeworkRequestRepository homeworkRequestRepository;
 
-    private final HomeworkRequestService homeworkRequestService;
     private final HomeworkRequestStatusService homeworkRequestStatusService;
     private final PersonService personService;
     private final ExplorerHomeworkRequestValidatorService explorerHomeworkRequestValidatorService;
 
     @Transactional
-    public HomeworkRequest sendHomeworkRequest(Long homeworkId, CreateHomeworkRequestDto request) {
+    public Long sendHomeworkRequest(Long homeworkId, CreateHomeworkRequestDto request) {
         Long themeId = homeworkRepository.findById(homeworkId)
                 .orElseThrow(() -> new HomeworkNotFoundException(homeworkId))
                 .getCourseThemeId();
@@ -51,14 +50,13 @@ public class ExplorerHomeworkRequestService {
                 .findHomeworkRequestByHomeworkIdAndExplorerId(homeworkId, explorer.getExplorerId());
 
         return homeworkRequestOptional
-                .map(
-                        homeworkRequest -> createNewRequestVersion(
-                                homeworkRequest, request.getContent())
-                ).orElseGet(
+                .map(hr -> createNewRequestVersion(hr, request.getContent()))
+                .orElseGet(
                         () -> createNewRequestWithFirstVersion(
-                                themeId, homeworkId, explorer.getExplorerId(), request.getContent()
+                                themeId, homeworkId,
+                                explorer.getExplorerId(), request.getContent()
                         )
-                );
+                ).getRequestId();
     }
 
     private HomeworkRequest createNewRequestVersion(HomeworkRequest homeworkRequest, String newContent) {
@@ -81,7 +79,8 @@ public class ExplorerHomeworkRequestService {
 
     private HomeworkRequest createNewRequestWithFirstVersion(Long themeId, Long homeworkId, Long explorerId, String content) {
         explorerHomeworkRequestValidatorService.validateNewRequest(themeId, explorerId);
-        HomeworkRequest homeworkRequest = homeworkRequestService.saveHomeworkRequest(
+
+        HomeworkRequest homeworkRequest = homeworkRequestRepository.save(
                 new HomeworkRequest(
                         homeworkId,
                         explorerId,
@@ -90,6 +89,7 @@ public class ExplorerHomeworkRequestService {
                         ).getStatusId()
                 )
         );
+
         homeworkRequest.setHomeworkRequestVersions(
                 Collections.singletonList(
                         new HomeworkRequestVersion(
