@@ -5,6 +5,7 @@ import org.example.grpc.ExplorerGroupsService;
 import org.example.grpc.ExplorersService;
 import org.example.grpc.PeopleService;
 import org.example.homework.dto.explorer.ExplorerBaseInfoDto;
+import org.example.homework.dto.group.CurrentKeeperGroupDto;
 import org.example.homework.dto.group.GetExplorerGroupDto;
 import org.example.homework.dto.homework.*;
 import org.example.homework.dto.homeworkrequest.GetHomeworkRequestWithPersonInfoDto;
@@ -16,7 +17,6 @@ import org.example.homework.exception.classes.planet.PlanetNotFoundException;
 import org.example.homework.model.Homework;
 import org.example.homework.model.HomeworkRequest;
 import org.example.homework.model.HomeworkRequestStatusType;
-import org.example.homework.model.HomeworkStatusType;
 import org.example.homework.repository.*;
 import org.example.homework.service.validator.HomeworkValidatorService;
 import org.modelmapper.ModelMapper;
@@ -39,8 +39,8 @@ public class HomeworkService {
     private final ExplorerGroupRepository explorerGroupRepository;
     private final PersonRepository personRepository;
     private final HomeworkRequestRepository homeworkRequestRepository;
+    private final CourseProgressRepository courseProgressRepository;
 
-    private final HomeworkStatusService homeworkStatusService;
     private final PersonService personService;
     private final HomeworkValidatorService homeworkValidatorService;
 
@@ -116,19 +116,25 @@ public class HomeworkService {
                 .map(ExplorerGroupsService.ExplorerGroup::getGroupId)
                 .collect(Collectors.toList());
 
-        List<Homework> openedHomeworks = homeworkRepository
-                .findHomeworksByCourseThemeIdAndGroupIdInAndStatus_OpenedStatus(
+        List<Homework> homeworks = homeworkRepository
+                .findHomeworksByCourseThemeIdAndGroupIdIn(
                         themeId,
                         groupIds
                 );
-        List<Homework> closedHomeworks = homeworkRepository
-                .findHomeworksByCourseThemeIdAndGroupIdInAndStatus_ClosedStatus(
-                        themeId,
-                        groupIds
-                );
+
+        CurrentKeeperGroupDto currentGroup = courseProgressRepository.getCurrentGroup();
+
         return new GetHomeworksWithRequestsDto(
-                mapHomeworkToGetHomeworkDto(openedHomeworks),
-                mapHomeworkToGetHomeworkDto(closedHomeworks)
+                mapHomeworkToGetHomeworkDto(
+                        homeworks.stream()
+                                .filter(h -> h.getGroupId().equals(currentGroup.getGroupId()))
+                                .collect(Collectors.toList())
+                ),
+                mapHomeworkToGetHomeworkDto(
+                        homeworks.stream()
+                                .filter(h -> !h.getGroupId().equals(currentGroup.getGroupId()))
+                                .collect(Collectors.toList())
+                )
         );
     }
 
@@ -237,8 +243,7 @@ public class HomeworkService {
                         new Homework(
                                 themeId,
                                 homework.getContent(),
-                                homework.getGroupId(),
-                                homeworkStatusService.findHomeworkStatusByStatus(HomeworkStatusType.OPENED).getStatusId()
+                                homework.getGroupId()
                         )
                 ), HomeworkDto.class
         );

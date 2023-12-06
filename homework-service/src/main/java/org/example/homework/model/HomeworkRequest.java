@@ -2,7 +2,6 @@ package org.example.homework.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -37,7 +36,6 @@ public class HomeworkRequest {
     private LocalDateTime requestDate;
     @ManyToOne(optional = false)
     @JoinColumn(name = "status_id", nullable = false, insertable = false, updatable = false)
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     private HomeworkRequestStatus status;
     @Column(name = "status_id")
     private Long statusId;
@@ -46,7 +44,6 @@ public class HomeworkRequest {
     @ToString.Exclude
     private List<HomeworkRequestVersion> homeworkRequestVersions;
     @OneToOne(mappedBy = "request", cascade = CascadeType.ALL)
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     private HomeworkMark mark;
 
     public HomeworkRequest(Long homeworkId, Long explorerId, Long statusId) {

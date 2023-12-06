@@ -185,7 +185,7 @@ public class HomeworkRequestService {
                                                 keeper
                                         )).collect(Collectors.toList())
                         )).collect(Collectors.toList()),
-                mapper.map(homeworkRequest.getMark(), HomeworkMarkDto.class)
+                homeworkRequest.getMark() == null ? null : mapper.map(homeworkRequest.getMark(), HomeworkMarkDto.class)
         );
     }
 }

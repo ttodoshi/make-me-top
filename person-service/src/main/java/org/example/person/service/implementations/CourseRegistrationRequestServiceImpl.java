@@ -84,7 +84,7 @@ public class CourseRegistrationRequestServiceImpl implements CourseRegistrationR
     @Transactional(readOnly = true)
     public Optional<CourseRegistrationRequestForExplorerDto> getStudyRequestForExplorerByPersonId() {
         return courseRegistrationRequestRepository
-                .findProcessingCourseRegistrationRequestByPersonId()
+                .findProcessingCourseRegistrationRequest()
                 .map(r -> {
                     CourseDto course = courseRepository.getReferenceById(r.getCourseId());
                     GalaxyDto galaxy = galaxyRepository.findGalaxyBySystemId(r.getCourseId());
