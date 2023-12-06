@@ -43,7 +43,7 @@ public class DeleteRelatedDataAspect {
     }
 
     @Before(value = "deleteDataRelatedToCoursePointcut(courseId)", argNames = "courseId")
-    public void deleteDataRelatedToCourseAfterCourseDeletion(Long courseId) {
+    public void deleteDataRelatedToCourseBeforeCourseDeletion(Long courseId) {
         this.deleteDataRelatedToThemes(
                 courseRepository.findById(courseId)
                         .orElseThrow(() -> new CourseNotFoundException(courseId))

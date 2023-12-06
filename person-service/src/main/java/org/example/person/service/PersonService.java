@@ -6,28 +6,21 @@ import org.example.person.dto.person.UpdatePersonDto;
 import org.example.person.exception.classes.person.PersonNotFoundException;
 import org.example.person.model.Person;
 import org.example.person.repository.PersonRepository;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class PersonService {
     private final PersonRepository personRepository;
-
-    private final CacheManager cacheManager;
 
     public Long getAuthenticatedPersonId() {
         Person authenticatedPerson = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -52,6 +45,7 @@ public class PersonService {
     }
 
     @KafkaListener(topics = "personTopic", containerFactory = "createPersonKafkaListenerContainerFactory")
+    @CacheEvict(cacheNames = "personExistsByIdCache", key = "#person.personId")
     @Transactional
     public void savePerson(PersonCreateEvent person) {
         personRepository.save(
@@ -76,34 +70,13 @@ public class PersonService {
                 ));
     }
 
+    @CacheEvict(cacheNames = "personByIdCache", key = "#personId")
     @Transactional
-    @CachePut(cacheNames = "personByIdCache", key = "#personId")
-    public Person setMaxExplorersValueForPerson(Long personId, UpdatePersonDto personDto) {
+    public void setMaxExplorersValueForPerson(Long personId, UpdatePersonDto person) {
         Person updatedPerson = personRepository.findById(personId)
                 .orElseThrow(() -> new PersonNotFoundException(personId));
-        updatedPerson.setMaxExplorers(personDto.getMaxExplorers());
-        clearPeopleByPersonIdInCache(personId);
-        return personRepository.save(updatedPerson);
-    }
 
-    @Async
-    public void clearPeopleByPersonIdInCache(Long personId) {
-        CompletableFuture.runAsync(() -> {
-            Cache peopleByPersonIdInCache = cacheManager.getCache("peopleByPersonIdInCache");
-            Map<List<Long>, Map<Long, Person>> nativeCache = (Map<List<Long>, Map<Long, Person>>)
-                    Objects.requireNonNull(peopleByPersonIdInCache).getNativeCache();
-            for (Map.Entry<List<Long>, Map<Long, Person>> entry : nativeCache.entrySet()) {
-                if (entry.getKey().contains(personId))
-                    peopleByPersonIdInCache.evict(entry.getKey());
-            }
-        });
-    }
-
-    @Transactional
-    public void setDefaultExplorersValueForPerson(Long personId) {
-        setMaxExplorersValueForPerson(
-                personId,
-                new UpdatePersonDto(3)
-        );
+        updatedPerson.setMaxExplorers(person.getMaxExplorers());
+        personRepository.save(updatedPerson);
     }
 }

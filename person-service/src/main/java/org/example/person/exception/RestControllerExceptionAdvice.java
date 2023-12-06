@@ -5,6 +5,7 @@ import org.example.person.exception.classes.connect.ConnectException;
 import org.example.person.exception.classes.course.CourseNotFoundException;
 import org.example.person.exception.classes.explorer.ExplorerGroupNotFoundException;
 import org.example.person.exception.classes.explorer.ExplorerNotFoundException;
+import org.example.person.exception.classes.keeper.KeeperAlreadyExistsException;
 import org.example.person.exception.classes.keeper.KeeperNotFoundException;
 import org.example.person.exception.classes.person.PersonNotFoundException;
 import org.example.person.exception.classes.planet.PlanetNotFoundException;
@@ -134,5 +135,11 @@ public class RestControllerExceptionAdvice {
     public ResponseEntity<ErrorResponse> handlePlanetNotFoundException(Exception e) {
         logWarning(e);
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(KeeperAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleKeeperAlreadyExistsException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
     }
 }

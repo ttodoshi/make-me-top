@@ -6,8 +6,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,5 +17,4 @@ public class PersonWithSystemsDto {
     private String lastName;
     private String patronymic;
     private Double rating;
-    private List<Long> systems;
 }
