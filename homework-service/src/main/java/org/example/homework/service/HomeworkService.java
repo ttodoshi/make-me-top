@@ -8,7 +8,9 @@ import org.example.homework.dto.explorer.ExplorerBaseInfoDto;
 import org.example.homework.dto.group.CurrentKeeperGroupDto;
 import org.example.homework.dto.group.GetExplorerGroupDto;
 import org.example.homework.dto.homework.*;
+import org.example.homework.dto.homeworkmark.HomeworkMarkDto;
 import org.example.homework.dto.homeworkrequest.GetHomeworkRequestWithPersonInfoDto;
+import org.example.homework.dto.homeworkrequest.HomeworkRequestStatusDto;
 import org.example.homework.dto.message.MessageDto;
 import org.example.homework.exception.classes.explorer.ExplorerNotFoundException;
 import org.example.homework.exception.classes.homework.HomeworkNotFoundException;
@@ -27,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -97,8 +100,21 @@ public class HomeworkService {
                         themeId,
                         explorer.getGroupId()
                 ).stream()
-                .map(h -> mapper.map(h, HomeworkDto.class))
-                .collect(Collectors.toList());
+                .map(h -> {
+                    Optional<HomeworkRequest> request = homeworkRequestRepository
+                            .findHomeworkRequestByHomeworkIdAndExplorerId(
+                                    h.getHomeworkId(),
+                                    explorer.getExplorerId()
+                            );
+                    if (request.isPresent()) {
+                        return new GetHomeworkWithMarkDto(
+                                mapper.map(h, HomeworkDto.class),
+                                mapper.map(request.get().getStatus(), HomeworkRequestStatusDto.class),
+                                request.get().getMark() == null ? null : mapper.map(request.get().getMark(), HomeworkMarkDto.class)
+                        );
+                    }
+                    return mapper.map(h, HomeworkDto.class);
+                }).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
