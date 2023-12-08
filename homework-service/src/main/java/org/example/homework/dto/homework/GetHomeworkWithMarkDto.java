@@ -14,7 +14,7 @@ public class GetHomeworkWithMarkDto extends HomeworkDto {
     private HomeworkMarkDto mark;
 
     public GetHomeworkWithMarkDto(HomeworkDto homework, HomeworkRequestStatusDto status, HomeworkMarkDto mark) {
-        super(homework.getHomeworkId(), homework.getCourseThemeId(), homework.getContent(), homework.getGroupId());
+        super(homework.getHomeworkId(), homework.getCourseThemeId(), homework.getTitle(), homework.getContent(), homework.getGroupId());
         this.status = status;
         this.mark = mark;
     }

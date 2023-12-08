@@ -15,13 +15,16 @@ public class Homework {
     private Long homeworkId;
     @Column(nullable = false)
     private Long courseThemeId;
+    @Column(nullable = false)
+    private String title;
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
     @Column(nullable = false)
     private Long groupId;
 
-    public Homework(Long courseThemeId, String content, Long groupId) {
+    public Homework(Long courseThemeId, String title, String content, Long groupId) {
         this.courseThemeId = courseThemeId;
+        this.title = title;
         this.content = content;
         this.groupId = groupId;
     }

@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 public class HomeworkDto {
     private Long homeworkId;
     private Long courseThemeId;
+    private String title;
     private String content;
     private Long groupId;
 }

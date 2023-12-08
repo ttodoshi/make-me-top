@@ -10,6 +10,8 @@ public class UpdateHomeworkDto {
     @NotNull
     private Long courseThemeId;
     @NotBlank
+    private String title;
+    @NotBlank
     private String content;
     @NotNull
     private Long groupId;

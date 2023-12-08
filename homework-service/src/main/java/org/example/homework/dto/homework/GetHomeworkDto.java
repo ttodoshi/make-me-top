@@ -14,6 +14,7 @@ import java.util.List;
 public class GetHomeworkDto {
     private Long homeworkId;
     private Long courseThemeId;
+    private String title;
     private String content;
     private GetExplorerGroupDto group;
     private Long waitingRequestsCount;
