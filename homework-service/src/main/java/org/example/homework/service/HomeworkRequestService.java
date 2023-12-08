@@ -105,6 +105,7 @@ public class HomeworkRequestService {
 
         return new GetHomeworkWithRequestDto(
                 homework.getHomeworkId(),
+                homework.getTitle(),
                 homework.getContent(),
                 homeworkRequest.orElse(null)
         );
@@ -132,6 +133,7 @@ public class HomeworkRequestService {
 
         return new GetHomeworkWithRequestDto(
                 homework.getHomeworkId(),
+                homework.getTitle(),
                 homework.getContent(),
                 mapHomeworkRequest(
                         homeworkRequest,

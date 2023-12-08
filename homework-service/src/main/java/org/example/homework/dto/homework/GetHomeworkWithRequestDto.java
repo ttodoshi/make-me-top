@@ -11,6 +11,7 @@ import org.example.homework.dto.homeworkrequest.GetHomeworkRequestWithVersionsDt
 @NoArgsConstructor
 public class GetHomeworkWithRequestDto {
     private Long homeworkId;
+    private String title;
     private String content;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private GetHomeworkRequestWithVersionsDto request;

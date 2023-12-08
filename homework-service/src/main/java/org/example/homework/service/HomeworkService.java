@@ -190,6 +190,7 @@ public class HomeworkService {
                 .map(h -> new GetHomeworkDto(
                         h.getHomeworkId(),
                         h.getCourseThemeId(),
+                        h.getTitle(),
                         h.getContent(),
                         groupMap.get(h.getGroupId()),
                         requests.getOrDefault(h.getHomeworkId(), Collections.emptyList())
@@ -258,6 +259,7 @@ public class HomeworkService {
                 homeworkRepository.save(
                         new Homework(
                                 themeId,
+                                homework.getTitle(),
                                 homework.getContent(),
                                 homework.getGroupId()
                         )
@@ -271,6 +273,7 @@ public class HomeworkService {
 
         Homework updatedHomework = homeworkRepository.findById(homeworkId)
                 .orElseThrow(() -> new HomeworkNotFoundException(homeworkId));
+        updatedHomework.setTitle(homework.getTitle());
         updatedHomework.setContent(homework.getContent());
         updatedHomework.setCourseThemeId(homework.getCourseThemeId());
         updatedHomework.setGroupId(homework.getGroupId());

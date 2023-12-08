@@ -10,5 +10,7 @@ public class CreateHomeworkDto {
     @NotNull
     private Long groupId;
     @NotBlank
+    private String title;
+    @NotBlank
     private String content;
 }
