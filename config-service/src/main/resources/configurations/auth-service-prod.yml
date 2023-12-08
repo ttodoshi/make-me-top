@@ -12,4 +12,4 @@ eureka:
   client:
     service-url:
       defaultZone: http://10.10.0.12:8761/eureka
-mmtr-auth-url: https://my.mmtr.ru/
+mmtr-url: https://my.mmtr.ru/

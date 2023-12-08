@@ -7,7 +7,10 @@ import org.example.person.dto.galaxy.GalaxyDto;
 import org.example.person.dto.keeper.KeeperBasicInfoDto;
 import org.example.person.model.Keeper;
 import org.example.person.model.Person;
-import org.example.person.repository.*;
+import org.example.person.repository.CourseRegistrationRequestKeeperRepository;
+import org.example.person.repository.CourseRegistrationRequestRepository;
+import org.example.person.repository.CourseRepository;
+import org.example.person.repository.GalaxyRepository;
 import org.example.person.service.CourseRegistrationRequestService;
 import org.example.person.service.KeeperService;
 import org.example.person.service.PersonService;
@@ -22,8 +25,6 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 public class CourseRegistrationRequestServiceImpl implements CourseRegistrationRequestService {
-    private final PersonRepository personRepository;
-    private final KeeperRepository keeperRepository;
     private final CourseRepository courseRepository;
     private final CourseRegistrationRequestRepository courseRegistrationRequestRepository;
     private final CourseRegistrationRequestKeeperRepository courseRegistrationRequestKeeperRepository;
@@ -67,7 +68,7 @@ public class CourseRegistrationRequestServiceImpl implements CourseRegistrationR
                             ratings.get(person.getPersonId())
                     );
                 }).collect(Collectors.groupingBy(
-                        r -> new AbstractMap.SimpleEntry<>(r.getCourseId(), r.getCourseTitle()),
+                        r -> Map.entry(r.getCourseId(), r.getCourseTitle()),
                         Collectors.mapping(Function.identity(), Collectors.toList())
                 )).entrySet().stream()
                 .map(e -> {
@@ -99,7 +100,7 @@ public class CourseRegistrationRequestServiceImpl implements CourseRegistrationR
                             .entrySet()
                             .stream()
                             .map(e -> {
-                                Person person = personRepository.getReferenceById(e.getValue().getPersonId());
+                                Person person = e.getValue().getPerson();
                                 return new KeeperBasicInfoDto(
                                         person.getPersonId(),
                                         person.getFirstName(),
@@ -124,7 +125,7 @@ public class CourseRegistrationRequestServiceImpl implements CourseRegistrationR
     public Optional<CourseRegistrationRequestForKeeperWithGalaxyDto> getStudyRequestByExplorerPersonId(Long authenticatedPersonId, Long personId) {
         // returns information about the request only if the authorized keeper is the one to whom it was sent
         return getStudyRequestsForKeeper(
-                keeperRepository.findKeepersByPersonId(authenticatedPersonId)
+                keeperService.findKeepersByPersonId(authenticatedPersonId)
         ).stream()
                 .flatMap(requests -> requests.getRequests().stream())
                 .filter(r -> r.getPersonId().equals(personId))

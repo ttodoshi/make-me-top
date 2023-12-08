@@ -13,7 +13,6 @@ import org.example.person.model.Person;
 import org.example.person.repository.CourseRepository;
 import org.example.person.repository.ExplorerFeedbackRepository;
 import org.example.person.repository.KeeperFeedbackRepository;
-import org.example.person.repository.PersonRepository;
 import org.example.person.service.FeedbackService;
 import org.example.person.service.KeeperService;
 import org.springframework.stereotype.Component;
@@ -26,7 +25,6 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 public class FeedbackServiceImpl implements FeedbackService {
-    private final PersonRepository personRepository;
     private final KeeperFeedbackRepository keeperFeedbackRepository;
     private final ExplorerFeedbackRepository explorerFeedbackRepository;
     private final CourseRepository courseRepository;
@@ -50,9 +48,7 @@ public class FeedbackServiceImpl implements FeedbackService {
 
         return feedbacks.stream()
                 .map(f -> {
-                    Person person = personRepository.getReferenceById(
-                            keepers.get(f.getKeeperId()).getPersonId()
-                    );
+                    Person person = keepers.get(f.getKeeperId()).getPerson();
                     CourseDto currentCourse = courses.get(keepers.get(f.getKeeperId()).getCourseId());
                     return new KeeperCommentDto(
                             person.getPersonId(),
@@ -91,9 +87,7 @@ public class FeedbackServiceImpl implements FeedbackService {
 
         return feedbacks.stream()
                 .map(f -> {
-                    Person person = personRepository.getReferenceById(
-                            explorers.get(f.getExplorerId()).getPersonId()
-                    );
+                    Person person = explorers.get(f.getExplorerId()).getPerson();
                     CourseDto currentCourse = courses.get(keepers.get(
                             f.getKeeperId()
                     ).getCourseId());

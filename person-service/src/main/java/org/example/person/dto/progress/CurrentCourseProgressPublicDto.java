@@ -8,13 +8,11 @@ import org.example.person.dto.keeper.KeeperBasicInfoDto;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CurrentCourseProgressDto {
+public class CurrentCourseProgressPublicDto {
     private Long explorerId;
-    private Long groupId;
     private Long courseThemeId;
     private String courseThemeTitle;
     private Long courseId;
     private String courseTitle;
     private KeeperBasicInfoDto keeper;
-    private Double progress;
 }

@@ -6,22 +6,19 @@ import org.example.person.dto.explorer.CurrentKeeperGroupDto;
 import org.example.person.dto.explorer.ExplorerBasicInfoDto;
 import org.example.person.dto.explorer.ExplorerNeededFinalAssessmentDto;
 import org.example.person.dto.keeper.KeeperBasicInfoDto;
-import org.example.person.dto.planet.PlanetDto;
 import org.example.person.dto.progress.CourseThemeCompletedDto;
 import org.example.person.dto.progress.CourseWithThemesProgressDto;
-import org.example.person.dto.progress.CurrentCourseProgressDto;
+import org.example.person.dto.progress.CurrentCourseProgressProfileDto;
+import org.example.person.dto.progress.CurrentCourseProgressPublicDto;
 import org.example.person.exception.classes.connect.ConnectException;
 import org.example.person.exception.classes.explorer.ExplorerNotFoundException;
-import org.example.person.exception.classes.planet.PlanetNotFoundException;
 import org.example.person.model.Explorer;
 import org.example.person.model.ExplorerGroup;
 import org.example.person.model.Keeper;
 import org.example.person.model.Person;
-import org.example.person.repository.*;
-import org.example.person.service.CourseProgressService;
-import org.example.person.service.ExplorerGroupService;
-import org.example.person.service.ExplorerService;
-import org.example.person.service.PersonService;
+import org.example.person.repository.CourseRepository;
+import org.example.person.repository.HomeworkRepository;
+import org.example.person.service.*;
 import org.example.person.utils.AuthorizationHeaderContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
@@ -41,36 +38,28 @@ public class CourseProgressServiceImpl implements CourseProgressService {
     private final WebClient.Builder webClientBuilder;
     private final AuthorizationHeaderContextHolder authorizationHeaderContextHolder;
 
-    private final PersonRepository personRepository;
-    private final KeeperRepository keeperRepository;
-    private final ExplorerGroupRepository explorerGroupRepository;
     private final CourseRepository courseRepository;
-    private final PlanetRepository planetRepository;
+    private final HomeworkRepository homeworkRepository;
 
     private final PersonService personService;
     private final ExplorerService explorerService;
     private final ExplorerGroupService explorerGroupService;
+    private final KeeperService keeperService;
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<CurrentCourseProgressDto> getCurrentCourseProgress(Long personId) {
+    public Optional<CurrentCourseProgressProfileDto> getCurrentCourseProgressProfile(Long personId) {
         return getCurrentSystemExplorer(personId)
                 .map(e -> {
                     CourseWithThemesProgressDto courseProgress = getCourseProgress(
                             e.getExplorerId()
                     );
+                    CourseThemeCompletedDto currentTheme = getCurrentCourseTheme(courseProgress);
+
                     double progress = getCourseProgressValue(courseProgress);
 
-                    Long currentThemeId = getCurrentCourseThemeId(courseProgress);
-                    PlanetDto currentPlanet = planetRepository.findById(currentThemeId)
-                            .orElseThrow(() -> new PlanetNotFoundException(currentThemeId));
-                    CourseDto currentCourse = courseRepository
-                            .getReferenceById(courseProgress.getCourseId());
-
-                    Keeper keeper = keeperRepository.getReferenceById(
-                            explorerGroupRepository.getReferenceById(e.getGroupId()).getKeeperId()
-                    );
-                    Person keeperPerson = personRepository.getReferenceById(keeper.getPersonId());
+                    Keeper keeper = e.getGroup().getKeeper();
+                    Person keeperPerson = keeper.getPerson();
                     KeeperBasicInfoDto keeperInfo = new KeeperBasicInfoDto(
                             keeperPerson.getPersonId(),
                             keeperPerson.getFirstName(),
@@ -79,15 +68,52 @@ public class CourseProgressServiceImpl implements CourseProgressService {
                             keeper.getKeeperId()
                     );
 
-                    return new CurrentCourseProgressDto(
+                    return new CurrentCourseProgressProfileDto(
                             e.getExplorerId(),
-                            e.getGroupId(),
-                            currentPlanet.getPlanetId(),
-                            currentPlanet.getPlanetName(),
-                            currentCourse.getCourseId(),
-                            currentCourse.getTitle(),
+                            currentTheme.getCourseThemeId(),
+                            currentTheme.getTitle(),
+                            courseProgress.getCourseId(),
+                            courseProgress.getTitle(),
                             keeperInfo,
-                            progress
+                            e.getGroupId(),
+                            progress,
+                            homeworkRepository
+                                    .findHomeworksByCourseThemeId(
+                                            currentTheme.getCourseThemeId()
+                                    ).stream()
+                                    .filter(h -> h.getStatus() == null)
+                                    .count()
+                    );
+                });
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<CurrentCourseProgressPublicDto> getCurrentCourseProgressPublic(Long personId) {
+        return getCurrentSystemExplorer(personId)
+                .map(e -> {
+                    CourseWithThemesProgressDto courseProgress = getCourseProgress(
+                            e.getExplorerId()
+                    );
+                    CourseThemeCompletedDto currentTheme = getCurrentCourseTheme(courseProgress);
+
+                    Keeper keeper = e.getGroup().getKeeper();
+                    Person keeperPerson = keeper.getPerson();
+                    KeeperBasicInfoDto keeperInfo = new KeeperBasicInfoDto(
+                            keeperPerson.getPersonId(),
+                            keeperPerson.getFirstName(),
+                            keeperPerson.getLastName(),
+                            keeperPerson.getPatronymic(),
+                            keeper.getKeeperId()
+                    );
+
+                    return new CurrentCourseProgressPublicDto(
+                            e.getExplorerId(),
+                            currentTheme.getCourseThemeId(),
+                            currentTheme.getTitle(),
+                            courseProgress.getCourseId(),
+                            courseProgress.getTitle(),
+                            keeperInfo
                     );
                 });
     }
@@ -95,7 +121,7 @@ public class CourseProgressServiceImpl implements CourseProgressService {
     private Optional<Explorer> getCurrentSystemExplorer(Long personId) {
         List<Explorer> personExplorers = explorerService.findExplorersByPersonId(personId);
 
-        List<Long> explorersWithFinalAssessment = getExplorersWithFinalAssessment(
+        Set<Long> explorersWithFinalAssessment = getExplorersWithFinalAssessment(
                 personExplorers.stream().map(Explorer::getExplorerId).collect(Collectors.toList())
         );
         return personExplorers.stream()
@@ -130,13 +156,13 @@ public class CourseProgressServiceImpl implements CourseProgressService {
         return Math.ceil((double) completedThemes / totalThemes * 10) / 10 * 100;
     }
 
-    private Long getCurrentCourseThemeId(CourseWithThemesProgressDto courseProgress) {
+    private CourseThemeCompletedDto getCurrentCourseTheme(CourseWithThemesProgressDto courseProgress) {
         List<CourseThemeCompletedDto> themesProgress = courseProgress.getThemesWithProgress();
         for (CourseThemeCompletedDto planet : themesProgress) {
             if (!planet.getCompleted())
-                return planet.getCourseThemeId();
+                return planet;
         }
-        return themesProgress.get(themesProgress.size() - 1).getCourseThemeId();
+        return themesProgress.get(themesProgress.size() - 1);
     }
 
     @Override
@@ -177,7 +203,7 @@ public class CourseProgressServiceImpl implements CourseProgressService {
                         .filter(e ->
                                 explorerNeededFinalAssessment.contains(e.getExplorerId()))
                         .map(e -> {
-                            Person person = personRepository.getReferenceById(e.getPersonId());
+                            Person person = e.getPerson();
                             return new ExplorerNeededFinalAssessmentDto(
                                     person.getPersonId(),
                                     person.getFirstName(),
@@ -194,7 +220,7 @@ public class CourseProgressServiceImpl implements CourseProgressService {
     @Override
     @Transactional(readOnly = true)
     public List<Long> getInvestigatedSystemIds(List<Explorer> personExplorers) {
-        List<Long> explorersWithFinalAssessment = getExplorersWithFinalAssessment(
+        Set<Long> explorersWithFinalAssessment = getExplorersWithFinalAssessment(
                 personExplorers.stream()
                         .map(Explorer::getExplorerId)
                         .collect(Collectors.toList())
@@ -211,10 +237,10 @@ public class CourseProgressServiceImpl implements CourseProgressService {
     @Override
     @Transactional(readOnly = true)
     public Optional<CurrentKeeperGroupDto> getCurrentGroup() {
-        List<Keeper> keepers = keeperRepository.findKeepersByPersonId(
+        List<Keeper> keepers = keeperService.findKeepersByPersonId(
                 personService.getAuthenticatedPersonId()
         );
-        List<ExplorerGroup> explorerGroups = explorerGroupRepository.findExplorerGroupsByKeeperIdIn(
+        List<ExplorerGroup> explorerGroups = explorerGroupService.findExplorerGroupsByKeeperIdIn(
                 keepers.stream().map(Keeper::getKeeperId).collect(Collectors.toList())
         );
         return getCurrentGroup(explorerGroups);
@@ -245,7 +271,7 @@ public class CourseProgressServiceImpl implements CourseProgressService {
                             g.getExplorers()
                                     .stream()
                                     .map(e -> {
-                                        Person person = personRepository.getReferenceById(e.getPersonId());
+                                        Person person = e.getPerson();
                                         return new ExplorerBasicInfoDto(
                                                 person.getPersonId(),
                                                 person.getFirstName(),
@@ -260,8 +286,8 @@ public class CourseProgressServiceImpl implements CourseProgressService {
                 });
     }
 
-    private List<Long> getExplorersWithFinalAssessment(List<Long> explorerIds) {
-        List<Long> explorersWithFinalAssessment = webClientBuilder
+    private Set<Long> getExplorersWithFinalAssessment(List<Long> explorerIds) {
+        return webClientBuilder
                 .baseUrl("http://progress-service/api/v1/progress-app/").build()
                 .get()
                 .uri(uri -> uri
@@ -276,8 +302,7 @@ public class CourseProgressServiceImpl implements CourseProgressService {
                 .bodyToFlux(Long.class)
                 .timeout(Duration.ofSeconds(5))
                 .onErrorResume(WebClientResponseException.Unauthorized.class, error -> Mono.error(new AccessDeniedException("Вам закрыт доступ к данной функциональности бортового компьютера")))
-                .collectList()
+                .collect(Collectors.toSet())
                 .block();
-        return Objects.requireNonNullElse(explorersWithFinalAssessment, Collections.emptyList());
     }
 }

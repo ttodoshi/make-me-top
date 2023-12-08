@@ -36,7 +36,9 @@ public class PersonInformationController {
                     })
     })
     public ResponseEntity<?> getExplorerProfileInformation() {
-        return ResponseEntity.ok(explorerProfileInformationService.getExplorerCabinetInformation());
+        return ResponseEntity.ok(
+                explorerProfileInformationService.getExplorerCabinetInformation()
+        );
     }
 
     @GetMapping("/keeper-profile")
@@ -52,7 +54,9 @@ public class PersonInformationController {
                     })
     })
     public ResponseEntity<?> getKeeperProfileInformation() {
-        return ResponseEntity.ok(keeperProfileInformationService.getKeeperCabinetInformation());
+        return ResponseEntity.ok(
+                keeperProfileInformationService.getKeeperCabinetInformation()
+        );
     }
 
     @GetMapping("/{personId}")
@@ -70,9 +74,15 @@ public class PersonInformationController {
     public ResponseEntity<?> getPublicInformation(@PathVariable Long personId,
                                                   @RequestParam String as) {
         if (as.equals("explorer"))
-            return ResponseEntity.ok(explorerPublicInformationService.getExplorerPublicInformation(personId));
+            return ResponseEntity.ok(
+                    explorerPublicInformationService
+                            .getExplorerPublicInformation(personId)
+            );
         else if (as.equals("keeper"))
-            return ResponseEntity.ok(keeperPublicInformationService.getKeeperPublicInformation(personId));
+            return ResponseEntity.ok(
+                    keeperPublicInformationService
+                            .getKeeperPublicInformation(personId)
+            );
         else throw new RoleNotAvailableException();
     }
 }

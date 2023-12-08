@@ -20,7 +20,7 @@ public class AuthRequestSenderServiceImpl implements AuthRequestSenderService {
     private final WebClient.Builder webClientBuilder;
     private final AuthorizationHeaderContextHolder mmtrAuthorizationHeaderContextHolder;
 
-    @Value("${mmtr-auth-url}")
+    @Value("${mmtr-url}")
     private String MMTR_AUTH_URL;
 
     public AuthRequestSenderServiceImpl(WebClient.Builder webClientBuilder,
