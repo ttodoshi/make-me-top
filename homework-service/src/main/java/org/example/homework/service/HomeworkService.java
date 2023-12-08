@@ -26,10 +26,7 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -138,19 +135,29 @@ public class HomeworkService {
                         groupIds
                 );
 
-        CurrentKeeperGroupDto currentGroup = courseProgressRepository.getCurrentGroup();
+        Optional<CurrentKeeperGroupDto> currentGroupOptional = courseProgressRepository.getCurrentGroup();
+
+        if (currentGroupOptional.isEmpty()) {
+            return new GetHomeworksWithRequestsDto(
+                    Collections.emptyList(),
+                    mapHomeworkToGetHomeworkDto(homeworks)
+            );
+        }
+
+        List<Homework> openedHomeworks = new ArrayList<>();
+        List<Homework> closedHomeworks = new ArrayList<>();
+
+        for (Homework homework : homeworks) {
+            if (homework.getGroupId().equals(currentGroupOptional.get().getGroupId())) {
+                openedHomeworks.add(homework);
+            } else {
+                closedHomeworks.add(homework);
+            }
+        }
 
         return new GetHomeworksWithRequestsDto(
-                mapHomeworkToGetHomeworkDto(
-                        homeworks.stream()
-                                .filter(h -> h.getGroupId().equals(currentGroup.getGroupId()))
-                                .collect(Collectors.toList())
-                ),
-                mapHomeworkToGetHomeworkDto(
-                        homeworks.stream()
-                                .filter(h -> !h.getGroupId().equals(currentGroup.getGroupId()))
-                                .collect(Collectors.toList())
-                )
+                mapHomeworkToGetHomeworkDto(openedHomeworks),
+                mapHomeworkToGetHomeworkDto(closedHomeworks)
         );
     }
 
