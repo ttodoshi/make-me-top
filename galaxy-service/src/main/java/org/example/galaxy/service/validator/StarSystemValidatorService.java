@@ -2,7 +2,7 @@ package org.example.galaxy.service.validator;
 
 import lombok.RequiredArgsConstructor;
 import org.example.galaxy.dto.starsystem.CreateStarSystemDto;
-import org.example.galaxy.dto.starsystem.StarSystemDto;
+import org.example.galaxy.dto.starsystem.UpdateStarSystemDto;
 import org.example.galaxy.exception.classes.galaxy.GalaxyNotFoundException;
 import org.example.galaxy.exception.classes.orbit.OrbitNotFoundException;
 import org.example.galaxy.exception.classes.system.SystemAlreadyExistsException;
@@ -42,9 +42,7 @@ public class StarSystemValidatorService {
     }
 
     @Transactional(readOnly = true)
-    public void validatePutRequest(Long systemId, StarSystemDto system) {
-        if (!starSystemRepository.existsById(systemId))
-            throw new SystemNotFoundException(systemId);
+    public void validatePutRequest(Long systemId, UpdateStarSystemDto system) {
         if (!orbitRepository.existsById(system.getOrbitId()))
             throw new OrbitNotFoundException(system.getOrbitId());
         if (systemExists(orbitRepository.getReferenceById(system.getOrbitId()).getGalaxyId(), systemId, system.getSystemName()))

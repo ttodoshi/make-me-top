@@ -61,6 +61,7 @@ public class ExplorerCourseRegistrationRequestValidatorService {
     public void validateCancelRequest(CourseRegistrationRequest request) {
         if (!request.getPersonId().equals(personService.getAuthenticatedPersonId()))
             throw new PersonIsNotPersonInRequestException();
+
         Long acceptedStatusId = courseRegistrationRequestStatusService
                 .findCourseRegistrationRequestStatusByStatus(CourseRegistrationRequestStatusType.ACCEPTED)
                 .getStatusId();

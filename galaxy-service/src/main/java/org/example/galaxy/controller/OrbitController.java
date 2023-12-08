@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.example.galaxy.dto.orbit.CreateOrbitWithStarSystemsDto;
-import org.example.galaxy.dto.orbit.OrbitDto;
+import org.example.galaxy.dto.orbit.UpdateOrbitDto;
 import org.example.galaxy.service.OrbitService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,7 +33,7 @@ public class OrbitController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> getOrbitById(@PathVariable("orbitId") Long orbitId,
+    public ResponseEntity<?> getOrbitById(@PathVariable Long orbitId,
                                           @RequestParam(required = false) Boolean withSystemList) {
         if (withSystemList != null && withSystemList)
             return ResponseEntity.ok(orbitService.findOrbitWithSystemList(orbitId));
@@ -53,8 +53,8 @@ public class OrbitController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> createOrbit(@Valid @RequestBody CreateOrbitWithStarSystemsDto orbit,
-                                         @PathVariable Long galaxyId) {
+    public ResponseEntity<?> createOrbit(@PathVariable Long galaxyId,
+                                         @Valid @RequestBody CreateOrbitWithStarSystemsDto orbit) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(
@@ -74,8 +74,8 @@ public class OrbitController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> updateOrbit(@PathVariable("orbitId") Long orbitId,
-                                         @Valid @RequestBody OrbitDto orbit) {
+    public ResponseEntity<?> updateOrbit(@PathVariable Long orbitId,
+                                         @Valid @RequestBody UpdateOrbitDto orbit) {
         return ResponseEntity.ok(orbitService.updateOrbit(orbitId, orbit));
     }
 
@@ -91,7 +91,7 @@ public class OrbitController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> deleteOrbit(@PathVariable("orbitId") Long orbitId) {
+    public ResponseEntity<?> deleteOrbit(@PathVariable Long orbitId) {
         return ResponseEntity.ok(orbitService.deleteOrbit(orbitId));
     }
 }

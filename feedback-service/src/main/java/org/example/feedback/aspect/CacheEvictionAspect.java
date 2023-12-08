@@ -6,8 +6,8 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.example.feedback.dto.feedback.CreateExplorerFeedbackDto;
 import org.example.feedback.dto.feedback.CreateKeeperFeedbackDto;
-import org.example.feedback.model.ExplorerFeedback;
-import org.example.feedback.model.KeeperFeedback;
+import org.example.feedback.dto.feedback.ExplorerFeedbackDto;
+import org.example.feedback.dto.feedback.KeeperFeedbackDto;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.scheduling.annotation.Async;
@@ -25,12 +25,12 @@ public class CacheEvictionAspect {
     private final CacheManager cacheManager;
 
     @Pointcut(value = "execution(* org.example.feedback.service.ExplorerFeedbackService.sendFeedbackForKeeper(..)) " +
-            "&& args(courseId, feedback)", argNames = "courseId,feedback")
+            "&& args(courseId, feedback)", argNames = "courseId, feedback")
     public void sendFeedbackForKeeperPointcut(Long courseId, CreateExplorerFeedbackDto feedback) {
     }
 
-    @AfterReturning(pointcut = "sendFeedbackForKeeperPointcut(courseId, feedback)", returning = "result", argNames = "courseId,feedback,result")
-    public void clearKeeperRatingCacheAfterFeedback(Long courseId, CreateExplorerFeedbackDto feedback, ExplorerFeedback result) {
+    @AfterReturning(pointcut = "sendFeedbackForKeeperPointcut(courseId, feedback)", returning = "result", argNames = "courseId, feedback, result")
+    public void clearKeeperRatingCacheAfterFeedback(Long courseId, CreateExplorerFeedbackDto feedback, ExplorerFeedbackDto result) {
         clearKeeperRatingCache(feedback.getKeeperId());
     }
 
@@ -49,12 +49,12 @@ public class CacheEvictionAspect {
     }
 
     @Pointcut(value = "execution(* org.example.feedback.service.KeeperFeedbackService.sendFeedbackForExplorer(..)) " +
-            "&& args(courseId, feedback)", argNames = "courseId,feedback")
+            "&& args(courseId, feedback)", argNames = "courseId, feedback")
     public void sendFeedbackForExplorerPointcut(Long courseId, CreateKeeperFeedbackDto feedback) {
     }
 
     @AfterReturning(pointcut = "sendFeedbackForExplorerPointcut(courseId, feedback)", returning = "result", argNames = "courseId,feedback,result")
-    public void clearExplorerRatingCacheAfterFeedback(Long courseId, CreateKeeperFeedbackDto feedback, KeeperFeedback result) {
+    public void clearExplorerRatingCacheAfterFeedback(Long courseId, CreateKeeperFeedbackDto feedback, KeeperFeedbackDto result) {
         clearExplorerRatingCache(feedback.getExplorerId());
     }
 

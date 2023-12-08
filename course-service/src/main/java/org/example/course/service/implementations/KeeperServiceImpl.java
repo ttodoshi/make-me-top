@@ -25,6 +25,7 @@ public class KeeperServiceImpl implements KeeperService {
     private final ExplorerRepository explorerRepository;
     private final ExplorerGroupRepository explorerGroupRepository;
     private final KeeperRepository keeperRepository;
+
     private final RatingService ratingService;
 
     @Override

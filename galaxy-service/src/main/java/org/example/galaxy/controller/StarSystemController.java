@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.example.galaxy.dto.starsystem.CreateStarSystemDto;
-import org.example.galaxy.dto.starsystem.StarSystemDto;
+import org.example.galaxy.dto.starsystem.UpdateStarSystemDto;
 import org.example.galaxy.service.StarSystemService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,8 +34,8 @@ public class StarSystemController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> findStarSystemById(@PathVariable("systemId") Long systemId,
-                                                @RequestParam(name = "withDependencies", required = false) Boolean withDependencies) {
+    public ResponseEntity<?> findStarSystemById(@PathVariable Long systemId,
+                                                @RequestParam(required = false) Boolean withDependencies) {
         if (withDependencies != null && withDependencies)
             return ResponseEntity.ok(starSystemService.findStarSystemByIdWithDependencies(systemId));
         else
@@ -54,7 +54,7 @@ public class StarSystemController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> findStarSystemsByGalaxyId(@PathVariable("galaxyId") Long galaxyId) {
+    public ResponseEntity<?> findStarSystemsByGalaxyId(@PathVariable Long galaxyId) {
         return ResponseEntity.ok(
                 starSystemService.findStarSystemsByGalaxyId(galaxyId)
         );
@@ -72,8 +72,8 @@ public class StarSystemController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> createSystem(@Valid @RequestBody CreateStarSystemDto starSystem,
-                                          @PathVariable("orbitId") Long orbitId) {
+    public ResponseEntity<?> createSystem(@PathVariable Long orbitId,
+                                          @Valid @RequestBody CreateStarSystemDto starSystem) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(
@@ -94,8 +94,8 @@ public class StarSystemController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> updateSystem(@Valid @RequestBody StarSystemDto starSystem,
-                                          @PathVariable("systemId") Long systemId) {
+    public ResponseEntity<?> updateSystem(@PathVariable Long systemId,
+                                          @Valid @RequestBody UpdateStarSystemDto starSystem) {
         return ResponseEntity.ok(starSystemService.updateSystem(systemId, starSystem));
     }
 
@@ -111,7 +111,7 @@ public class StarSystemController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> deleteSystem(@PathVariable("systemId") Long systemId) {
+    public ResponseEntity<?> deleteSystem(@PathVariable Long systemId) {
         return ResponseEntity.ok(starSystemService.deleteSystem(systemId));
     }
 }

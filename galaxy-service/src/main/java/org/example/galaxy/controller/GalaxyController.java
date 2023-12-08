@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.example.galaxy.dto.galaxy.CreateGalaxyDto;
-import org.example.galaxy.dto.galaxy.GalaxyDto;
+import org.example.galaxy.dto.galaxy.UpdateGalaxyDto;
 import org.example.galaxy.service.GalaxyService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -49,7 +49,7 @@ public class GalaxyController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> findGalaxyById(@PathVariable("galaxyId") Long galaxyId) {
+    public ResponseEntity<?> findGalaxyById(@PathVariable Long galaxyId) {
         return ResponseEntity.ok(galaxyService.findGalaxyById(galaxyId));
     }
 
@@ -85,8 +85,8 @@ public class GalaxyController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> updateGalaxy(@Valid @RequestBody GalaxyDto galaxy,
-                                          @PathVariable("galaxyId") Long galaxyId) {
+    public ResponseEntity<?> updateGalaxy(@PathVariable Long galaxyId,
+                                          @Valid @RequestBody UpdateGalaxyDto galaxy) {
         return ResponseEntity.ok(galaxyService.updateGalaxy(galaxyId, galaxy));
     }
 
@@ -102,11 +102,11 @@ public class GalaxyController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> deleteGalaxy(@PathVariable("galaxyId") Long galaxyId) {
+    public ResponseEntity<?> deleteGalaxy(@PathVariable Long galaxyId) {
         return ResponseEntity.ok(galaxyService.deleteGalaxy(galaxyId));
     }
 
-    @GetMapping("/systems/{systemId}/galaxies")
+    @GetMapping(value = "/systems/{systemId}/galaxies")
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Find galaxy by system id", tags = "galaxy")
     @ApiResponses(value = {
@@ -118,7 +118,7 @@ public class GalaxyController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> findGalaxyBySystemId(@PathVariable("systemId") Long systemId) {
+    public ResponseEntity<?> findGalaxyBySystemId(@PathVariable Long systemId) {
         return ResponseEntity.ok(galaxyService.findGalaxyBySystemId(systemId));
     }
 }

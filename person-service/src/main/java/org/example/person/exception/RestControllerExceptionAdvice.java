@@ -5,9 +5,12 @@ import org.example.person.exception.classes.connect.ConnectException;
 import org.example.person.exception.classes.course.CourseNotFoundException;
 import org.example.person.exception.classes.explorer.ExplorerGroupNotFoundException;
 import org.example.person.exception.classes.explorer.ExplorerNotFoundException;
+import org.example.person.exception.classes.explorer.PersonIsExplorerException;
+import org.example.person.exception.classes.keeper.KeeperAlreadyExistsException;
 import org.example.person.exception.classes.keeper.KeeperNotFoundException;
 import org.example.person.exception.classes.person.PersonNotFoundException;
 import org.example.person.exception.classes.planet.PlanetNotFoundException;
+import org.example.person.exception.classes.request.PersonHaveOpenedCourseRegistrationRequestException;
 import org.example.person.exception.classes.request.RequestNotFoundException;
 import org.example.person.exception.classes.role.RoleNotAvailableException;
 import org.springframework.http.HttpStatus;
@@ -134,5 +137,23 @@ public class RestControllerExceptionAdvice {
     public ResponseEntity<ErrorResponse> handlePlanetNotFoundException(Exception e) {
         logWarning(e);
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(KeeperAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleKeeperAlreadyExistsException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(PersonIsExplorerException.class)
+    public ResponseEntity<ErrorResponse> handlePersonIsExplorerException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(PersonHaveOpenedCourseRegistrationRequestException.class)
+    public ResponseEntity<ErrorResponse> handlePersonHaveOpenedCourseRegistrationRequestException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
     }
 }

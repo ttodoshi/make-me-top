@@ -1,8 +1,10 @@
 package org.example.feedback.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.feedback.dto.feedback.CourseRatingDto;
 import org.example.feedback.dto.feedback.CreateCourseRatingDto;
 import org.example.feedback.dto.feedback.CreateExplorerFeedbackDto;
+import org.example.feedback.dto.feedback.ExplorerFeedbackDto;
 import org.example.feedback.exception.classes.explorer.ExplorerNotFoundException;
 import org.example.feedback.model.CourseRating;
 import org.example.feedback.model.ExplorerFeedback;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,12 +34,16 @@ public class ExplorerFeedbackService {
     private final ModelMapper mapper;
 
     @Transactional(readOnly = true)
-    public List<ExplorerFeedback> findExplorerFeedbacksByKeeperIdIn(List<Long> keeperIds) {
-        return explorerFeedbackRepository.findExplorerFeedbacksByKeeperIdIn(keeperIds);
+    public List<ExplorerFeedbackDto> findExplorerFeedbacksByKeeperIdIn(List<Long> keeperIds) {
+        return explorerFeedbackRepository
+                .findExplorerFeedbacksByKeeperIdIn(keeperIds)
+                .stream()
+                .map(f -> mapper.map(f, ExplorerFeedbackDto.class))
+                .collect(Collectors.toList());
     }
 
     @Transactional
-    public ExplorerFeedback sendFeedbackForKeeper(Long courseId, CreateExplorerFeedbackDto feedback) {
+    public ExplorerFeedbackDto sendFeedbackForKeeper(Long courseId, CreateExplorerFeedbackDto feedback) {
         Long personId = personService.getAuthenticatedPersonId();
         feedbackValidatorService.validateFeedbackForKeeperRequest(personId, feedback);
 
@@ -47,11 +54,14 @@ public class ExplorerFeedbackService {
         ExplorerFeedback savingFeedback = mapper.map(feedback, ExplorerFeedback.class);
         savingFeedback.setExplorerId(explorer.getExplorerId());
 
-        return explorerFeedbackRepository.save(savingFeedback);
+        return mapper.map(
+                explorerFeedbackRepository.save(savingFeedback),
+                ExplorerFeedbackDto.class
+        );
     }
 
     @Transactional
-    public CourseRating rateCourse(Long courseId, CreateCourseRatingDto request) {
+    public CourseRatingDto rateCourse(Long courseId, CreateCourseRatingDto request) {
         Long personId = personService.getAuthenticatedPersonId();
         feedbackValidatorService.validateCourseRatingRequest(personId, courseId, request);
 
@@ -59,8 +69,11 @@ public class ExplorerFeedbackService {
                 .findExplorerByPersonIdAndGroup_CourseId(personId, courseId)
                 .orElseThrow(() -> new ExplorerNotFoundException(courseId));
 
-        return courseRatingRepository.save(
-                new CourseRating(explorer.getExplorerId(), request.getRating())
+        return mapper.map(
+                courseRatingRepository.save(
+                        new CourseRating(explorer.getExplorerId(), request.getRating())
+                ),
+                CourseRatingDto.class
         );
     }
 

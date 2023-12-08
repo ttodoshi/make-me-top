@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 public class HomeworkServiceImpl implements HomeworkService {
-    private final PersonRepository personRepository;
     private final ExplorerRepository explorerRepository;
     private final ExplorerGroupRepository explorerGroupRepository;
     private final HomeworkRepository homeworkRepository;
@@ -53,9 +52,7 @@ public class HomeworkServiceImpl implements HomeworkService {
         return homeworkRequests.stream()
                 .map(hr -> {
                     Explorer currentRequestExplorer = explorers.get(hr.getExplorerId());
-                    Person person = personRepository.getReferenceById(
-                            currentRequestExplorer.getPersonId()
-                    );
+                    Person person = currentRequestExplorer.getPerson();
                     CourseDto currentRequestCourse = courses.get(
                             explorerGroups.get(
                                     currentRequestExplorer.getGroupId()
@@ -108,7 +105,7 @@ public class HomeworkServiceImpl implements HomeworkService {
                 .stream()
                 .map(hr -> {
                     Explorer explorer = explorerRepository.getReferenceById(hr.getExplorerId());
-                    Person person = personRepository.getReferenceById(explorer.getPersonId());
+                    Person person = explorer.getPerson();
                     Long courseId = explorerGroupRepository.getReferenceById(
                             explorer.getGroupId()
                     ).getCourseId();

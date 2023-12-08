@@ -6,10 +6,9 @@ import org.example.grpc.ExplorersService;
 import org.example.grpc.KeepersService;
 import org.example.grpc.PeopleService;
 import org.example.homework.dto.explorer.ExplorerBaseInfoDto;
-import org.example.homework.dto.homework.GetHomeworkRequestFeedbackDto;
-import org.example.homework.dto.homework.GetHomeworkRequestVersionDto;
-import org.example.homework.dto.homework.GetHomeworkRequestWithVersionsDto;
 import org.example.homework.dto.homework.GetHomeworkWithRequestDto;
+import org.example.homework.dto.homeworkmark.HomeworkMarkDto;
+import org.example.homework.dto.homeworkrequest.*;
 import org.example.homework.dto.keeper.KeeperBaseInfoDto;
 import org.example.homework.dto.planet.PlanetDto;
 import org.example.homework.exception.classes.explorer.ExplorerGroupNotFoundException;
@@ -21,6 +20,7 @@ import org.example.homework.exception.classes.planet.PlanetNotFoundException;
 import org.example.homework.model.Homework;
 import org.example.homework.model.HomeworkRequest;
 import org.example.homework.repository.*;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,6 +42,8 @@ public class HomeworkRequestService {
 
     private final PersonService personService;
 
+    private final ModelMapper mapper;
+
     @Transactional(readOnly = true)
     public HomeworkRequest findHomeworkRequestById(Long requestId) {
         return homeworkRequestRepository.findById(requestId)
@@ -49,13 +51,12 @@ public class HomeworkRequestService {
     }
 
     @Transactional(readOnly = true)
-    public List<HomeworkRequest> findOpenedHomeworkRequestsByExplorerIdIn(List<Long> explorerIds) {
-        return homeworkRequestRepository.findOpenedHomeworkRequestsByExplorerIdIn(explorerIds);
-    }
-
-    @Transactional
-    public HomeworkRequest saveHomeworkRequest(HomeworkRequest homeworkRequest) {
-        return homeworkRequestRepository.save(homeworkRequest);
+    public List<HomeworkRequestDto> findOpenedHomeworkRequestsByExplorerIdIn(List<Long> explorerIds) {
+        return homeworkRequestRepository
+                .findOpenedHomeworkRequestsByExplorerIdIn(explorerIds)
+                .stream()
+                .map(hr -> mapper.map(hr, HomeworkRequestDto.class))
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
@@ -152,15 +153,16 @@ public class HomeworkRequestService {
         );
     }
 
-    private GetHomeworkRequestWithVersionsDto mapHomeworkRequest(HomeworkRequest homeworkRequest,
-                                                                 ExplorerBaseInfoDto explorer,
-                                                                 KeeperBaseInfoDto keeper) {
+    private GetHomeworkRequestWithVersionsDto mapHomeworkRequest(
+            HomeworkRequest homeworkRequest,
+            ExplorerBaseInfoDto explorer,
+            KeeperBaseInfoDto keeper) {
         return new GetHomeworkRequestWithVersionsDto(
                 homeworkRequest.getRequestId(),
                 homeworkRequest.getHomeworkId(),
                 homeworkRequest.getExplorerId(),
                 homeworkRequest.getRequestDate(),
-                homeworkRequest.getStatus(),
+                mapper.map(homeworkRequest.getStatus(), HomeworkRequestStatusDto.class),
                 homeworkRequestVersionRepository
                         .findHomeworkRequestVersionsByRequestIdOrderByCreationDateDesc(
                                 homeworkRequest.getRequestId()
@@ -183,7 +185,7 @@ public class HomeworkRequestService {
                                                 keeper
                                         )).collect(Collectors.toList())
                         )).collect(Collectors.toList()),
-                homeworkRequest.getMark()
+                homeworkRequest.getMark() == null ? null : mapper.map(homeworkRequest.getMark(), HomeworkMarkDto.class)
         );
     }
 }

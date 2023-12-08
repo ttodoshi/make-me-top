@@ -19,7 +19,7 @@ import java.time.Duration;
 public class KeeperRoleChecker implements RoleChecker {
     private final AuthorizationHeaderContextHolder mmtrAuthorizationHeaderContextHolder;
     private final WebClient.Builder webClientBuilder;
-    @Value("${mmtr-auth-url}")
+    @Value("${mmtr-url}")
     private String MMTR_AUTH_URL;
 
     public KeeperRoleChecker(@Qualifier("mmtrAuthorizationHeaderContextHolder") AuthorizationHeaderContextHolder mmtrAuthorizationHeaderContextHolder,

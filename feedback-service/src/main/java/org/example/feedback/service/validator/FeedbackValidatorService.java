@@ -33,9 +33,12 @@ public class FeedbackValidatorService {
 
     @Transactional(readOnly = true)
     public void validateFeedbackForExplorerRequest(Long keeperId, CreateKeeperFeedbackDto feedback) {
-        ExplorersService.Explorer explorer = explorerRepository.findById(feedback.getExplorerId())
+        ExplorersService.Explorer explorer = explorerRepository
+                .findById(feedback.getExplorerId())
                 .orElseThrow(() -> new ExplorerNotFoundException(feedback.getExplorerId()));
-        ExplorerGroupsService.ExplorerGroup explorerGroup = explorerGroupRepository.getReferenceById(explorer.getGroupId());
+        ExplorerGroupsService.ExplorerGroup explorerGroup = explorerGroupRepository
+                .getReferenceById(explorer.getGroupId());
+
         if (!keeperId.equals(explorerGroup.getKeeperId()))
             throw new ExplorerNotStudyingWithKeeperException(explorer.getExplorerId(), keeperId);
         if (!courseMarkRepository.existsById(explorer.getExplorerId()))
@@ -50,12 +53,16 @@ public class FeedbackValidatorService {
     public void validateFeedbackForKeeperRequest(Long personId, CreateExplorerFeedbackDto feedback) {
         KeepersService.Keeper keeper = keeperRepository.findById(feedback.getKeeperId())
                 .orElseThrow(() -> new KeeperNotFoundException(feedback.getKeeperId()));
+
         if (!courseRepository.existsById(keeper.getCourseId()))
             throw new CourseNotFoundException(keeper.getCourseId());
+
         ExplorersService.Explorer explorer = explorerRepository
                 .findExplorerByPersonIdAndGroup_CourseId(personId, keeper.getCourseId())
                 .orElseThrow(() -> new ExplorerNotFoundException(keeper.getCourseId()));
-        ExplorerGroupsService.ExplorerGroup explorerGroup = explorerGroupRepository.getReferenceById(explorer.getGroupId());
+        ExplorerGroupsService.ExplorerGroup explorerGroup = explorerGroupRepository
+                .getReferenceById(explorer.getGroupId());
+
         if (!feedback.getKeeperId().equals(explorerGroup.getKeeperId()))
             throw new DifferentKeeperException();
         if (!courseMarkRepository.existsById(explorer.getExplorerId()))
@@ -70,9 +77,11 @@ public class FeedbackValidatorService {
     public void validateCourseRatingRequest(Long personId, Long courseId, CreateCourseRatingDto request) {
         if (!courseRepository.existsById(courseId))
             throw new CourseNotFoundException(courseId);
+
         ExplorersService.Explorer explorer = explorerRepository
                 .findExplorerByPersonIdAndGroup_CourseId(personId, courseId)
                 .orElseThrow(ExplorerNotFoundException::new);
+
         if (!courseMarkRepository.existsById(explorer.getExplorerId()))
             throw new CourseNotCompletedException(courseId);
         if (courseRatingRepository.existsById(explorer.getExplorerId()))

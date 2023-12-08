@@ -5,9 +5,9 @@ import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.example.galaxy.dto.person.PersonWithSystemsDto;
 import org.example.galaxy.model.StarSystem;
+import org.example.galaxy.service.ExplorerService;
 import org.example.grpc.ExplorerServiceGrpc;
 import org.example.grpc.ExplorersService;
-import org.example.galaxy.service.ExplorerService;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -32,9 +32,10 @@ public class ExplorerServiceImpl implements ExplorerService {
                                 .getPersonList()
                                 .stream()
                                 .map(e -> Map.entry(e, s.getSystemId())))
-                .collect(Collectors.groupingBy(Map.Entry::getKey,
-                        Collectors.mapping(Map.Entry::getValue, Collectors.toList())))
-                .entrySet()
+                .collect(Collectors.groupingBy(
+                        Map.Entry::getKey,
+                        Collectors.mapping(Map.Entry::getValue, Collectors.toList()))
+                ).entrySet()
                 .stream()
                 .map(e -> new PersonWithSystemsDto(e.getKey().getPersonId(), e.getKey().getFirstName(), e.getKey().getLastName(), e.getKey().getPatronymic(), e.getKey().getRating(), e.getValue()))
                 .collect(Collectors.toList());

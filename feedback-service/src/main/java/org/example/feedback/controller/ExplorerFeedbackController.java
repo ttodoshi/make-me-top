@@ -35,7 +35,9 @@ public class ExplorerFeedbackController {
                     })
     })
     public ResponseEntity<?> findExplorerFeedbacksByKeeperIdIn(@RequestParam List<Long> keeperIds) {
-        return ResponseEntity.ok(explorerFeedbackService.findExplorerFeedbacksByKeeperIdIn(keeperIds));
+        return ResponseEntity.ok(
+                explorerFeedbackService.findExplorerFeedbacksByKeeperIdIn(keeperIds)
+        );
     }
 
     @PostMapping("/courses/{courseId}/explorer-feedbacks")

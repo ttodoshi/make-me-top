@@ -3,7 +3,7 @@ package org.example.person.service;
 import lombok.RequiredArgsConstructor;
 import org.example.person.config.security.RoleService;
 import org.example.person.dto.feedback.KeeperCommentDto;
-import org.example.person.dto.progress.CurrentCourseProgressDto;
+import org.example.person.dto.progress.CurrentCourseProgressPublicDto;
 import org.example.person.enums.AuthenticationRoleType;
 import org.example.person.model.Explorer;
 import org.example.person.model.Person;
@@ -48,8 +48,8 @@ public class ExplorerPublicInformationService {
         response.put("totalSystems", personExplorers.size());
 
         CompletableFuture<Void> currentSystem = CompletableFuture.runAsync(() -> {
-            Optional<CurrentCourseProgressDto> currentCourseOptional = courseProgressService
-                    .getCurrentCourseProgress(personId);
+            Optional<CurrentCourseProgressPublicDto> currentCourseOptional = courseProgressService
+                    .getCurrentCourseProgressPublic(personId);
 
             if (currentCourseOptional.isEmpty()) {
                 if (roleService.hasAnyAuthenticationRole(AuthenticationRoleType.KEEPER)) {
@@ -59,7 +59,7 @@ public class ExplorerPublicInformationService {
                                     r -> response.put("studyRequest", r));
                 }
             } else {
-                CurrentCourseProgressDto currentCourse = currentCourseOptional.get();
+                CurrentCourseProgressPublicDto currentCourse = currentCourseOptional.get();
 
                 if (roleService.hasAnyAuthenticationRole(AuthenticationRoleType.KEEPER) &&
                         currentCourse.getKeeper().getPersonId().equals(authenticatedPersonId)) {

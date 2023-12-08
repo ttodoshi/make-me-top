@@ -16,12 +16,14 @@ public class CourseValidatorService {
     private final StarSystemRepository starSystemRepository;
 
     public void validatePutRequest(Long galaxyId, Long courseId, Course course) {
-        List<StarSystemDto> systems = starSystemRepository.findStarSystemsByGalaxyId(galaxyId);
+        List<StarSystemDto> systems = starSystemRepository
+                .findStarSystemsByGalaxyId(galaxyId);
         boolean courseNotFound = systems.stream()
                 .noneMatch(s -> s.getSystemName().equals(course.getTitle()) &&
                         s.getSystemId().equals(courseId));
         if (courseNotFound)
             throw new CourseNotFoundInGalaxyException(courseId, galaxyId);
+
         boolean courseTitleExists = systems.stream()
                 .anyMatch(s -> s.getSystemName().equals(course.getTitle()) &&
                         !s.getSystemId().equals(courseId));

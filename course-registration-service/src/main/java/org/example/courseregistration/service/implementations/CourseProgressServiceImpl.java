@@ -5,8 +5,8 @@ import org.example.courseregistration.dto.progress.CourseWithProgressDto;
 import org.example.courseregistration.dto.progress.CoursesStateDto;
 import org.example.courseregistration.exception.classes.connect.ConnectException;
 import org.example.courseregistration.repository.GalaxyRepository;
-import org.example.courseregistration.utils.AuthorizationHeaderContextHolder;
 import org.example.courseregistration.service.CourseProgressService;
+import org.example.courseregistration.utils.AuthorizationHeaderContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
@@ -35,6 +35,7 @@ public class CourseProgressServiceImpl implements CourseProgressService {
     @Override
     public boolean isAuthenticatedPersonCurrentlyStudying(Long galaxyId) {
         CoursesStateDto coursesProgress = getCoursesProgress(galaxyId);
+
         Optional<CourseWithProgressDto> currentCourseProgress = coursesProgress.getStudiedCourses()
                 .stream()
                 .filter(c -> !c.getProgress().equals(100.0))

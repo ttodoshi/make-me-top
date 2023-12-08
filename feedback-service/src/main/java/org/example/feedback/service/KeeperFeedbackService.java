@@ -2,6 +2,7 @@ package org.example.feedback.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.feedback.dto.feedback.CreateKeeperFeedbackDto;
+import org.example.feedback.dto.feedback.KeeperFeedbackDto;
 import org.example.feedback.exception.classes.course.CourseNotFoundException;
 import org.example.feedback.exception.classes.keeper.KeeperNotFoundException;
 import org.example.feedback.model.KeeperFeedback;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,21 +32,33 @@ public class KeeperFeedbackService {
     private final ModelMapper mapper;
 
     @Transactional(readOnly = true)
-    public List<KeeperFeedback> findKeeperFeedbacksByExplorerIdIn(List<Long> explorerIds) {
-        return keeperFeedbackRepository.findKeeperFeedbacksByExplorerIdIn(explorerIds);
+    public List<KeeperFeedbackDto> findKeeperFeedbacksByExplorerIdIn(List<Long> explorerIds) {
+        return keeperFeedbackRepository
+                .findKeeperFeedbacksByExplorerIdIn(explorerIds)
+                .stream()
+                .map(f -> mapper.map(f, KeeperFeedbackDto.class))
+                .collect(Collectors.toList());
     }
 
     @Transactional
-    public KeeperFeedback sendFeedbackForExplorer(Long courseId, CreateKeeperFeedbackDto feedback) {
+    public KeeperFeedbackDto sendFeedbackForExplorer(Long courseId, CreateKeeperFeedbackDto feedback) {
         if (!courseRepository.existsById(courseId))
             throw new CourseNotFoundException(courseId);
+
         Long personId = personService.getAuthenticatedPersonId();
-        KeepersService.Keeper keeper = keeperRepository.findKeeperByPersonIdAndCourseId(personId, courseId)
+        KeepersService.Keeper keeper = keeperRepository
+                .findKeeperByPersonIdAndCourseId(personId, courseId)
                 .orElseThrow(KeeperNotFoundException::new);
+
         feedbackValidatorService.validateFeedbackForExplorerRequest(keeper.getKeeperId(), feedback);
+
         KeeperFeedback savingFeedback = mapper.map(feedback, KeeperFeedback.class);
         savingFeedback.setKeeperId(keeper.getKeeperId());
-        return keeperFeedbackRepository.save(savingFeedback);
+
+        return mapper.map(
+                keeperFeedbackRepository.save(savingFeedback),
+                KeeperFeedbackDto.class
+        );
     }
 
     @Cacheable(cacheNames = "explorerRatingCache", key = "#explorerIds")

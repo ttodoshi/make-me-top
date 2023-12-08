@@ -11,12 +11,8 @@ public interface HomeworkRepository extends JpaRepository<Homework, Long> {
     List<Homework> findHomeworksByCourseThemeIdAndGroupId(Long themeId, Long groupId);
 
     @Query("SELECT h FROM Homework h\n" +
-            "WHERE h.courseThemeId = :themeId AND h.groupId IN :groupIds AND h.status.status = 'OPENED'")
-    List<Homework> findHomeworksByCourseThemeIdAndGroupIdInAndStatus_OpenedStatus(@Param("themeId") Long themeId, @Param("groupIds") List<Long> groupIds);
-
-    @Query("SELECT h FROM Homework h\n" +
-            "WHERE h.courseThemeId = :themeId AND h.groupId IN :groupIds AND h.status.status = 'CLOSED'")
-    List<Homework> findHomeworksByCourseThemeIdAndGroupIdInAndStatus_ClosedStatus(@Param("themeId") Long themeId, @Param("groupIds") List<Long> groupIds);
+            "WHERE h.courseThemeId = :themeId AND h.groupId IN :groupIds")
+    List<Homework> findHomeworksByCourseThemeIdAndGroupIdIn(@Param("themeId") Long themeId, @Param("groupIds") List<Long> groupIds);
 
     List<Homework> findAllByHomeworkIdIn(List<Long> homeworkIds);
 

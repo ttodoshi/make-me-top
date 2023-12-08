@@ -32,3 +32,4 @@ logging:
   file:
     name: logs/info.log
 access-token-secret-key: secretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecret
+default-person-max-explorers-value: 3

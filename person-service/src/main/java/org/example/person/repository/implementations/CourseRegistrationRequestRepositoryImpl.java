@@ -26,7 +26,7 @@ public class CourseRegistrationRequestRepositoryImpl implements CourseRegistrati
     private final AuthorizationHeaderContextHolder authorizationHeaderContextHolder;
 
     @Override
-    public Optional<CourseRegistrationRequestDto> findProcessingCourseRegistrationRequestByPersonId() {
+    public Optional<CourseRegistrationRequestDto> findProcessingCourseRegistrationRequest() {
         return webClientBuilder
                 .baseUrl("http://course-registration-service/api/v1/course-registration-app/").build()
                 .get()

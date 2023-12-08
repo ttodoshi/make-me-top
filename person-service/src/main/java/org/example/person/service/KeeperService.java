@@ -2,11 +2,15 @@ package org.example.person.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.person.dto.keeper.CreateKeeperDto;
+import org.example.person.dto.keeper.KeeperDto;
+import org.example.person.dto.person.UpdatePersonDto;
 import org.example.person.exception.classes.keeper.KeeperNotFoundException;
 import org.example.person.model.Keeper;
-import org.example.person.repository.ExplorerGroupRepository;
+import org.example.person.model.Person;
 import org.example.person.repository.KeeperRepository;
 import org.example.person.service.validator.KeeperValidatorService;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
@@ -22,11 +26,14 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class KeeperService {
     private final KeeperRepository keeperRepository;
-    private final ExplorerGroupRepository explorerGroupRepository;
 
-    private final ExplorerService explorerService;
     private final PersonService personService;
     private final KeeperValidatorService keeperValidatorService;
+
+    private final ModelMapper mapper;
+
+    @Value("${default-person-max-explorers-value}")
+    private Integer DEFAULT_MAX_EXPLORERS_VALUE;
 
     @Cacheable(cacheNames = "keeperByIdCache", key = "#keeperId")
     @Transactional(readOnly = true)
@@ -94,11 +101,23 @@ public class KeeperService {
             @CacheEvict(cacheNames = {"keepersByKeeperIdInCache", "keepersByPersonIdAndCourseIdInCache", "allKeepersCache"}, allEntries = true),
     })
     @Transactional
-    public Keeper setKeeperToCourse(Long courseId, CreateKeeperDto createKeeper) {
+    public KeeperDto setKeeperToCourse(Long courseId, CreateKeeperDto createKeeper) {
         keeperValidatorService.validateSetKeeperRequest(courseId, createKeeper);
-        personService.setDefaultExplorersValueForPerson(createKeeper.getPersonId());
-        return keeperRepository.save(
-                new Keeper(courseId, createKeeper.getPersonId())
+
+        Person keeperPerson = personService.findPersonById(createKeeper.getPersonId());
+        if (keeperPerson.getMaxExplorers().equals(0)) {
+            personService.setMaxExplorersValueForPerson(
+                    createKeeper.getPersonId(),
+                    new UpdatePersonDto(
+                            DEFAULT_MAX_EXPLORERS_VALUE
+                    )
+            );
+        }
+
+        return mapper.map(
+                keeperRepository.save(
+                        new Keeper(courseId, createKeeper.getPersonId())
+                ), KeeperDto.class
         );
     }
 
@@ -106,12 +125,6 @@ public class KeeperService {
     @CacheEvict(cacheNames = {"keeperByIdCache", "keeperExistsByIdCache", "keeperByPersonIdAndCourseIdCache", "keepersByPersonIdCache", "keepersByCourseIdCache", "keepersByKeeperIdInCache", "keepersByPersonIdAndCourseIdInCache", "allKeepersCache"}, allEntries = true)
     @Transactional
     public void deleteKeepersByCourseId(Long courseId) {
-        explorerGroupRepository.findExplorerGroupsByKeeperIdIn(
-                keeperRepository.findKeepersByCourseId(
-                        courseId
-                ).stream().map(Keeper::getKeeperId).collect(Collectors.toList())
-        ).forEach(g -> g.getExplorers().forEach(e ->
-                explorerService.deleteExplorerRelatedData(e.getExplorerId())));
         keeperRepository.deleteKeepersByCourseId(courseId);
     }
 }

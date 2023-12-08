@@ -43,8 +43,4 @@ public class CourseRegistrationRequestKeeper {
         this.keeperId = keeperId;
         this.statusId = statusId;
     }
-
-    public Long getRequestId() {
-        return this.request.getRequestId();
-    }
 }
