@@ -68,7 +68,7 @@ public class CourseController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> updateCourse(@PathVariable("galaxyId") Long galaxyId,
+    public ResponseEntity<?> updateCourse(@PathVariable Long galaxyId,
                                           @PathVariable Long courseId,
                                           @Valid @RequestBody UpdateCourseDto course) {
         return ResponseEntity.ok(courseService.updateCourse(galaxyId, courseId, course));

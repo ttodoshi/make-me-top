@@ -57,6 +57,25 @@ public class MarkController {
                 );
     }
 
+    @GetMapping("/themes/{themeId}/marks")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.progress.enums.AuthenticationRoleType).KEEPER) && " +
+            "@roleService.hasAnyCourseRoleByThemeId(#themeId, T(org.example.progress.enums.CourseRoleType).KEEPER)")
+    @Operation(summary = "Get explorers waiting for theme mark", tags = "mark")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Explorers",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json")
+                    })
+    })
+    public ResponseEntity<?> getExplorersWaitingForThemeMark(@PathVariable Long themeId) {
+        return ResponseEntity.ok(
+                markService.getExplorersWaitingForThemeMark(themeId)
+        );
+    }
+
     @PostMapping("/themes/{themeId}/marks")
     @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.progress.enums.AuthenticationRoleType).KEEPER) && " +
             "@roleService.hasAnyCourseRoleByThemeId(#themeId, T(org.example.progress.enums.CourseRoleType).KEEPER)")
@@ -70,7 +89,7 @@ public class MarkController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> setThemeMark(@PathVariable("themeId") Long themeId,
+    public ResponseEntity<?> setThemeMark(@PathVariable Long themeId,
                                           @Valid @RequestBody MarkDto completeThemeRequest) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)

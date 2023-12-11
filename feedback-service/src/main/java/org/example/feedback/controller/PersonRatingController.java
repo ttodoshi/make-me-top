@@ -29,7 +29,7 @@ public class PersonRatingController {
                                     mediaType = "*")
                     })
     })
-    public ResponseEntity<?> getRating(@PathVariable("personId") Long personId,
+    public ResponseEntity<?> getRating(@PathVariable Long personId,
                                        @RequestParam String as) {
         if (as.equals("explorer"))
             return ResponseEntity.ok(ratingService.getPersonRatingAsExplorer(personId));

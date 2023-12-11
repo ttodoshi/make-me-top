@@ -37,7 +37,7 @@ public class KeeperCourseRegistrationRequestController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> replyToRequest(@PathVariable("requestId") Long requestId,
+    public ResponseEntity<?> replyToRequest(@PathVariable Long requestId,
                                             @Valid @RequestBody CourseRegistrationRequestReplyDto reply) {
         return ResponseEntity.ok(
                 keeperCourseRegistrationRequestService.replyToRequest(requestId, reply)
@@ -94,7 +94,7 @@ public class KeeperCourseRegistrationRequestController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> sendKeeperRejection(@PathVariable("requestId") Long requestId,
+    public ResponseEntity<?> sendKeeperRejection(@PathVariable Long requestId,
                                                  @Valid @RequestBody CreateKeeperRejectionDto rejection) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)

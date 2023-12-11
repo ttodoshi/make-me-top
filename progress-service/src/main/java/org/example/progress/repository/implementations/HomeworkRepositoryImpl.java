@@ -3,8 +3,9 @@ package org.example.progress.repository.implementations;
 import lombok.RequiredArgsConstructor;
 import org.example.progress.dto.homework.HomeworkDto;
 import org.example.progress.exception.classes.connect.ConnectException;
-import org.example.progress.utils.AuthorizationHeaderContextHolder;
 import org.example.progress.repository.HomeworkRepository;
+import org.example.progress.utils.AuthorizationHeaderContextHolder;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
@@ -14,6 +15,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
@@ -43,12 +45,13 @@ public class HomeworkRepositoryImpl implements HomeworkRepository {
     }
 
     @Override
-    public List<HomeworkDto> findAllCompletedByCourseThemeIdAndGroupIdForExplorer(Long themeId, Long groupId, Long explorerId) {
+    public Map<Long, List<HomeworkDto>> findAllCompletedByCourseThemeIdAndGroupIdForExplorers(Long themeId, Long groupId, List<Long> explorerIds) {
         return webClientBuilder
                 .baseUrl("http://homework-service/api/v1/homework-app/").build()
                 .get()
                 .uri(uri -> uri
                         .path("themes/{themeId}/groups/{groupId}/homeworks/completed/")
+                        .queryParam("explorerIds", explorerIds)
                         .build(themeId, groupId)
                 )
                 .header("Authorization", authorizationHeaderContextHolder.getAuthorizationHeader())
@@ -56,10 +59,10 @@ public class HomeworkRepositoryImpl implements HomeworkRepository {
                 .onStatus(httpStatus -> httpStatus.isError() && !httpStatus.equals(HttpStatus.UNAUTHORIZED), response -> {
                     throw new ConnectException();
                 })
-                .bodyToFlux(HomeworkDto.class)
+                .bodyToFlux(new ParameterizedTypeReference<Map<Long, List<HomeworkDto>>>() {
+                })
                 .timeout(Duration.ofSeconds(5))
                 .onErrorResume(WebClientResponseException.Unauthorized.class, error -> Mono.error(new AccessDeniedException("Вам закрыт доступ к данной функциональности бортового компьютера")))
-                .collectList()
-                .block();
+                .blockLast();
     }
 }

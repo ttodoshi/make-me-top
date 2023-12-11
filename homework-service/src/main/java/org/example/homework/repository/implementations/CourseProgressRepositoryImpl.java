@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.example.homework.dto.group.CurrentKeeperGroupDto;
 import org.example.homework.dto.progress.CourseWithThemesProgressDto;
 import org.example.homework.exception.classes.connect.ConnectException;
-import org.example.homework.exception.classes.explorer.ExplorerGroupNotFoundException;
 import org.example.homework.exception.classes.explorer.ExplorerNotFoundException;
 import org.example.homework.repository.CourseProgressRepository;
 import org.example.homework.utils.AuthorizationHeaderContextHolder;
@@ -16,6 +15,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -46,7 +46,7 @@ public class CourseProgressRepositoryImpl implements CourseProgressRepository {
     }
 
     @Override
-    public CurrentKeeperGroupDto getCurrentGroup() {
+    public Optional<CurrentKeeperGroupDto> getCurrentGroup() {
         return webClientBuilder
                 .baseUrl("http://person-service/api/v1/person-app/").build()
                 .get()
@@ -59,7 +59,7 @@ public class CourseProgressRepositoryImpl implements CourseProgressRepository {
                 .bodyToMono(CurrentKeeperGroupDto.class)
                 .timeout(Duration.ofSeconds(5))
                 .onErrorResume(WebClientResponseException.Unauthorized.class, error -> Mono.error(new AccessDeniedException("Вам закрыт доступ к данной функциональности бортового компьютера")))
-                .onErrorResume(WebClientResponseException.NotFound.class, error -> Mono.error(new ExplorerGroupNotFoundException()))
-                .block();
+                .onErrorResume(WebClientResponseException.NotFound.class, error -> Mono.empty())
+                .blockOptional();
     }
 }

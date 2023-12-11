@@ -66,7 +66,7 @@ public class ProgressController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> getCoursesProgressForCurrentUser(@PathVariable("galaxyId") Long galaxyId) {
+    public ResponseEntity<?> getCoursesProgressForCurrentUser(@PathVariable Long galaxyId) {
         return ResponseEntity.ok(
                 progressService.getCoursesProgressForCurrentUser(galaxyId));
     }
