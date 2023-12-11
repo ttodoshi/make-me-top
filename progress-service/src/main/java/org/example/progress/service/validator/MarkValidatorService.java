@@ -32,10 +32,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Component
 @RequiredArgsConstructor
@@ -152,10 +149,10 @@ public class MarkValidatorService {
     private boolean homeworkNotCompleted(Long themeId, ExplorersService.Explorer explorer) {
         List<HomeworkDto> allHomeworksByThemeId = homeworkRepository
                 .findHomeworksByCourseThemeIdAndGroupId(themeId, explorer.getGroupId());
-        List<HomeworkDto> allCompletedHomeworkByThemeId = homeworkRepository
-                .findAllCompletedByCourseThemeIdAndGroupIdForExplorer(
-                        themeId, explorer.getGroupId(), explorer.getExplorerId()
+        Map<Long, List<HomeworkDto>> allCompletedHomeworkByThemeId = homeworkRepository
+                .findAllCompletedByCourseThemeIdAndGroupIdForExplorers(
+                        themeId, explorer.getGroupId(), Collections.singletonList(explorer.getExplorerId())
                 );
-        return allHomeworksByThemeId.size() == allCompletedHomeworkByThemeId.size();
+        return allHomeworksByThemeId.size() != allCompletedHomeworkByThemeId.get(explorer.getExplorerId()).size();
     }
 }

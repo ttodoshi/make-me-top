@@ -74,14 +74,17 @@ public class HomeworkService {
     }
 
     @Transactional(readOnly = true)
-    public List<HomeworkDto> findCompletedHomeworksByThemeIdAndGroupIdForExplorer(Long themeId, Long groupId, Long explorerId) {
-        homeworkValidatorService.validateGetCompletedRequest(themeId, groupId, explorerId);
-        return homeworkRepository
-                .findAllCompletedByCourseThemeIdAndGroupIdForExplorer(
-                        themeId, groupId, explorerId
-                ).stream()
-                .map(h -> mapper.map(h, HomeworkDto.class))
-                .collect(Collectors.toList());
+    public Map<Long, List<HomeworkDto>> findCompletedHomeworksByThemeIdAndGroupIdForExplorers(Long themeId, Long groupId, List<Long> explorerIds) {
+        homeworkValidatorService.validateGetCompletedRequest(themeId, groupId, explorerIds);
+        return explorerIds.stream()
+                .collect(Collectors.toMap(
+                        eId -> eId,
+                        eId -> homeworkRepository
+                                .findAllCompletedByCourseThemeIdAndGroupIdForExplorer(themeId, groupId, eId)
+                                .stream()
+                                .map(h -> mapper.map(h, HomeworkDto.class))
+                                .collect(Collectors.toList())
+                ));
     }
 
     @Transactional(readOnly = true)

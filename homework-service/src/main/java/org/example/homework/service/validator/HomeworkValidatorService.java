@@ -107,9 +107,10 @@ public class HomeworkValidatorService {
     }
 
     @Transactional(readOnly = true)
-    public void validateGetCompletedRequest(Long themeId, Long groupId, Long explorerId) {
-        if (!explorerRepository.existsById(explorerId))
-            throw new ExplorerNotFoundException(explorerId);
+    public void validateGetCompletedRequest(Long themeId, Long groupId, List<Long> explorerIds) {
+        if (explorerRepository.findExplorersByExplorerIdIn(explorerIds).size() != explorerIds.size()) {
+            throw new ExplorerNotFoundException();
+        }
         validateGetRequest(themeId, groupId);
     }
 
