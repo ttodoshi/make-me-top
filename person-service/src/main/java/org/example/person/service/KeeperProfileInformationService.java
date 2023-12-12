@@ -27,6 +27,7 @@ public class KeeperProfileInformationService {
     private final CourseRegistrationRequestService courseRegistrationRequestService;
     private final CourseProgressService courseProgressService;
     private final RatingService ratingService;
+    private final CourseService courseService;
 
     private final Executor asyncExecutor;
 
@@ -41,7 +42,12 @@ public class KeeperProfileInformationService {
         List<ExplorerGroup> explorerGroups = explorerGroupRepository.findExplorerGroupsByKeeperIdIn(
                 keepers.stream().map(Keeper::getKeeperId).collect(Collectors.toList())
         );
+
         response.put("totalExplorers", explorerGroups.stream().mapToLong(g -> g.getExplorers().size()).sum());
+        CompletableFuture<Void> systems = CompletableFuture.runAsync(() ->
+                response.put("systems", courseService.getCoursesRating(
+                        keepers.stream().map(Keeper::getCourseId).collect(Collectors.toList())
+                )), asyncExecutor);
 
         CompletableFuture<Void> currentGroup = CompletableFuture.runAsync(() ->
                 courseProgressService.getCurrentGroup(explorerGroups).ifPresent(g ->
@@ -66,7 +72,7 @@ public class KeeperProfileInformationService {
                 )), asyncExecutor);
 
         try {
-            CompletableFuture.allOf(currentGroup, studyRequests, acceptedRequests, finalAssessments, reviewRequests).join();
+            CompletableFuture.allOf(systems, currentGroup, studyRequests, acceptedRequests, finalAssessments, reviewRequests).join();
         } catch (CompletionException completionException) {
             try {
                 throw completionException.getCause();

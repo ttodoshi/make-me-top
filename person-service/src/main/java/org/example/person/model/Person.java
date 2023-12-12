@@ -29,11 +29,10 @@ public class Person {
     @Column(nullable = false)
     private Integer maxExplorers;
 
-    public Person(Long personId, String firstName, String lastName, String patronymic, Integer maxExplorers) {
+    public Person(Long personId, String firstName, String lastName, String patronymic) {
         this.personId = personId;
         this.firstName = firstName;
         this.lastName = lastName;
         this.patronymic = patronymic;
-        this.maxExplorers = maxExplorers;
     }
 }

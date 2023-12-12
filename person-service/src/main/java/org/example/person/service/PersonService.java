@@ -53,8 +53,7 @@ public class PersonService {
                         person.getPersonId(),
                         person.getFirstName(),
                         person.getLastName(),
-                        person.getPatronymic(),
-                        0
+                        person.getPatronymic()
                 )
         );
     }
