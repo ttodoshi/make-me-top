@@ -34,5 +34,6 @@ public class Person {
         this.firstName = firstName;
         this.lastName = lastName;
         this.patronymic = patronymic;
+        this.maxExplorers = 0;
     }
 }

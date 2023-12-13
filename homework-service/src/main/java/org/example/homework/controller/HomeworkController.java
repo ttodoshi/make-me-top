@@ -58,10 +58,32 @@ public class HomeworkController {
     })
     public ResponseEntity<?> findHomeworkByCourseThemeIdAndGroupId(@PathVariable Long themeId,
                                                                    @PathVariable Long groupId) {
-        return ResponseEntity.ok(homeworkService.findHomeworksByCourseThemeIdAndGroupId(themeId, groupId));
+        return ResponseEntity.ok(
+                homeworkService.findHomeworksByCourseThemeIdAndGroupId(themeId, groupId)
+        );
     }
 
-    @GetMapping("/themes/{themeId}/groups/{groupId}/homeworks/completed")
+    @GetMapping("/themes/groups/{groupId}/homeworks")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.homework.enums.AuthenticationRoleType).KEEPER) && " +
+            "@roleService.hasAnyCourseRoleByGroupId(#groupId, T(org.example.homework.enums.CourseRoleType).KEEPER)")
+    @Operation(summary = "Get homeworks by theme id in and group id", tags = "homework")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Requested homework",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json")
+                    })
+    })
+    public ResponseEntity<?> findHomeworkByCourseThemeIdInAndGroupId(@PathVariable Long groupId,
+                                                                     @RequestParam List<Long> themeIds) {
+        return ResponseEntity.ok(
+                homeworkService.findHomeworkByCourseThemeIdInAndGroupId(themeIds, groupId)
+        );
+    }
+
+    @GetMapping("/themes/groups/{groupId}/homeworks/completed")
     @PreAuthorize("(@roleService.hasAnyAuthenticationRole(T(org.example.homework.enums.AuthenticationRoleType).EXPLORER) &&" +
             "@roleService.hasAnyCourseRoleByGroupId(#groupId, T(org.example.homework.enums.CourseRoleType).EXPLORER)) ||" +
             "@roleService.hasAnyCourseRoleByGroupId(#groupId, T(org.example.homework.enums.CourseRoleType).KEEPER)")
@@ -75,11 +97,12 @@ public class HomeworkController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> findCompletedHomeworkByThemeIdAndGroupIdForExplorers(@PathVariable Long themeId,
-                                                                                  @PathVariable Long groupId,
+    public ResponseEntity<?> findCompletedHomeworkByThemeIdAndGroupIdForExplorers(@PathVariable Long groupId,
+                                                                                  @RequestParam List<Long> themeIds,
                                                                                   @RequestParam List<Long> explorerIds) {
         return ResponseEntity.ok(
-                homeworkService.findCompletedHomeworksByThemeIdAndGroupIdForExplorers(themeId, groupId, explorerIds)
+                homeworkService
+                        .findCompletedHomeworksByCourseThemeIdInAndGroupIdForExplorers(themeIds, groupId, explorerIds)
         );
     }
 

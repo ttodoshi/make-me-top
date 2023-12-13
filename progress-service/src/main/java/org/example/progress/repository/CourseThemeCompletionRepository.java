@@ -14,7 +14,7 @@ public interface CourseThemeCompletionRepository extends JpaRepository<CourseThe
 
     Optional<CourseThemeCompletion> findCourseThemeProgressByExplorerIdAndCourseThemeId(Long explorerId, Long courseThemeId);
 
-    boolean existsByExplorerIdAndAndCourseThemeId(Long explorerId, Long themeId);
+    boolean existsByExplorerIdAndCourseThemeId(Long explorerId, Long themeId);
 
     void deleteCourseThemeCompletionsByCourseThemeId(Long themeId);
 

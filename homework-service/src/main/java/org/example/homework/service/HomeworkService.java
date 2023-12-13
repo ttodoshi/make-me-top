@@ -64,6 +64,21 @@ public class HomeworkService {
     }
 
     @Transactional(readOnly = true)
+    public Map<Long, List<HomeworkDto>> findHomeworkByCourseThemeIdInAndGroupId(List<Long> themeIds, Long groupId) {
+        homeworkValidatorService.validateGetByCourseThemeIdInRequest(groupId);
+        return homeworkRepository
+                .findHomeworksByCourseThemeIdInAndGroupId(themeIds, groupId)
+                .stream()
+                .collect(Collectors.groupingBy(
+                        Homework::getCourseThemeId,
+                        Collectors.mapping(
+                                h -> mapper.map(h, HomeworkDto.class),
+                                Collectors.toList()
+                        )
+                ));
+    }
+
+    @Transactional(readOnly = true)
     public Map<Long, HomeworkDto> findHomeworksByHomeworkIdIn(List<Long> homeworkIds) {
         return homeworkRepository.findAllByHomeworkIdIn(homeworkIds)
                 .stream()
@@ -74,17 +89,31 @@ public class HomeworkService {
     }
 
     @Transactional(readOnly = true)
-    public Map<Long, List<HomeworkDto>> findCompletedHomeworksByThemeIdAndGroupIdForExplorers(Long themeId, Long groupId, List<Long> explorerIds) {
-        homeworkValidatorService.validateGetCompletedRequest(themeId, groupId, explorerIds);
-        return explorerIds.stream()
-                .collect(Collectors.toMap(
-                        eId -> eId,
-                        eId -> homeworkRepository
-                                .findAllCompletedByCourseThemeIdAndGroupIdForExplorer(themeId, groupId, eId)
-                                .stream()
+    public Map<Long, Map<Long, List<HomeworkDto>>> findCompletedHomeworksByCourseThemeIdInAndGroupIdForExplorers(List<Long> themeIds, Long groupId, List<Long> explorerIds) {
+        homeworkValidatorService.validateGetCompletedRequest(themeIds, groupId, explorerIds);
+
+        Map<Long, Map<Long, List<HomeworkDto>>> homeworksByThemeIdMap = new HashMap<>();
+
+        for (Long themeId : themeIds) {
+            Map<Long, List<HomeworkDto>> homeworksByExplorerIdMap = new HashMap<>();
+            for (Long explorerId : explorerIds) {
+                homeworksByExplorerIdMap.put(
+                        explorerId,
+                        homeworkRepository
+                                .findAllCompletedByCourseThemeIdAndGroupIdForExplorer(
+                                        themeId, groupId, explorerId
+                                ).stream()
                                 .map(h -> mapper.map(h, HomeworkDto.class))
                                 .collect(Collectors.toList())
-                ));
+                );
+            }
+            homeworksByThemeIdMap.put(
+                    themeId,
+                    homeworksByExplorerIdMap
+            );
+        }
+
+        return homeworksByThemeIdMap;
     }
 
     @Transactional(readOnly = true)

@@ -10,6 +10,8 @@ import java.util.List;
 public interface HomeworkRepository extends JpaRepository<Homework, Long> {
     List<Homework> findHomeworksByCourseThemeIdAndGroupId(Long themeId, Long groupId);
 
+    List<Homework> findHomeworksByCourseThemeIdInAndGroupId(List<Long> themeIds, Long groupId);
+
     @Query("SELECT h FROM Homework h\n" +
             "WHERE h.courseThemeId = :themeId AND h.groupId IN :groupIds")
     List<Homework> findHomeworksByCourseThemeIdAndGroupIdIn(@Param("themeId") Long themeId, @Param("groupIds") List<Long> groupIds);
