@@ -5,6 +5,7 @@ import org.example.grpc.ExplorerGroupsService;
 import org.example.grpc.KeepersService;
 import org.example.homework.config.security.RoleService;
 import org.example.homework.dto.homework.UpdateHomeworkDto;
+import org.example.homework.dto.planet.PlanetDto;
 import org.example.homework.dto.progress.CourseThemeCompletedDto;
 import org.example.homework.enums.AuthenticationRoleType;
 import org.example.homework.exception.classes.explorer.ExplorerGroupIsNotOnCourseException;
@@ -69,6 +70,16 @@ public class HomeworkValidatorService {
         }
     }
 
+    @Transactional(readOnly = true)
+    public void validateGetByCourseThemeIdInRequest(Long groupId) {
+        ExplorerGroupsService.ExplorerGroup explorerGroup = explorerGroupRepository.findById(groupId)
+                .orElseThrow(() -> new ExplorerGroupNotFoundException(groupId));
+
+        final Long personId = personService.getAuthenticatedPersonId();
+
+        isKeeperForGroup(personId, explorerGroup);
+    }
+
     private boolean isThemeOpened(Long explorerId, Long themeId) {
         List<CourseThemeCompletedDto> themesProgress = courseProgressRepository
                 .getCourseProgress(explorerId)
@@ -107,11 +118,19 @@ public class HomeworkValidatorService {
     }
 
     @Transactional(readOnly = true)
-    public void validateGetCompletedRequest(Long themeId, Long groupId, List<Long> explorerIds) {
+    public void validateGetCompletedRequest(List<Long> themeIds, Long groupId, List<Long> explorerIds) {
         if (explorerRepository.findExplorersByExplorerIdIn(explorerIds).size() != explorerIds.size()) {
             throw new ExplorerNotFoundException();
         }
-        validateGetRequest(themeId, groupId);
+        ExplorerGroupsService.ExplorerGroup explorerGroup = explorerGroupRepository.findById(groupId)
+                .orElseThrow(() -> new ExplorerGroupNotFoundException(groupId));
+        for (PlanetDto planet : planetRepository.findPlanetsByPlanetIdIn(themeIds).values()) {
+            if (!planet.getSystemId().equals(explorerGroup.getCourseId())) {
+                throw new ThemeFromDifferentCourseException(planet.getPlanetId(), groupId);
+            }
+        }
+        final Long personId = personService.getAuthenticatedPersonId();
+        isKeeperForGroup(personId, explorerGroup);
     }
 
     @Transactional(readOnly = true)

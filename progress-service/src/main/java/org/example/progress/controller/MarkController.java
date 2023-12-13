@@ -57,6 +57,24 @@ public class MarkController {
                 );
     }
 
+    @GetMapping("/themes/marks")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.progress.enums.AuthenticationRoleType).KEEPER)")
+    @Operation(summary = "Get themes waiting for explorers mark", tags = "mark")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Explorers",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json")
+                    })
+    })
+    public ResponseEntity<?> getThemesWaitingForExplorersMark() {
+        return ResponseEntity.ok(
+                markService.getThemesWaitingForExplorersMark()
+        );
+    }
+
     @GetMapping("/themes/{themeId}/marks")
     @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.progress.enums.AuthenticationRoleType).KEEPER) && " +
             "@roleService.hasAnyCourseRoleByThemeId(#themeId, T(org.example.progress.enums.CourseRoleType).KEEPER)")

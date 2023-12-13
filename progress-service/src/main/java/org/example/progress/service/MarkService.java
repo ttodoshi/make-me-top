@@ -19,10 +19,7 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -54,32 +51,84 @@ public class MarkService {
     }
 
     @Transactional(readOnly = true)
+    public Set<Long> getThemesWaitingForExplorersMark() {
+        Optional<CurrentKeeperGroupDto> currentGroup = explorerGroupRepository.getCurrentGroup();
+        if (currentGroup.isEmpty()) {
+            return Collections.emptySet();
+        }
+
+        Set<Long> themeIds = new HashSet<>();
+
+        List<PlanetDto> planets = planetRepository.findPlanetsBySystemId(
+                currentGroup.get().getCourseId()
+        );
+
+        Map<Long, List<HomeworkDto>> homeworks = homeworkRepository.findHomeworksByCourseThemeIdInAndGroupId(
+                planets.stream()
+                        .map(PlanetDto::getPlanetId)
+                        .collect(Collectors.toList()),
+                currentGroup.get().getGroupId()
+        );
+
+        Map<Long, Map<Long, List<HomeworkDto>>> completedHomeworks = homeworkRepository.findAllCompletedByCourseThemeIdInAndGroupIdForExplorers(
+                planets.stream()
+                        .map(PlanetDto::getPlanetId)
+                        .collect(Collectors.toList()),
+                currentGroup.get().getGroupId(),
+                currentGroup.get().getExplorers()
+                        .stream()
+                        .map(ExplorerBasicInfoDto::getExplorerId)
+                        .collect(Collectors.toList())
+        );
+
+        for (ExplorerBasicInfoDto explorer : currentGroup.get().getExplorers()) {
+            for (PlanetDto planet : planets) {
+                if (!courseThemeCompletionRepository.existsByExplorerIdAndCourseThemeId(explorer.getExplorerId(), planet.getPlanetId())) {
+                    if (homeworks.getOrDefault(planet.getPlanetId(), Collections.emptyList()).size() == completedHomeworks.get(planet.getPlanetId()).getOrDefault(explorer.getExplorerId(), Collections.emptyList()).size()) {
+                        themeIds.add(planet.getPlanetId());
+                    }
+                    break;
+                }
+            }
+        }
+
+        return themeIds;
+    }
+
+    @Transactional(readOnly = true)
     public List<ExplorerBasicInfoDto> getExplorersWaitingForThemeMark(Long themeId) {
         Optional<CurrentKeeperGroupDto> currentGroup = explorerGroupRepository.getCurrentGroup();
-
-        if (currentGroup.isPresent()) {
-            List<HomeworkDto> homeworks = homeworkRepository.findHomeworksByCourseThemeIdAndGroupId(themeId, currentGroup.get().getGroupId());
-            Map<Long, List<HomeworkDto>> completedExplorersHomeworks = homeworkRepository.findAllCompletedByCourseThemeIdAndGroupIdForExplorers(
-                    themeId, currentGroup.get().getGroupId(), currentGroup.get().getExplorers().stream().map(ExplorerBasicInfoDto::getExplorerId).collect(Collectors.toList())
-            );
-
-            List<PlanetDto> planets = planetRepository.findPlanetsBySystemId(
-                    currentGroup.get().getCourseId()
-            );
-
-            return currentGroup.get()
-                    .getExplorers()
-                    .stream()
-                    .filter(e -> homeworks.size() == completedExplorersHomeworks.get(e.getExplorerId()).size() &&
-                            !courseThemeCompletionRepository.existsByExplorerIdAndAndCourseThemeId(e.getExplorerId(), themeId) &&
-                            previousThemeMarkExists(themeId, planets, e.getExplorerId())
-                    ).collect(Collectors.toList());
+        if (currentGroup.isEmpty()) {
+            return Collections.emptyList();
         }
-        return Collections.emptyList();
+
+        List<HomeworkDto> homeworks = homeworkRepository.findHomeworksByCourseThemeIdAndGroupId(themeId, currentGroup.get().getGroupId());
+        Map<Long, List<HomeworkDto>> completedExplorersHomeworks = homeworkRepository.findAllCompletedByCourseThemeIdAndGroupIdForExplorers(
+                themeId, currentGroup.get().getGroupId(), currentGroup.get().getExplorers().stream().map(ExplorerBasicInfoDto::getExplorerId).collect(Collectors.toList())
+        );
+
+        List<PlanetDto> planets = planetRepository.findPlanetsBySystemId(
+                currentGroup.get().getCourseId()
+        );
+
+        return currentGroup.get()
+                .getExplorers()
+                .stream()
+                .filter(e -> homeworks.size() == completedExplorersHomeworks.get(e.getExplorerId()).size() &&
+                        !courseThemeCompletionRepository.existsByExplorerIdAndCourseThemeId(e.getExplorerId(), themeId) &&
+                        (isFirstPlanet(themeId, planets) || previousThemeMarkExists(themeId, planets, e.getExplorerId()))
+                ).collect(Collectors.toList());
+    }
+
+    private boolean isFirstPlanet(Long themeId, List<PlanetDto> planets) {
+        if (!planets.isEmpty()) {
+            return themeId.equals(planets.get(0).getPlanetId());
+        }
+        return false;
     }
 
     private boolean previousThemeMarkExists(Long themeId, List<PlanetDto> planets, Long explorerId) {
-        return courseThemeCompletionRepository.existsByExplorerIdAndAndCourseThemeId(
+        return courseThemeCompletionRepository.existsByExplorerIdAndCourseThemeId(
                 explorerId, getPreviousPlanetId(themeId, planets)
         );
     }
