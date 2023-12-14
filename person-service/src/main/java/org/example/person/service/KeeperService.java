@@ -95,19 +95,19 @@ public class KeeperService {
     }
 
     @Caching(evict = {
-            @CacheEvict(cacheNames = "keepersByPersonIdCache", key = "#createKeeper.personId"),
+            @CacheEvict(cacheNames = "keepersByPersonIdCache", key = "#keeper.personId"),
             @CacheEvict(cacheNames = "keeperExistsByIdCache", key = "#result.keeperId"),
             @CacheEvict(cacheNames = "keepersByCourseIdCache", key = "#courseId"),
             @CacheEvict(cacheNames = {"keepersByKeeperIdInCache", "keepersByPersonIdAndCourseIdInCache", "allKeepersCache"}, allEntries = true),
     })
     @Transactional
-    public KeeperDto setKeeperToCourse(Long courseId, CreateKeeperDto createKeeper) {
-        keeperValidatorService.validateSetKeeperRequest(courseId, createKeeper);
+    public KeeperDto setKeeperToCourse(Long courseId, CreateKeeperDto keeper) {
+        keeperValidatorService.validateSetKeeperRequest(courseId, keeper);
 
-        Person keeperPerson = personService.findPersonById(createKeeper.getPersonId());
+        Person keeperPerson = personService.findPersonById(keeper.getPersonId());
         if (keeperPerson.getMaxExplorers().equals(0)) {
             personService.setMaxExplorersValueForPerson(
-                    createKeeper.getPersonId(),
+                    keeper.getPersonId(),
                     new UpdatePersonDto(
                             DEFAULT_MAX_EXPLORERS_VALUE
                     )
@@ -116,7 +116,7 @@ public class KeeperService {
 
         return mapper.map(
                 keeperRepository.save(
-                        new Keeper(courseId, createKeeper.getPersonId())
+                        new Keeper(courseId, keeper.getPersonId())
                 ), KeeperDto.class
         );
     }

@@ -3,6 +3,7 @@ package org.example.person.aspect;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
+import org.example.person.dto.keeper.CreateKeeperDto;
 import org.example.person.model.Keeper;
 import org.example.person.repository.ExplorerGroupRepository;
 import org.example.person.repository.KeeperRepository;
@@ -20,15 +21,18 @@ public class DeleteRelatedDataAspect {
 
     private final KafkaTemplate<Long, Long> deleteProgressAndMarkByExplorerIdKafkaTemplate;
     private final KafkaTemplate<Long, Long> deleteFeedbackByExplorerIdKafkaTemplate;
+    private final KafkaTemplate<Long, Long> deleteCourseRegistrationRequestByCourseIdAndPersonIdKafkaTemplate;
 
     public DeleteRelatedDataAspect(
             KeeperRepository keeperRepository, ExplorerGroupRepository explorerGroupRepository,
             @Qualifier("deleteProgressAndMarkByExplorerIdKafkaTemplate") KafkaTemplate<Long, Long> deleteProgressAndMarkByExplorerIdKafkaTemplate,
-            @Qualifier("deleteFeedbackByExplorerIdKafkaTemplate") KafkaTemplate<Long, Long> deleteFeedbackByExplorerIdKafkaTemplate) {
+            @Qualifier("deleteFeedbackByExplorerIdKafkaTemplate") KafkaTemplate<Long, Long> deleteFeedbackByExplorerIdKafkaTemplate,
+            @Qualifier("deleteCourseRegistrationRequestByCourseIdAndPersonIdKafkaTemplate") KafkaTemplate<Long, Long> deleteCourseRegistrationRequestByCourseIdAndPersonIdKafkaTemplate) {
         this.keeperRepository = keeperRepository;
         this.explorerGroupRepository = explorerGroupRepository;
         this.deleteProgressAndMarkByExplorerIdKafkaTemplate = deleteProgressAndMarkByExplorerIdKafkaTemplate;
         this.deleteFeedbackByExplorerIdKafkaTemplate = deleteFeedbackByExplorerIdKafkaTemplate;
+        this.deleteCourseRegistrationRequestByCourseIdAndPersonIdKafkaTemplate = deleteCourseRegistrationRequestByCourseIdAndPersonIdKafkaTemplate;
     }
 
     @Pointcut(value = "execution(* org.example.person.service.KeeperService.deleteKeepersByCourseId(..)) " +
@@ -66,6 +70,20 @@ public class DeleteRelatedDataAspect {
         deleteFeedbackByExplorerIdKafkaTemplate.send(
                 "deleteFeedbackTopic",
                 explorerId
+        );
+    }
+
+    @Pointcut(value = "execution(* org.example.person.service.KeeperService.setKeeperToCourse(..)) " +
+            "&& args(courseId, keeper)", argNames = "courseId, keeper")
+    public void deleteCourseRegistrationRequestIfPresentPointcut(Long courseId, CreateKeeperDto keeper) {
+    }
+
+    @Before(value = "deleteCourseRegistrationRequestIfPresentPointcut(courseId, keeper)", argNames = "courseId, keeper")
+    public void deleteCourseRegistrationRequestIfExistsBeforeKeeperCreation(Long courseId, CreateKeeperDto keeper) {
+        deleteCourseRegistrationRequestByCourseIdAndPersonIdKafkaTemplate.send(
+                "deleteCourseRegistrationRequestIfPresent",
+                courseId,
+                keeper.getPersonId()
         );
     }
 }

@@ -42,6 +42,18 @@ public class KafkaProducerConfig {
         return new KafkaTemplate<>(deleteFeedbackByExplorerIdProducer());
     }
 
+    @Bean
+    @Qualifier("deleteCourseRegistrationRequestByCourseIdAndPersonIdProducer")
+    public ProducerFactory<Long, Long> deleteCourseRegistrationRequestByCourseIdAndPersonIdProducer() {
+        return new DefaultKafkaProducerFactory<>(deleteProducerProperties());
+    }
+
+    @Bean
+    @Qualifier("deleteCourseRegistrationRequestByCourseIdAndPersonIdKafkaTemplate")
+    public KafkaTemplate<Long, Long> deleteCourseRegistrationRequestByCourseIdAndPersonIdKafkaTemplate() {
+        return new KafkaTemplate<>(deleteCourseRegistrationRequestByCourseIdAndPersonIdProducer());
+    }
+
     private Map<String, Object> deleteProducerProperties() {
         Map<String, Object> properties = new HashMap<>();
         properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);

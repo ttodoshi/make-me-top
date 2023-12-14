@@ -21,12 +21,7 @@ public class KafkaConsumerConfig {
 
     @Bean
     public ConsumerFactory<Long, Long> deleteCourseRegistrationRequestsFactory() {
-        Map<String, Object> properties = new HashMap<>();
-        properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
-        properties.put(ConsumerConfig.GROUP_ID_CONFIG, "registration-request");
-        properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, LongDeserializer.class);
-        properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, LongDeserializer.class);
-        return new DefaultKafkaConsumerFactory<>(properties);
+        return deleteCourseRegistrationRequestsFactoryProperties();
     }
 
     @Bean
@@ -35,5 +30,27 @@ public class KafkaConsumerConfig {
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(deleteCourseRegistrationRequestsFactory());
         return factory;
+    }
+
+    @Bean
+    public ConsumerFactory<Long, Long> deleteCourseRegistrationRequestIfPresentFactory() {
+        return deleteCourseRegistrationRequestsFactoryProperties();
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<Long, Long> deleteCourseRegistrationRequestIfPresentKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<Long, Long> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(deleteCourseRegistrationRequestIfPresentFactory());
+        return factory;
+    }
+
+    private ConsumerFactory<Long, Long> deleteCourseRegistrationRequestsFactoryProperties() {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
+        properties.put(ConsumerConfig.GROUP_ID_CONFIG, "registration-request");
+        properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, LongDeserializer.class);
+        properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, LongDeserializer.class);
+        return new DefaultKafkaConsumerFactory<>(properties);
     }
 }
