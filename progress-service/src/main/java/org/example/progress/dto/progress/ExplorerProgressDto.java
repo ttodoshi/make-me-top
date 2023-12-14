@@ -1,5 +1,6 @@
 package org.example.progress.dto.progress;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -10,4 +11,6 @@ public class ExplorerProgressDto {
     private Long groupId;
     private Long currentThemeId;
     private CourseWithThemesProgressDto progress;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Integer mark;
 }

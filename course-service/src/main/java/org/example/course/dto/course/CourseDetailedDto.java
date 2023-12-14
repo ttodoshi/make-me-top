@@ -16,6 +16,8 @@ public class CourseDetailedDto {
     private KeeperWithRatingDto yourKeeper;
     private List<ExplorerWithRatingDto> explorers;
     private List<KeeperWithRatingDto> keepers;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Integer mark;
 
     public CourseDetailedDto(CourseDto course, List<ExplorerWithRatingDto> explorers, List<KeeperWithRatingDto> keepers) {
         this.course = course;

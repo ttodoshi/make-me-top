@@ -103,6 +103,7 @@ public class ProgressController {
     })
     public ResponseEntity<?> getExplorerCourseProgress(@PathVariable Long courseId) {
         return ResponseEntity.ok(
-                progressService.getExplorerCourseProgress(courseId));
+                progressService.getExplorerCourseProgress(courseId)
+        );
     }
 }
