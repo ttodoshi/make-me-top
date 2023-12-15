@@ -10,6 +10,7 @@ import org.example.progress.dto.progress.*;
 import org.example.progress.dto.starsystem.GetStarSystemWithDependenciesDto;
 import org.example.progress.dto.starsystem.SystemDependencyModelDto;
 import org.example.progress.exception.classes.explorer.ExplorerNotFoundException;
+import org.example.progress.model.CourseMark;
 import org.example.progress.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -145,6 +146,7 @@ public class ProgressService {
         return courseMarkRepository.findExplorerIdsWithFinalAssessment(explorerIds);
     }
 
+    @Transactional(readOnly = true)
     public ExplorerProgressDto getExplorerCourseProgress(Long courseId) {
         ExplorersService.Explorer explorer = explorerRepository.findExplorerByPersonIdAndGroup_CourseId(
                 personService.getAuthenticatedPersonId(),
@@ -157,7 +159,11 @@ public class ProgressService {
                 explorer.getExplorerId(),
                 explorer.getGroupId(),
                 getCurrentCourseThemeId(themesProgress),
-                themesProgress
+                themesProgress,
+                courseMarkRepository
+                        .findById(explorer.getExplorerId())
+                        .map(CourseMark::getValue)
+                        .orElse(null)
         );
     }
 

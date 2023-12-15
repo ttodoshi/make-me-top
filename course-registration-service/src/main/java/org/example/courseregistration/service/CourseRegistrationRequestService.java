@@ -1,6 +1,7 @@
 package org.example.courseregistration.service;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.example.courseregistration.dto.courserequest.CourseRegistrationRequestDto;
 import org.example.courseregistration.exception.classes.request.RequestNotFoundException;
 import org.example.courseregistration.model.CourseRegistrationRequest;
@@ -41,6 +42,14 @@ public class CourseRegistrationRequestService {
                         CourseRegistrationRequest::getRequestId,
                         r -> mapper.map(r, CourseRegistrationRequestDto.class)
                 ));
+    }
+
+    @KafkaListener(topics = "deleteCourseRegistrationRequestIfPresent", containerFactory = "deleteCourseRegistrationRequestIfPresentKafkaListenerContainerFactory")
+    @Transactional
+    public void deleteCourseRegistrationRequestByCourseIdAndPersonIdIfPresent(ConsumerRecord<Long, Long> record) {
+        courseRegistrationRequestRepository
+                .findCourseRegistrationRequestByCourseIdAndPersonIdAndStatus_NotAccepted(record.key(), record.value())
+                .ifPresent(courseRegistrationRequestRepository::delete);
     }
 
     @KafkaListener(topics = "deleteCourseRegistrationRequestsTopic", containerFactory = "deleteCourseRegistrationRequestsKafkaListenerContainerFactory")

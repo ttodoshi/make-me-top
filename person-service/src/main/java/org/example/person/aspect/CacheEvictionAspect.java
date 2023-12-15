@@ -33,6 +33,7 @@ public class CacheEvictionAspect {
     }
 
     @Async
+    @SuppressWarnings("unchecked")
     public void clearPeopleByPersonIdInCache(Long personId) {
         CompletableFuture.runAsync(() -> {
             Cache peopleByPersonIdInCache = cacheManager.getCache("peopleByPersonIdInCache");

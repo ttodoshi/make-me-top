@@ -29,7 +29,7 @@ public class KeeperServiceImpl implements KeeperService {
     private final RatingService ratingService;
 
     @Override
-    public List<KeeperWithRatingDto> getKeepersForCourse(Long courseId) {
+    public Map<Long, KeeperWithRatingDto> getKeepersForCourse(Long courseId) {
         List<KeepersService.Keeper> keepers = keeperRepository.findKeepersByCourseId(courseId);
         Map<Long, PeopleService.Person> people = personRepository.findPeopleByPersonIdIn(
                 keepers.stream().map(KeepersService.Keeper::getPersonId).collect(Collectors.toList())
@@ -37,8 +37,9 @@ public class KeeperServiceImpl implements KeeperService {
         Map<Long, Double> ratings = ratingService.getPeopleRatingAsKeeperByPersonIdIn(
                 keepers.stream().map(KeepersService.Keeper::getPersonId).collect(Collectors.toList())
         );
-        return keepers.stream()
-                .map(k -> {
+        return keepers.stream().collect(Collectors.toMap(
+                KeepersService.Keeper::getPersonId,
+                k -> {
                     PeopleService.Person currentKeeperPerson = people.get(k.getPersonId());
                     return new KeeperWithRatingDto(
                             currentKeeperPerson.getPersonId(),
@@ -48,20 +49,18 @@ public class KeeperServiceImpl implements KeeperService {
                             k.getKeeperId(),
                             ratings.get(k.getPersonId())
                     );
-                }).sorted()
-                .collect(Collectors.toList());
+                }
+        ));
     }
 
     @Override
-    public KeeperWithRatingDto getKeeperForExplorer(Long explorerId, List<KeeperWithRatingDto> keepers) {
-        Long explorersKeeperId = explorerGroupRepository.getReferenceById(
-                explorerRepository.findById(explorerId)
-                        .orElseThrow(ExplorerNotFoundException::new)
-                        .getGroupId()
-        ).getKeeperId();
-        return keepers.stream()
-                .filter(k -> k.getKeeperId().equals(explorersKeeperId))
-                .findAny()
-                .orElseThrow(KeeperNotFoundException::new);
+    public KeepersService.Keeper getKeeperForExplorer(Long explorerId) {
+        return keeperRepository.findById(
+                explorerGroupRepository.getReferenceById(
+                        explorerRepository.findById(explorerId)
+                                .orElseThrow(ExplorerNotFoundException::new)
+                                .getGroupId()
+                ).getKeeperId()
+        ).orElseThrow(KeeperNotFoundException::new);
     }
 }

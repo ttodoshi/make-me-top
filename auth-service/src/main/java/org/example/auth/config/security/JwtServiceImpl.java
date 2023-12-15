@@ -72,17 +72,8 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public boolean isAccessTokenValid(String jwtToken) {
-        return !isTokenExpired(jwtToken);
-    }
-
-    @Override
-    public boolean isRefreshTokenValid(String jwtToken) {
-        return !isTokenExpired(jwtToken);
-    }
-
-    private boolean isTokenExpired(String jwtToken) {
-        return extractExpiration(jwtToken).before(new Date());
+    public boolean isTokenValid(String jwtToken) {
+        return !extractExpiration(jwtToken).before(new Date());
     }
 
     private Date extractExpiration(String jwtToken) {

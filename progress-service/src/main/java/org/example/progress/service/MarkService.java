@@ -36,6 +36,7 @@ public class MarkService {
 
     private final ModelMapper mapper;
 
+    @Transactional(readOnly = true)
     public CourseMarkDto findCourseMarkById(Long explorerId) {
         return courseMarkRepository.findById(explorerId)
                 .map(m -> mapper.map(m, CourseMarkDto.class))

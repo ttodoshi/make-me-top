@@ -7,16 +7,11 @@ import lombok.NoArgsConstructor;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
-public class ExplorerWithRatingDto extends ExplorerBaseInfoDto implements Comparable<ExplorerWithRatingDto> {
+public class ExplorerWithRatingDto extends ExplorerBaseInfoDto {
     private Double rating;
 
     public ExplorerWithRatingDto(Long personId, String firstName, String lastName, String patronymic, Long explorerId, Double rating) {
         super(personId, firstName, lastName, patronymic, explorerId);
         this.rating = rating;
-    }
-
-    @Override
-    public int compareTo(ExplorerWithRatingDto explorerWithRatingDto) {
-        return Double.compare(explorerWithRatingDto.getRating(), this.getRating());
     }
 }

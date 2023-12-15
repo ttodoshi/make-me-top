@@ -1,7 +1,6 @@
 package org.example.feedback.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.feedback.dto.feedback.CourseRatingDto;
 import org.example.feedback.dto.feedback.CreateCourseRatingDto;
 import org.example.feedback.dto.feedback.CreateExplorerFeedbackDto;
 import org.example.feedback.dto.feedback.ExplorerFeedbackDto;
@@ -43,7 +42,7 @@ public class ExplorerFeedbackService {
     }
 
     @Transactional
-    public ExplorerFeedbackDto sendFeedbackForKeeper(Long courseId, CreateExplorerFeedbackDto feedback) {
+    public Long sendFeedbackForKeeper(Long courseId, CreateExplorerFeedbackDto feedback) {
         Long personId = personService.getAuthenticatedPersonId();
         feedbackValidatorService.validateFeedbackForKeeperRequest(personId, feedback);
 
@@ -54,14 +53,13 @@ public class ExplorerFeedbackService {
         ExplorerFeedback savingFeedback = mapper.map(feedback, ExplorerFeedback.class);
         savingFeedback.setExplorerId(explorer.getExplorerId());
 
-        return mapper.map(
-                explorerFeedbackRepository.save(savingFeedback),
-                ExplorerFeedbackDto.class
-        );
+        return explorerFeedbackRepository
+                .save(savingFeedback)
+                .getExplorerId();
     }
 
     @Transactional
-    public CourseRatingDto rateCourse(Long courseId, CreateCourseRatingDto request) {
+    public Long rateCourse(Long courseId, CreateCourseRatingDto request) {
         Long personId = personService.getAuthenticatedPersonId();
         feedbackValidatorService.validateCourseRatingRequest(personId, courseId, request);
 
@@ -69,12 +67,9 @@ public class ExplorerFeedbackService {
                 .findExplorerByPersonIdAndGroup_CourseId(personId, courseId)
                 .orElseThrow(() -> new ExplorerNotFoundException(courseId));
 
-        return mapper.map(
-                courseRatingRepository.save(
-                        new CourseRating(explorer.getExplorerId(), request.getRating())
-                ),
-                CourseRatingDto.class
-        );
+        return courseRatingRepository.save(
+                new CourseRating(explorer.getExplorerId(), request.getRating())
+        ).getExplorerId();
     }
 
     @Cacheable(cacheNames = "keeperRatingCache", key = "#keeperIds")

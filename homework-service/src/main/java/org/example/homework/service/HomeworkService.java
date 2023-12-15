@@ -291,19 +291,17 @@ public class HomeworkService {
     }
 
     @Transactional
-    public HomeworkDto addHomework(Long themeId, CreateHomeworkDto homework) {
+    public Long addHomework(Long themeId, CreateHomeworkDto homework) {
         homeworkValidatorService.validatePostRequest(themeId, homework.getGroupId());
 
-        return mapper.map(
-                homeworkRepository.save(
-                        new Homework(
-                                themeId,
-                                homework.getTitle(),
-                                homework.getContent(),
-                                homework.getGroupId()
-                        )
-                ), HomeworkDto.class
-        );
+        return homeworkRepository.save(
+                new Homework(
+                        themeId,
+                        homework.getTitle(),
+                        homework.getContent(),
+                        homework.getGroupId()
+                )
+        ).getHomeworkId();
     }
 
     @Transactional

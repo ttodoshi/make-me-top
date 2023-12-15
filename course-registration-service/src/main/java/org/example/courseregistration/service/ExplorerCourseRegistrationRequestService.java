@@ -1,7 +1,6 @@
 package org.example.courseregistration.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.courseregistration.dto.courserequest.CourseRegistrationRequestDto;
 import org.example.courseregistration.dto.courserequest.CreateCourseRegistrationRequestDto;
 import org.example.courseregistration.dto.message.MessageDto;
 import org.example.courseregistration.exception.classes.request.RequestNotFoundException;
@@ -12,7 +11,6 @@ import org.example.courseregistration.model.CourseRegistrationRequestStatusType;
 import org.example.courseregistration.repository.CourseRegistrationRequestKeeperRepository;
 import org.example.courseregistration.repository.CourseRegistrationRequestRepository;
 import org.example.courseregistration.service.validator.ExplorerCourseRegistrationRequestValidatorService;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,18 +25,14 @@ public class ExplorerCourseRegistrationRequestService {
     private final CourseRegistrationRequestStatusService courseRegistrationRequestStatusService;
     private final ExplorerCourseRegistrationRequestValidatorService explorerCourseRegistrationRequestValidatorService;
 
-    private final ModelMapper mapper;
-
     @Transactional
-    public CourseRegistrationRequestDto sendRequest(CreateCourseRegistrationRequestDto request) {
+    public Long sendRequest(CreateCourseRegistrationRequestDto request) {
         Long authenticatedPersonId = personService.getAuthenticatedPersonId();
 
         explorerCourseRegistrationRequestValidatorService.validateSendRequest(authenticatedPersonId, request);
 
-        return mapper.map(
-                sendRequestToKeepers(authenticatedPersonId, request),
-                CourseRegistrationRequestDto.class
-        );
+        return sendRequestToKeepers(authenticatedPersonId, request)
+                .getRequestId();
     }
 
     private CourseRegistrationRequest sendRequestToKeepers(Long personId, CreateCourseRegistrationRequestDto request) {

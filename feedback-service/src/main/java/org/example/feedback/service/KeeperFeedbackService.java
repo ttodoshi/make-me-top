@@ -41,7 +41,7 @@ public class KeeperFeedbackService {
     }
 
     @Transactional
-    public KeeperFeedbackDto sendFeedbackForExplorer(Long courseId, CreateKeeperFeedbackDto feedback) {
+    public Long sendFeedbackForExplorer(Long courseId, CreateKeeperFeedbackDto feedback) {
         if (!courseRepository.existsById(courseId))
             throw new CourseNotFoundException(courseId);
 
@@ -55,10 +55,9 @@ public class KeeperFeedbackService {
         KeeperFeedback savingFeedback = mapper.map(feedback, KeeperFeedback.class);
         savingFeedback.setKeeperId(keeper.getKeeperId());
 
-        return mapper.map(
-                keeperFeedbackRepository.save(savingFeedback),
-                KeeperFeedbackDto.class
-        );
+        return keeperFeedbackRepository
+                .save(savingFeedback)
+                .getExplorerId();
     }
 
     @Cacheable(cacheNames = "explorerRatingCache", key = "#explorerIds")

@@ -6,7 +6,6 @@ import org.example.person.exception.classes.course.CourseNotFoundException;
 import org.example.person.exception.classes.explorer.PersonIsExplorerException;
 import org.example.person.exception.classes.keeper.KeeperAlreadyExistsException;
 import org.example.person.exception.classes.person.PersonNotFoundException;
-import org.example.person.exception.classes.request.PersonHaveOpenedCourseRegistrationRequestException;
 import org.example.person.repository.CourseRegistrationRequestRepository;
 import org.example.person.repository.CourseRepository;
 import org.example.person.repository.ExplorerRepository;
@@ -38,19 +37,14 @@ public class KeeperValidatorService {
     }
 
     @Transactional(readOnly = true)
-    public void validateSetKeeperRequest(Long courseId, CreateKeeperDto request) {
+    public void validateSetKeeperRequest(Long courseId, CreateKeeperDto keeper) {
         if (!courseRepository.existsById(courseId))
             throw new CourseNotFoundException(courseId);
-        if (!personService.personExistsById(request.getPersonId()))
-            throw new PersonNotFoundException(request.getPersonId());
-        if (keeperRepository.findKeeperByPersonIdAndCourseId(request.getPersonId(), courseId).isPresent())
+        if (!personService.personExistsById(keeper.getPersonId()))
+            throw new PersonNotFoundException(keeper.getPersonId());
+        if (keeperRepository.findKeeperByPersonIdAndCourseId(keeper.getPersonId(), courseId).isPresent())
             throw new KeeperAlreadyExistsException(courseId);
-        if (explorerRepository.findExplorerByPersonIdAndGroup_CourseId(request.getPersonId(), courseId).isPresent())
+        if (explorerRepository.findExplorerByPersonIdAndGroup_CourseId(keeper.getPersonId(), courseId).isPresent())
             throw new PersonIsExplorerException();
-        deleteCourseRegistrationRequestIfPresent(request.getPersonId(), courseId);
-    }
-
-    private void deleteCourseRegistrationRequestIfPresent(Long personId, Long courseId) {
-        // TODO
     }
 }

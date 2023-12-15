@@ -52,7 +52,7 @@ public class OrbitService {
     }
 
     @Transactional
-    public GetOrbitWithStarSystemsDto createOrbit(Long galaxyId, CreateOrbitWithStarSystemsDto orbitRequest) {
+    public Long createOrbit(Long galaxyId, CreateOrbitWithStarSystemsDto orbitRequest) {
         orbitValidatorService.validatePostRequest(galaxyId, orbitRequest);
 
         Orbit orbit = mapper.map(orbitRequest, Orbit.class);
@@ -62,7 +62,7 @@ public class OrbitService {
         orbitRequest.getSystemList().forEach(s ->
                 systemService.createSystem(savedOrbitId, s));
 
-        return findOrbitWithSystemList(savedOrbitId);
+        return savedOrbitId;
     }
 
     @Transactional

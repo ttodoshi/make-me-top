@@ -14,6 +14,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.Optional;
 
 @Service
 public class AuthRequestSenderServiceImpl implements AuthRequestSenderService {
@@ -31,7 +32,7 @@ public class AuthRequestSenderServiceImpl implements AuthRequestSenderService {
 
     @Override
     public MmtrAuthResponseDto sendAuthenticateRequest(LoginRequestDto loginRequest) {
-        MmtrAuthResponseDto response = webClientBuilder.baseUrl(MMTR_AUTH_URL).build()
+        Optional<MmtrAuthResponseDto> responseOptional = webClientBuilder.baseUrl(MMTR_AUTH_URL).build()
                 .post()
                 .uri("ts-rest/SingleSignOn/authorization/")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -42,12 +43,12 @@ public class AuthRequestSenderServiceImpl implements AuthRequestSenderService {
                 .timeout(Duration.ofSeconds(5))
                 .onErrorResume(throwable -> {
                     throw new ConnectException();
-                }).block();
-        if (!response.getIsSuccess())
+                }).blockOptional();
+        if (responseOptional.isEmpty() || !responseOptional.get().getIsSuccess())
             throw new PersonNotFoundException();
         mmtrAuthorizationHeaderContextHolder.setAuthorizationHeader(
-                "Bearer " + response.getObject().getUserToken().getTokenInfo()
+                "Bearer " + responseOptional.get().getObject().getUserToken().getTokenInfo()
         );
-        return response;
+        return responseOptional.get();
     }
 }

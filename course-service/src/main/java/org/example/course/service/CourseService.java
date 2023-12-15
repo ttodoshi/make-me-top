@@ -12,6 +12,7 @@ import org.example.course.dto.keeper.KeeperWithRatingDto;
 import org.example.course.enums.AuthenticationRoleType;
 import org.example.course.exception.classes.course.CourseNotFoundException;
 import org.example.course.model.Course;
+import org.example.course.repository.CourseMarkRepository;
 import org.example.course.repository.CourseRepository;
 import org.example.course.service.validator.CourseValidatorService;
 import org.modelmapper.ModelMapper;
@@ -19,6 +20,7 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -27,6 +29,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CourseService {
     private final CourseRepository courseRepository;
+    private final CourseMarkRepository courseMarkRepository;
 
     private final ExplorerService explorerService;
     private final KeeperService keeperService;
@@ -47,30 +50,33 @@ public class CourseService {
     public CourseDetailedDto findCourseByCourseIdDetailed(Long courseId) {
         CourseDto course = findCourseByCourseId(courseId);
 
-        List<ExplorerWithRatingDto> explorers = explorerService.getExplorersForCourse(courseId);
-        List<KeeperWithRatingDto> keepers = keeperService.getKeepersForCourse(courseId);
+        Map<Long, ExplorerWithRatingDto> explorers = explorerService.getExplorersForCourse(courseId);
+        Map<Long, KeeperWithRatingDto> keepers = keeperService.getKeepersForCourse(courseId);
 
         CourseDetailedDto courseDetailed = new CourseDetailedDto(
                 course,
-                explorers,
-                keepers
+                new ArrayList<>(explorers.values()),
+                new ArrayList<>(keepers.values())
         );
 
         if (roleService.hasAnyAuthenticationRole(AuthenticationRoleType.EXPLORER)) {
-            // TODO: переписать логику
             Long authenticatedPersonId = personService.getAuthenticatedPersonId();
-            explorers.stream()
-                    // if person is studying on course
-                    .filter(e -> e.getPersonId().equals(authenticatedPersonId))
-                    .findAny()
-                    .ifPresent(e -> {
-                        courseDetailed.setYou(e);
-                        courseDetailed.setYourKeeper(keeperService
-                                .getKeeperForExplorer(
-                                        e.getExplorerId(),
-                                        keepers
-                                ));
-                    });
+
+            if (explorers.containsKey(authenticatedPersonId)) {
+                ExplorerWithRatingDto personExplorer = explorers.get(authenticatedPersonId);
+
+                courseDetailed.setYou(personExplorer);
+                courseDetailed.setYourKeeper(
+                        keepers.get(
+                                keeperService
+                                        .getKeeperForExplorer(personExplorer.getExplorerId())
+                                        .getPersonId()
+                        )
+                );
+                courseMarkRepository
+                        .findById(personExplorer.getExplorerId())
+                        .ifPresent(m -> courseDetailed.setMark(m.getValue()));
+            }
         }
 
         return courseDetailed;

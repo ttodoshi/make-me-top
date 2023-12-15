@@ -1,10 +1,9 @@
-package org.example.feedback.repository.implementations;
+package org.example.course.repository.implementations;
 
 import lombok.RequiredArgsConstructor;
-import org.example.feedback.exception.classes.connect.ConnectException;
-import org.example.feedback.repository.CourseMarkRepository;
-import org.example.feedback.utils.AuthorizationHeaderContextHolder;
-import org.springframework.http.HttpStatus;
+import org.example.course.dto.mark.CourseMarkDto;
+import org.example.course.repository.CourseMarkRepository;
+import org.example.course.utils.AuthorizationHeaderContextHolder;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -12,6 +11,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -20,7 +20,7 @@ public class CourseMarkRepositoryImpl implements CourseMarkRepository {
     private final AuthorizationHeaderContextHolder authorizationHeaderContextHolder;
 
     @Override
-    public Boolean existsById(Long explorerId) {
+    public Optional<CourseMarkDto> findById(Long explorerId) {
         return webClientBuilder
                 .baseUrl("http://progress-service/api/v1/progress-app/").build()
                 .get()
@@ -29,17 +29,11 @@ public class CourseMarkRepositoryImpl implements CourseMarkRepository {
                         .build(explorerId)
                 )
                 .header("Authorization", authorizationHeaderContextHolder.getAuthorizationHeader())
-                .exchangeToMono(
-                        r -> {
-                            if (r.statusCode().is2xxSuccessful())
-                                return Mono.just(true);
-                            else if (r.statusCode().equals(HttpStatus.NOT_FOUND))
-                                return Mono.just(false);
-                            else return Mono.error(new ConnectException());
-                        }
-                )
+                .retrieve()
+                .bodyToMono(CourseMarkDto.class)
                 .timeout(Duration.ofSeconds(5))
                 .onErrorResume(WebClientResponseException.Unauthorized.class, error -> Mono.error(new AccessDeniedException("Вам закрыт доступ к данной функциональности бортового компьютера")))
-                .block();
+                .onErrorResume(WebClientResponseException.NotFound.class, error -> Mono.empty())
+                .blockOptional();
     }
 }

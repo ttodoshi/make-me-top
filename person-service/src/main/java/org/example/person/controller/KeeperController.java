@@ -33,11 +33,11 @@ public class KeeperController {
                     })
     })
     public ResponseEntity<?> setKeeperToCourse(@PathVariable Long courseId,
-                                               @Valid @RequestBody CreateKeeperDto createKeeper) {
+                                               @Valid @RequestBody CreateKeeperDto keeper) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(
-                        keeperService.setKeeperToCourse(courseId, createKeeper)
+                        keeperService.setKeeperToCourse(courseId, keeper)
                 );
     }
 }

@@ -94,7 +94,7 @@ public class GalaxyService {
     }
 
     @Transactional
-    public GetGalaxyDto createGalaxy(CreateGalaxyDto createGalaxyRequest) {
+    public Long createGalaxy(CreateGalaxyDto createGalaxyRequest) {
         galaxyValidatorService.validatePostRequest(createGalaxyRequest);
 
         Galaxy galaxy = mapper.map(createGalaxyRequest, Galaxy.class);
@@ -103,7 +103,7 @@ public class GalaxyService {
         createGalaxyRequest.getOrbitList()
                 .forEach(o -> orbitService.createOrbit(savedGalaxyId, o));
 
-        return findGalaxyById(savedGalaxyId);
+        return savedGalaxyId;
     }
 
     @Transactional

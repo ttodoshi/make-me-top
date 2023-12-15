@@ -2,7 +2,6 @@ package org.example.person.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.person.dto.keeper.CreateKeeperDto;
-import org.example.person.dto.keeper.KeeperDto;
 import org.example.person.dto.person.UpdatePersonDto;
 import org.example.person.exception.classes.keeper.KeeperNotFoundException;
 import org.example.person.model.Keeper;
@@ -95,30 +94,28 @@ public class KeeperService {
     }
 
     @Caching(evict = {
-            @CacheEvict(cacheNames = "keepersByPersonIdCache", key = "#createKeeper.personId"),
+            @CacheEvict(cacheNames = "keepersByPersonIdCache", key = "#keeper.personId"),
             @CacheEvict(cacheNames = "keeperExistsByIdCache", key = "#result.keeperId"),
             @CacheEvict(cacheNames = "keepersByCourseIdCache", key = "#courseId"),
             @CacheEvict(cacheNames = {"keepersByKeeperIdInCache", "keepersByPersonIdAndCourseIdInCache", "allKeepersCache"}, allEntries = true),
     })
     @Transactional
-    public KeeperDto setKeeperToCourse(Long courseId, CreateKeeperDto createKeeper) {
-        keeperValidatorService.validateSetKeeperRequest(courseId, createKeeper);
+    public Long setKeeperToCourse(Long courseId, CreateKeeperDto keeper) {
+        keeperValidatorService.validateSetKeeperRequest(courseId, keeper);
 
-        Person keeperPerson = personService.findPersonById(createKeeper.getPersonId());
+        Person keeperPerson = personService.findPersonById(keeper.getPersonId());
         if (keeperPerson.getMaxExplorers().equals(0)) {
             personService.setMaxExplorersValueForPerson(
-                    createKeeper.getPersonId(),
+                    keeper.getPersonId(),
                     new UpdatePersonDto(
                             DEFAULT_MAX_EXPLORERS_VALUE
                     )
             );
         }
 
-        return mapper.map(
-                keeperRepository.save(
-                        new Keeper(courseId, createKeeper.getPersonId())
-                ), KeeperDto.class
-        );
+        return keeperRepository.save(
+                new Keeper(courseId, keeper.getPersonId())
+        ).getKeeperId();
     }
 
     @KafkaListener(topics = "deleteKeepersTopic", containerFactory = "deleteKeepersKafkaListenerContainerFactory")

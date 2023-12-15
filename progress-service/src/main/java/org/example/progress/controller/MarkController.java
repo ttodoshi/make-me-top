@@ -20,7 +20,7 @@ import javax.validation.Valid;
 public class MarkController {
     private final MarkService markService;
 
-    @GetMapping("/explorers/{explorerId}/mark")
+    @GetMapping("/explorers/{explorerId}/marks")
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get course mark by explorer id", tags = "mark")
     @ApiResponses(value = {

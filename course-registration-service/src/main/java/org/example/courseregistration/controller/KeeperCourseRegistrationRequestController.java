@@ -62,7 +62,7 @@ public class KeeperCourseRegistrationRequestController {
         );
     }
 
-    @PostMapping("/courses/{courseId}")
+    @PostMapping("/courses/{courseId}/groups")
     @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.courseregistration.enums.AuthenticationRoleType).KEEPER) && " +
             "@roleService.hasAnyCourseRole(#courseId, T(org.example.courseregistration.enums.CourseRoleType).KEEPER)")
     @Operation(summary = "Start education on course", tags = "keeper course request")

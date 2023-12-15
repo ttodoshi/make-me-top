@@ -2,8 +2,8 @@ package org.example.course.service;
 
 import org.example.course.dto.explorer.ExplorerWithRatingDto;
 
-import java.util.List;
+import java.util.Map;
 
 public interface ExplorerService {
-    List<ExplorerWithRatingDto> getExplorersForCourse(Long courseId);
+    Map<Long, ExplorerWithRatingDto> getExplorersForCourse(Long courseId);
 }

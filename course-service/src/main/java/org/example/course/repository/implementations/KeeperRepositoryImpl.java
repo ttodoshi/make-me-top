@@ -21,6 +21,26 @@ public class KeeperRepositoryImpl implements KeeperRepository {
     private KeeperServiceGrpc.KeeperServiceBlockingStub keeperServiceBlockingStub;
 
     @Override
+    public Optional<KeepersService.Keeper> findById(Long keeperId) {
+        CallCredentials callCredentials = CallCredentialsHelper.authorizationHeader(
+                authorizationHeaderContextHolder.getAuthorizationHeader()
+        );
+        try {
+            return Optional.of(
+                    keeperServiceBlockingStub
+                            .withCallCredentials(callCredentials)
+                            .findKeeperById(
+                                    KeepersService.KeeperByIdRequest.newBuilder()
+                                            .setKeeperId(keeperId)
+                                            .build()
+                            )
+            );
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
+
+    @Override
     public Optional<KeepersService.Keeper> findKeeperByPersonIdAndCourseId(Long personId, Long courseId) {
         CallCredentials callCredentials = CallCredentialsHelper.authorizationHeader(
                 authorizationHeaderContextHolder.getAuthorizationHeader()

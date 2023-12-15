@@ -2,7 +2,6 @@ package org.example.courseregistration.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.courseregistration.dto.courserequest.CreateKeeperRejectionDto;
-import org.example.courseregistration.dto.courserequest.KeeperRejectionDto;
 import org.example.courseregistration.dto.courserequest.RejectionReasonDto;
 import org.example.courseregistration.exception.classes.keeper.DifferentKeeperException;
 import org.example.courseregistration.exception.classes.keeper.KeeperNotFoundException;
@@ -36,7 +35,7 @@ public class KeeperRejectionService {
     private final ModelMapper mapper;
 
     @Transactional
-    public KeeperRejectionDto sendRejection(Long requestId, CreateKeeperRejectionDto rejection) {
+    public Long sendRejection(Long requestId, CreateKeeperRejectionDto rejection) {
         CourseRegistrationRequest request = courseRegistrationRequestRepository
                 .findById(requestId).orElseThrow(() -> new RequestNotFoundException(requestId));
         PeopleService.Person authenticatedPerson = personService.getAuthenticatedPerson();
@@ -52,12 +51,9 @@ public class KeeperRejectionService {
 
         keeperRejectionValidatorService.validateRejectionRequest(rejection, keeperResponse);
 
-        return mapper.map(
-                keeperRejectionRepository.save(
-                        new KeeperRejection(keeperResponse, rejection.getReasonId())
-                ),
-                KeeperRejectionDto.class
-        );
+        return keeperRejectionRepository.save(
+                new KeeperRejection(keeperResponse, rejection.getReasonId())
+        ).getResponseId();
     }
 
     @Transactional(readOnly = true)

@@ -1,11 +1,12 @@
 package org.example.course.service;
 
 import org.example.course.dto.keeper.KeeperWithRatingDto;
+import org.example.grpc.KeepersService;
 
-import java.util.List;
+import java.util.Map;
 
 public interface KeeperService {
-    List<KeeperWithRatingDto> getKeepersForCourse(Long courseId);
+    Map<Long, KeeperWithRatingDto> getKeepersForCourse(Long courseId);
 
-    KeeperWithRatingDto getKeeperForExplorer(Long explorerId, List<KeeperWithRatingDto> keepers);
+    KeepersService.Keeper getKeeperForExplorer(Long explorerId);
 }

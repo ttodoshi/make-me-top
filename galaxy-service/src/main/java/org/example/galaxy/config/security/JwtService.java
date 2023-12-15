@@ -2,7 +2,6 @@ package org.example.galaxy.config.security;
 
 
 import io.jsonwebtoken.Claims;
-import org.example.grpc.PeopleService;
 
 import java.util.function.Function;
 

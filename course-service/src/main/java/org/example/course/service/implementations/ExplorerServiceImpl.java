@@ -23,7 +23,7 @@ public class ExplorerServiceImpl implements ExplorerService {
     private final RatingService ratingService;
 
     @Override
-    public List<ExplorerWithRatingDto> getExplorersForCourse(Long courseId) {
+    public Map<Long, ExplorerWithRatingDto> getExplorersForCourse(Long courseId) {
         List<ExplorersService.Explorer> explorers = explorerRepository.findExplorersByCourseId(courseId);
         Map<Long, PeopleService.Person> people = personRepository.findPeopleByPersonIdIn(
                 explorers.stream().map(ExplorersService.Explorer::getPersonId).collect(Collectors.toList())
@@ -31,8 +31,9 @@ public class ExplorerServiceImpl implements ExplorerService {
         Map<Long, Double> ratings = ratingService.getPeopleRatingAsExplorerByPersonIdIn(
                 explorers.stream().map(ExplorersService.Explorer::getPersonId).collect(Collectors.toList())
         );
-        return explorers.stream()
-                .map(e -> {
+        return explorers.stream().collect(Collectors.toMap(
+                ExplorersService.Explorer::getPersonId,
+                e -> {
                     PeopleService.Person currentExplorerPerson = people.get(e.getPersonId());
                     return new ExplorerWithRatingDto(
                             currentExplorerPerson.getPersonId(),
@@ -42,7 +43,7 @@ public class ExplorerServiceImpl implements ExplorerService {
                             e.getExplorerId(),
                             ratings.get(e.getPersonId())
                     );
-                }).sorted()
-                .collect(Collectors.toList());
+                }
+        ));
     }
 }
