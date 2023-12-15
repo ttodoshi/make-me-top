@@ -50,6 +50,12 @@ public class MarkValidatorService {
 
     private final PersonService personService;
 
+    public void validateThemesMarksRequest(Long courseId) {
+        if (courseRepository.findById(courseId).isEmpty()) {
+            throw new CourseNotFoundException(courseId);
+        }
+    }
+
     @Transactional(readOnly = true)
     public void validateCourseMarkRequest(MarkDto courseMark) {
         ExplorersService.Explorer explorer = explorerRepository.findById(courseMark.getExplorerId())

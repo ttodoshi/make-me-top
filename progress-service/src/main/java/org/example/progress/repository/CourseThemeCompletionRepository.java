@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface CourseThemeCompletionRepository extends JpaRepository<CourseThemeCompletion, Long> {
@@ -13,6 +14,8 @@ public interface CourseThemeCompletionRepository extends JpaRepository<CourseThe
     Double getCourseProgress(@Param("explorerId") Long explorerId, @Param("totalThemesCount") Integer totalThemesCount);
 
     Optional<CourseThemeCompletion> findCourseThemeProgressByExplorerIdAndCourseThemeId(Long explorerId, Long courseThemeId);
+
+    List<CourseThemeCompletion> findCourseThemeProgressByExplorerIdAndCourseThemeIdIn(Long explorerId, List<Long> courseThemeIds);
 
     boolean existsByExplorerIdAndCourseThemeId(Long explorerId, Long themeId);
 

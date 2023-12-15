@@ -36,6 +36,23 @@ public class MarkController {
         return ResponseEntity.ok(markService.findCourseMarkById(explorerId));
     }
 
+    @GetMapping("/courses/{courseId}/themes/marks")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.progress.enums.AuthenticationRoleType).EXPLORER) && " +
+            "@roleService.hasAnyCourseRole(#courseId, T(org.example.progress.enums.CourseRoleType).EXPLORER)")
+    @Operation(summary = "Get explorer themes mark", tags = "mark")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Requested marks",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json")
+                    })
+    })
+    public ResponseEntity<?> findThemesMarks(@PathVariable Long courseId) {
+        return ResponseEntity.ok(markService.findThemesMarks(courseId));
+    }
+
     @PostMapping("/marks")
     @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.progress.enums.AuthenticationRoleType).KEEPER) && " +
             "@roleService.hasAnyCourseRoleByExplorerId(#courseMark.explorerId, T(org.example.progress.enums.CourseRoleType).KEEPER)")
@@ -63,7 +80,7 @@ public class MarkController {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Explorers",
+                    description = "Themes",
                     content = {
                             @Content(
                                     mediaType = "application/json")

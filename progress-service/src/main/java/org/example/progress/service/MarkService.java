@@ -2,12 +2,14 @@ package org.example.progress.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.grpc.ExplorersService;
 import org.example.progress.dto.explorer.ExplorerBasicInfoDto;
 import org.example.progress.dto.group.CurrentKeeperGroupDto;
 import org.example.progress.dto.homework.HomeworkDto;
 import org.example.progress.dto.mark.CourseMarkDto;
 import org.example.progress.dto.mark.MarkDto;
 import org.example.progress.dto.planet.PlanetDto;
+import org.example.progress.exception.classes.explorer.ExplorerNotFoundException;
 import org.example.progress.exception.classes.mark.CourseMarkNotFoundException;
 import org.example.progress.exception.classes.planet.PlanetNotFoundException;
 import org.example.progress.model.CourseMark;
@@ -26,12 +28,15 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class MarkService {
+    private final CourseRepository courseRepository;
     private final CourseMarkRepository courseMarkRepository;
     private final CourseThemeCompletionRepository courseThemeCompletionRepository;
+    private final ExplorerRepository explorerRepository;
     private final ExplorerGroupRepository explorerGroupRepository;
     private final HomeworkRepository homeworkRepository;
     private final PlanetRepository planetRepository;
 
+    private final PersonService personService;
     private final MarkValidatorService markValidatorService;
 
     private final ModelMapper mapper;
@@ -41,6 +46,30 @@ public class MarkService {
         return courseMarkRepository.findById(explorerId)
                 .map(m -> mapper.map(m, CourseMarkDto.class))
                 .orElseThrow(() -> new CourseMarkNotFoundException(explorerId));
+    }
+
+    @Transactional(readOnly = true)
+    public Map<Long, Integer> findThemesMarks(Long courseId) {
+        markValidatorService.validateThemesMarksRequest(courseId);
+
+        Long authenticatedPersonId = personService.getAuthenticatedPersonId();
+        ExplorersService.Explorer explorer = explorerRepository.findExplorerByPersonIdAndGroup_CourseId(
+                authenticatedPersonId,
+                courseId
+        ).orElseThrow(ExplorerNotFoundException::new);
+
+        return courseThemeCompletionRepository
+                .findCourseThemeProgressByExplorerIdAndCourseThemeIdIn(
+                        explorer.getExplorerId(),
+                        planetRepository.findPlanetsBySystemId(courseId)
+                                .stream()
+                                .map(PlanetDto::getPlanetId)
+                                .collect(Collectors.toList())
+                ).stream()
+                .collect(Collectors.toMap(
+                        CourseThemeCompletion::getCourseThemeId,
+                        CourseThemeCompletion::getMark
+                ));
     }
 
     @Transactional
