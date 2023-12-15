@@ -2,7 +2,6 @@ package org.example.person.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.person.dto.keeper.CreateKeeperDto;
-import org.example.person.dto.keeper.KeeperDto;
 import org.example.person.dto.person.UpdatePersonDto;
 import org.example.person.exception.classes.keeper.KeeperNotFoundException;
 import org.example.person.model.Keeper;
@@ -101,7 +100,7 @@ public class KeeperService {
             @CacheEvict(cacheNames = {"keepersByKeeperIdInCache", "keepersByPersonIdAndCourseIdInCache", "allKeepersCache"}, allEntries = true),
     })
     @Transactional
-    public KeeperDto setKeeperToCourse(Long courseId, CreateKeeperDto keeper) {
+    public Long setKeeperToCourse(Long courseId, CreateKeeperDto keeper) {
         keeperValidatorService.validateSetKeeperRequest(courseId, keeper);
 
         Person keeperPerson = personService.findPersonById(keeper.getPersonId());
@@ -114,11 +113,9 @@ public class KeeperService {
             );
         }
 
-        return mapper.map(
-                keeperRepository.save(
-                        new Keeper(courseId, keeper.getPersonId())
-                ), KeeperDto.class
-        );
+        return keeperRepository.save(
+                new Keeper(courseId, keeper.getPersonId())
+        ).getKeeperId();
     }
 
     @KafkaListener(topics = "deleteKeepersTopic", containerFactory = "deleteKeepersKafkaListenerContainerFactory")

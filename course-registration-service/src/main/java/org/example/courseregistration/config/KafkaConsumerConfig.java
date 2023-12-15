@@ -21,7 +21,7 @@ public class KafkaConsumerConfig {
 
     @Bean
     public ConsumerFactory<Long, Long> deleteCourseRegistrationRequestsFactory() {
-        return deleteCourseRegistrationRequestsFactoryProperties();
+        return new DefaultKafkaConsumerFactory<>(deleteCourseRegistrationRequestsFactoryProperties());
     }
 
     @Bean
@@ -34,7 +34,7 @@ public class KafkaConsumerConfig {
 
     @Bean
     public ConsumerFactory<Long, Long> deleteCourseRegistrationRequestIfPresentFactory() {
-        return deleteCourseRegistrationRequestsFactoryProperties();
+        return new DefaultKafkaConsumerFactory<>(deleteCourseRegistrationRequestsFactoryProperties());
     }
 
     @Bean
@@ -45,12 +45,12 @@ public class KafkaConsumerConfig {
         return factory;
     }
 
-    private ConsumerFactory<Long, Long> deleteCourseRegistrationRequestsFactoryProperties() {
+    private Map<String, Object> deleteCourseRegistrationRequestsFactoryProperties() {
         Map<String, Object> properties = new HashMap<>();
         properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
         properties.put(ConsumerConfig.GROUP_ID_CONFIG, "registration-request");
         properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, LongDeserializer.class);
         properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, LongDeserializer.class);
-        return new DefaultKafkaConsumerFactory<>(properties);
+        return properties;
     }
 }

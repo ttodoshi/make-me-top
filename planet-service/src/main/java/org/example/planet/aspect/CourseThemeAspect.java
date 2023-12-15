@@ -37,17 +37,17 @@ public class CourseThemeAspect {
     }
 
     @AfterReturning(pointcut = "createCourseThemesPointcut(systemId, planets)", returning = "result", argNames = "systemId, planets, result")
-    public void createCourseThemesAfterPlanetsCreated(Long systemId, List<CreatePlanetDto> planets, List<PlanetDto> result) {
+    public void createCourseThemesAfterPlanetsCreated(Long systemId, List<CreatePlanetDto> planets, List<Long> result) {
         for (int i = 0; i < planets.size(); i++) {
             createThemeKafkaTemplate.send(
                     "createCourseThemeTopic",
                     systemId,
                     new CourseThemeCreateEvent(
-                            result.get(i).getPlanetId(),
-                            result.get(i).getPlanetName(),
+                            result.get(i),
+                            planets.get(i).getPlanetName(),
                             planets.get(i).getDescription(),
                             planets.get(i).getContent(),
-                            result.get(i).getPlanetNumber()
+                            planets.get(i).getPlanetNumber()
                     )
             );
         }

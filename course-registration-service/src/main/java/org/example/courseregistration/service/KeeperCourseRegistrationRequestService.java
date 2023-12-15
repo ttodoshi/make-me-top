@@ -2,7 +2,6 @@ package org.example.courseregistration.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.courseregistration.dto.courserequest.ApprovedRequestDto;
-import org.example.courseregistration.dto.courserequest.CourseRegistrationRequestDto;
 import org.example.courseregistration.dto.courserequest.CourseRegistrationRequestKeeperDto;
 import org.example.courseregistration.dto.courserequest.CourseRegistrationRequestReplyDto;
 import org.example.courseregistration.exception.classes.keeper.KeeperNotFoundException;
@@ -107,7 +106,7 @@ public class KeeperCourseRegistrationRequestService {
     }
 
     @Transactional
-    public List<CourseRegistrationRequestDto> startTeaching(Long courseId) {
+    public Long startTeaching(Long courseId) {
         PeopleService.Person authenticatedPerson = personService.getAuthenticatedPerson();
 
         keeperCourseRegistrationRequestValidatorService
@@ -132,12 +131,14 @@ public class KeeperCourseRegistrationRequestService {
                         .build()
         ).getGroupId();
 
-        return approvedRequests.stream()
+        approvedRequests.stream()
                 .limit(authenticatedPerson.getMaxExplorers())
-                .peek(r -> r.setStatusId(acceptedStatusId))
-                .peek(r -> explorerRepository.save(
-                        new ExplorerCreateEvent(r.getPersonId(), createdGroupId))
-                ).map(r -> mapper.map(r, CourseRegistrationRequestDto.class))
-                .collect(Collectors.toList());
+                .forEach(r -> {
+                    r.setStatusId(acceptedStatusId);
+                    explorerRepository.save(
+                            new ExplorerCreateEvent(r.getPersonId(), createdGroupId)
+                    );
+                });
+        return createdGroupId;
     }
 }

@@ -83,7 +83,7 @@ public class AuthService {
 
     @Transactional
     public AuthResponseDto refresh(String refreshTokenValue) {
-        if (refreshTokenValue == null || !jwtService.isRefreshTokenValid(refreshTokenValue))
+        if (refreshTokenValue == null || !jwtService.isTokenValid(refreshTokenValue))
             throw new FailedRefreshException();
 
         RefreshTokenInfo refreshTokenInfo = refreshTokenInfoRepository

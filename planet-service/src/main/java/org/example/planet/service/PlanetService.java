@@ -71,17 +71,16 @@ public class PlanetService {
     }
 
     @Transactional
-    public List<PlanetDto> createPlanets(Long systemId, List<CreatePlanetDto> planets) {
+    public List<Long> createPlanets(Long systemId, List<CreatePlanetDto> planets) {
         planetValidatorService.validatePostRequest(systemId, planets);
 
         return planets.stream()
                 .map(p -> {
                     Planet planet = mapper.map(p, Planet.class);
                     planet.setSystemId(systemId);
-                    return mapper.map(
-                            planetRepository.save(planet),
-                            PlanetDto.class
-                    );
+                    return planetRepository
+                            .save(planet)
+                            .getPlanetId();
                 }).collect(Collectors.toList());
     }
 

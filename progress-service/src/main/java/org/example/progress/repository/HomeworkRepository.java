@@ -1,7 +1,6 @@
 package org.example.progress.repository;
 
 import org.example.progress.dto.homework.HomeworkDto;
-import org.example.progress.dto.planet.PlanetDto;
 
 import java.util.List;
 import java.util.Map;

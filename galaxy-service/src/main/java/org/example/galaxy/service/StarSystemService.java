@@ -69,16 +69,15 @@ public class StarSystemService {
     }
 
     @Transactional
-    public StarSystemDto createSystem(Long orbitId, CreateStarSystemDto systemRequest) {
+    public Long createSystem(Long orbitId, CreateStarSystemDto systemRequest) {
         starSystemValidatorService.validatePostRequest(orbitId, systemRequest);
 
         StarSystem system = mapper.map(systemRequest, StarSystem.class);
         system.setOrbitId(orbitId);
 
-        return mapper.map(
-                starSystemRepository.save(system),
-                StarSystemDto.class
-        );
+        return starSystemRepository
+                .save(system)
+                .getSystemId();
     }
 
     @Transactional

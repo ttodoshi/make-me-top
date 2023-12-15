@@ -97,11 +97,11 @@ public class CourseAspect {
     }
 
     @AfterReturning(pointcut = "createCourseWhenSystemCreatedPointcut(orbitId, systemRequest)", returning = "result", argNames = "orbitId, systemRequest, result")
-    public void createCourseAfterSystemCreated(Long orbitId, CreateStarSystemDto systemRequest, StarSystemDto result) {
+    public void createCourseAfterSystemCreated(Long orbitId, CreateStarSystemDto systemRequest, Long result) {
         createCourseKafkaTemplate.send(
                 "createCourseTopic",
                 new CourseCreateEvent(
-                        result.getSystemId(),
+                        result,
                         systemRequest.getSystemName(),
                         systemRequest.getDescription()
                 )

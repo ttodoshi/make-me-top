@@ -2,7 +2,6 @@ package org.example.progress.repository.implementations;
 
 import lombok.RequiredArgsConstructor;
 import org.example.progress.dto.homework.HomeworkDto;
-import org.example.progress.dto.planet.PlanetDto;
 import org.example.progress.exception.classes.connect.ConnectException;
 import org.example.progress.repository.HomeworkRepository;
 import org.example.progress.utils.AuthorizationHeaderContextHolder;

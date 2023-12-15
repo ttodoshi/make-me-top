@@ -3,13 +3,11 @@ package org.example.galaxy.service;
 import lombok.RequiredArgsConstructor;
 import org.example.galaxy.dto.dependency.CreateDependencyDto;
 import org.example.galaxy.dto.dependency.DependencyDto;
-import org.example.galaxy.dto.dependency.SystemDependencyDto;
 import org.example.galaxy.dto.message.MessageDto;
 import org.example.galaxy.exception.classes.dependency.DependencyNotFoundException;
 import org.example.galaxy.model.SystemDependency;
 import org.example.galaxy.repository.SystemDependencyRepository;
 import org.example.galaxy.service.validator.SystemDependencyValidatorService;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,21 +22,18 @@ public class SystemDependencyService {
 
     private final SystemDependencyValidatorService systemDependencyValidatorService;
 
-    private final ModelMapper mapper;
-
     @Transactional
-    public List<SystemDependencyDto> addDependency(List<CreateDependencyDto> systemDependencies) {
+    public List<Long> addDependency(List<CreateDependencyDto> systemDependencies) {
         return systemDependencies.stream()
                 .peek(systemDependencyValidatorService::validateDependency)
-                .map(d -> mapper.map(
-                        systemDependencyRepository.save(
+                .map(d -> systemDependencyRepository.save(
                                 new SystemDependency(
                                         d.getChildId(),
                                         d.getParentId(),
                                         d.getIsAlternative()
                                 )
-                        ), SystemDependencyDto.class
-                )).collect(Collectors.toList());
+                        ).getDependencyId()
+                ).collect(Collectors.toList());
     }
 
     @Transactional
