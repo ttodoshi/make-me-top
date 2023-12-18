@@ -65,7 +65,7 @@ public class StarSystemController {
     @Operation(summary = "Create system", tags = "system")
     @ApiResponses(value = {
             @ApiResponse(
-                    responseCode = "200",
+                    responseCode = "201",
                     description = "System created",
                     content = {
                             @Content(

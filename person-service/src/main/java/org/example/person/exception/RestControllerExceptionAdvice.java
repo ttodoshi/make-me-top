@@ -10,6 +10,7 @@ import org.example.person.exception.classes.keeper.KeeperAlreadyExistsException;
 import org.example.person.exception.classes.keeper.KeeperNotFoundException;
 import org.example.person.exception.classes.person.PersonNotFoundException;
 import org.example.person.exception.classes.planet.PlanetNotFoundException;
+import org.example.person.exception.classes.progress.ExplorerAlreadyHasMarkException;
 import org.example.person.exception.classes.request.PersonHaveOpenedCourseRegistrationRequestException;
 import org.example.person.exception.classes.request.RequestNotFoundException;
 import org.example.person.exception.classes.role.RoleNotAvailableException;
@@ -153,6 +154,12 @@ public class RestControllerExceptionAdvice {
 
     @ExceptionHandler(PersonHaveOpenedCourseRegistrationRequestException.class)
     public ResponseEntity<ErrorResponse> handlePersonHaveOpenedCourseRegistrationRequestException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(ExplorerAlreadyHasMarkException.class)
+    public ResponseEntity<ErrorResponse> handleExplorerAlreadyHasMarkException(Exception e) {
         logWarning(e);
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
     }

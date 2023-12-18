@@ -29,7 +29,7 @@ public class SystemDependencyController {
     @Operation(summary = "Create dependency", tags = "dependency")
     @ApiResponses(value = {
             @ApiResponse(
-                    responseCode = "200",
+                    responseCode = "201",
                     description = "Dependency created",
                     content = {
                             @Content(

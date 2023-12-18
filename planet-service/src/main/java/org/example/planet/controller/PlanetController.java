@@ -93,7 +93,7 @@ public class PlanetController {
     @Operation(summary = "Create planets", tags = "planet")
     @ApiResponses(value = {
             @ApiResponse(
-                    responseCode = "200",
+                    responseCode = "201",
                     description = "Planets created",
                     content = {
                             @Content(

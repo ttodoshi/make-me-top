@@ -27,7 +27,7 @@ public class ExplorerCourseRegistrationRequestController {
     @Operation(summary = "Send course registration request", tags = "explorer course request")
     @ApiResponses(value = {
             @ApiResponse(
-                    responseCode = "200",
+                    responseCode = "201",
                     description = "Course request sent",
                     content = {
                             @Content(

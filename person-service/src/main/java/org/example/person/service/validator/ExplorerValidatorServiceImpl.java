@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.example.person.exception.classes.course.CourseNotFoundException;
 import org.example.person.exception.classes.explorer.ExplorerNotFoundException;
 import org.example.person.exception.classes.person.PersonNotFoundException;
+import org.example.person.exception.classes.progress.ExplorerAlreadyHasMarkException;
+import org.example.person.repository.CourseMarkRepository;
 import org.example.person.repository.CourseRepository;
 import org.example.person.repository.ExplorerRepository;
 import org.example.person.service.PersonService;
@@ -16,6 +18,7 @@ public class ExplorerValidatorServiceImpl implements ExplorerValidatorService {
     private final CourseRepository courseRepository;
     private final ExplorerRepository explorerRepository;
     private final PersonService personService;
+    private final CourseMarkRepository courseMarkRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -36,5 +39,8 @@ public class ExplorerValidatorServiceImpl implements ExplorerValidatorService {
     public void validateDeleteExplorerByIdRequest(Long explorerId) {
         if (!explorerRepository.existsById(explorerId))
             throw new ExplorerNotFoundException(explorerId);
+        if (courseMarkRepository.findById(explorerId).isPresent()) {
+            throw new ExplorerAlreadyHasMarkException();
+        }
     }
 }

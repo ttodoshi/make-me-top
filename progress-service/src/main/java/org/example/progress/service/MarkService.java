@@ -28,7 +28,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class MarkService {
-    private final CourseRepository courseRepository;
     private final CourseMarkRepository courseMarkRepository;
     private final CourseThemeCompletionRepository courseThemeCompletionRepository;
     private final ExplorerRepository explorerRepository;
