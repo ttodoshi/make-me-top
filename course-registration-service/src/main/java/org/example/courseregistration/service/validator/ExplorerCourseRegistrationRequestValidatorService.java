@@ -7,9 +7,9 @@ import org.example.courseregistration.exception.classes.keeper.KeeperNotFoundExc
 import org.example.courseregistration.exception.classes.progress.AlreadyStudyingException;
 import org.example.courseregistration.exception.classes.progress.PersonIsStudyingException;
 import org.example.courseregistration.exception.classes.progress.SystemParentsNotCompletedException;
-import org.example.courseregistration.exception.classes.request.PersonIsKeeperException;
-import org.example.courseregistration.exception.classes.request.PersonIsNotPersonInRequestException;
-import org.example.courseregistration.exception.classes.request.RequestAlreadySentException;
+import org.example.courseregistration.exception.classes.courserequest.PersonIsKeeperException;
+import org.example.courseregistration.exception.classes.courserequest.PersonIsNotPersonInRequestException;
+import org.example.courseregistration.exception.classes.courserequest.RequestAlreadySentException;
 import org.example.courseregistration.model.CourseRegistrationRequest;
 import org.example.courseregistration.model.CourseRegistrationRequestStatusType;
 import org.example.courseregistration.repository.CourseRegistrationRequestRepository;

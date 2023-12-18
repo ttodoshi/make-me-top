@@ -25,7 +25,7 @@ public class KeeperController {
     @Operation(summary = "Add keeper on course", tags = "keeper")
     @ApiResponses(value = {
             @ApiResponse(
-                    responseCode = "200",
+                    responseCode = "201",
                     description = "Successfully added keeper",
                     content = {
                             @Content(

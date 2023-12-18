@@ -1,4 +1,4 @@
-package org.example.courseregistration.exception.classes.request;
+package org.example.courseregistration.exception.classes.courserequest;
 
 public class RequestAlreadyClosedException extends RuntimeException {
     public RequestAlreadyClosedException(Long requestId) {

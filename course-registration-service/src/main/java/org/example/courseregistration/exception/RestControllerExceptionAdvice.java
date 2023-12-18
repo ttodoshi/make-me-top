@@ -11,7 +11,7 @@ import org.example.courseregistration.exception.classes.progress.AlreadyStudying
 import org.example.courseregistration.exception.classes.progress.PersonIsStudyingException;
 import org.example.courseregistration.exception.classes.progress.SystemParentsNotCompletedException;
 import org.example.courseregistration.exception.classes.progress.TeachingInProcessException;
-import org.example.courseregistration.exception.classes.request.*;
+import org.example.courseregistration.exception.classes.courserequest.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -176,18 +176,6 @@ public class RestControllerExceptionAdvice {
 
     @ExceptionHandler(TeachingInProcessException.class)
     public ResponseEntity<ErrorResponse> handleTeachingInProcessException(Exception e) {
-        logWarning(e);
-        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
-    }
-
-    @ExceptionHandler(KeeperRejectionAlreadyExistsException.class)
-    public ResponseEntity<ErrorResponse> handleKeeperRejectionAlreadyExistsException(Exception e) {
-        logWarning(e);
-        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
-    }
-
-    @ExceptionHandler(RequestNotRejectedException.class)
-    public ResponseEntity<ErrorResponse> handleRequestNotDeniedException(Exception e) {
         logWarning(e);
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
     }

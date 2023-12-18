@@ -3,7 +3,7 @@ package org.example.courseregistration.service;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.example.courseregistration.dto.courserequest.CourseRegistrationRequestDto;
-import org.example.courseregistration.exception.classes.request.RequestNotFoundException;
+import org.example.courseregistration.exception.classes.courserequest.RequestNotFoundException;
 import org.example.courseregistration.model.CourseRegistrationRequest;
 import org.example.courseregistration.repository.CourseRegistrationRequestRepository;
 import org.modelmapper.ModelMapper;
