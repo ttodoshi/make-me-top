@@ -3,7 +3,7 @@ package org.example.courseregistration.config.security;
 import lombok.RequiredArgsConstructor;
 import org.example.courseregistration.enums.AuthenticationRoleType;
 import org.example.courseregistration.enums.CourseRoleType;
-import org.example.courseregistration.exception.classes.request.RequestNotFoundException;
+import org.example.courseregistration.exception.classes.courserequest.RequestNotFoundException;
 import org.example.courseregistration.model.CourseRegistrationRequest;
 import org.example.courseregistration.repository.CourseRegistrationRequestRepository;
 import org.example.courseregistration.repository.ExplorerRepository;

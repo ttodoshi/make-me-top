@@ -1,16 +1,18 @@
 package org.example.courseregistration.service.validator;
 
 import lombok.RequiredArgsConstructor;
+import org.example.courseregistration.dto.courserequest.CreateKeeperRejectionDto;
 import org.example.courseregistration.exception.classes.connect.ConnectException;
 import org.example.courseregistration.exception.classes.keeper.DifferentKeeperException;
 import org.example.courseregistration.exception.classes.progress.TeachingInProcessException;
-import org.example.courseregistration.exception.classes.request.RequestAlreadyClosedException;
+import org.example.courseregistration.exception.classes.courserequest.RejectionReasonNotFoundException;
+import org.example.courseregistration.exception.classes.courserequest.RequestAlreadyClosedException;
 import org.example.courseregistration.model.CourseRegistrationRequest;
-import org.example.courseregistration.model.CourseRegistrationRequestStatus;
+import org.example.courseregistration.model.CourseRegistrationRequestKeeper;
 import org.example.courseregistration.model.CourseRegistrationRequestStatusType;
-import org.example.courseregistration.repository.CourseRegistrationRequestStatusRepository;
 import org.example.courseregistration.repository.ExplorerGroupRepository;
 import org.example.courseregistration.repository.KeeperRepository;
+import org.example.courseregistration.repository.RejectionReasonRepository;
 import org.example.courseregistration.utils.AuthorizationHeaderContextHolder;
 import org.example.grpc.ExplorersService;
 import org.example.grpc.KeepersService;
@@ -35,15 +37,24 @@ public class KeeperCourseRegistrationRequestValidatorService {
     private final WebClient.Builder webClientBuilder;
     private final AuthorizationHeaderContextHolder authorizationHeaderContextHolder;
 
-    private final CourseRegistrationRequestStatusRepository courseRegistrationRequestStatusRepository;
     private final KeeperRepository keeperRepository;
     private final ExplorerGroupRepository explorerGroupRepository;
+    private final RejectionReasonRepository rejectionReasonRepository;
 
     @Transactional(readOnly = true)
-    public void validateReply(CourseRegistrationRequest request) {
-        CourseRegistrationRequestStatus currentStatus = courseRegistrationRequestStatusRepository.getReferenceById(request.getStatusId());
-        if (!currentStatus.getStatus().equals(CourseRegistrationRequestStatusType.PROCESSING))
+    public void validateApproveRequest(CourseRegistrationRequest request) {
+        if (!request.getStatus().getStatus().equals(CourseRegistrationRequestStatusType.PROCESSING)) {
             throw new RequestAlreadyClosedException(request.getRequestId());
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public void validateRejectRequest(CourseRegistrationRequest request, CourseRegistrationRequestKeeper keeperResponse, CreateKeeperRejectionDto rejection) {
+        if (!request.getStatus().getStatus().equals(CourseRegistrationRequestStatusType.PROCESSING)) {
+            throw new RequestAlreadyClosedException(request.getRequestId());
+        }
+        if (!rejectionReasonRepository.existsById(rejection.getReasonId()))
+            throw new RejectionReasonNotFoundException();
     }
 
     @Transactional(readOnly = true)

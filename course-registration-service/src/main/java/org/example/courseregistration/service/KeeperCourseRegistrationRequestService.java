@@ -3,18 +3,13 @@ package org.example.courseregistration.service;
 import lombok.RequiredArgsConstructor;
 import org.example.courseregistration.dto.courserequest.ApprovedRequestDto;
 import org.example.courseregistration.dto.courserequest.CourseRegistrationRequestKeeperDto;
-import org.example.courseregistration.dto.courserequest.CourseRegistrationRequestReplyDto;
+import org.example.courseregistration.dto.courserequest.CreateKeeperRejectionDto;
+import org.example.courseregistration.exception.classes.courserequest.NoApprovedRequestsFoundException;
+import org.example.courseregistration.exception.classes.courserequest.RequestNotFoundException;
+import org.example.courseregistration.exception.classes.keeper.DifferentKeeperException;
 import org.example.courseregistration.exception.classes.keeper.KeeperNotFoundException;
-import org.example.courseregistration.exception.classes.request.NoApprovedRequestsFoundException;
-import org.example.courseregistration.exception.classes.request.RequestNotFoundException;
-import org.example.courseregistration.model.CourseRegistrationRequest;
-import org.example.courseregistration.model.CourseRegistrationRequestKeeper;
-import org.example.courseregistration.model.CourseRegistrationRequestKeeperStatusType;
-import org.example.courseregistration.model.CourseRegistrationRequestStatusType;
-import org.example.courseregistration.repository.CourseRegistrationRequestRepository;
-import org.example.courseregistration.repository.ExplorerGroupRepository;
-import org.example.courseregistration.repository.ExplorerRepository;
-import org.example.courseregistration.repository.KeeperRepository;
+import org.example.courseregistration.model.*;
+import org.example.courseregistration.repository.*;
 import org.example.courseregistration.service.validator.KeeperCourseRegistrationRequestValidatorService;
 import org.example.grpc.ExplorerGroupsService;
 import org.example.grpc.KeepersService;
@@ -35,6 +30,8 @@ public class KeeperCourseRegistrationRequestService {
     private final ExplorerGroupRepository explorerGroupRepository;
     private final ExplorerRepository explorerRepository;
     private final KeeperRepository keeperRepository;
+    private final CourseRegistrationRequestKeeperRepository courseRegistrationRequestKeeperRepository;
+    private final KeeperRejectionRepository keeperRejectionRepository;
 
     private final PersonService personService;
     private final CourseRegistrationRequestStatusService courseRegistrationRequestStatusService;
@@ -46,10 +43,11 @@ public class KeeperCourseRegistrationRequestService {
     private final ModelMapper mapper;
 
     @Transactional
-    public CourseRegistrationRequestKeeperDto replyToRequest(Long requestId, CourseRegistrationRequestReplyDto requestReply) {
+    public CourseRegistrationRequestKeeperDto approveRequest(Long requestId) {
         CourseRegistrationRequest request = courseRegistrationRequestRepository
                 .findById(requestId).orElseThrow(() -> new RequestNotFoundException(requestId));
-        keeperCourseRegistrationRequestValidatorService.validateReply(request);
+
+        keeperCourseRegistrationRequestValidatorService.validateApproveRequest(request);
 
         CourseRegistrationRequestKeeper keeperResponse = courseRegistrationRequestKeeperService
                 .findCourseRegistrationRequestKeeperForPerson(
@@ -57,34 +55,50 @@ public class KeeperCourseRegistrationRequestService {
                         request
                 );
 
+        courseRegistrationRequestKeeperService.closeRequestForKeepers(request);
+
+        request.setStatusId(
+                courseRegistrationRequestStatusService
+                        .findCourseRegistrationRequestStatusByStatus(CourseRegistrationRequestStatusType.APPROVED)
+                        .getStatusId()
+        );
+        keeperResponse.setStatusId(
+                courseRegistrationRequestKeeperStatusService
+                        .findCourseRegistrationRequestKeeperStatusByStatus(CourseRegistrationRequestKeeperStatusType.APPROVED)
+                        .getStatusId()
+        );
         return mapper.map(
-                sendKeeperResponse(request, keeperResponse, requestReply.getApproved()),
+                keeperResponse,
                 CourseRegistrationRequestKeeperDto.class
         );
     }
 
-    private CourseRegistrationRequestKeeper sendKeeperResponse(CourseRegistrationRequest request, CourseRegistrationRequestKeeper keeperResponse, boolean approved) {
-        CourseRegistrationRequestKeeperStatusType keeperResponseStatus;
-        if (approved) {
-            keeperResponseStatus = CourseRegistrationRequestKeeperStatusType.APPROVED;
+    @Transactional
+    public Long rejectRequest(Long requestId, CreateKeeperRejectionDto rejection) {
+        CourseRegistrationRequest request = courseRegistrationRequestRepository
+                .findById(requestId).orElseThrow(() -> new RequestNotFoundException(requestId));
 
-            request.setStatusId(
-                    courseRegistrationRequestStatusService
-                            .findCourseRegistrationRequestStatusByStatus(CourseRegistrationRequestStatusType.APPROVED)
-                            .getStatusId()
-            );
+        KeepersService.Keeper keeper = keeperRepository
+                .findKeeperByPersonIdAndCourseId(
+                        personService.getAuthenticatedPersonId(),
+                        request.getCourseId()
+                ).orElseThrow(KeeperNotFoundException::new);
+        CourseRegistrationRequestKeeper keeperResponse = courseRegistrationRequestKeeperRepository
+                .findCourseRegistrationRequestKeeperByRequestIdAndKeeperId(
+                        requestId, keeper.getKeeperId()
+                ).orElseThrow(DifferentKeeperException::new);
 
-            courseRegistrationRequestKeeperService.closeRequestForKeepers(request);
-        } else {
-            keeperResponseStatus = CourseRegistrationRequestKeeperStatusType.REJECTED;
-        }
+        keeperCourseRegistrationRequestValidatorService.validateRejectRequest(request, keeperResponse, rejection);
 
         keeperResponse.setStatusId(
                 courseRegistrationRequestKeeperStatusService
-                        .findCourseRegistrationRequestKeeperStatusByStatus(keeperResponseStatus)
+                        .findCourseRegistrationRequestKeeperStatusByStatus(CourseRegistrationRequestKeeperStatusType.REJECTED)
                         .getStatusId()
         );
-        return keeperResponse;
+
+        return keeperRejectionRepository.save(
+                new KeeperRejection(keeperResponse, rejection.getReasonId())
+        ).getResponseId();
     }
 
     @Transactional(readOnly = true)

@@ -1,7 +1,7 @@
 package org.example.courseregistration.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.courseregistration.exception.classes.request.StatusNotFoundException;
+import org.example.courseregistration.exception.classes.courserequest.StatusNotFoundException;
 import org.example.courseregistration.model.CourseRegistrationRequestStatus;
 import org.example.courseregistration.model.CourseRegistrationRequestStatusType;
 import org.example.courseregistration.repository.CourseRegistrationRequestStatusRepository;

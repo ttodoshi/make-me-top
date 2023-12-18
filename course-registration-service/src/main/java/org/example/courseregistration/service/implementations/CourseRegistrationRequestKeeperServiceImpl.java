@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.courseregistration.dto.courserequest.CourseRegistrationRequestKeeperDto;
 import org.example.courseregistration.exception.classes.keeper.DifferentKeeperException;
 import org.example.courseregistration.exception.classes.keeper.KeeperNotFoundException;
-import org.example.courseregistration.exception.classes.request.RequestNotFoundException;
+import org.example.courseregistration.exception.classes.courserequest.RequestNotFoundException;
 import org.example.courseregistration.model.CourseRegistrationRequest;
 import org.example.courseregistration.model.CourseRegistrationRequestKeeper;
 import org.example.courseregistration.model.CourseRegistrationRequestKeeperStatusType;
