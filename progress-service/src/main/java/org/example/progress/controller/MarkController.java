@@ -59,7 +59,7 @@ public class MarkController {
     @Operation(summary = "Set course mark from 1 to 5 to explorer", tags = "mark")
     @ApiResponses(value = {
             @ApiResponse(
-                    responseCode = "200",
+                    responseCode = "201",
                     description = "Course completed",
                     content = {
                             @Content(
@@ -117,7 +117,7 @@ public class MarkController {
     @Operation(summary = "Set theme mark from 1 to 5 to explorer", tags = "mark")
     @ApiResponses(value = {
             @ApiResponse(
-                    responseCode = "200",
+                    responseCode = "201",
                     description = "Course theme completed",
                     content = {
                             @Content(

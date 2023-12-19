@@ -1,7 +1,6 @@
 package org.example.person.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
@@ -20,19 +19,19 @@ public class ExplorerController {
     private final ExplorerService explorerService;
 
     @DeleteMapping("/explorers/{explorerId}")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.person.enums.AuthenticationRoleType).EXPLORER) && " +
-            "@roleService.isPersonExplorer(#explorerId)")
+    @PreAuthorize("(@roleService.hasAnyAuthenticationRole(T(org.example.person.enums.AuthenticationRoleType).EXPLORER) && " +
+            "@roleService.isPersonExplorer(#explorerId)) || " +
+            "(@roleService.hasAnyAuthenticationRole(T(org.example.person.enums.AuthenticationRoleType).KEEPER) && " +
+            "@roleService.isKeeperForExplorer(#explorerId))")
     @Operation(summary = "Delete explorer by id", tags = "explorer")
     @ApiResponses(value = {
             @ApiResponse(
-                    responseCode = "200",
-                    description = "Explorer deleted",
-                    content = {
-                            @Content(
-                                    mediaType = "application/json")
-                    })
+                    responseCode = "204",
+                    description = "Explorer deleted"
+            )
     })
     public ResponseEntity<?> deleteExplorerById(@PathVariable Long explorerId) {
-        return ResponseEntity.ok(explorerService.deleteExplorerById(explorerId));
+        explorerService.deleteExplorerById(explorerId);
+        return ResponseEntity.noContent().build();
     }
 }

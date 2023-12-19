@@ -46,7 +46,7 @@ public class ExplorerFeedbackController {
     @Operation(summary = "Send feedback for keeper (rating from 1 to 5)", tags = "explorer feedback")
     @ApiResponses(value = {
             @ApiResponse(
-                    responseCode = "200",
+                    responseCode = "201",
                     description = "Feedback sent",
                     content = {
                             @Content(
@@ -68,7 +68,7 @@ public class ExplorerFeedbackController {
     @Operation(summary = "Set rating from 1 to 5 for course", tags = "explorer feedback")
     @ApiResponses(value = {
             @ApiResponse(
-                    responseCode = "200",
+                    responseCode = "201",
                     description = "Rating set",
                     content = {
                             @Content(

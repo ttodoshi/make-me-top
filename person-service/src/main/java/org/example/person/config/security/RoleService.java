@@ -40,4 +40,11 @@ public class RoleService {
                 .orElseThrow(ExplorerNotFoundException::new);
         return explorer.getPersonId().equals(person.getPersonId());
     }
+
+    public boolean isKeeperForExplorer(Long explorerId) {
+        Person person = (Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Explorer explorer = explorerRepository.findById(explorerId)
+                .orElseThrow(ExplorerNotFoundException::new);
+        return explorer.getGroup().getKeeper().getPersonId().equals(person.getPersonId());
+    }
 }

@@ -3,7 +3,6 @@ package org.example.person.service;
 import lombok.RequiredArgsConstructor;
 import org.example.person.dto.event.ExplorerCreateEvent;
 import org.example.person.dto.explorer.ExplorerBasicInfoDto;
-import org.example.person.dto.message.MessageDto;
 import org.example.person.exception.classes.explorer.ExplorerNotFoundException;
 import org.example.person.model.Explorer;
 import org.example.person.repository.ExplorerRepository;
@@ -116,9 +115,8 @@ public class ExplorerService {
             @CacheEvict(cacheNames = {"explorersByPersonIdAndCourseIdCache", "explorersByPersonIdCache", "explorersByCourseIdCache", "explorersByExplorerIdInCache", "explorersByGroup_CourseIdInCache", "explorersByPersonIdAndGroup_CourseIdInCache", "allExplorersCache"}, allEntries = true),
     })
     @Transactional
-    public MessageDto deleteExplorerById(Long explorerId) {
+    public void deleteExplorerById(Long explorerId) {
         explorerValidatorService.validateDeleteExplorerByIdRequest(explorerId);
         explorerRepository.deleteById(explorerId);
-        return new MessageDto("Вы ушли с курса");
     }
 }

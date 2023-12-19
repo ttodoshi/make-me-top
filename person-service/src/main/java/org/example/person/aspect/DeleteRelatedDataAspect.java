@@ -1,8 +1,6 @@
 package org.example.person.aspect;
 
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
-import org.aspectj.lang.annotation.Pointcut;
+import org.aspectj.lang.annotation.*;
 import org.example.person.dto.keeper.CreateKeeperDto;
 import org.example.person.model.Keeper;
 import org.example.person.repository.ExplorerGroupRepository;
@@ -58,7 +56,7 @@ public class DeleteRelatedDataAspect {
     public void deleteDataRelatedToExplorerPointcut(Long explorerId) {
     }
 
-    @Before(value = "deleteDataRelatedToExplorerPointcut(explorerId)", argNames = "explorerId")
+    @AfterReturning(value = "deleteDataRelatedToExplorerPointcut(explorerId)", argNames = "explorerId")
     public void deleteDataRelatedToExplorerBeforeExplorerDeletion(Long explorerId) {
         deleteExplorerRelatedData(explorerId);
     }
@@ -78,7 +76,7 @@ public class DeleteRelatedDataAspect {
     public void deleteCourseRegistrationRequestIfPresentPointcut(Long courseId, CreateKeeperDto keeper) {
     }
 
-    @Before(value = "deleteCourseRegistrationRequestIfPresentPointcut(courseId, keeper)", argNames = "courseId, keeper")
+    @AfterReturning(value = "deleteCourseRegistrationRequestIfPresentPointcut(courseId, keeper)", argNames = "courseId, keeper")
     public void deleteCourseRegistrationRequestIfExistsBeforeKeeperCreation(Long courseId, CreateKeeperDto keeper) {
         deleteCourseRegistrationRequestByCourseIdAndPersonIdKafkaTemplate.send(
                 "deleteCourseRegistrationRequestIfPresent",

@@ -58,7 +58,7 @@ public class GalaxyController {
     @Operation(summary = "Create galaxy", tags = "galaxy")
     @ApiResponses(value = {
             @ApiResponse(
-                    responseCode = "200",
+                    responseCode = "201",
                     description = "Galaxy created",
                     content = {
                             @Content(

@@ -45,7 +45,7 @@ public class KeeperFeedbackController {
     @Operation(summary = "Send feedback for explorer", tags = "keeper feedback")
     @ApiResponses(value = {
             @ApiResponse(
-                    responseCode = "200",
+                    responseCode = "201",
                     description = "Feedback sent",
                     content = {
                             @Content(

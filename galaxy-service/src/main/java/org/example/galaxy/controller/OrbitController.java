@@ -46,7 +46,7 @@ public class OrbitController {
     @Operation(summary = "Create orbit", tags = "orbit")
     @ApiResponses(value = {
             @ApiResponse(
-                    responseCode = "200",
+                    responseCode = "201",
                     description = "Orbit created",
                     content = {
                             @Content(

@@ -27,7 +27,7 @@ public class KeeperHomeworkRequestController {
     @Operation(summary = "Set homework mark from 1 to 5", tags = "keeper homework request")
     @ApiResponses(value = {
             @ApiResponse(
-                    responseCode = "200",
+                    responseCode = "201",
                     description = "Homework mark set",
                     content = {
                             @Content(
@@ -49,7 +49,7 @@ public class KeeperHomeworkRequestController {
     @Operation(summary = "Send homework request feedback", tags = "keeper homework request")
     @ApiResponses(value = {
             @ApiResponse(
-                    responseCode = "200",
+                    responseCode = "201",
                     description = "Homework request feedback sent",
                     content = {
                             @Content(
