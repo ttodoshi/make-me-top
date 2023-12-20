@@ -44,7 +44,7 @@ public class OrbitValidatorService {
     }
 
     private boolean orbitExists(Long galaxyId, Integer orbitLevel) {
-        return orbitRepository.findOrbitsByGalaxyId(galaxyId).stream()
+        return orbitRepository.findOrbitsByGalaxyIdOrderByOrbitLevel(galaxyId).stream()
                 .anyMatch(o -> o.getOrbitLevel().equals(orbitLevel));
     }
 
@@ -57,7 +57,7 @@ public class OrbitValidatorService {
     }
 
     private boolean orbitExists(Long galaxyId, Long orbitId, Integer orbitLevel) {
-        return orbitRepository.findOrbitsByGalaxyId(galaxyId).stream()
+        return orbitRepository.findOrbitsByGalaxyIdOrderByOrbitLevel(galaxyId).stream()
                 .anyMatch(o -> o.getOrbitLevel().equals(orbitLevel) && !o.getOrbitId().equals(orbitId));
     }
 }

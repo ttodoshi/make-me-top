@@ -1,6 +1,6 @@
 package org.example.course.repository;
 
-import org.example.course.dto.starsystem.StarSystemDto;
+import org.example.course.dto.system.StarSystemDto;
 
 import java.util.List;
 

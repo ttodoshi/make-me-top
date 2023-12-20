@@ -10,7 +10,6 @@ import java.util.List;
 @Entity
 @Table(name = "explorer_group")
 @Data
-@With
 @AllArgsConstructor
 @NoArgsConstructor
 public class ExplorerGroup {
@@ -31,8 +30,9 @@ public class ExplorerGroup {
     @ToString.Exclude
     private List<Explorer> explorers;
 
-    public ExplorerGroup(Long courseId, Long keeperId) {
+    public ExplorerGroup(Long courseId, Long keeperId, List<Explorer> explorers) {
         this.courseId = courseId;
         this.keeperId = keeperId;
+        this.explorers = explorers;
     }
 }

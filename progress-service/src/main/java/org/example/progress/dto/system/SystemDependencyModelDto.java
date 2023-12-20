@@ -1,4 +1,4 @@
-package org.example.progress.dto.starsystem;
+package org.example.progress.dto.system;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

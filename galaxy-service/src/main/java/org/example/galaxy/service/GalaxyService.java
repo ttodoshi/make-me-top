@@ -12,8 +12,6 @@ import org.example.galaxy.repository.GalaxyRepository;
 import org.example.galaxy.repository.OrbitRepository;
 import org.example.galaxy.repository.StarSystemRepository;
 import org.example.galaxy.service.validator.GalaxyValidatorService;
-import org.example.grpc.ExplorersService;
-import org.example.grpc.KeepersService;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,7 +41,7 @@ public class GalaxyService {
 
         GetGalaxyDto galaxyWithOrbits = mapper.map(galaxy, GetGalaxyDto.class);
         galaxyWithOrbits.setOrbitList(
-                orbitRepository.findOrbitsByGalaxyId(galaxyId)
+                orbitRepository.findOrbitsByGalaxyIdOrderByOrbitLevel(galaxyId)
                         .stream()
                         .map(o -> orbitService.findOrbitWithSystemList(
                                 o.getOrbitId()
@@ -53,10 +51,29 @@ public class GalaxyService {
     }
 
     @Transactional(readOnly = true)
-    public GalaxyDto findGalaxyBySystemId(Long systemId) {
-        return galaxyRepository.findGalaxyBySystemId(systemId)
-                .map(g -> mapper.map(g, GalaxyDto.class))
-                .orElseThrow(() -> new SystemNotFoundException(systemId));
+    public GetGalaxyInformationDto findGalaxyByIdDetailed(Long galaxyId) {
+        Galaxy galaxy = galaxyRepository.findById(galaxyId)
+                .orElseThrow(() -> new GalaxyNotFoundException(galaxyId));
+
+        List<StarSystem> systems = galaxy.getOrbits().stream()
+                .flatMap(o -> o.getSystems().stream())
+                .collect(Collectors.toList());
+
+        List<PersonWithSystemsDto> personAsExplorerList = explorerService
+                .getExplorersWithSystems(systems);
+        List<PersonWithSystemsDto> personAsKeeperList = keeperService
+                .getKeepersWithSystems(systems);
+
+        return new GetGalaxyInformationDto(
+                galaxy.getGalaxyId(),
+                galaxy.getGalaxyName(),
+                galaxy.getGalaxyDescription(),
+                systems.size(),
+                personAsExplorerList.size(),
+                personAsExplorerList,
+                personAsKeeperList.size(),
+                personAsKeeperList
+        );
     }
 
     @Transactional(readOnly = true)
@@ -68,29 +85,27 @@ public class GalaxyService {
     }
 
     @Transactional(readOnly = true)
-    public List<GetGalaxyInformationDto> findAllGalaxiesDetailed() {
-        Map<Long, ExplorersService.AllExplorersResponse.ExplorerList> explorers = explorerService.findExplorersWithCourseIds();
-        Map<Long, KeepersService.AllKeepersResponse.KeeperList> keepers = keeperService.findKeepersWithCourseIds();
+    public GalaxyDto findGalaxyBySystemId(Long systemId) {
+        return mapper.map(
+                starSystemRepository.findById(systemId)
+                        .orElseThrow(() -> new SystemNotFoundException(systemId))
+                        .getOrbit()
+                        .getGalaxy(),
+                GalaxyDto.class
+        );
+    }
 
-        return galaxyRepository.findAll()
+    @Transactional(readOnly = true)
+    public Map<Long, GalaxyDto> findGalaxyBySystemIdIn(List<Long> systemIds) {
+        return starSystemRepository.findStarSystemsBySystemIdIn(systemIds)
                 .stream()
-                .map(g -> {
-                    List<StarSystem> systems = starSystemRepository.findStarSystemsByOrbit_GalaxyId(g.getGalaxyId());
-
-                    List<PersonWithSystemsDto> personAsExplorerList = explorerService.getExplorersWithSystems(explorers, systems);
-                    List<PersonWithSystemsDto> personAsKeeperList = keeperService.getKeepersWithSystems(keepers, systems);
-
-                    return new GetGalaxyInformationDto(
-                            g.getGalaxyId(),
-                            g.getGalaxyName(),
-                            g.getGalaxyDescription(),
-                            systems.size(),
-                            personAsExplorerList.size(),
-                            personAsExplorerList,
-                            personAsKeeperList.size(),
-                            personAsKeeperList
-                    );
-                }).collect(Collectors.toList());
+                .collect(Collectors.toMap(
+                        StarSystem::getSystemId,
+                        s -> mapper.map(
+                                s.getOrbit().getGalaxy(),
+                                GalaxyDto.class
+                        )
+                ));
     }
 
     @Transactional

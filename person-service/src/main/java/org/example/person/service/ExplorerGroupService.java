@@ -61,8 +61,9 @@ public class ExplorerGroupService {
         return explorerGroupRepository.save(
                 new ExplorerGroup(
                         group.getCourseId(),
-                        group.getKeeperId()
+                        group.getKeeperId(),
+                        Collections.emptyList()
                 )
-        ).withExplorers(Collections.emptyList());
+        );
     }
 }

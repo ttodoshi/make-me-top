@@ -19,8 +19,6 @@ public class Orbit {
     private Long orbitId;
     @Column(nullable = false)
     private Integer orbitLevel;
-    @Column(nullable = false)
-    private Integer systemCount;
     @ManyToOne(optional = false)
     @JoinColumn(name = "galaxy_id", nullable = false, insertable = false, updatable = false)
     @JsonBackReference

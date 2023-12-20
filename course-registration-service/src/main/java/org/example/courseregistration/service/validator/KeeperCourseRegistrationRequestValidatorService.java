@@ -3,12 +3,13 @@ package org.example.courseregistration.service.validator;
 import lombok.RequiredArgsConstructor;
 import org.example.courseregistration.dto.courserequest.CreateKeeperRejectionDto;
 import org.example.courseregistration.exception.classes.connect.ConnectException;
-import org.example.courseregistration.exception.classes.keeper.DifferentKeeperException;
-import org.example.courseregistration.exception.classes.progress.TeachingInProcessException;
 import org.example.courseregistration.exception.classes.courserequest.RejectionReasonNotFoundException;
 import org.example.courseregistration.exception.classes.courserequest.RequestAlreadyClosedException;
+import org.example.courseregistration.exception.classes.keeper.DifferentKeeperException;
+import org.example.courseregistration.exception.classes.progress.TeachingInProcessException;
 import org.example.courseregistration.model.CourseRegistrationRequest;
 import org.example.courseregistration.model.CourseRegistrationRequestKeeper;
+import org.example.courseregistration.model.CourseRegistrationRequestKeeperStatusType;
 import org.example.courseregistration.model.CourseRegistrationRequestStatusType;
 import org.example.courseregistration.repository.ExplorerGroupRepository;
 import org.example.courseregistration.repository.KeeperRepository;
@@ -50,9 +51,10 @@ public class KeeperCourseRegistrationRequestValidatorService {
 
     @Transactional(readOnly = true)
     public void validateRejectRequest(CourseRegistrationRequest request, CourseRegistrationRequestKeeper keeperResponse, CreateKeeperRejectionDto rejection) {
-        if (!request.getStatus().getStatus().equals(CourseRegistrationRequestStatusType.PROCESSING)) {
+        if (!request.getStatus().getStatus().equals(CourseRegistrationRequestStatusType.PROCESSING))
             throw new RequestAlreadyClosedException(request.getRequestId());
-        }
+        if (!keeperResponse.getStatus().getStatus().equals(CourseRegistrationRequestKeeperStatusType.PROCESSING))
+            throw new RequestAlreadyClosedException(request.getRequestId());
         if (!rejectionReasonRepository.existsById(rejection.getReasonId()))
             throw new RejectionReasonNotFoundException();
     }

@@ -10,7 +10,6 @@ import java.util.List;
 public class GetOrbitWithStarSystemsDto {
     private Long orbitId;
     private Integer orbitLevel;
-    private Integer systemCount;
     private Long galaxyId;
     @JsonProperty("systemList")
     private List<GetStarSystemWithDependenciesDto> systemWithDependenciesList;

@@ -1,4 +1,4 @@
-package org.example.course.dto.starsystem;
+package org.example.course.dto.system;
 
 import lombok.Data;
 
@@ -10,8 +10,6 @@ public class StarSystemDto {
     private Long systemId;
     @NotNull
     private String systemName;
-    @NotNull
-    private Integer systemLevel;
     @NotNull
     private Integer systemPosition;
     @NotNull

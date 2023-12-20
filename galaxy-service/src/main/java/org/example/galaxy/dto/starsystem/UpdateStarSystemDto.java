@@ -12,8 +12,6 @@ public class UpdateStarSystemDto {
     @Max(value = 255)
     private String systemName;
     @NotNull
-    private Integer systemLevel;
-    @NotNull
     private Integer systemPosition;
     @NotNull
     private Long orbitId;

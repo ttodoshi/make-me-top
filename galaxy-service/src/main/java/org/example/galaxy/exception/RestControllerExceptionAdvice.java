@@ -13,6 +13,7 @@ import org.example.galaxy.exception.classes.orbit.OrbitNotFoundException;
 import org.example.galaxy.exception.classes.person.PersonNotFoundException;
 import org.example.galaxy.exception.classes.system.SystemAlreadyExistsException;
 import org.example.galaxy.exception.classes.system.SystemNotFoundException;
+import org.example.galaxy.exception.classes.system.SystemsFromDifferentGalaxiesException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -155,5 +156,11 @@ public class RestControllerExceptionAdvice {
     public ResponseEntity<ErrorResponse> handleStatusRuntimeException(StatusRuntimeException e) {
         HttpStatus httpStatus = HttpStatus.valueOf(e.getStatus().getCode().name());
         return new ResponseEntity<>(new ErrorResponse(httpStatus.getReasonPhrase(), e.getStatus().getDescription()), httpStatus);
+    }
+
+    @ExceptionHandler(SystemsFromDifferentGalaxiesException.class)
+    public ResponseEntity<ErrorResponse> handleSystemsFromDifferentGalaxiesException(Exception e) {
+        logWarning(e);
+        return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN.getReasonPhrase(), e.getMessage()), HttpStatus.FORBIDDEN);
     }
 }
