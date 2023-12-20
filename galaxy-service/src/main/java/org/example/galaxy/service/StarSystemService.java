@@ -91,7 +91,6 @@ public class StarSystemService {
         updatedStarSystem.setSystemName(starSystem.getSystemName());
         updatedStarSystem.setSystemPosition(starSystem.getSystemPosition());
         updatedStarSystem.setOrbitId(starSystem.getOrbitId());
-        updatedStarSystem.setSystemLevel(starSystem.getSystemLevel());
 
         return mapper.map(
                 starSystemRepository.save(updatedStarSystem),

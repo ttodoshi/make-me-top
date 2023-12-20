@@ -1,7 +1,7 @@
 package org.example.course.service.validator;
 
 import lombok.RequiredArgsConstructor;
-import org.example.course.dto.starsystem.StarSystemDto;
+import org.example.course.dto.system.StarSystemDto;
 import org.example.course.exception.classes.course.CourseAlreadyExistsException;
 import org.example.course.exception.classes.course.CourseNotFoundInGalaxyException;
 import org.example.course.model.Course;

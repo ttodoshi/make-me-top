@@ -9,7 +9,5 @@ public class UpdateOrbitDto {
     @NotNull
     private Integer orbitLevel;
     @NotNull
-    private Integer systemCount;
-    @NotNull
     private Long galaxyId;
 }

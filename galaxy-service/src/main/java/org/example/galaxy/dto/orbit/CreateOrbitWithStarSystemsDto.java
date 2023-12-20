@@ -14,7 +14,5 @@ public class CreateOrbitWithStarSystemsDto {
     @NotNull
     private Integer orbitLevel;
     @NotNull
-    private Integer systemCount;
-    @NotNull
     private List<@Valid CreateStarSystemDto> systemList;
 }

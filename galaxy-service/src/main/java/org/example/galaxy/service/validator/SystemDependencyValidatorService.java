@@ -5,6 +5,8 @@ import org.example.galaxy.dto.dependency.CreateDependencyDto;
 import org.example.galaxy.exception.classes.dependency.DependencyAlreadyExistsException;
 import org.example.galaxy.exception.classes.dependency.DependencyCouldNotBeCreatedException;
 import org.example.galaxy.exception.classes.system.SystemNotFoundException;
+import org.example.galaxy.exception.classes.system.SystemsFromDifferentGalaxiesException;
+import org.example.galaxy.model.StarSystem;
 import org.example.galaxy.repository.StarSystemRepository;
 import org.example.galaxy.repository.SystemDependencyRepository;
 import org.springframework.stereotype.Component;
@@ -18,10 +20,12 @@ public class SystemDependencyValidatorService {
 
     @Transactional(readOnly = true)
     public void validateDependency(CreateDependencyDto dependency) {
-        if (!starSystemRepository.existsById(dependency.getChildId()))
-            throw new SystemNotFoundException(dependency.getChildId());
-        if (!starSystemRepository.existsById(dependency.getParentId()))
-            throw new SystemNotFoundException(dependency.getParentId());
+        StarSystem child = starSystemRepository.findById(dependency.getChildId())
+                .orElseThrow(() -> new SystemNotFoundException(dependency.getChildId()));
+        StarSystem parent = starSystemRepository.findById(dependency.getParentId())
+                .orElseThrow(() -> new SystemNotFoundException(dependency.getParentId()));
+        if (!child.getOrbit().getGalaxyId().equals(parent.getOrbit().getGalaxyId()))
+            throw new SystemsFromDifferentGalaxiesException(dependency.getChildId(), dependency.getParentId());
         if (dependency.getChildId().equals(dependency.getParentId()))
             throw new DependencyCouldNotBeCreatedException(dependency.getChildId(), dependency.getParentId());
         if (dependency.getParentId() == null) {

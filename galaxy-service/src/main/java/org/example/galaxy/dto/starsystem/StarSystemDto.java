@@ -6,7 +6,6 @@ import lombok.Data;
 public class StarSystemDto {
     private Long systemId;
     private String systemName;
-    private Integer systemLevel;
     private Integer systemPosition;
     private Long orbitId;
 }

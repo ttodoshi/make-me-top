@@ -1,7 +1,7 @@
 package org.example.course.repository.implementations;
 
 import lombok.RequiredArgsConstructor;
-import org.example.course.dto.starsystem.StarSystemDto;
+import org.example.course.dto.system.StarSystemDto;
 import org.example.course.exception.classes.connect.ConnectException;
 import org.example.course.exception.classes.galaxy.GalaxyNotFoundException;
 import org.example.course.utils.AuthorizationHeaderContextHolder;

@@ -72,7 +72,6 @@ public class OrbitService {
         Orbit updatedOrbit = orbitRepository.findById(orbitId)
                 .orElseThrow(() -> new OrbitNotFoundException(orbitId));
         updatedOrbit.setOrbitLevel(orbit.getOrbitLevel());
-        updatedOrbit.setSystemCount(orbit.getSystemCount());
         updatedOrbit.setGalaxyId(orbit.getGalaxyId());
 
         return mapper.map(

@@ -43,7 +43,7 @@ public class GalaxyService {
 
         GetGalaxyDto galaxyWithOrbits = mapper.map(galaxy, GetGalaxyDto.class);
         galaxyWithOrbits.setOrbitList(
-                orbitRepository.findOrbitsByGalaxyId(galaxyId)
+                orbitRepository.findOrbitsByGalaxyIdOrderByOrbitLevel(galaxyId)
                         .stream()
                         .map(o -> orbitService.findOrbitWithSystemList(
                                 o.getOrbitId()

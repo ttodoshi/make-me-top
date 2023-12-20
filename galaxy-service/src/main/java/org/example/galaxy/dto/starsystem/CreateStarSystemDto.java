@@ -12,8 +12,6 @@ public class CreateStarSystemDto {
     @Size(max = 255)
     private String systemName;
     @NotNull
-    private Integer systemLevel;
-    @NotNull
     private Integer systemPosition;
     @NotNull
     @Size(max = 255)

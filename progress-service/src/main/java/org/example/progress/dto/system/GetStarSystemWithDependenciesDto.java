@@ -1,4 +1,4 @@
-package org.example.progress.dto.starsystem;
+package org.example.progress.dto.system;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
@@ -9,7 +9,6 @@ import java.util.List;
 public class GetStarSystemWithDependenciesDto {
     private Long systemId;
     private String systemName;
-    private Integer systemLevel;
     private Integer systemPosition;
     @JsonProperty("systemDependencyList")
     private List<SystemDependencyModelDto> dependencyList;
