@@ -1,17 +1,15 @@
 package org.example.person.service.implementations;
 
-import com.google.protobuf.Empty;
 import com.google.protobuf.Timestamp;
 import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.server.service.GrpcService;
-import org.example.person.dto.explorer.ExplorerBasicInfoDto;
 import org.example.grpc.ExplorerServiceGrpc;
 import org.example.grpc.ExplorersService;
 import org.example.grpc.PeopleService;
 import org.example.person.model.Explorer;
-import org.example.person.service.RatingService;
 import org.example.person.service.ExplorerService;
+import org.example.person.service.RatingService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -93,34 +91,38 @@ public class GrpcExplorerService extends ExplorerServiceGrpc.ExplorerServiceImpl
 
     @Override
     @Transactional(readOnly = true)
-    public void findAllExplorers(Empty request, StreamObserver<ExplorersService.AllExplorersResponse> responseObserver) {
-        List<ExplorerBasicInfoDto> explorers = explorerService.findAllExplorers();
+    public void findExplorersPeopleByGroupCourseIdIn(ExplorersService.ExplorersByGroup_CourseIdInRequest request, StreamObserver<ExplorersService.ExplorersPeopleByGroup_CourseIdInResponse> responseObserver) {
+        List<Explorer> explorers = explorerService.findExplorersByGroup_CourseIdIn(
+                request.getCourseIdsList()
+        );
         Map<Long, Double> peopleRating = ratingService.getPeopleRatingAsExplorerByPersonIdIn(
                 explorers.stream()
-                        .map(ExplorerBasicInfoDto::getPersonId)
+                        .map(Explorer::getPersonId)
                         .distinct()
                         .collect(Collectors.toList())
         );
+
         Map<Long, List<PeopleService.PersonWithRating>> explorersByCourseId = explorers
                 .stream()
                 .collect(Collectors.groupingBy(
-                        ExplorerBasicInfoDto::getCourseId,
+                        e -> e.getGroup().getCourseId(),
                         Collectors.mapping(e -> PeopleService.PersonWithRating
                                 .newBuilder()
                                 .setPersonId(e.getPersonId())
-                                .setFirstName(e.getFirstName())
-                                .setLastName(e.getLastName())
-                                .setPatronymic(e.getPatronymic())
+                                .setFirstName(e.getPerson().getFirstName())
+                                .setLastName(e.getPerson().getLastName())
+                                .setPatronymic(e.getPerson().getPatronymic())
                                 .setRating(peopleRating.get(e.getPersonId()))
                                 .build(), Collectors.toList()))
                 );
-        responseObserver.onNext(ExplorersService.AllExplorersResponse
+
+        responseObserver.onNext(ExplorersService.ExplorersPeopleByGroup_CourseIdInResponse
                 .newBuilder()
                 .putAllExplorersWithCourseIdMap(explorersByCourseId.entrySet()
                         .stream()
                         .collect(Collectors.toMap(
                                 Map.Entry::getKey,
-                                entry -> ExplorersService.AllExplorersResponse.ExplorerList
+                                entry -> ExplorersService.ExplorersPeopleByGroup_CourseIdInResponse.ExplorerList
                                         .newBuilder()
                                         .addAllPerson(entry.getValue())
                                         .build()

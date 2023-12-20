@@ -8,7 +8,6 @@ import org.example.person.model.Keeper;
 import org.example.person.model.Person;
 import org.example.person.repository.KeeperRepository;
 import org.example.person.service.validator.KeeperValidatorService;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -28,8 +27,6 @@ public class KeeperService {
 
     private final PersonService personService;
     private final KeeperValidatorService keeperValidatorService;
-
-    private final ModelMapper mapper;
 
     @Value("${default-person-max-explorers-value}")
     private Integer DEFAULT_MAX_EXPLORERS_VALUE;
@@ -61,6 +58,17 @@ public class KeeperService {
         return keeperRepository.findKeepersByPersonId(personId);
     }
 
+    @Cacheable(cacheNames = "keepersByPersonIdInCache", key = "#personIds")
+    @Transactional(readOnly = true)
+    public Map<Long, List<Keeper>> findKeepersByPersonIdIn(List<Long> personIds) {
+        return keeperRepository.findKeepersByPersonIdIn(personIds)
+                .stream()
+                .collect(Collectors.groupingBy(
+                        Keeper::getPersonId,
+                        Collectors.toList()
+                ));
+    }
+
     @Cacheable(cacheNames = "keepersByCourseIdCache", key = "#courseId")
     @Transactional(readOnly = true)
     public List<Keeper> findKeepersByCourseId(Long courseId) {
@@ -73,12 +81,16 @@ public class KeeperService {
     public Map<Long, Keeper> findKeepersByKeeperIdIn(List<Long> keeperIds) {
         return keeperRepository.findKeepersByKeeperIdIn(keeperIds)
                 .stream()
-                .collect(
-                        Collectors.toMap(
-                                Keeper::getKeeperId,
-                                k -> k
-                        )
-                );
+                .collect(Collectors.toMap(
+                        Keeper::getKeeperId,
+                        k -> k
+                ));
+    }
+
+    @Cacheable(cacheNames = "keepersByCourseIdInCache", key = "{#courseIds}")
+    @Transactional(readOnly = true)
+    public List<Keeper> findKeepersByCourseIdIn(List<Long> courseIds) {
+        return keeperRepository.findKeepersByCourseIdIn(courseIds);
     }
 
     @Cacheable(cacheNames = "keepersByPersonIdAndCourseIdInCache", key = "{#personId, #courseIds}")
@@ -87,17 +99,11 @@ public class KeeperService {
         return keeperRepository.findKeepersByPersonIdAndCourseIdIn(personId, courseIds);
     }
 
-    @Cacheable(cacheNames = "allKeepersCache")
-    @Transactional(readOnly = true)
-    public List<Keeper> findAllKeepers() {
-        return keeperRepository.findAll();
-    }
-
     @Caching(evict = {
             @CacheEvict(cacheNames = "keepersByPersonIdCache", key = "#keeper.personId"),
-            @CacheEvict(cacheNames = "keeperExistsByIdCache", key = "#result.keeperId"),
+            @CacheEvict(cacheNames = "keeperExistsByIdCache", key = "#result"),
             @CacheEvict(cacheNames = "keepersByCourseIdCache", key = "#courseId"),
-            @CacheEvict(cacheNames = {"keepersByKeeperIdInCache", "keepersByPersonIdAndCourseIdInCache", "allKeepersCache"}, allEntries = true),
+            @CacheEvict(cacheNames = {"keepersByPersonIdCache", "keepersByKeeperIdInCache", "keepersByPersonIdAndCourseIdInCache", "keepersByCourseIdInCache"}, allEntries = true),
     })
     @Transactional
     public Long setKeeperToCourse(Long courseId, CreateKeeperDto keeper) {

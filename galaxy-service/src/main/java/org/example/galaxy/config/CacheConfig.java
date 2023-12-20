@@ -11,6 +11,6 @@ import org.springframework.context.annotation.Configuration;
 public class CacheConfig {
     @Bean
     public CacheManager cacheManager() {
-        return new ConcurrentMapCacheManager("personByIdCache", "explorersWithSystemsCache", "keepersWithSystemsCache");
+        return new ConcurrentMapCacheManager("personByIdCache");
     }
 }

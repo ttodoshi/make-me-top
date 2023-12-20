@@ -17,6 +17,8 @@ public interface ExplorerRepository extends JpaRepository<Explorer, Long> {
 
     List<Explorer> findExplorersByPersonId(Long personId);
 
+    List<Explorer> findExplorersByPersonIdIn(List<Long> personIds);
+
     List<Explorer> findExplorersByExplorerIdIn(List<Long> explorerIds);
 
     List<Explorer> findExplorersByGroup_CourseIdIn(List<Long> courseIds);
