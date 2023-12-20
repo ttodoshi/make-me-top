@@ -1,6 +1,5 @@
 package org.example.person.service.implementations;
 
-import com.google.protobuf.Empty;
 import com.google.protobuf.Timestamp;
 import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
@@ -110,16 +109,18 @@ public class GrpcKeeperService extends KeeperServiceGrpc.KeeperServiceImplBase {
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public void findAllKeepers(Empty request, StreamObserver<KeepersService.AllKeepersResponse> responseObserver) {
-        List<Keeper> keepers = keeperService.findAllKeepers();
+    public void findKeepersPeopleByCourseIdIn(KeepersService.KeepersByCourseIdInRequest request, StreamObserver<KeepersService.KeepersPeopleByCourseIdInResponse> responseObserver) {
+        List<Keeper> keepers = keeperService.findKeepersByCourseIdIn(
+                request.getCourseIdsList()
+        );
         Map<Long, Double> peopleRating = ratingService.getPeopleRatingAsKeeperByPersonIdIn(
                 keepers.stream()
                         .map(Keeper::getPersonId)
                         .distinct()
                         .collect(Collectors.toList())
         );
-        Map<Long, List<PeopleService.PersonWithRating>> collect = keepers
+
+        Map<Long, List<PeopleService.PersonWithRating>> keepersWithRating = keepers
                 .stream()
                 .collect(Collectors.groupingBy(
                         Keeper::getCourseId,
@@ -133,13 +134,14 @@ public class GrpcKeeperService extends KeeperServiceGrpc.KeeperServiceImplBase {
                                         .build(),
                                 Collectors.toList())
                 ));
-        responseObserver.onNext(KeepersService.AllKeepersResponse
+
+        responseObserver.onNext(KeepersService.KeepersPeopleByCourseIdInResponse
                 .newBuilder().putAllKeepersWithCourseIdMap(
-                        collect.entrySet()
+                        keepersWithRating.entrySet()
                                 .stream()
                                 .collect(Collectors.toMap(
                                         Map.Entry::getKey,
-                                        entry -> KeepersService.AllKeepersResponse.KeeperList
+                                        entry -> KeepersService.KeepersPeopleByCourseIdInResponse.KeeperList
                                                 .newBuilder()
                                                 .addAllPerson(entry.getValue())
                                                 .build()

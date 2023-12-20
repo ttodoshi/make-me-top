@@ -3,7 +3,6 @@ syntax = "proto3";
 package org.example.grpc;
 
 import "google/protobuf/timestamp.proto";
-import "google/protobuf/empty.proto";
 import "people_service.proto";
 
 option java_package = "org.example.grpc";
@@ -19,11 +18,11 @@ service ExplorerService {
   }
   rpc existsById(ExplorerByIdRequest) returns (ExplorerExistsByIdResponse) {
   }
-  rpc findAllExplorers(google.protobuf.Empty) returns (AllExplorersResponse) {
-  }
   rpc findExplorersByExplorerIdIn(ExplorersByExplorerIdInRequest) returns (ExplorersByExplorerIdInResponse){
   }
   rpc findExplorersByGroup_CourseIdIn(ExplorersByGroup_CourseIdInRequest) returns (ExplorersByGroup_CourseIdInResponse) {
+  }
+  rpc findExplorersPeopleByGroup_CourseIdIn(ExplorersByGroup_CourseIdInRequest) returns (ExplorersPeopleByGroup_CourseIdInResponse) {
   }
   rpc findExplorersByPersonIdIn(ExplorersByPersonIdInRequest) returns (ExplorersByPersonIdInResponse){
   }
@@ -52,7 +51,7 @@ message ExplorerExistsByIdResponse {
   bool explorerExists = 1;
 }
 
-message AllExplorersResponse {
+message ExplorersPeopleByGroup_CourseIdInResponse {
   message ExplorerList {
     repeated PersonWithRating person = 1;
   }

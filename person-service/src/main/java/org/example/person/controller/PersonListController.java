@@ -34,11 +34,11 @@ public class PersonListController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> getPersonList(@RequestParam String as) {
+    public ResponseEntity<?> getPersonList(@RequestParam String as, @RequestParam Integer page, @RequestParam Integer size) {
         if (as.equals("explorer"))
-            return ResponseEntity.ok(explorerListService.getExplorers());
+            return ResponseEntity.ok(explorerListService.getExplorers(page, size));
         else if (as.equals("keeper"))
-            return ResponseEntity.ok(keeperListService.getKeepers());
+            return ResponseEntity.ok(keeperListService.getKeepers(page, size));
         else throw new RoleNotAvailableException();
     }
 }

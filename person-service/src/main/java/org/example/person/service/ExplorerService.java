@@ -2,7 +2,6 @@ package org.example.person.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.person.dto.event.ExplorerCreateEvent;
-import org.example.person.dto.explorer.ExplorerBasicInfoDto;
 import org.example.person.exception.classes.explorer.ExplorerNotFoundException;
 import org.example.person.model.Explorer;
 import org.example.person.repository.ExplorerRepository;
@@ -16,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -52,6 +52,17 @@ public class ExplorerService {
         return explorerRepository.findExplorersByPersonId(personId);
     }
 
+    @Cacheable(cacheNames = "explorersByPersonIdInCache", key = "#personIds")
+    @Transactional(readOnly = true)
+    public Map<Long, List<Explorer>> findExplorersByPersonIdIn(List<Long> personIds) {
+        return explorerRepository.findExplorersByPersonIdIn(personIds)
+                .stream()
+                .collect(Collectors.groupingBy(
+                        Explorer::getPersonId,
+                        Collectors.toList()
+                ));
+    }
+
     @Cacheable(cacheNames = "explorersByCourseIdCache", key = "#courseId")
     @Transactional(readOnly = true)
     public List<Explorer> findExplorersByCourseId(Long courseId) {
@@ -77,26 +88,10 @@ public class ExplorerService {
         return explorerRepository.findExplorersByPersonIdAndGroup_CourseIdIn(personId, courseIds);
     }
 
-    @Cacheable(cacheNames = "allExplorersCache")
-    @Transactional(readOnly = true)
-    public List<ExplorerBasicInfoDto> findAllExplorers() {
-        return explorerRepository.findAll()
-                .stream()
-                .map(e -> new ExplorerBasicInfoDto(
-                        e.getPersonId(),
-                        e.getPerson().getFirstName(),
-                        e.getPerson().getLastName(),
-                        e.getPerson().getPatronymic(),
-                        e.getExplorerId(),
-                        e.getGroup().getCourseId(),
-                        e.getGroupId()
-                )).collect(Collectors.toList());
-    }
-
     @KafkaListener(topics = "explorerTopic", containerFactory = "createExplorerKafkaListenerContainerFactory")
     @Caching(evict = {
             @CacheEvict(cacheNames = "explorerExistsByIdCache", key = "#result.explorerId"),
-            @CacheEvict(cacheNames = {"explorersByPersonIdAndCourseIdCache", "explorersByPersonIdCache", "explorersByCourseIdCache", "explorersByExplorerIdInCache", "explorersByGroup_CourseIdInCache", "explorersByPersonIdAndGroup_CourseIdInCache", "allExplorersCache"}, allEntries = true),
+            @CacheEvict(cacheNames = {"explorersByPersonIdAndCourseIdCache", "explorersByPersonIdCache", "explorersByPersonIdInCache", "explorersByCourseIdCache", "explorersByExplorerIdInCache", "explorersByGroup_CourseIdInCache", "explorersByPersonIdAndGroup_CourseIdInCache"}, allEntries = true),
     }, put = {
             @CachePut(cacheNames = "explorerByIdCache", key = "#result.explorerId")
     })
