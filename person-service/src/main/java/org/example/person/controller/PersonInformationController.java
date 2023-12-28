@@ -37,7 +37,7 @@ public class PersonInformationController {
     })
     public ResponseEntity<?> getExplorerProfileInformation() {
         return ResponseEntity.ok(
-                explorerProfileInformationService.getExplorerCabinetInformation()
+                explorerProfileInformationService.getExplorerProfileInformation()
         );
     }
 
@@ -55,7 +55,7 @@ public class PersonInformationController {
     })
     public ResponseEntity<?> getKeeperProfileInformation() {
         return ResponseEntity.ok(
-                keeperProfileInformationService.getKeeperCabinetInformation()
+                keeperProfileInformationService.getKeeperProfileInformation()
         );
     }
 

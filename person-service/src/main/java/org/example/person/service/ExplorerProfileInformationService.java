@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.Executor;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +21,7 @@ public class ExplorerProfileInformationService {
 
     private final PersonService personService;
     private final ExplorerListService explorerListService;
+    private final FeedbackService feedbackService;
     private final CourseRegistrationRequestService courseRegistrationRequestService;
     private final CourseService courseService;
     private final RatingService ratingService;
@@ -29,7 +31,7 @@ public class ExplorerProfileInformationService {
     private final Executor asyncExecutor;
 
     @Transactional(readOnly = true)
-    public Map<String, Object> getExplorerCabinetInformation() {
+    public Map<String, Object> getExplorerProfileInformation() {
         Map<String, Object> response = new LinkedHashMap<>();
         Long authenticatedPersonId = personService.getAuthenticatedPersonId();
         response.put("person", personService.getAuthenticatedPerson());
@@ -40,6 +42,22 @@ public class ExplorerProfileInformationService {
         CompletableFuture<Void> currentSystem = CompletableFuture.runAsync(() ->
                 courseProgressService.getCurrentCourseProgressProfile(authenticatedPersonId)
                         .ifPresent(p -> response.put("currentSystem", p)), asyncExecutor);
+
+        CompletableFuture<Void> explorerFeedbacks = CompletableFuture.runAsync(() ->
+                response.put(
+                        "explorerFeedbacks",
+                        feedbackService.getExplorerFeedbackOffers(
+                                personExplorers.stream().map(Explorer::getExplorerId).collect(Collectors.toList())
+                        )
+                ), asyncExecutor);
+
+        CompletableFuture<Void> courseFeedbacks = CompletableFuture.runAsync(() ->
+                response.put(
+                        "courseFeedbacks",
+                        feedbackService.getCourseRatingOffers(
+                                personExplorers.stream().map(Explorer::getExplorerId).collect(Collectors.toList())
+                        )
+                ), asyncExecutor);
 
         CompletableFuture<Void> studyRequest = CompletableFuture.runAsync(() ->
                 courseRegistrationRequestService.getStudyRequestForExplorerByPersonId()
@@ -64,7 +82,7 @@ public class ExplorerProfileInformationService {
                 )), asyncExecutor);
 
         try {
-            CompletableFuture.allOf(currentSystem, studyRequest, investigatedSystems, ratingTable, homeworkRequests).join();
+            CompletableFuture.allOf(currentSystem, explorerFeedbacks, courseFeedbacks, studyRequest, investigatedSystems, ratingTable, homeworkRequests).join();
         } catch (CompletionException completionException) {
             try {
                 throw completionException.getCause();

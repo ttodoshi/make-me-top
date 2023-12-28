@@ -138,10 +138,11 @@ public class GrpcExplorerService extends ExplorerServiceGrpc.ExplorerServiceImpl
                 .newBuilder()
                 .putAllExplorerByExplorerIdMap(
                         explorerService.findExplorersByExplorerIdIn(request.getExplorerIdsList())
+                                .entrySet()
                                 .stream()
                                 .collect(Collectors.toMap(
-                                        Explorer::getExplorerId,
-                                        this::mapExplorerToGrpcModel
+                                        Map.Entry::getKey,
+                                        e -> mapExplorerToGrpcModel(e.getValue())
                                 ))
                 ).build()
         );

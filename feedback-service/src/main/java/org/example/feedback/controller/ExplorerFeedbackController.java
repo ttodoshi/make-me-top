@@ -34,15 +34,70 @@ public class ExplorerFeedbackController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> findExplorerFeedbacksByKeeperIdIn(@RequestParam List<Long> keeperIds) {
+    public ResponseEntity<?> findExplorerFeedbacksByIdIn(@RequestParam List<Long> feedbackIds) {
         return ResponseEntity.ok(
-                explorerFeedbackService.findExplorerFeedbacksByKeeperIdIn(keeperIds)
+                explorerFeedbackService.findExplorerFeedbacksByIdIn(feedbackIds)
         );
     }
 
-    @PostMapping("/courses/{courseId}/explorer-feedbacks")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.feedback.enums.AuthenticationRoleType).EXPLORER) && " +
-            "@roleService.hasAnyCourseRole(#courseId, T(org.example.feedback.enums.CourseRoleType).EXPLORER)")
+    @GetMapping("/explorer-feedbacks/offers")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Get explorer feedback offers by keeper id in", tags = "explorer feedback")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Requested offers",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json")
+                    })
+    })
+    public ResponseEntity<?> findExplorerFeedbackOffersByKeeperIdIn(@RequestParam List<Long> keeperIds) {
+        return ResponseEntity.ok(
+                explorerFeedbackService.findExplorerFeedbackOffersByKeeperIdIn(keeperIds)
+        );
+    }
+
+    @GetMapping("/explorer-feedbacks/offers/valid")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Get explorer feedback offers by explorer id in", tags = "explorer feedback")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Requested offers",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json")
+                    })
+    })
+    public ResponseEntity<?> findExplorerFeedbackOffersByExplorerIdInAndOfferValidIsTrue(@RequestParam List<Long> explorerIds) {
+        return ResponseEntity.ok(
+                explorerFeedbackService
+                        .findExplorerFeedbackOffersByExplorerIdInAndOfferValidIsTrue(explorerIds)
+        );
+    }
+
+    @GetMapping("/course-feedbacks/offers/valid")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Get course rating offers by keeper id in", tags = "explorer feedback")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Requested offers",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json")
+                    })
+    })
+    public ResponseEntity<?> findCourseRatingOffersByExplorerIdInAndOfferValidIsTrue(@RequestParam List<Long> explorerIds) {
+        return ResponseEntity.ok(
+                explorerFeedbackService
+                        .findCourseRatingOffersByExplorerIdInAndOfferValidIsTrue(explorerIds)
+        );
+    }
+
+    @PostMapping("/explorer-feedbacks")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.feedback.enums.AuthenticationRoleType).EXPLORER)")
     @Operation(summary = "Send feedback for keeper (rating from 1 to 5)", tags = "explorer feedback")
     @ApiResponses(value = {
             @ApiResponse(
@@ -53,18 +108,16 @@ public class ExplorerFeedbackController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> sendFeedbackForKeeper(@PathVariable Long courseId,
-                                                   @Valid @RequestBody CreateExplorerFeedbackDto feedback) {
+    public ResponseEntity<?> sendFeedbackForKeeper(@Valid @RequestBody CreateExplorerFeedbackDto feedback) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(
-                        explorerFeedbackService.sendFeedbackForKeeper(courseId, feedback)
+                        explorerFeedbackService.sendFeedbackForKeeper(feedback)
                 );
     }
 
-    @PostMapping("/courses/{courseId}/course-feedbacks")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.feedback.enums.AuthenticationRoleType).EXPLORER) && " +
-            "@roleService.hasAnyCourseRole(#courseId, T(org.example.feedback.enums.CourseRoleType).EXPLORER)")
+    @PostMapping("/course-feedbacks")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.feedback.enums.AuthenticationRoleType).EXPLORER)")
     @Operation(summary = "Set rating from 1 to 5 for course", tags = "explorer feedback")
     @ApiResponses(value = {
             @ApiResponse(
@@ -75,12 +128,47 @@ public class ExplorerFeedbackController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> rateCourse(@PathVariable Long courseId,
-                                        @Valid @RequestBody CreateCourseRatingDto request) {
+    public ResponseEntity<?> rateCourse(@Valid @RequestBody CreateCourseRatingDto request) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(
-                        explorerFeedbackService.rateCourse(courseId, request)
+                        explorerFeedbackService.rateCourse(request)
                 );
+    }
+
+    @PatchMapping("/explorer-feedbacks/offers/{explorerId}")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.feedback.enums.AuthenticationRoleType).EXPLORER)")
+    @Operation(summary = "Close explorer feedback offer", tags = "explorer feedback")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Offer closed",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json")
+                    })
+    })
+    public ResponseEntity<?> closeExplorerFeedbackOffer(@PathVariable Long explorerId) {
+        return ResponseEntity.ok(
+                explorerFeedbackService.closeExplorerFeedbackOffer(explorerId)
+        );
+    }
+
+    @PatchMapping("/course-feedbacks/offers/{explorerId}")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.feedback.enums.AuthenticationRoleType).EXPLORER)")
+    @Operation(summary = "Close course rating offer", tags = "explorer feedback")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Offer closed",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json")
+                    })
+    })
+    public ResponseEntity<?> closeCourseRatingOffer(@PathVariable Long explorerId) {
+        return ResponseEntity.ok(
+                explorerFeedbackService.closeCourseRatingOffer(explorerId)
+        );
     }
 }

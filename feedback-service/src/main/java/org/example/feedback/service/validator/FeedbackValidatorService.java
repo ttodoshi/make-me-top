@@ -4,16 +4,18 @@ import lombok.RequiredArgsConstructor;
 import org.example.feedback.dto.feedback.CreateCourseRatingDto;
 import org.example.feedback.dto.feedback.CreateExplorerFeedbackDto;
 import org.example.feedback.dto.feedback.CreateKeeperFeedbackDto;
-import org.example.feedback.exception.classes.course.CourseNotFoundException;
+import org.example.feedback.exception.classes.explorer.DifferentExplorerException;
 import org.example.feedback.exception.classes.explorer.ExplorerNotFoundException;
-import org.example.feedback.exception.classes.explorer.ExplorerNotStudyingWithKeeperException;
 import org.example.feedback.exception.classes.feedback.FeedbackAlreadyExistsException;
-import org.example.feedback.exception.classes.feedback.UnexpectedRatingValueException;
+import org.example.feedback.exception.classes.feedback.OfferAlreadyNotValidException;
+import org.example.feedback.exception.classes.feedback.OfferNotFoundException;
 import org.example.feedback.exception.classes.keeper.DifferentKeeperException;
 import org.example.feedback.exception.classes.keeper.KeeperNotFoundException;
-import org.example.feedback.exception.classes.progress.CourseNotCompletedException;
+import org.example.feedback.model.CourseRatingOffer;
+import org.example.feedback.model.ExplorerFeedbackOffer;
+import org.example.feedback.model.KeeperFeedbackOffer;
 import org.example.feedback.repository.*;
-import org.example.grpc.ExplorerGroupsService;
+import org.example.feedback.service.PersonService;
 import org.example.grpc.ExplorersService;
 import org.example.grpc.KeepersService;
 import org.springframework.stereotype.Component;
@@ -22,71 +24,92 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 @RequiredArgsConstructor
 public class FeedbackValidatorService {
-    private final CourseMarkRepository courseMarkRepository;
     private final ExplorerRepository explorerRepository;
-    private final ExplorerGroupRepository explorerGroupRepository;
     private final KeeperFeedbackRepository keeperFeedbackRepository;
     private final ExplorerFeedbackRepository explorerFeedbackRepository;
     private final CourseRatingRepository courseRatingRepository;
+    private final ExplorerFeedbackOfferRepository explorerFeedbackOfferRepository;
+    private final KeeperFeedbackOfferRepository keeperFeedbackOfferRepository;
+    private final CourseRatingOfferRepository courseRatingOfferRepository;
     private final KeeperRepository keeperRepository;
-    private final CourseRepository courseRepository;
+
+    private final PersonService personService;
 
     @Transactional(readOnly = true)
-    public void validateFeedbackForExplorerRequest(Long keeperId, CreateKeeperFeedbackDto feedback) {
-        ExplorersService.Explorer explorer = explorerRepository
+    public void validateFeedbackForExplorerRequest(CreateKeeperFeedbackDto feedback) {
+        KeeperFeedbackOffer keeperFeedbackOffer = keeperFeedbackOfferRepository
                 .findById(feedback.getExplorerId())
-                .orElseThrow(() -> new ExplorerNotFoundException(feedback.getExplorerId()));
-        ExplorerGroupsService.ExplorerGroup explorerGroup = explorerGroupRepository
-                .getReferenceById(explorer.getGroupId());
+                .orElseThrow(() -> new OfferNotFoundException(feedback.getExplorerId()));
 
-        if (!keeperId.equals(explorerGroup.getKeeperId()))
-            throw new ExplorerNotStudyingWithKeeperException(explorer.getExplorerId(), keeperId);
-        if (!courseMarkRepository.existsById(explorer.getExplorerId()))
-            throw new CourseNotCompletedException(explorerGroup.getCourseId());
-        if (keeperFeedbackRepository.existsById(explorer.getExplorerId()))
-            throw new FeedbackAlreadyExistsException();
-        if (feedback.getRating() < 1 || feedback.getRating() > 5)
-            throw new UnexpectedRatingValueException();
-    }
+        KeepersService.Keeper keeper = keeperRepository
+                .findById(keeperFeedbackOffer.getKeeperId())
+                .orElseThrow(() -> new KeeperNotFoundException(keeperFeedbackOffer.getKeeperId()));
 
-    @Transactional(readOnly = true)
-    public void validateFeedbackForKeeperRequest(Long personId, CreateExplorerFeedbackDto feedback) {
-        KeepersService.Keeper keeper = keeperRepository.findById(feedback.getKeeperId())
-                .orElseThrow(() -> new KeeperNotFoundException(feedback.getKeeperId()));
-
-        if (!courseRepository.existsById(keeper.getCourseId()))
-            throw new CourseNotFoundException(keeper.getCourseId());
-
-        ExplorersService.Explorer explorer = explorerRepository
-                .findExplorerByPersonIdAndGroup_CourseId(personId, keeper.getCourseId())
-                .orElseThrow(() -> new ExplorerNotFoundException(keeper.getCourseId()));
-        ExplorerGroupsService.ExplorerGroup explorerGroup = explorerGroupRepository
-                .getReferenceById(explorer.getGroupId());
-
-        if (!feedback.getKeeperId().equals(explorerGroup.getKeeperId()))
+        if (!personService.getAuthenticatedPersonId().equals(keeper.getPersonId()))
             throw new DifferentKeeperException();
-        if (!courseMarkRepository.existsById(explorer.getExplorerId()))
-            throw new CourseNotCompletedException(keeper.getCourseId());
-        if (explorerFeedbackRepository.existsById(explorer.getExplorerId()))
+        if (keeperFeedbackRepository.existsById(keeperFeedbackOffer.getExplorerId()))
             throw new FeedbackAlreadyExistsException();
-        if (feedback.getRating() < 1 || feedback.getRating() > 5)
-            throw new UnexpectedRatingValueException();
     }
 
     @Transactional(readOnly = true)
-    public void validateCourseRatingRequest(Long personId, Long courseId, CreateCourseRatingDto request) {
-        if (!courseRepository.existsById(courseId))
-            throw new CourseNotFoundException(courseId);
+    public void validateFeedbackForKeeperRequest(CreateExplorerFeedbackDto feedback) {
+        ExplorerFeedbackOffer explorerFeedbackOffer = explorerFeedbackOfferRepository
+                .findById(feedback.getExplorerId())
+                .orElseThrow(() -> new OfferNotFoundException(feedback.getExplorerId()));
 
         ExplorersService.Explorer explorer = explorerRepository
-                .findExplorerByPersonIdAndGroup_CourseId(personId, courseId)
+                .findById(explorerFeedbackOffer.getExplorerId())
+                .orElseThrow(() -> new ExplorerNotFoundException(explorerFeedbackOffer.getExplorerId()));
+
+        if (!personService.getAuthenticatedPersonId().equals(explorer.getPersonId()))
+            throw new DifferentExplorerException();
+        if (explorerFeedbackRepository.existsById(explorerFeedbackOffer.getExplorerId()))
+            throw new FeedbackAlreadyExistsException();
+    }
+
+    @Transactional(readOnly = true)
+    public void validateCourseRatingRequest(CreateCourseRatingDto feedback) {
+        CourseRatingOffer courseRatingOffer = courseRatingOfferRepository
+                .findById(feedback.getExplorerId())
+                .orElseThrow(() -> new OfferNotFoundException(feedback.getExplorerId()));
+
+        ExplorersService.Explorer explorer = explorerRepository
+                .findById(courseRatingOffer.getExplorerId())
                 .orElseThrow(ExplorerNotFoundException::new);
 
-        if (!courseMarkRepository.existsById(explorer.getExplorerId()))
-            throw new CourseNotCompletedException(courseId);
-        if (courseRatingRepository.existsById(explorer.getExplorerId()))
+        if (!personService.getAuthenticatedPersonId().equals(explorer.getPersonId()))
+            throw new DifferentExplorerException();
+        if (courseRatingRepository.existsById(courseRatingOffer.getExplorerId()))
             throw new FeedbackAlreadyExistsException();
-        if (request.getRating() < 1 || request.getRating() > 5)
-            throw new UnexpectedRatingValueException();
+    }
+
+    public void validateCloseExplorerFeedbackOfferRequest(ExplorerFeedbackOffer offer) {
+        ExplorersService.Explorer explorer = explorerRepository
+                .findById(offer.getExplorerId())
+                .orElseThrow(() -> new ExplorerNotFoundException(offer.getExplorerId()));
+        if (!personService.getAuthenticatedPersonId().equals(explorer.getPersonId()))
+            throw new DifferentExplorerException();
+        if (!offer.getOfferValid())
+            throw new OfferAlreadyNotValidException(offer.getExplorerId());
+    }
+
+    public void validateCloseCourseRatingOfferRequest(CourseRatingOffer offer) {
+        ExplorersService.Explorer explorer = explorerRepository
+                .findById(offer.getExplorerId())
+                .orElseThrow(() -> new ExplorerNotFoundException(offer.getExplorerId()));
+        if (!personService.getAuthenticatedPersonId().equals(explorer.getPersonId()))
+            throw new DifferentExplorerException();
+        if (!offer.getOfferValid())
+            throw new OfferAlreadyNotValidException(offer.getExplorerId());
+    }
+
+    public void validateCloseKeeperFeedbackOfferRequest(KeeperFeedbackOffer offer) {
+        KeepersService.Keeper keeper = keeperRepository
+                .findById(offer.getKeeperId())
+                .orElseThrow(() -> new KeeperNotFoundException(offer.getKeeperId()));
+        if (!personService.getAuthenticatedPersonId().equals(keeper.getPersonId()))
+            throw new DifferentExplorerException();
+        if (!offer.getOfferValid())
+            throw new OfferAlreadyNotValidException(offer.getExplorerId());
     }
 }

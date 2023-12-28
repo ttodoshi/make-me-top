@@ -3,7 +3,6 @@ package org.example.course.aspect;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
-import org.example.course.dto.course.CourseDto;
 import org.example.course.dto.course.UpdateCourseDto;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -23,8 +22,8 @@ public class StarSystemAspect {
     public void updateSystemNamePointcut(Long galaxyId, Long courseId, UpdateCourseDto course) {
     }
 
-    @AfterReturning(pointcut = "updateSystemNamePointcut(galaxyId, courseId, course)", returning = "result", argNames = "galaxyId, courseId, course, result")
-    public void updateSystemNameAfterUpdateCourseTitle(Long galaxyId, Long courseId, UpdateCourseDto course, CourseDto result) {
+    @AfterReturning(pointcut = "updateSystemNamePointcut(galaxyId, courseId, course)", argNames = "galaxyId, courseId, course")
+    public void updateSystemNameAfterUpdateCourseTitle(Long galaxyId, Long courseId, UpdateCourseDto course) {
         updateSystemKafkaTemplate.send("updateSystemTopic", courseId, course.getTitle());
     }
 }

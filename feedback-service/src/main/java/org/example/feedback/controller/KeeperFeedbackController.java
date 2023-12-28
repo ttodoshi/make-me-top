@@ -23,7 +23,7 @@ public class KeeperFeedbackController {
 
     @GetMapping("/keeper-feedbacks")
     @PreAuthorize("isAuthenticated()")
-    @Operation(summary = "Get keeper feedbacks by explorer id in", tags = "explorer feedback")
+    @Operation(summary = "Get keeper feedbacks by explorer id in", tags = "keeper feedback")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
@@ -33,15 +33,50 @@ public class KeeperFeedbackController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> findKeeperFeedbacksByExplorerIdIn(@RequestParam List<Long> explorerIds) {
+    public ResponseEntity<?> findKeeperFeedbacksByExplorerIdIn(@RequestParam List<Long> feedbackIds) {
         return ResponseEntity.ok(
-                keeperFeedbackService.findKeeperFeedbacksByExplorerIdIn(explorerIds)
+                keeperFeedbackService.findKeeperFeedbacksByIdIn(feedbackIds)
         );
     }
 
-    @PostMapping("/courses/{courseId}/keeper-feedbacks")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.feedback.enums.AuthenticationRoleType).KEEPER) && " +
-            "@roleService.hasAnyCourseRole(#courseId, T(org.example.feedback.enums.CourseRoleType).KEEPER)")
+    @GetMapping("/keeper-feedbacks/offers")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Get keeper feedback offers by explorer id in", tags = "keeper feedback")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Requested offers",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json")
+                    })
+    })
+    public ResponseEntity<?> findKeeperFeedbackOffersByExplorerIdIn(@RequestParam List<Long> explorerIds) {
+        return ResponseEntity.ok(
+                keeperFeedbackService.findKeeperFeedbackOffersByExplorerIdIn(explorerIds)
+        );
+    }
+
+    @GetMapping("/keeper-feedbacks/offers/valid")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Get keeper feedback offers by explorer id in", tags = "keeper feedback")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Requested offers",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json")
+                    })
+    })
+    public ResponseEntity<?> findKeeperFeedbackOffersByExplorerIdInAndOfferValidIsTrue(@RequestParam List<Long> explorerIds) {
+        return ResponseEntity.ok(
+                keeperFeedbackService.findKeeperFeedbackOffersByExplorerIdInAndOfferValidIsTrue(explorerIds)
+        );
+    }
+
+    @PostMapping("/keeper-feedbacks")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.feedback.enums.AuthenticationRoleType).KEEPER)")
     @Operation(summary = "Send feedback for explorer", tags = "keeper feedback")
     @ApiResponses(value = {
             @ApiResponse(
@@ -52,12 +87,29 @@ public class KeeperFeedbackController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> sendFeedbackForExplorer(@PathVariable Long courseId,
-                                                     @Valid @RequestBody CreateKeeperFeedbackDto feedback) {
+    public ResponseEntity<?> sendFeedbackForExplorer(@Valid @RequestBody CreateKeeperFeedbackDto feedback) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(
-                        keeperFeedbackService.sendFeedbackForExplorer(courseId, feedback)
+                        keeperFeedbackService.sendFeedbackForExplorer(feedback)
                 );
+    }
+
+    @PatchMapping("/keeper-feedbacks/offers/{explorerId}")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.feedback.enums.AuthenticationRoleType).KEEPER)")
+    @Operation(summary = "Close keeper feedback offer", tags = "keeper feedback")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Offer closed",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json")
+                    })
+    })
+    public ResponseEntity<?> closeKeeperFeedbackOffer(@PathVariable Long explorerId) {
+        return ResponseEntity.ok(
+                keeperFeedbackService.closeKeeperFeedbackOffer(explorerId)
+        );
     }
 }

@@ -1,68 +1,104 @@
 package org.example.feedback.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.feedback.dto.event.KeeperFeedbackOfferCreateEvent;
 import org.example.feedback.dto.feedback.CreateKeeperFeedbackDto;
 import org.example.feedback.dto.feedback.KeeperFeedbackDto;
-import org.example.feedback.exception.classes.course.CourseNotFoundException;
-import org.example.feedback.exception.classes.keeper.KeeperNotFoundException;
+import org.example.feedback.dto.offer.KeeperFeedbackOfferDto;
+import org.example.feedback.exception.classes.feedback.OfferNotFoundException;
 import org.example.feedback.model.KeeperFeedback;
-import org.example.feedback.repository.CourseRepository;
+import org.example.feedback.model.KeeperFeedbackOffer;
+import org.example.feedback.repository.KeeperFeedbackOfferRepository;
 import org.example.feedback.repository.KeeperFeedbackRepository;
-import org.example.feedback.repository.KeeperRepository;
 import org.example.feedback.service.validator.FeedbackValidatorService;
-import org.example.grpc.KeepersService;
 import org.modelmapper.ModelMapper;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class KeeperFeedbackService {
     private final KeeperFeedbackRepository keeperFeedbackRepository;
-    private final CourseRepository courseRepository;
-    private final KeeperRepository keeperRepository;
+    private final KeeperFeedbackOfferRepository keeperFeedbackOfferRepository;
 
-    private final PersonService personService;
     private final FeedbackValidatorService feedbackValidatorService;
 
     private final ModelMapper mapper;
 
     @Transactional(readOnly = true)
-    public List<KeeperFeedbackDto> findKeeperFeedbacksByExplorerIdIn(List<Long> explorerIds) {
+    public List<KeeperFeedbackDto> findKeeperFeedbacksByIdIn(List<Long> feedbackIds) {
         return keeperFeedbackRepository
-                .findKeeperFeedbacksByExplorerIdIn(explorerIds)
+                .findAllById(feedbackIds)
                 .stream()
                 .map(f -> mapper.map(f, KeeperFeedbackDto.class))
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public Map<Long, KeeperFeedbackOfferDto> findKeeperFeedbackOffersByExplorerIdIn(List<Long> explorerIds) {
+        return keeperFeedbackOfferRepository
+                .findKeeperFeedbackOffersByExplorerIdIn(explorerIds)
+                .stream()
+                .collect(Collectors.toMap(
+                        KeeperFeedbackOffer::getExplorerId,
+                        o -> mapper.map(o, KeeperFeedbackOfferDto.class)
+                ));
+    }
+
+    @Transactional(readOnly = true)
+    public List<KeeperFeedbackOfferDto> findKeeperFeedbackOffersByExplorerIdInAndOfferValidIsTrue(List<Long> explorerIds) {
+        return keeperFeedbackOfferRepository
+                .findKeeperFeedbackOffersByExplorerIdInAndOfferValidIsTrue(explorerIds)
+                .stream()
+                .map(o -> mapper.map(o, KeeperFeedbackOfferDto.class))
+                .collect(Collectors.toList());
+    }
+
+    @KafkaListener(topics = "createKeeperFeedbackOfferTopic", containerFactory = "createKeeperFeedbackOfferKafkaListenerContainerFactory")
     @Transactional
-    public Long sendFeedbackForExplorer(Long courseId, CreateKeeperFeedbackDto feedback) {
-        if (!courseRepository.existsById(courseId))
-            throw new CourseNotFoundException(courseId);
+    public void createKeeperFeedbackOffer(KeeperFeedbackOfferCreateEvent offer) {
+        keeperFeedbackOfferRepository.save(
+                new KeeperFeedbackOffer(offer.getExplorerId(), offer.getKeeperId())
+        );
+    }
 
-        Long personId = personService.getAuthenticatedPersonId();
-        KeepersService.Keeper keeper = keeperRepository
-                .findKeeperByPersonIdAndCourseId(personId, courseId)
-                .orElseThrow(KeeperNotFoundException::new);
+    @Transactional
+    public Long sendFeedbackForExplorer(CreateKeeperFeedbackDto feedback) {
+        feedbackValidatorService.validateFeedbackForExplorerRequest(feedback);
 
-        feedbackValidatorService.validateFeedbackForExplorerRequest(keeper.getKeeperId(), feedback);
+        keeperFeedbackOfferRepository.findById(feedback.getExplorerId())
+                .orElseThrow(() -> new OfferNotFoundException(feedback.getExplorerId()))
+                .setOfferValid(false);
 
-        KeeperFeedback savingFeedback = mapper.map(feedback, KeeperFeedback.class);
-        savingFeedback.setKeeperId(keeper.getKeeperId());
-
-        return keeperFeedbackRepository
-                .save(savingFeedback)
-                .getExplorerId();
+        return keeperFeedbackRepository.save(
+                mapper.map(feedback, KeeperFeedback.class)
+        ).getExplorerId();
     }
 
     @Cacheable(cacheNames = "explorerRatingCache", key = "#explorerIds")
     @Transactional(readOnly = true)
     public Double getRatingByPersonExplorerIds(List<Long> explorerIds) {
         return Math.ceil(keeperFeedbackRepository.getPersonRatingAsExplorer(explorerIds).orElse(0.0) * 10) / 10;
+    }
+
+    @Transactional
+    public KeeperFeedbackOfferDto closeKeeperFeedbackOffer(Long explorerId) {
+        KeeperFeedbackOffer offer = keeperFeedbackOfferRepository.findById(explorerId)
+                .orElseThrow(() -> new OfferNotFoundException(explorerId));
+
+        feedbackValidatorService.validateCloseKeeperFeedbackOfferRequest(offer);
+
+        offer.setOfferValid(false);
+        return mapper.map(
+                keeperFeedbackOfferRepository.save(
+                        offer
+                ), KeeperFeedbackOfferDto.class
+        );
     }
 }
