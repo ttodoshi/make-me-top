@@ -69,12 +69,12 @@ public class ExplorerProfileInformationService {
                 )), asyncExecutor);
 
         CompletableFuture<Void> ratingTable = CompletableFuture.runAsync(() ->
-                        response.put(
-                                "ratingTable",
-                                explorerListService.getExplorers(0, 10)
-                                        .getContent()
-                        ),
-                asyncExecutor);
+                response.put(
+                        "ratingTable",
+                        explorerListService.getExplorers(0, 10)
+                                .getContent()
+                ), asyncExecutor
+        );
 
         CompletableFuture<Void> homeworkRequests = CompletableFuture.runAsync(() ->
                 response.put("homeworkRequests", homeworkService.getHomeworkRequestsFromPerson(
