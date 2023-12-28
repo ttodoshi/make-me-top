@@ -1,20 +1,21 @@
 package org.example.feedback.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Data;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
 @Table(name = "keeper_feedback")
 @Data
 public class KeeperFeedback {
     @Id
+    @Column(name = "explorer_id")
     private Long explorerId;
-    @Column(nullable = false)
-    private Long keeperId;
+    @OneToOne(optional = false)
+    @JoinColumn(name = "explorer_id", nullable = false, insertable = false, updatable = false)
+    @JsonBackReference
+    private KeeperFeedbackOffer keeperFeedbackOffer;
     @Column(nullable = false)
     private Integer rating;
     @Column(length = 1000)

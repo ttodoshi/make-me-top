@@ -1,9 +1,13 @@
 package org.example.person.repository;
 
 import org.example.person.dto.feedback.KeeperFeedbackDto;
+import org.example.person.dto.feedback.offer.KeeperFeedbackOfferDto;
 
 import java.util.List;
+import java.util.Map;
 
 public interface KeeperFeedbackRepository {
-    List<KeeperFeedbackDto> findKeeperFeedbacksByExplorerIdIn(List<Long> explorerIds);
+    Map<Long, KeeperFeedbackOfferDto> findKeeperFeedbackOffersByExplorerIdIn(List<Long> explorerIds);
+
+    List<KeeperFeedbackDto> findKeeperFeedbacksByIdIn(List<Long> feedbackIds);
 }

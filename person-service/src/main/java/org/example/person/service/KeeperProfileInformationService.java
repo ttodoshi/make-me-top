@@ -1,6 +1,7 @@
 package org.example.person.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.person.model.Explorer;
 import org.example.person.model.ExplorerGroup;
 import org.example.person.model.Keeper;
 import org.example.person.repository.ExplorerGroupRepository;
@@ -23,6 +24,7 @@ public class KeeperProfileInformationService {
     private final KeeperRepository keeperRepository;
 
     private final PersonService personService;
+    private final FeedbackService feedbackService;
     private final HomeworkService homeworkService;
     private final CourseRegistrationRequestService courseRegistrationRequestService;
     private final CourseProgressService courseProgressService;
@@ -32,7 +34,7 @@ public class KeeperProfileInformationService {
     private final Executor asyncExecutor;
 
     @Transactional(readOnly = true)
-    public Map<String, Object> getKeeperCabinetInformation() {
+    public Map<String, Object> getKeeperProfileInformation() {
         Map<String, Object> response = new LinkedHashMap<>();
         Long authenticatedPersonId = personService.getAuthenticatedPersonId();
         response.put("person", personService.getAuthenticatedPerson());
@@ -54,6 +56,13 @@ public class KeeperProfileInformationService {
                         response.put("currentGroup", g)
                 ), asyncExecutor);
 
+        CompletableFuture<Void> keeperFeedbacks = CompletableFuture.runAsync(() ->
+                response.put(
+                        "keeperFeedbacks",
+                        feedbackService.getKeeperFeedbackOffers(
+                                explorerGroups.stream().flatMap(g -> g.getExplorers().stream()).map(Explorer::getExplorerId).collect(Collectors.toList()))
+                ), asyncExecutor);
+
         CompletableFuture<Void> studyRequests = CompletableFuture.runAsync(() ->
                 response.put("studyRequests", courseRegistrationRequestService
                         .getStudyRequestsForKeeper(keepers)), asyncExecutor);
@@ -72,7 +81,7 @@ public class KeeperProfileInformationService {
                 )), asyncExecutor);
 
         try {
-            CompletableFuture.allOf(systems, currentGroup, studyRequests, acceptedRequests, finalAssessments, reviewRequests).join();
+            CompletableFuture.allOf(systems, currentGroup, keeperFeedbacks, studyRequests, acceptedRequests, finalAssessments, reviewRequests).join();
         } catch (CompletionException completionException) {
             try {
                 throw completionException.getCause();

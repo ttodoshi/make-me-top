@@ -6,6 +6,9 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.example.feedback.dto.feedback.CreateExplorerFeedbackDto;
 import org.example.feedback.dto.feedback.CreateKeeperFeedbackDto;
+import org.example.feedback.exception.classes.feedback.OfferNotFoundException;
+import org.example.feedback.repository.ExplorerFeedbackOfferRepository;
+import org.example.feedback.repository.KeeperFeedbackOfferRepository;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.scheduling.annotation.Async;
@@ -21,15 +24,22 @@ import java.util.concurrent.CompletableFuture;
 @RequiredArgsConstructor
 public class CacheEvictionAspect {
     private final CacheManager cacheManager;
+    private final ExplorerFeedbackOfferRepository explorerFeedbackOfferRepository;
+    private final KeeperFeedbackOfferRepository keeperFeedbackOfferRepository;
 
     @Pointcut(value = "execution(* org.example.feedback.service.ExplorerFeedbackService.sendFeedbackForKeeper(..)) " +
-            "&& args(courseId, feedback)", argNames = "courseId, feedback")
-    public void sendFeedbackForKeeperPointcut(Long courseId, CreateExplorerFeedbackDto feedback) {
+            "&& args(feedback)", argNames = "feedback")
+    public void sendFeedbackForKeeperPointcut(CreateExplorerFeedbackDto feedback) {
     }
 
-    @AfterReturning(pointcut = "sendFeedbackForKeeperPointcut(courseId, feedback)", returning = "result", argNames = "courseId, feedback, result")
-    public void clearKeeperRatingCacheAfterFeedback(Long courseId, CreateExplorerFeedbackDto feedback, Long result) {
-        clearKeeperRatingCache(feedback.getKeeperId());
+    @AfterReturning(pointcut = "sendFeedbackForKeeperPointcut(feedback)", argNames = "feedback")
+    public void clearKeeperRatingCacheAfterFeedback(CreateExplorerFeedbackDto feedback) {
+        clearKeeperRatingCache(
+                explorerFeedbackOfferRepository.findById(
+                                feedback.getExplorerId()
+                        ).orElseThrow(() -> new OfferNotFoundException(feedback.getExplorerId()))
+                        .getKeeperId()
+        );
     }
 
     @Async
@@ -47,13 +57,18 @@ public class CacheEvictionAspect {
     }
 
     @Pointcut(value = "execution(* org.example.feedback.service.KeeperFeedbackService.sendFeedbackForExplorer(..)) " +
-            "&& args(courseId, feedback)", argNames = "courseId, feedback")
-    public void sendFeedbackForExplorerPointcut(Long courseId, CreateKeeperFeedbackDto feedback) {
+            "&& args(feedback)", argNames = "feedback")
+    public void sendFeedbackForExplorerPointcut(CreateKeeperFeedbackDto feedback) {
     }
 
-    @AfterReturning(pointcut = "sendFeedbackForExplorerPointcut(courseId, feedback)", returning = "result", argNames = "courseId, feedback, result")
-    public void clearExplorerRatingCacheAfterFeedback(Long courseId, CreateKeeperFeedbackDto feedback, Long result) {
-        clearExplorerRatingCache(feedback.getExplorerId());
+    @AfterReturning(pointcut = "sendFeedbackForExplorerPointcut(feedback)", argNames = "feedback")
+    public void clearExplorerRatingCacheAfterFeedback(CreateKeeperFeedbackDto feedback) {
+        clearExplorerRatingCache(
+                keeperFeedbackOfferRepository.findById(
+                                feedback.getExplorerId()
+                        ).orElseThrow(() -> new OfferNotFoundException(feedback.getExplorerId()))
+                        .getExplorerId()
+        );
     }
 
     @Async

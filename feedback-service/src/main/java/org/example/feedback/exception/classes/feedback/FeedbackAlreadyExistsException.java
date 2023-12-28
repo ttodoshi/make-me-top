@@ -5,4 +5,3 @@ public class FeedbackAlreadyExistsException extends RuntimeException {
         super("Оценка уже существует");
     }
 }
-

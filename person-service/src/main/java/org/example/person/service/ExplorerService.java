@@ -72,8 +72,14 @@ public class ExplorerService {
 
     @Cacheable(cacheNames = "explorersByExplorerIdInCache", key = "#explorerIds")
     @Transactional(readOnly = true)
-    public List<Explorer> findExplorersByExplorerIdIn(List<Long> explorerIds) {
-        return explorerRepository.findExplorersByExplorerIdIn(explorerIds);
+    public Map<Long, Explorer> findExplorersByExplorerIdIn(List<Long> explorerIds) {
+        return explorerRepository
+                .findExplorersByExplorerIdIn(explorerIds)
+                .stream()
+                .collect(Collectors.toMap(
+                        Explorer::getExplorerId,
+                        e -> e
+                ));
     }
 
     @Cacheable(cacheNames = "explorersByGroup_CourseIdInCache", key = "#courseIds")
@@ -107,7 +113,7 @@ public class ExplorerService {
 
     @Caching(evict = {
             @CacheEvict(cacheNames = {"explorerByIdCache", "explorerExistsByIdCache"}, key = "#explorerId"),
-            @CacheEvict(cacheNames = {"explorersByPersonIdAndCourseIdCache", "explorersByPersonIdCache", "explorersByCourseIdCache", "explorersByExplorerIdInCache", "explorersByGroup_CourseIdInCache", "explorersByPersonIdAndGroup_CourseIdInCache", "allExplorersCache"}, allEntries = true),
+            @CacheEvict(cacheNames = {"explorersByPersonIdAndCourseIdCache", "explorersByPersonIdCache", "explorersByCourseIdCache", "explorersByExplorerIdInCache", "explorersByGroup_CourseIdInCache", "explorersByPersonIdAndGroup_CourseIdInCache"}, allEntries = true),
     })
     @Transactional
     public void deleteExplorerById(Long explorerId) {

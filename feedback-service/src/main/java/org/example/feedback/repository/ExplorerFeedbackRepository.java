@@ -9,9 +9,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ExplorerFeedbackRepository extends JpaRepository<ExplorerFeedback, Long> {
-    List<ExplorerFeedback> findExplorerFeedbacksByKeeperIdIn(List<Long> keeperIds);
-
     @Query(value = "SELECT AVG(ef.rating) FROM ExplorerFeedback ef\n" +
-            "WHERE ef.keeperId IN :personKeeperIds")
+            "JOIN ExplorerFeedbackOffer efo ON efo.explorerId = ef.explorerId\n" +
+            "WHERE efo.keeperId IN :personKeeperIds")
     Optional<Double> getPersonRatingAsKeeper(@Param("personKeeperIds") List<Long> personKeeperIds);
 }

@@ -1,9 +1,10 @@
-package org.example.feedback.repository.implementations;
+package org.example.person.repository.implementations;
 
 import lombok.RequiredArgsConstructor;
-import org.example.feedback.exception.classes.connect.ConnectException;
-import org.example.feedback.repository.CourseMarkRepository;
-import org.example.feedback.utils.AuthorizationHeaderContextHolder;
+import org.example.person.dto.feedback.offer.KeeperFeedbackOfferDto;
+import org.example.person.exception.classes.connect.ConnectException;
+import org.example.person.repository.KeeperFeedbackOfferRepository;
+import org.example.person.utils.AuthorizationHeaderContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
@@ -12,34 +13,33 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class CourseMarkRepositoryImpl implements CourseMarkRepository {
+public class KeeperFeedbackOfferRepositoryImpl implements KeeperFeedbackOfferRepository {
     private final WebClient.Builder webClientBuilder;
     private final AuthorizationHeaderContextHolder authorizationHeaderContextHolder;
 
     @Override
-    public Boolean existsById(Long explorerId) {
+    public List<KeeperFeedbackOfferDto> findKeeperFeedbackOffersByExplorerIdInAndOfferValidIsTrue(List<Long> explorerIds) {
         return webClientBuilder
-                .baseUrl("http://progress-service/api/v1/progress-app/").build()
+                .baseUrl("http://feedback-service/api/v1/feedback-app/").build()
                 .get()
                 .uri(uri -> uri
-                        .path("explorers/{explorerId}/marks/")
-                        .build(explorerId)
+                        .path("keeper-feedbacks/offers/valid")
+                        .queryParam("explorerIds", explorerIds)
+                        .build()
                 )
                 .header("Authorization", authorizationHeaderContextHolder.getAuthorizationHeader())
-                .exchangeToMono(
-                        r -> {
-                            if (r.statusCode().is2xxSuccessful())
-                                return Mono.just(true);
-                            else if (r.statusCode().equals(HttpStatus.NOT_FOUND))
-                                return Mono.just(false);
-                            else return Mono.error(new ConnectException());
-                        }
-                )
+                .retrieve()
+                .onStatus(httpStatus -> httpStatus.isError() && !httpStatus.equals(HttpStatus.UNAUTHORIZED), response -> {
+                    throw new ConnectException();
+                })
+                .bodyToFlux(KeeperFeedbackOfferDto.class)
                 .timeout(Duration.ofSeconds(5))
                 .onErrorResume(WebClientResponseException.Unauthorized.class, error -> Mono.error(new AccessDeniedException("Вам закрыт доступ к данной функциональности бортового компьютера")))
+                .collectList()
                 .block();
     }
 }
