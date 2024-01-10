@@ -1,7 +1,6 @@
 package org.example.feedback.service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.example.feedback.repository.CourseRatingRepository;
 import org.example.feedback.repository.ExplorerFeedbackRepository;
 import org.example.feedback.repository.KeeperFeedbackRepository;
@@ -11,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class FeedbackService {
     private final ExplorerFeedbackRepository explorerFeedbackRepository;
     private final KeeperFeedbackRepository keeperFeedbackRepository;

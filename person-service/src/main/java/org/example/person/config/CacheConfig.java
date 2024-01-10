@@ -24,7 +24,6 @@ public class CacheConfig {
                 "keepersByKeeperIdInCache",
                 "keepersByPersonIdAndCourseIdInCache",
                 "keepersByCourseIdInCache",
-                "explorerByIdCache",
                 "explorerExistsByIdCache",
                 "explorersByPersonIdAndCourseIdCache",
                 "explorersByPersonIdCache",

@@ -7,7 +7,6 @@ import org.example.person.model.Explorer;
 import org.example.person.repository.ExplorerRepository;
 import org.example.person.service.validator.ExplorerValidatorService;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -25,7 +24,6 @@ public class ExplorerService {
 
     private final ExplorerValidatorService explorerValidatorService;
 
-    @Cacheable(cacheNames = "explorerByIdCache", key = "#explorerId")
     @Transactional(readOnly = true)
     public Explorer findExplorerById(Long explorerId) {
         return explorerRepository.findById(explorerId)
@@ -98,8 +96,6 @@ public class ExplorerService {
     @Caching(evict = {
             @CacheEvict(cacheNames = "explorerExistsByIdCache", key = "#result.explorerId"),
             @CacheEvict(cacheNames = {"explorersByPersonIdAndCourseIdCache", "explorersByPersonIdCache", "explorersByPersonIdInCache", "explorersByCourseIdCache", "explorersByExplorerIdInCache", "explorersByGroup_CourseIdInCache", "explorersByPersonIdAndGroup_CourseIdInCache"}, allEntries = true),
-    }, put = {
-            @CachePut(cacheNames = "explorerByIdCache", key = "#result.explorerId")
     })
     @Transactional
     public Explorer createExplorer(ExplorerCreateEvent explorer) {
@@ -112,8 +108,8 @@ public class ExplorerService {
     }
 
     @Caching(evict = {
-            @CacheEvict(cacheNames = {"explorerByIdCache", "explorerExistsByIdCache"}, key = "#explorerId"),
-            @CacheEvict(cacheNames = {"explorersByPersonIdAndCourseIdCache", "explorersByPersonIdCache", "explorersByCourseIdCache", "explorersByExplorerIdInCache", "explorersByGroup_CourseIdInCache", "explorersByPersonIdAndGroup_CourseIdInCache"}, allEntries = true),
+            @CacheEvict(cacheNames = {"explorerExistsByIdCache"}, key = "#explorerId"),
+            @CacheEvict(cacheNames = {"explorersByPersonIdAndCourseIdCache", "explorersByPersonIdCache", "explorersByCourseIdCache", "explorersByExplorerIdInCache", "explorersByGroup_CourseIdInCache", "explorersByPersonIdAndGroup_CourseIdInCache", "explorerGroupByIdCache", "explorerGroupsByKeeperIdCache", "explorerGroupsByKeeperIdInCache", "explorerGroupsByGroupIdInCache"}, allEntries = true),
     })
     @Transactional
     public void deleteExplorerById(Long explorerId) {
