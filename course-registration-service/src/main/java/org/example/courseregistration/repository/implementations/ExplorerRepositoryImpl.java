@@ -4,11 +4,11 @@ import io.grpc.CallCredentials;
 import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import net.devh.boot.grpc.client.security.CallCredentialsHelper;
+import org.example.courseregistration.repository.ExplorerRepository;
 import org.example.courseregistration.utils.AuthorizationHeaderContextHolder;
-import org.example.person.dto.event.ExplorerCreateEvent;
 import org.example.grpc.ExplorerServiceGrpc;
 import org.example.grpc.ExplorersService;
-import org.example.courseregistration.repository.ExplorerRepository;
+import org.example.person.dto.event.ExplorerCreateEvent;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
@@ -63,5 +63,20 @@ public class ExplorerRepositoryImpl implements ExplorerRepository {
                                 .addAllCourseIds(courseIds)
                                 .build()
                 );
+    }
+
+    @Override
+    public List<ExplorersService.Explorer> findExplorersByPersonId(Long personId) {
+        CallCredentials callCredentials = CallCredentialsHelper.authorizationHeader(
+                authorizationHeaderContextHolder.getAuthorizationHeader()
+        );
+        return explorerServiceBlockingStub
+                .withCallCredentials(callCredentials)
+                .findExplorersByPersonId(
+                        ExplorersService.ExplorersByPersonIdRequest
+                                .newBuilder()
+                                .setPersonId(personId)
+                                .build()
+                ).getExplorersList();
     }
 }

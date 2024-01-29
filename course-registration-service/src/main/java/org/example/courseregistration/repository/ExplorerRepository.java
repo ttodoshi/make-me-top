@@ -9,7 +9,9 @@ import java.util.Optional;
 public interface ExplorerRepository {
     Optional<ExplorersService.Explorer> findExplorerByPersonIdAndGroup_CourseId(Long personId, Long courseId);
 
-    void save(ExplorerCreateEvent explorer);
-
     ExplorersService.ExplorersByPersonIdAndGroup_CourseIdInResponse findExplorersByPersonIdAndGroupCourseIdIn(Long personId, List<Long> courseIds);
+
+    List<ExplorersService.Explorer> findExplorersByPersonId(Long personId);
+
+    void save(ExplorerCreateEvent explorer);
 }

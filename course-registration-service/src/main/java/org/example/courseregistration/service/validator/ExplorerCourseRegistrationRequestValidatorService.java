@@ -3,18 +3,17 @@ package org.example.courseregistration.service.validator;
 import lombok.RequiredArgsConstructor;
 import org.example.courseregistration.dto.courserequest.CreateCourseRegistrationRequestDto;
 import org.example.courseregistration.exception.classes.course.CourseNotFoundException;
+import org.example.courseregistration.exception.classes.courserequest.PersonIsKeeperException;
+import org.example.courseregistration.exception.classes.courserequest.PersonIsNotPersonInRequestException;
+import org.example.courseregistration.exception.classes.courserequest.RequestAlreadySentException;
 import org.example.courseregistration.exception.classes.keeper.KeeperNotFoundException;
 import org.example.courseregistration.exception.classes.progress.AlreadyStudyingException;
 import org.example.courseregistration.exception.classes.progress.PersonIsStudyingException;
 import org.example.courseregistration.exception.classes.progress.SystemParentsNotCompletedException;
-import org.example.courseregistration.exception.classes.courserequest.PersonIsKeeperException;
-import org.example.courseregistration.exception.classes.courserequest.PersonIsNotPersonInRequestException;
-import org.example.courseregistration.exception.classes.courserequest.RequestAlreadySentException;
 import org.example.courseregistration.model.CourseRegistrationRequest;
 import org.example.courseregistration.model.CourseRegistrationRequestStatusType;
 import org.example.courseregistration.repository.CourseRegistrationRequestRepository;
 import org.example.courseregistration.repository.CourseRepository;
-import org.example.courseregistration.repository.GalaxyRepository;
 import org.example.courseregistration.repository.KeeperRepository;
 import org.example.courseregistration.service.CourseProgressService;
 import org.example.courseregistration.service.CourseRegistrationRequestStatusService;
@@ -28,7 +27,6 @@ public class ExplorerCourseRegistrationRequestValidatorService {
     private final KeeperRepository keeperRepository;
     private final CourseRegistrationRequestRepository courseRegistrationRequestRepository;
     private final CourseRegistrationRequestStatusService courseRegistrationRequestStatusService;
-    private final GalaxyRepository galaxyRepository;
 
     private final PersonService personService;
     private final CourseProgressService courseProgressService;
@@ -42,8 +40,7 @@ public class ExplorerCourseRegistrationRequestValidatorService {
                     if (!request.getCourseId().equals(k.getCourseId()))
                         throw new KeeperNotFoundException(k.getKeeperId());
                 });
-        if (courseProgressService.isAuthenticatedPersonCurrentlyStudying(
-                galaxyRepository.findGalaxyBySystemId(request.getCourseId()).getGalaxyId())) {
+        if (courseProgressService.isAuthenticatedPersonCurrentlyStudying()) {
             throw new PersonIsStudyingException();
         }
         if (isPersonKeeperOnCourse(personId, request.getCourseId()))
