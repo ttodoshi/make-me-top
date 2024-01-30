@@ -3,7 +3,7 @@ package org.example.galaxy.service;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.example.galaxy.dto.message.MessageDto;
-import org.example.galaxy.dto.starsystem.*;
+import org.example.galaxy.dto.system.*;
 import org.example.galaxy.exception.classes.system.SystemNotFoundException;
 import org.example.galaxy.model.StarSystem;
 import org.example.galaxy.repository.StarSystemRepository;

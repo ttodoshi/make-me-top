@@ -3,7 +3,7 @@ package org.example.galaxy.service.validator;
 import lombok.RequiredArgsConstructor;
 import org.example.galaxy.dto.orbit.CreateOrbitWithStarSystemsDto;
 import org.example.galaxy.dto.orbit.UpdateOrbitDto;
-import org.example.galaxy.dto.starsystem.CreateStarSystemDto;
+import org.example.galaxy.dto.system.CreateStarSystemDto;
 import org.example.galaxy.exception.classes.galaxy.GalaxyNotFoundException;
 import org.example.galaxy.exception.classes.orbit.OrbitCoordinatesException;
 import org.example.galaxy.exception.classes.system.SystemAlreadyExistsException;

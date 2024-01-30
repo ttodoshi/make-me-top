@@ -34,7 +34,7 @@ public class KeeperHomeworkRequestService {
                 HomeworkRequestStatusType.CLOSED
         );
         return homeworkMarkRepository.save(
-                new HomeworkMark(homeworkRequest.getRequestId(), mark.getValue(), mark.getComment())
+                new HomeworkMark(homeworkRequest.getRequestId(), mark.getComment())
         ).getRequestId();
     }
 

@@ -1,7 +1,7 @@
 package org.example.galaxy.dto.orbit;
 
 import lombok.Data;
-import org.example.galaxy.dto.starsystem.CreateStarSystemDto;
+import org.example.galaxy.dto.system.CreateStarSystemDto;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;

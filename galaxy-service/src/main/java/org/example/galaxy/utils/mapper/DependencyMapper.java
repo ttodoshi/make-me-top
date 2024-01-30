@@ -1,6 +1,6 @@
 package org.example.galaxy.utils.mapper;
 
-import org.example.galaxy.dto.starsystem.SystemDependencyModelDto;
+import org.example.galaxy.dto.system.SystemDependencyModelDto;
 import org.example.galaxy.model.SystemDependency;
 
 public class DependencyMapper {

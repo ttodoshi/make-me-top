@@ -1,4 +1,4 @@
-package org.example.galaxy.dto.starsystem;
+package org.example.galaxy.dto.system;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -2,7 +2,7 @@ package org.example.galaxy.dto.orbit;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
-import org.example.galaxy.dto.starsystem.GetStarSystemWithDependenciesDto;
+import org.example.galaxy.dto.system.GetStarSystemWithDependenciesDto;
 
 import java.util.List;
 

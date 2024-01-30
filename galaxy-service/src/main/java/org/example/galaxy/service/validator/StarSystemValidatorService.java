@@ -1,8 +1,8 @@
 package org.example.galaxy.service.validator;
 
 import lombok.RequiredArgsConstructor;
-import org.example.galaxy.dto.starsystem.CreateStarSystemDto;
-import org.example.galaxy.dto.starsystem.UpdateStarSystemDto;
+import org.example.galaxy.dto.system.CreateStarSystemDto;
+import org.example.galaxy.dto.system.UpdateStarSystemDto;
 import org.example.galaxy.exception.classes.galaxy.GalaxyNotFoundException;
 import org.example.galaxy.exception.classes.orbit.OrbitNotFoundException;
 import org.example.galaxy.exception.classes.system.SystemAlreadyExistsException;

@@ -24,7 +24,7 @@ public class KeeperHomeworkRequestController {
     @PostMapping("/homework-requests/{requestId}/marks")
     @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.homework.enums.AuthenticationRoleType).KEEPER) && " +
             "@roleService.hasAnyCourseRoleByHomeworkRequestId(#requestId, T(org.example.homework.enums.CourseRoleType).KEEPER)")
-    @Operation(summary = "Set homework mark from 1 to 5", tags = "keeper homework request")
+    @Operation(summary = "Set homework accepted", tags = "keeper homework request")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "201",
