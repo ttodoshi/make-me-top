@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.example.progress.service.CourseThemesProgressService;
 import org.example.progress.service.ProgressService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,6 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProgressController {
     private final ProgressService progressService;
+    private final CourseThemesProgressService courseThemesProgressService;
 
     @GetMapping("/explorers/final-assessments")
     @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.progress.enums.AuthenticationRoleType).KEEPER) && " +
@@ -51,7 +53,26 @@ public class ProgressController {
     })
     public ResponseEntity<?> getExplorerIdsWithFinalAssessment(@RequestParam List<Long> explorerIds) {
         return ResponseEntity.ok(
-                progressService.getExplorerIdsWithFinalAssessment(explorerIds));
+                progressService.getExplorerIdsWithFinalAssessment(explorerIds)
+        );
+    }
+
+    @GetMapping("/explorers/themes/marks")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Get themes marks for explorers", tags = "explorer")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Themes marks",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json")
+                    })
+    })
+    public ResponseEntity<?> getExplorersThemesMarks(@RequestParam List<Long> explorerIds) {
+        return ResponseEntity.ok(
+                courseThemesProgressService.getExplorersThemesMarks(explorerIds)
+        );
     }
 
     @GetMapping("/galaxies/{galaxyId}")

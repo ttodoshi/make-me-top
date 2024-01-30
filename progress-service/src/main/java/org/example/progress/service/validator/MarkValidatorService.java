@@ -111,7 +111,7 @@ public class MarkValidatorService {
             throw new DifferentKeeperException();
 
         Optional<CourseThemeCompletion> courseThemeProgressOptional = courseThemeCompletionRepository
-                .findCourseThemeProgressByExplorerIdAndCourseThemeId(explorer.getExplorerId(), themeId);
+                .findCourseThemeCompletionByExplorerIdAndCourseThemeId(explorer.getExplorerId(), themeId);
 
         if (courseThemeProgressOptional.isPresent())
             throw new ThemeAlreadyCompletedException(courseThemeProgressOptional.get().getCourseThemeId());
@@ -140,7 +140,7 @@ public class MarkValidatorService {
         List<CourseThemeCompletedDto> themesCompletion = new ArrayList<>();
         for (PlanetDto p : planetRepository.findPlanetsBySystemId(courseId)) {
             Boolean themeCompleted = courseThemeCompletionRepository
-                    .findCourseThemeProgressByExplorerIdAndCourseThemeId(explorer.getExplorerId(), p.getPlanetId()).isPresent();
+                    .findCourseThemeCompletionByExplorerIdAndCourseThemeId(explorer.getExplorerId(), p.getPlanetId()).isPresent();
             themesCompletion.add(
                     new CourseThemeCompletedDto(p.getPlanetId(), p.getPlanetName(), p.getPlanetNumber(), themeCompleted)
             );

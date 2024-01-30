@@ -13,9 +13,11 @@ public interface CourseThemeCompletionRepository extends JpaRepository<CourseThe
             "WHERE ctc.explorerId = :explorerId")
     Double getCourseProgress(@Param("explorerId") Long explorerId, @Param("totalThemesCount") Integer totalThemesCount);
 
-    Optional<CourseThemeCompletion> findCourseThemeProgressByExplorerIdAndCourseThemeId(Long explorerId, Long courseThemeId);
+    Optional<CourseThemeCompletion> findCourseThemeCompletionByExplorerIdAndCourseThemeId(Long explorerId, Long courseThemeId);
 
-    List<CourseThemeCompletion> findCourseThemeProgressByExplorerIdAndCourseThemeIdIn(Long explorerId, List<Long> courseThemeIds);
+    List<CourseThemeCompletion> findCourseThemeCompletionsByExplorerIdIn(List<Long> explorerIds);
+
+    List<CourseThemeCompletion> findCourseThemeCompletionByExplorerIdAndCourseThemeIdIn(Long explorerId, List<Long> courseThemeIds);
 
     boolean existsByExplorerIdAndCourseThemeId(Long explorerId, Long themeId);
 

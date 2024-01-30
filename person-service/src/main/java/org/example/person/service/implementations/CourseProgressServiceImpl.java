@@ -6,6 +6,7 @@ import org.example.person.dto.explorer.CurrentKeeperGroupDto;
 import org.example.person.dto.explorer.ExplorerBasicInfoDto;
 import org.example.person.dto.explorer.ExplorerNeededFinalAssessmentDto;
 import org.example.person.dto.keeper.KeeperBasicInfoDto;
+import org.example.person.dto.mark.ThemeMarkDto;
 import org.example.person.dto.progress.CourseThemeCompletedDto;
 import org.example.person.dto.progress.CourseWithThemesProgressDto;
 import org.example.person.dto.progress.CurrentCourseProgressProfileDto;
@@ -20,6 +21,7 @@ import org.example.person.repository.CourseRepository;
 import org.example.person.repository.HomeworkRepository;
 import org.example.person.service.*;
 import org.example.person.utils.AuthorizationHeaderContextHolder;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
@@ -198,12 +200,21 @@ public class CourseProgressServiceImpl implements CourseProgressService {
                 keeperGroups.stream().map(ExplorerGroup::getCourseId).collect(Collectors.toList())
         );
 
+        Map<Long, List<ThemeMarkDto>> explorersThemesMarks = getExplorersThemesMarks(explorerNeededFinalAssessment);
+
         return keeperGroups.stream()
                 .flatMap(g -> g.getExplorers().stream()
                         .filter(e ->
                                 explorerNeededFinalAssessment.contains(e.getExplorerId()))
                         .map(e -> {
                             Person person = e.getPerson();
+
+                            double averageCourseMark = explorersThemesMarks.get(e.getExplorerId())
+                                    .stream()
+                                    .mapToInt(ThemeMarkDto::getMark)
+                                    .average()
+                                    .orElse(0.0);
+
                             return new ExplorerNeededFinalAssessmentDto(
                                     person.getPersonId(),
                                     person.getFirstName(),
@@ -211,10 +222,33 @@ public class CourseProgressServiceImpl implements CourseProgressService {
                                     person.getPatronymic(),
                                     g.getCourseId(),
                                     courses.get(g.getCourseId()).getTitle(),
-                                    e.getExplorerId()
+                                    e.getExplorerId(),
+                                    Math.ceil(averageCourseMark * 10) / 10
+
                             );
                         })
                 ).collect(Collectors.toList());
+    }
+
+    private Map<Long, List<ThemeMarkDto>> getExplorersThemesMarks(List<Long> explorerIds) {
+        return webClientBuilder
+                .baseUrl("http://progress-service/api/v1/progress-app/").build()
+                .get()
+                .uri(uri -> uri
+                        .path("explorers/themes/marks/")
+                        .queryParam("explorerIds", explorerIds)
+                        .build()
+                )
+                .header("Authorization", authorizationHeaderContextHolder.getAuthorizationHeader())
+                .retrieve()
+                .onStatus(httpStatus -> httpStatus.isError() && !httpStatus.equals(HttpStatus.UNAUTHORIZED), response -> {
+                    throw new ConnectException();
+                })
+                .bodyToFlux(new ParameterizedTypeReference<Map<Long, List<ThemeMarkDto>>>() {
+                })
+                .timeout(Duration.ofSeconds(5))
+                .onErrorResume(WebClientResponseException.Unauthorized.class, error -> Mono.error(new AccessDeniedException("Вам закрыт доступ к данной функциональности бортового компьютера")))
+                .blockLast();
     }
 
     @Override

@@ -9,9 +9,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ExplorerNeededFinalAssessmentDto extends ExplorerRequestDto {
     private Long explorerId;
+    private Double averageMark;
 
-    public ExplorerNeededFinalAssessmentDto(Long personId, String firstName, String lastName, String patronymic, Long courseId, String courseTitle, Long explorerId) {
+    public ExplorerNeededFinalAssessmentDto(Long personId, String firstName, String lastName, String patronymic, Long courseId, String courseTitle, Long explorerId, Double averageMark) {
         super(personId, firstName, lastName, patronymic, courseId, courseTitle);
         this.explorerId = explorerId;
+        this.averageMark = averageMark;
     }
 }

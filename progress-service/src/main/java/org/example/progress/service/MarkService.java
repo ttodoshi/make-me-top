@@ -58,7 +58,7 @@ public class MarkService {
         ).orElseThrow(ExplorerNotFoundException::new);
 
         return courseThemeCompletionRepository
-                .findCourseThemeProgressByExplorerIdAndCourseThemeIdIn(
+                .findCourseThemeCompletionByExplorerIdAndCourseThemeIdIn(
                         explorer.getExplorerId(),
                         planetRepository.findPlanetsBySystemId(courseId)
                                 .stream()
