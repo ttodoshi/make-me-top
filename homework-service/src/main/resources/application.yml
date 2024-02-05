@@ -1,5 +1,41 @@
+server:
+  port: 8107
+grpc:
+  client:
+    people:
+      address: discovery:///person-service
+      negotiationType: PLAINTEXT
+    explorers:
+      address: discovery:///person-service
+      negotiationType: PLAINTEXT
+    keepers:
+      address: discovery:///person-service
+      negotiationType: PLAINTEXT
+    explorerGroups:
+      address: discovery:///person-service
+      negotiationType: PLAINTEXT
 spring:
   application:
     name: homework-service
   profiles:
     default: local
+  jpa:
+    properties:
+      hibernate:
+        current_session_context_class: org.springframework.orm.hibernate5.SpringSessionContext
+        transaction:
+          jta:
+            platform: org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform
+    open-in-view: false
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    logfile:
+      enabled: true
+logging:
+  file:
+    name: logs/info.log
+access-token-secret-key: secretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecret

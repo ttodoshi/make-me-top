@@ -1,5 +1,21 @@
 spring:
-  config:
-    import: optional:configserver:http://10.10.0.11:8888
-logging:
-  config: http://10.10.0.11:8888/main-application/default/master/logback-spring.xml
+  datasource:
+    password: pass
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    url: jdbc:postgresql://10.10.0.14:5432/person_db
+  kafka:
+    bootstrap-servers: 10.10.0.16:29092
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    service-url:
+      defaultZone: http://10.10.0.12:8761/eureka
