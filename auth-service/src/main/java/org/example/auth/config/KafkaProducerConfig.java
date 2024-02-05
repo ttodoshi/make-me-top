@@ -19,7 +19,7 @@ public class KafkaProducerConfig {
     private String bootstrapAddress;
 
     @Bean
-    public ProducerFactory<Long, Object> createPersonProducer() {
+    public ProducerFactory<Long, Object> savePersonProducer() {
         Map<String, Object> properties = new HashMap<>();
         properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
         properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, LongSerializer.class);
@@ -28,7 +28,7 @@ public class KafkaProducerConfig {
     }
 
     @Bean
-    public KafkaTemplate<Long, Object> createPersonKafkaTemplate() {
-        return new KafkaTemplate<>(createPersonProducer());
+    public KafkaTemplate<Long, Object> savePersonKafkaTemplate() {
+        return new KafkaTemplate<>(savePersonProducer());
     }
 }

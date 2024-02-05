@@ -1,12 +1,13 @@
 package org.example.person.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.person.dto.person.GetPersonDto;
 import org.example.person.model.Explorer;
 import org.example.person.model.ExplorerGroup;
 import org.example.person.model.Keeper;
-import org.example.person.model.Person;
 import org.example.person.repository.ExplorerGroupRepository;
 import org.example.person.repository.KeeperRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,13 +30,20 @@ public class KeeperPublicInformationService {
     private final CourseService courseService;
     private final RatingService ratingService;
 
+    private final ModelMapper mapper;
+
     private final Executor asyncExecutor;
 
     @Transactional(readOnly = true)
     public Map<String, Object> getKeeperPublicInformation(Long personId) {
         Map<String, Object> response = new LinkedHashMap<>();
-        Person person = personService.findPersonById(personId);
-        response.put("person", person);
+        response.put(
+                "person",
+                mapper.map(
+                        personService.findPersonById(personId),
+                        GetPersonDto.class
+                )
+        );
         response.put("rating", ratingService.getPersonRatingAsKeeper(personId));
         List<Keeper> keepers = keeperRepository.findKeepersByPersonId(personId);
         response.put("totalSystems", keepers.size());

@@ -6,19 +6,17 @@ import org.example.auth.exception.classes.person.PersonNotFoundException;
 import org.example.auth.repository.PersonRepository;
 import org.example.auth.service.PersonService;
 import org.example.grpc.PeopleService;
-import org.example.person.dto.event.PersonCreateEvent;
+import org.example.person.dto.event.PersonSaveEvent;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class PersonServiceImpl implements PersonService {
     private final PersonRepository personRepository;
 
-    private final KafkaTemplate<Long, Object> createPersonKafkaTemplate;
+    private final KafkaTemplate<Long, Object> savePersonKafkaTemplate;
 
     @Override
     @Cacheable(cacheNames = "personByIdCache", key = "#personId")
@@ -28,21 +26,20 @@ public class PersonServiceImpl implements PersonService {
     }
 
     @Override
-    public void savePersonIfNotExists(MmtrAuthResponseEmployeeDto employee) {
-        Optional<PeopleService.Person> personOptional = personRepository.findById(employee.getEmployeeId());
-        if (personOptional.isEmpty())
-            createPerson(employee);
-    }
-
-    private void createPerson(MmtrAuthResponseEmployeeDto employee) {
-        createPersonKafkaTemplate.send(
+    public void savePerson(MmtrAuthResponseEmployeeDto employee) {
+        savePersonKafkaTemplate.send(
                 "personTopic",
                 employee.getEmployeeId(),
-                PersonCreateEvent.builder()
+                PersonSaveEvent.builder()
                         .personId(employee.getEmployeeId())
                         .firstName(employee.getFirstName())
                         .lastName(employee.getLastName())
                         .patronymic(employee.getPatronymic())
+                        .email(employee.getEmail())
+                        .phoneNumber(employee.getPhoneNumber())
+                        .skype(employee.getSkype())
+                        .telegram(employee.getTelegram())
+                        .isVisiblePrivateData(employee.getIsVisiblePrivateData())
                         .build()
         );
     }

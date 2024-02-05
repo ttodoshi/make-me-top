@@ -76,7 +76,7 @@
         "patronymic": "Абчихбович",
         "dateOfBirth": "2023-06-02",
         "login": "user2",
-        "email": "user2@mmtr.ru",
+        "email": "shaluga@example.com",
         "workTime": 8,
         "kindOfActivityId": 14,
         "mentorId": 0,
@@ -87,7 +87,7 @@
         "isAdmin": false,
         "isContentEditor": false,
         "genderId": 1,
-        "skype": null,
+        "skype": "live:shaluga_skype",
         "phoneConfirmationDate": "2023-06-02",
         "isDismissed": false,
         "userToken": {

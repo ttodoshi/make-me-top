@@ -6,5 +6,5 @@ import org.example.grpc.PeopleService;
 public interface PersonService {
     PeopleService.Person findPersonById(Long personId);
 
-    void savePersonIfNotExists(MmtrAuthResponseEmployeeDto authResponseEmployee);
+    void savePerson(MmtrAuthResponseEmployeeDto authResponseEmployee);
 }

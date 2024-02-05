@@ -3,11 +3,13 @@ package org.example.person.service;
 import lombok.RequiredArgsConstructor;
 import org.example.person.config.security.RoleService;
 import org.example.person.dto.feedback.KeeperCommentDto;
+import org.example.person.dto.person.GetPersonDto;
 import org.example.person.dto.progress.CurrentCourseProgressPublicDto;
 import org.example.person.enums.AuthenticationRoleType;
 import org.example.person.model.Explorer;
 import org.example.person.model.Person;
 import org.example.person.repository.ExplorerRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,15 +36,22 @@ public class ExplorerPublicInformationService {
     private final CourseProgressService courseProgressService;
     private final RoleService roleService;
 
+    private final ModelMapper mapper;
+
     private final Executor asyncExecutor;
 
     @Transactional(readOnly = true)
     public Map<String, Object> getExplorerPublicInformation(Long personId) {
         Map<String, Object> response = new LinkedHashMap<>();
-        Person person = personService.findPersonById(personId);
         Person authenticatedPerson = personService.getAuthenticatedPerson();
         Long authenticatedPersonId = authenticatedPerson.getPersonId();
-        response.put("person", person);
+        response.put(
+                "person",
+                mapper.map(
+                        personService.findPersonById(personId),
+                        GetPersonDto.class
+                )
+        );
         response.put("rating", ratingService.getPersonRatingAsExplorer(personId));
         List<Explorer> personExplorers = explorerRepository.findExplorersByPersonId(personId);
         response.put("totalSystems", personExplorers.size());

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+import org.example.person.dto.event.PersonSaveEvent;
 import org.example.person.dto.person.UpdatePersonDto;
 import org.example.person.model.Person;
 import org.springframework.cache.Cache;
@@ -28,8 +29,18 @@ public class CacheEvictionAspect {
     }
 
     @AfterReturning(pointcut = "setMaxExplorersValueForPersonPointcut(personId, person)", argNames = "personId, person")
-    public void clearKeeperRatingCacheAfterFeedback(Long personId, UpdatePersonDto person) {
+    public void clearPeopleByPersonIdInCacheAfterUpdatingPerson(Long personId, UpdatePersonDto person) {
         clearPeopleByPersonIdInCache(personId);
+    }
+
+    @Pointcut(value = "execution(* org.example.person.service.PersonService.savePerson(..)) " +
+            "&& args(person)", argNames = "person")
+    public void savePersonPointcut(PersonSaveEvent person) {
+    }
+
+    @AfterReturning(pointcut = "savePersonPointcut(person)", argNames = "person")
+    public void clearPeopleByPersonIdInCacheAfterUpdatingPerson(PersonSaveEvent person) {
+        clearPeopleByPersonIdInCache(person.getPersonId());
     }
 
     @Async

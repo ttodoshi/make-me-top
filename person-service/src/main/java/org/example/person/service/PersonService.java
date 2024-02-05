@@ -1,7 +1,7 @@
 package org.example.person.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.person.dto.event.PersonCreateEvent;
+import org.example.person.dto.event.PersonSaveEvent;
 import org.example.person.dto.person.UpdatePersonDto;
 import org.example.person.exception.classes.person.PersonNotFoundException;
 import org.example.person.model.Person;
@@ -44,18 +44,34 @@ public class PersonService {
         return personRepository.existsById(personId);
     }
 
-    @KafkaListener(topics = "personTopic", containerFactory = "createPersonKafkaListenerContainerFactory")
-    @CacheEvict(cacheNames = "personExistsByIdCache", key = "#person.personId")
+    @KafkaListener(topics = "personTopic", containerFactory = "savePersonKafkaListenerContainerFactory")
+    @CacheEvict(cacheNames = {"personExistsByIdCache", "personByIdCache"}, key = "#person.personId")
     @Transactional
-    public void savePerson(PersonCreateEvent person) {
-        personRepository.save(
-                new Person(
-                        person.getPersonId(),
-                        person.getFirstName(),
-                        person.getLastName(),
-                        person.getPatronymic()
-                )
-        );
+    public void savePerson(PersonSaveEvent person) {
+        personRepository.findById(person.getPersonId())
+                .ifPresentOrElse(
+                        p -> {
+                            p.setFirstName(person.getFirstName());
+                            p.setLastName(person.getLastName());
+                            p.setPatronymic(person.getPatronymic());
+                            p.setEmail(person.getEmail());
+                            p.setPhoneNumber(person.getPhoneNumber());
+                            p.setSkype(person.getSkype());
+                            p.setTelegram(person.getTelegram());
+                            p.setIsVisiblePrivateData(person.getIsVisiblePrivateData());
+                        }, () -> personRepository.save(
+                                new Person(
+                                        person.getPersonId(),
+                                        person.getFirstName(),
+                                        person.getLastName(),
+                                        person.getPatronymic(),
+                                        person.getEmail(),
+                                        person.getPhoneNumber(),
+                                        person.getSkype(),
+                                        person.getTelegram(),
+                                        person.getIsVisiblePrivateData()
+                                )
+                        ));
     }
 
     @Cacheable(cacheNames = "peopleByPersonIdInCache", key = "#personIds")

@@ -22,21 +22,21 @@ public class KafkaConsumerConfig {
     private String bootstrapAddress;
 
     @Bean
-    public ConsumerFactory<String, Object> createPersonFactory() {
+    public ConsumerFactory<String, Object> savePersonFactory() {
         Map<String, Object> properties = new HashMap<>();
         properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
         properties.put(ConsumerConfig.GROUP_ID_CONFIG, "person");
         properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, LongDeserializer.class);
         properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
-        properties.put(JsonDeserializer.TYPE_MAPPINGS, "person:org.example.person.dto.event.PersonCreateEvent");
+        properties.put(JsonDeserializer.TYPE_MAPPINGS, "person:org.example.person.dto.event.PersonSaveEvent");
         return new DefaultKafkaConsumerFactory<>(properties);
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, Object> createPersonKafkaListenerContainerFactory() {
+    public ConcurrentKafkaListenerContainerFactory<String, Object> savePersonKafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, Object> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(createPersonFactory());
+        factory.setConsumerFactory(savePersonFactory());
         return factory;
     }
 

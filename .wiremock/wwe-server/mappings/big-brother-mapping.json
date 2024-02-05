@@ -31,7 +31,7 @@
       "object": {
         "isHourlyPayment": false,
         "city": "City",
-        "telegram": null,
+        "telegram": "brat_telegram",
         "softlineEmail": "big_brother@softline.com",
         "legalEntityId": 2,
         "externalRankId": 2,
@@ -87,7 +87,7 @@
         "isAdmin": false,
         "isContentEditor": false,
         "genderId": 1,
-        "skype": null,
+        "skype": "live:brat_skype",
         "phoneConfirmationDate": "2023-06-02",
         "isDismissed": false,
         "userToken": {
@@ -101,7 +101,7 @@
         "inheritedRights": null,
         "personnelNumber": null,
         "itn": "430986934i",
-        "isVisiblePrivateData": true,
+        "isVisiblePrivateData": false,
         "isSupportManager": false,
         "course": null,
         "isHRManager": false,

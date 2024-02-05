@@ -68,7 +68,7 @@ public class AuthService {
         );
 
         authorizationHeaderContextHolder.setAuthorizationHeader("Bearer " + accessToken.getAccessToken());
-        personService.savePersonIfNotExists(authResponse.getObject());
+        personService.savePerson(authResponse.getObject());
 
         return new AuthResponseDto(
                 accessToken,

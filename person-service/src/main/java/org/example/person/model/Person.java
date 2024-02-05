@@ -1,6 +1,7 @@
 package org.example.person.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
 @Table(name = "person")
 @Data
 @NoArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @EntityListeners(AuditingEntityListener.class)
 public class Person {
     @Id
@@ -28,12 +30,24 @@ public class Person {
     private LocalDateTime registrationDate;
     @Column(nullable = false)
     private Integer maxExplorers;
+    @Column(nullable = false)
+    private String email;
+    private String phoneNumber;
+    private String skype;
+    private String telegram;
+    @Column(nullable = false)
+    private Boolean isVisiblePrivateData;
 
-    public Person(Long personId, String firstName, String lastName, String patronymic) {
+    public Person(Long personId, String firstName, String lastName, String patronymic, String email, String phoneNumber, String skype, String telegram, Boolean isVisiblePrivateData) {
         this.personId = personId;
         this.firstName = firstName;
         this.lastName = lastName;
         this.patronymic = patronymic;
         this.maxExplorers = 0;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+        this.skype = skype;
+        this.telegram = telegram;
+        this.isVisiblePrivateData = isVisiblePrivateData;
     }
 }

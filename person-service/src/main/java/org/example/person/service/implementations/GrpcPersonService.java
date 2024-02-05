@@ -51,7 +51,7 @@ public class GrpcPersonService extends PersonServiceGrpc.PersonServiceImplBase {
     }
 
     private PeopleService.Person mapPersonToGrpcModel(Person person) {
-        return PeopleService.Person.newBuilder()
+        PeopleService.Person.Builder builder = PeopleService.Person.newBuilder()
                 .setPersonId(person.getPersonId())
                 .setFirstName(person.getFirstName())
                 .setLastName(person.getLastName())
@@ -63,6 +63,17 @@ public class GrpcPersonService extends PersonServiceGrpc.PersonServiceImplBase {
                                 .build()
                 )
                 .setMaxExplorers(person.getMaxExplorers())
-                .build();
+                .setEmail(person.getEmail())
+                .setIsVisiblePrivateData(person.getIsVisiblePrivateData());
+        if (person.getPhoneNumber() != null) {
+            builder = builder.setPhoneNumber(person.getPhoneNumber());
+        }
+        if (person.getSkype() != null) {
+            builder = builder.setSkype(person.getSkype());
+        }
+        if (person.getTelegram() != null) {
+            builder = builder.setTelegram(person.getTelegram());
+        }
+        return builder.build();
     }
 }
