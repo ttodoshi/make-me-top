@@ -127,26 +127,22 @@ public class MarkService {
     @Transactional(readOnly = true)
     public List<ExplorerBasicInfoDto> getExplorersWaitingForThemeMark(Long themeId) {
         Optional<CurrentKeeperGroupDto> currentGroup = explorerGroupRepository.getCurrentGroup();
-        if (currentGroup.isEmpty()) {
-            return Collections.emptyList();
-        }
 
-        List<HomeworkDto> homeworks = homeworkRepository.findHomeworksByCourseThemeIdAndGroupId(themeId, currentGroup.get().getGroupId());
-        Map<Long, List<HomeworkDto>> completedExplorersHomeworks = homeworkRepository.findAllCompletedByCourseThemeIdAndGroupIdForExplorers(
-                themeId, currentGroup.get().getGroupId(), currentGroup.get().getExplorers().stream().map(ExplorerBasicInfoDto::getExplorerId).collect(Collectors.toList())
-        );
+        return currentGroup.map(group -> {
+            List<PlanetDto> planets = planetRepository.findPlanetsBySystemId(group.getCourseId());
+            if (planets.stream().noneMatch(p -> p.getPlanetId().equals(themeId))) {
+                return Collections.<ExplorerBasicInfoDto>emptyList();
+            }
 
-        List<PlanetDto> planets = planetRepository.findPlanetsBySystemId(
-                currentGroup.get().getCourseId()
-        );
+            List<HomeworkDto> homeworks = homeworkRepository.findHomeworksByCourseThemeIdAndGroupId(themeId, group.getGroupId());
+            Map<Long, List<HomeworkDto>> completedExplorersHomeworks = homeworkRepository.findAllCompletedByCourseThemeIdAndGroupIdForExplorers(themeId, group.getGroupId(), group.getExplorers().stream().map(ExplorerBasicInfoDto::getExplorerId).collect(Collectors.toList()));
 
-        return currentGroup.get()
-                .getExplorers()
-                .stream()
-                .filter(e -> homeworks.size() == completedExplorersHomeworks.get(e.getExplorerId()).size() &&
-                        !courseThemeCompletionRepository.existsByExplorerIdAndCourseThemeId(e.getExplorerId(), themeId) &&
-                        (isFirstPlanet(themeId, planets) || previousThemeMarkExists(themeId, planets, e.getExplorerId()))
-                ).collect(Collectors.toList());
+            return group.getExplorers().stream()
+                    .filter(e -> homeworks.size() == completedExplorersHomeworks.getOrDefault(e.getExplorerId(), Collections.emptyList()).size() &&
+                            !courseThemeCompletionRepository.existsByExplorerIdAndCourseThemeId(e.getExplorerId(), themeId) &&
+                            (isFirstPlanet(themeId, planets) || previousThemeMarkExists(themeId, planets, e.getExplorerId()))
+                    ).collect(Collectors.toList());
+        }).orElse(Collections.emptyList());
     }
 
     private boolean isFirstPlanet(Long themeId, List<PlanetDto> planets) {
