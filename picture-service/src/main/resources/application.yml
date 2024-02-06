@@ -1,0 +1,29 @@
+server:
+  port: 8108
+grpc:
+  client:
+    people:
+      address: discovery:///person-service
+      negotiationType: PLAINTEXT
+spring:
+  application:
+    name: pics-service
+  profiles:
+    default: local
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    logfile:
+      enabled: true
+logging:
+  file:
+    name: logs/info.log
+access-token-secret-key: secretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecret
+pics-directory: ./pics

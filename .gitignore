@@ -34,3 +34,6 @@ build/
 ### Logs ###
 .logs
 logs
+
+### Pictures ###
+pics

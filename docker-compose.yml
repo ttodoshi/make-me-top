@@ -2,14 +2,14 @@ version: '3.5'
 
 services:
   wiremock:
-    container_name: wiremock_container
+    container_name: wiremock
     image: rodolpheche/wiremock
     ports:
       - "8083:8080"
     volumes:
       - ./.wiremock/wwe-server:/home/wiremock
     networks:
-      postgres:
+      make-me-top:
         ipv4_address: 10.10.0.15
 
   zookeeper:
@@ -25,7 +25,7 @@ services:
       retries: 3
       start_period: 10s
     networks:
-      postgres:
+      make-me-top:
         ipv4_address: 10.10.0.2
 
   kafka:
@@ -45,11 +45,11 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
     networks:
-      postgres:
+      make-me-top:
         ipv4_address: 10.10.0.16
 
   postgres:
-    container_name: postgres_container
+    container_name: postgres
     image: postgres
     environment:
       POSTGRES_MULTIPLE_DATABASES: galaxy_db,planet_db,person_db,auth_db,course_db,course_registration_db,homework_db,progress_db,feedback_db
@@ -65,11 +65,11 @@ services:
     ports:
       - "5432:5432"
     networks:
-      postgres:
+      make-me-top:
         ipv4_address: 10.10.0.14
     restart: unless-stopped
   pgadmin:
-    container_name: pgadmin_container
+    container_name: pgadmin
     image: dpage/pgadmin4
     environment:
       PGADMIN_DEFAULT_EMAIL: test@mail.ru
@@ -79,18 +79,18 @@ services:
     ports:
       - "8081:80"
     networks:
-      postgres:
+      make-me-top:
         ipv4_address: 10.10.0.13
     restart: unless-stopped
 
-  discovery_server:
-    container_name: discovery_server_container
+  discovery-server:
+    container_name: discovery-server
     build: ./discovery-service
     ports:
       - "8761:8761"
     healthcheck:
       test: [ "CMD", "wget", "--spider", "http://localhost:8761/actuator/health" ]
-      interval: 20s
+      interval: 10s
       timeout: 5s
       retries: 5
       start_period: 10s
@@ -103,22 +103,22 @@ services:
         limits:
           memory: 500M
     networks:
-      postgres:
+      make-me-top:
         ipv4_address: 10.10.0.12
 
-  person_service:
-    container_name: person_service_container
+  person-service:
+    container_name: person-service
     build: ./person-service
     ports:
       - "8104:8104"
     healthcheck:
       test: [ "CMD", "wget", "--spider", "http://localhost:8104/actuator/health" ]
-      interval: 20s
+      interval: 10s
       timeout: 5s
       retries: 5
       start_period: 10s
     depends_on:
-      discovery_server:
+      discovery-server:
         condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: docker
@@ -127,22 +127,48 @@ services:
         limits:
           memory: 500M
     networks:
-      postgres:
+      make-me-top:
         ipv4_address: 10.10.0.19
 
-  galaxy_service:
-    container_name: galaxy_service_container
+  picture-service:
+    container_name: picture-service
+    build: ./picture-service
+    ports:
+      - "8108:8108"
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "http://localhost:8108/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    depends_on:
+      person-service:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    volumes:
+      - pics:/app/pics
+    deploy:
+      resources:
+        limits:
+          memory: 500M
+    networks:
+      make-me-top:
+        ipv4_address: 10.10.0.17
+
+  galaxy-service:
+    container_name: galaxy-service
     build: ./galaxy-service
     ports:
       - "8101:8101"
     healthcheck:
       test: [ "CMD", "wget", "--spider", "http://localhost:8101/actuator/health" ]
-      interval: 20s
+      interval: 10s
       timeout: 5s
       retries: 5
       start_period: 10s
     depends_on:
-      auth_service:
+      auth-service:
         condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: docker
@@ -151,21 +177,21 @@ services:
         limits:
           memory: 500M
     networks:
-      postgres:
+      make-me-top:
         ipv4_address: 10.10.0.8
-  planet_service:
-    container_name: planet_service_container
+  planet-service:
+    container_name: planet-service
     build: ./planet-service
     ports:
       - "8102:8102"
     healthcheck:
       test: [ "CMD", "wget", "--spider", "http://localhost:8102/actuator/health" ]
-      interval: 20s
+      interval: 10s
       timeout: 5s
       retries: 5
       start_period: 10s
     depends_on:
-      galaxy_service:
+      galaxy-service:
         condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: docker
@@ -174,22 +200,22 @@ services:
         limits:
           memory: 500M
     networks:
-      postgres:
+      make-me-top:
         ipv4_address: 10.10.0.7
 
-  auth_service:
-    container_name: auth_service_container
+  auth-service:
+    container_name: auth-service
     build: ./auth-service
     ports:
       - "8103:8103"
     healthcheck:
       test: [ "CMD", "wget", "--spider", "http://localhost:8103/actuator/health" ]
-      interval: 20s
+      interval: 10s
       timeout: 5s
       retries: 5
       start_period: 10s
     depends_on:
-      person_service:
+      person-service:
         condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: docker
@@ -198,22 +224,22 @@ services:
         limits:
           memory: 500M
     networks:
-      postgres:
+      make-me-top:
         ipv4_address: 10.10.0.6
 
-  course_service:
-    container_name: course_service_container
+  course-service:
+    container_name: course-service
     build: ./course-service
     ports:
       - "8106:8106"
     healthcheck:
       test: [ "CMD", "wget", "--spider", "http://localhost:8106/actuator/health" ]
-      interval: 20s
+      interval: 10s
       timeout: 5s
       retries: 5
       start_period: 10s
     depends_on:
-      planet_service:
+      planet-service:
         condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: docker
@@ -222,22 +248,22 @@ services:
         limits:
           memory: 500M
     networks:
-      postgres:
+      make-me-top:
         ipv4_address: 10.10.0.9
 
-  course_registration_service:
-    container_name: course_registration_service_container
+  course_registration-service:
+    container_name: course_registration-service
     build: ./course-registration-service
     ports:
       - "8105:8105"
     healthcheck:
       test: [ "CMD", "wget", "--spider", "http://localhost:8105/actuator/health" ]
-      interval: 20s
+      interval: 10s
       timeout: 5s
       retries: 5
       start_period: 10s
     depends_on:
-      course_service:
+      course-service:
         condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: docker
@@ -246,22 +272,22 @@ services:
         limits:
           memory: 500M
     networks:
-      postgres:
+      make-me-top:
         ipv4_address: 10.10.0.10
 
-  homework_service:
-    container_name: homework_service_container
+  homework-service:
+    container_name: homework-service
     build: ./homework-service
     ports:
       - "8107:8107"
     healthcheck:
       test: [ "CMD", "wget", "--spider", "http://localhost:8107/actuator/health" ]
-      interval: 20s
+      interval: 10s
       timeout: 5s
       retries: 5
       start_period: 10s
     depends_on:
-      course_registration_service:
+      course_registration-service:
         condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: docker
@@ -270,22 +296,22 @@ services:
         limits:
           memory: 500M
     networks:
-      postgres:
+      make-me-top:
         ipv4_address: 10.10.0.18
 
-  progress_service:
-    container_name: progress_service_container
+  progress-service:
+    container_name: progress-service
     build: ./progress-service
     ports:
       - "8109:8109"
     healthcheck:
       test: [ "CMD", "wget", "--spider", "http://localhost:8109/actuator/health" ]
-      interval: 20s
+      interval: 10s
       timeout: 5s
       retries: 5
       start_period: 10s
     depends_on:
-      homework_service:
+      homework-service:
         condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: docker
@@ -294,22 +320,22 @@ services:
         limits:
           memory: 500M
     networks:
-      postgres:
+      make-me-top:
         ipv4_address: 10.10.0.20
 
-  feedback_service:
-    container_name: feedback_service_container
+  feedback-service:
+    container_name: feedback-service
     build: ./feedback-service
     ports:
       - "8110:8110"
     healthcheck:
       test: [ "CMD", "wget", "--spider", "http://localhost:8110/actuator/health" ]
-      interval: 20s
+      interval: 10s
       timeout: 5s
       retries: 5
       start_period: 10s
     depends_on:
-      progress_service:
+      progress-service:
         condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: docker
@@ -318,22 +344,22 @@ services:
         limits:
           memory: 500M
     networks:
-      postgres:
+      make-me-top:
         ipv4_address: 10.10.0.21
 
   gateway:
-    container_name: gateway_container
+    container_name: gateway
     build: ./gateway-service
     ports:
       - "4401:4401"
     healthcheck:
       test: [ "CMD", "wget", "--spider", "http://localhost:4401/actuator/health" ]
-      interval: 20s
+      interval: 10s
       timeout: 5s
       retries: 5
       start_period: 10s
     depends_on:
-      feedback_service:
+      feedback-service:
         condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: docker
@@ -342,11 +368,11 @@ services:
         limits:
           memory: 500M
     networks:
-      postgres:
+      make-me-top:
         ipv4_address: 10.10.0.3
 
 networks:
-  postgres:
+  make-me-top:
     driver: bridge
     ipam:
       config:
@@ -355,3 +381,4 @@ networks:
 volumes:
   postgres:
   pgadmin:
+  pics:

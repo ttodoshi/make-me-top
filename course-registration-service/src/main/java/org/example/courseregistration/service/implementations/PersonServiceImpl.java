@@ -26,7 +26,6 @@ public class PersonServiceImpl implements PersonService {
     }
 
     @Override
-    @Cacheable(cacheNames = "personByIdCache", key = "#personId")
     public PeopleService.Person findPersonById(Long personId) {
         return personRepository.findById(personId)
                 .orElseThrow(() -> new PersonNotFoundException(personId));

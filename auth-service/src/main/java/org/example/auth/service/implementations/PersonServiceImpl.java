@@ -7,6 +7,7 @@ import org.example.auth.repository.PersonRepository;
 import org.example.auth.service.PersonService;
 import org.example.grpc.PeopleService;
 import org.example.person.dto.event.PersonSaveEvent;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,7 @@ public class PersonServiceImpl implements PersonService {
     }
 
     @Override
+    @CacheEvict(cacheNames = "personByIdCache", key = "#employee.employeeId")
     public void savePerson(MmtrAuthResponseEmployeeDto employee) {
         savePersonKafkaTemplate.send(
                 "personTopic",
