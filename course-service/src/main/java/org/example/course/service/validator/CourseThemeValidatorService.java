@@ -5,64 +5,63 @@ import org.example.course.config.security.RoleService;
 import org.example.course.dto.progress.CourseThemeCompletedDto;
 import org.example.course.dto.theme.UpdateCourseThemeDto;
 import org.example.course.enums.AuthenticationRoleType;
-import org.example.course.exception.classes.course.CourseNotFoundException;
-import org.example.course.exception.classes.explorer.ExplorerNotFoundException;
-import org.example.course.exception.classes.theme.CourseThemeAlreadyExistsException;
-import org.example.course.exception.classes.theme.CourseThemeNotFoundException;
-import org.example.course.exception.classes.theme.ThemeClosedException;
+import org.example.course.enums.CourseRoleType;
+import org.example.course.exception.course.CourseNotFoundException;
+import org.example.course.exception.theme.CourseThemeAlreadyExistsException;
+import org.example.course.exception.theme.CourseThemeNotFoundException;
+import org.example.course.exception.theme.ThemeClosedException;
 import org.example.course.repository.CourseRepository;
 import org.example.course.repository.CourseThemeRepository;
-import org.example.course.repository.ExplorerRepository;
 import org.example.course.service.CourseProgressService;
-import org.example.course.service.PersonService;
-import org.springframework.stereotype.Component;
+import org.example.course.service.ExplorerService;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
-@Component
+@Service
 @RequiredArgsConstructor
 public class CourseThemeValidatorService {
     private final CourseRepository courseRepository;
     private final CourseThemeRepository courseThemeRepository;
 
-    private final ExplorerRepository explorerRepository;
+    private final ExplorerService explorerService;
     private final CourseProgressService courseProgressService;
-    private final PersonService personService;
     private final RoleService roleService;
 
     @Transactional(readOnly = true)
-    public void validateGetThemeRequest(Long courseThemeId) {
-        if (roleService.hasAnyAuthenticationRole(AuthenticationRoleType.EXPLORER) && !isThemeOpened(courseThemeId))
+    public void validateGetThemeRequest(String authorizationHeader, Authentication authentication, Long courseThemeId) {
+        if (!(roleService.hasAnyCourseRoleByThemeId(authorizationHeader, (Long) authentication.getPrincipal(), courseThemeId, CourseRoleType.EXPLORER) ||
+                roleService.hasAnyCourseRoleByThemeId(authorizationHeader, (Long) authentication.getPrincipal(), courseThemeId, CourseRoleType.KEEPER))) {
+            throw new AccessDeniedException("Вам закрыт доступ к данной функциональности бортового компьютера");
+        }
+        if (roleService.hasAnyAuthenticationRole(authentication.getAuthorities(), AuthenticationRoleType.EXPLORER) &&
+                !isThemeOpened(authorizationHeader, (Long) authentication.getPrincipal(), courseThemeId)) {
             throw new ThemeClosedException(courseThemeId);
+        }
     }
 
-    private boolean isThemeOpened(Long themeId) {
+    private boolean isThemeOpened(String authorizationHeader, Long authenticatedPersonId, Long themeId) {
         Long courseId = courseThemeRepository.findById(themeId)
                 .orElseThrow(() -> new CourseThemeNotFoundException(themeId))
                 .getCourseId();
 
-        List<CourseThemeCompletedDto> themesProgress = courseProgressService
-                .getCourseProgress(
-                        explorerRepository.findExplorerByPersonIdAndGroup_CourseId(
-                                        personService.getAuthenticatedPersonId(),
-                                        courseId
-                                ).orElseThrow(ExplorerNotFoundException::new)
-                                .getExplorerId()
-                )
-                .getThemesWithProgress();
+        List<CourseThemeCompletedDto> themesProgress = courseProgressService.getCourseProgress(
+                authorizationHeader, explorerService.findExplorerByPersonIdAndGroup_CourseId(
+                        authorizationHeader, authenticatedPersonId, courseId
+                ).getExplorerId()
+        ).getThemesWithProgress();
 
-        Optional<CourseThemeCompletedDto> themeCompletion = themesProgress
+        Boolean themeCompleted = themesProgress
                 .stream()
                 .filter(t -> t.getCourseThemeId().equals(themeId))
-                .findAny();
-        Boolean themeCompleted = themeCompletion.orElseThrow(
-                () -> new CourseThemeNotFoundException(themeId)
-        ).getCompleted();
+                .findAny()
+                .orElseThrow(() -> new CourseThemeNotFoundException(themeId))
+                .getCompleted();
         return themeId.equals(getCurrentCourseThemeId(themesProgress)) || themeCompleted;
     }
-
 
     private Long getCurrentCourseThemeId(List<CourseThemeCompletedDto> themesProgress) {
         for (CourseThemeCompletedDto planet : themesProgress) {
@@ -77,8 +76,10 @@ public class CourseThemeValidatorService {
         if (!courseRepository.existsById(theme.getCourseId()))
             throw new CourseNotFoundException(theme.getCourseId());
 
-        boolean themeTitleExists = courseThemeRepository.findCourseThemesByCourseIdOrderByCourseThemeNumber(
-                        theme.getCourseId()).stream()
+        boolean themeTitleExists = courseThemeRepository
+                .findCourseThemesByCourseIdOrderByCourseThemeNumber(
+                        theme.getCourseId()
+                ).stream()
                 .anyMatch(t -> t.getTitle().equals(theme.getTitle()) && !t.getCourseThemeId().equals(themeId));
         if (themeTitleExists)
             throw new CourseThemeAlreadyExistsException(theme.getTitle());

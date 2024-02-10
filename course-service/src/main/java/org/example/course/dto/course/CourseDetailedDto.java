@@ -5,6 +5,7 @@ import lombok.Data;
 import org.example.course.dto.explorer.ExplorerWithRatingDto;
 import org.example.course.dto.keeper.KeeperWithRatingDto;
 
+import java.util.Collection;
 import java.util.List;
 
 @Data
@@ -14,12 +15,12 @@ public class CourseDetailedDto {
     private ExplorerWithRatingDto you;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private KeeperWithRatingDto yourKeeper;
-    private List<ExplorerWithRatingDto> explorers;
-    private List<KeeperWithRatingDto> keepers;
+    private Collection<ExplorerWithRatingDto> explorers;
+    private Collection<KeeperWithRatingDto> keepers;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Integer mark;
 
-    public CourseDetailedDto(CourseDto course, List<ExplorerWithRatingDto> explorers, List<KeeperWithRatingDto> keepers) {
+    public CourseDetailedDto(CourseDto course, Collection<ExplorerWithRatingDto> explorers, Collection<KeeperWithRatingDto> keepers) {
         this.course = course;
         this.explorers = explorers;
         this.keepers = keepers;

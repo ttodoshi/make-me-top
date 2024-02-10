@@ -8,9 +8,11 @@ import lombok.RequiredArgsConstructor;
 import org.example.homework.dto.homeworkmark.CreateHomeworkMarkDto;
 import org.example.homework.dto.homeworkrequest.CreateHomeworkRequestFeedbackDto;
 import org.example.homework.service.KeeperHomeworkRequestService;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -22,8 +24,7 @@ public class KeeperHomeworkRequestController {
     private final KeeperHomeworkRequestService keeperHomeworkRequestService;
 
     @PostMapping("/homework-requests/{requestId}/marks")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.homework.enums.AuthenticationRoleType).KEEPER) && " +
-            "@roleService.hasAnyCourseRoleByHomeworkRequestId(#requestId, T(org.example.homework.enums.CourseRoleType).KEEPER)")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(authentication.authorities, T(org.example.homework.enums.AuthenticationRoleType).KEEPER)")
     @Operation(summary = "Set homework accepted", tags = "keeper homework request")
     @ApiResponses(value = {
             @ApiResponse(
@@ -34,18 +35,19 @@ public class KeeperHomeworkRequestController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> setHomeworkMark(@PathVariable Long requestId,
+    public ResponseEntity<?> setHomeworkMark(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                             @AuthenticationPrincipal Long authenticatedPersonId,
+                                             @PathVariable Long requestId,
                                              @Valid @RequestBody CreateHomeworkMarkDto mark) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(
-                        keeperHomeworkRequestService.setHomeworkMark(requestId, mark)
+                        keeperHomeworkRequestService.setHomeworkMark(authorizationHeader, authenticatedPersonId, requestId, mark)
                 );
     }
 
     @PostMapping("/homework-requests/{requestId}/feedbacks")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.homework.enums.AuthenticationRoleType).KEEPER) && " +
-            "@roleService.hasAnyCourseRoleByHomeworkRequestId(#requestId, T(org.example.homework.enums.CourseRoleType).KEEPER)")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(authentication.authorities, T(org.example.homework.enums.AuthenticationRoleType).KEEPER)")
     @Operation(summary = "Send homework request feedback", tags = "keeper homework request")
     @ApiResponses(value = {
             @ApiResponse(
@@ -56,12 +58,14 @@ public class KeeperHomeworkRequestController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> sendHomeworkFeedback(@PathVariable Long requestId,
+    public ResponseEntity<?> sendHomeworkFeedback(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                                  @AuthenticationPrincipal Long authenticatedPersonId,
+                                                  @PathVariable Long requestId,
                                                   @Valid @RequestBody CreateHomeworkRequestFeedbackDto feedback) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(
-                        keeperHomeworkRequestService.sendHomeworkRequestFeedback(requestId, feedback)
+                        keeperHomeworkRequestService.sendHomeworkRequestFeedback(authorizationHeader, authenticatedPersonId, requestId, feedback)
                 );
     }
 }

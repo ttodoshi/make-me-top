@@ -7,8 +7,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.example.progress.service.CourseThemesProgressService;
 import org.example.progress.service.ProgressService;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,8 +23,7 @@ public class ProgressController {
     private final CourseThemesProgressService courseThemesProgressService;
 
     @GetMapping("/explorers/final-assessments")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.progress.enums.AuthenticationRoleType).KEEPER) && " +
-            "@roleService.isExplorersKeeper(#explorerIds)")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(authentication.authorities, T(org.example.progress.enums.AuthenticationRoleType).KEEPER)")
     @Operation(summary = "Get explorer ids needed final assessment", tags = "explorer")
     @ApiResponses(value = {
             @ApiResponse(
@@ -33,9 +34,11 @@ public class ProgressController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> getExplorerIdsNeededFinalAssessment(@RequestParam List<Long> explorerIds) {
+    public ResponseEntity<?> getExplorerIdsNeededFinalAssessment(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                                                 @AuthenticationPrincipal Long authenticatedPersonId,
+                                                                 @RequestParam List<Long> explorerIds) {
         return ResponseEntity.ok(
-                progressService.getExplorerIdsNeededFinalAssessment(explorerIds)
+                progressService.getExplorerIdsNeededFinalAssessment(authorizationHeader, authenticatedPersonId, explorerIds)
         );
     }
 
@@ -76,7 +79,7 @@ public class ProgressController {
     }
 
     @GetMapping("/galaxies/{galaxyId}")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.progress.enums.AuthenticationRoleType).EXPLORER)")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(authentication.authorities, T(org.example.progress.enums.AuthenticationRoleType).EXPLORER)")
     @Operation(summary = "Get courses progress by galaxy id", tags = "system progress")
     @ApiResponses(value = {
             @ApiResponse(
@@ -87,9 +90,11 @@ public class ProgressController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> getCoursesProgressForCurrentUser(@PathVariable Long galaxyId) {
+    public ResponseEntity<?> getCoursesProgressForCurrentUser(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                                              @AuthenticationPrincipal Long authenticatedPersonId,
+                                                              @PathVariable Long galaxyId) {
         return ResponseEntity.ok(
-                progressService.getCoursesProgressForCurrentUser(galaxyId));
+                progressService.getCoursesProgressForCurrentUser(authorizationHeader, authenticatedPersonId, galaxyId));
     }
 
     @GetMapping("/explorers/{explorerId}")
@@ -104,14 +109,14 @@ public class ProgressController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> getExplorerThemesProgress(@PathVariable Long explorerId) {
+    public ResponseEntity<?> getExplorerThemesProgress(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                                       @PathVariable Long explorerId) {
         return ResponseEntity.ok(
-                progressService.getExplorerThemesProgress(explorerId));
+                progressService.getExplorerThemesProgress(authorizationHeader, explorerId));
     }
 
     @GetMapping("/courses/{courseId}")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.progress.enums.AuthenticationRoleType).EXPLORER) && " +
-            "@roleService.hasAnyCourseRole(#courseId, T(org.example.progress.enums.CourseRoleType).EXPLORER)")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(authentication.authorities, T(org.example.progress.enums.AuthenticationRoleType).EXPLORER)")
     @Operation(summary = "Get explorer course progress", tags = "system progress")
     @ApiResponses(value = {
             @ApiResponse(
@@ -122,9 +127,11 @@ public class ProgressController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> getExplorerCourseProgress(@PathVariable Long courseId) {
+    public ResponseEntity<?> getExplorerCourseProgress(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                                       @AuthenticationPrincipal Long authenticatedPersonId,
+                                                       @PathVariable Long courseId) {
         return ResponseEntity.ok(
-                progressService.getExplorerCourseProgress(courseId)
+                progressService.getExplorerCourseProgress(authorizationHeader, authenticatedPersonId, courseId)
         );
     }
 }

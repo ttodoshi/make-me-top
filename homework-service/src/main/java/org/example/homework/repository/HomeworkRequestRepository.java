@@ -17,4 +17,6 @@ public interface HomeworkRequestRepository extends JpaRepository<HomeworkRequest
             "JOIN HomeworkRequestStatus hrs ON hrs.statusId = hr.statusId\n" +
             "WHERE hr.explorerId IN :explorerIds AND hrs.status != 'CLOSED'")
     List<HomeworkRequest> findOpenedHomeworkRequestsByExplorerIdIn(@Param("explorerIds") List<Long> explorerIds);
+
+    void deleteHomeworkRequestsByExplorerId(Long explorerId);
 }

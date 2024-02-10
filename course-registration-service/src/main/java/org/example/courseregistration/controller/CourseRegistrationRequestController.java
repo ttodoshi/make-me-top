@@ -6,12 +6,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.example.courseregistration.service.CourseRegistrationRequestService;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -22,7 +21,7 @@ public class CourseRegistrationRequestController {
     private final CourseRegistrationRequestService courseRegistrationRequestService;
 
     @GetMapping("/processing")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.courseregistration.enums.AuthenticationRoleType).EXPLORER)")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(authentication.authorities, T(org.example.courseregistration.enums.AuthenticationRoleType).EXPLORER)")
     @Operation(summary = "Get processing request for person", tags = "course request")
     @ApiResponses(value = {
             @ApiResponse(
@@ -33,16 +32,15 @@ public class CourseRegistrationRequestController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> findProcessingCourseRegistrationRequestByPersonId() {
+    public ResponseEntity<?> findProcessingCourseRegistrationRequestByPersonId(@AuthenticationPrincipal Long authenticatedPersonId) {
         return ResponseEntity.ok(
                 courseRegistrationRequestService
-                        .findProcessingCourseRegistrationRequestByPersonId()
+                        .findProcessingCourseRegistrationRequestByPersonId(authenticatedPersonId)
         );
     }
 
     @GetMapping
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.courseregistration.enums.AuthenticationRoleType).KEEPER) && " +
-            "@roleService.hasAnyCourseRoleByRequestIds(#requestIds, T(org.example.courseregistration.enums.CourseRoleType).KEEPER)")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(authentication.authorities, T(org.example.courseregistration.enums.AuthenticationRoleType).KEEPER)")
     @Operation(summary = "Get course registration requests by request ids", tags = "course request")
     @ApiResponses(value = {
             @ApiResponse(
@@ -53,10 +51,12 @@ public class CourseRegistrationRequestController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> findCourseRegistrationRequestsByRequestIdIn(@RequestParam List<Long> requestIds) {
+    public ResponseEntity<?> findCourseRegistrationRequestsByRequestIdIn(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                                                         @AuthenticationPrincipal Long authenticatedPersonId,
+                                                                         @RequestParam List<Long> requestIds) {
         return ResponseEntity.ok(
                 courseRegistrationRequestService
-                        .findCourseRegistrationRequestsByRequestIdIn(requestIds)
+                        .findCourseRegistrationRequestsByRequestIdIn(authorizationHeader, authenticatedPersonId, requestIds)
         );
     }
 }

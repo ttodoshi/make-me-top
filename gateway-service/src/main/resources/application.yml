@@ -5,6 +5,8 @@ spring:
     name: gateway-service
   profiles:
     default: local
+  mvc:
+    log-resolved-exception: false
   cloud:
     gateway:
       routes:
@@ -16,8 +18,8 @@ spring:
           uri: lb://person-service
           predicates:
             - Path=/api/v1/person-app/**
-        - id: pics-service
-          uri: lb://pics-service
+        - id: picture-service
+          uri: lb://picture-service
           predicates:
             - Path=/api/v1/pics/**
         - id: galaxy-service

@@ -11,4 +11,8 @@ public interface StarSystemRepository extends JpaRepository<StarSystem, Long> {
     List<StarSystem> findStarSystemsByOrbitId(Long orbitId);
 
     List<StarSystem> findStarSystemsByOrbit_GalaxyId(Long galaxyId);
+
+    boolean existsStarSystemByOrbit_GalaxyIdAndSystemName(Long galaxyId, String systemName);
+
+    boolean existsStarSystemByOrbit_GalaxyIdAndSystemIdNotAndSystemName(Long galaxyId, Long systemId, String systemName);
 }

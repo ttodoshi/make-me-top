@@ -1,8 +1,8 @@
 package org.example.picture.service.implementations;
 
 import lombok.RequiredArgsConstructor;
-import org.example.picture.exception.classes.picture.PictureNotFoundException;
 import org.example.picture.enums.PictureType;
+import org.example.picture.exception.picture.PictureNotFoundException;
 import org.example.picture.repository.PictureRepository;
 import org.example.picture.service.PictureService;
 import org.springframework.stereotype.Service;

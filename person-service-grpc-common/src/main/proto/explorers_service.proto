@@ -12,11 +12,13 @@ service ExplorerService {
   }
   rpc findExplorersByPersonId(ExplorersByPersonIdRequest) returns (ExplorerList) {
   }
-  rpc findExplorerByPersonIdAndGroup_CourseId(ExplorersByPersonIdAndGroupCourseIdRequest) returns (Explorer){
+  rpc findExplorerByPersonIdAndGroup_CourseId(ExplorerByPersonIdAndGroupCourseIdRequest) returns (Explorer){
   }
   rpc findExplorersByGroup_CourseId(ExplorersByGroup_CourseIdRequest) returns (ExplorerList) {
   }
-  rpc existsById(ExplorerByIdRequest) returns (ExplorerExistsByIdResponse) {
+  rpc existsById(ExplorerByIdRequest) returns (ExplorerExistsResponse) {
+  }
+  rpc existsExplorerByPersonIdAndGroup_CourseId(ExplorerByPersonIdAndGroupCourseIdRequest) returns (ExplorerExistsResponse){
   }
   rpc findExplorersByExplorerIdIn(ExplorersByExplorerIdInRequest) returns (ExplorersByExplorerIdInResponse){
   }
@@ -38,7 +40,7 @@ message ExplorersByPersonIdRequest {
   int64 personId = 1;
 }
 
-message ExplorersByPersonIdAndGroupCourseIdRequest {
+message ExplorerByPersonIdAndGroupCourseIdRequest {
   int64 personId = 1;
   int64 courseId = 2;
 }
@@ -47,7 +49,7 @@ message ExplorersByGroup_CourseIdRequest {
   int64 courseId = 1;
 }
 
-message ExplorerExistsByIdResponse {
+message ExplorerExistsResponse {
   bool explorerExists = 1;
 }
 

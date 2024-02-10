@@ -16,43 +16,37 @@ import java.util.function.Function;
 @RequiredArgsConstructor
 public class JwtServiceImpl implements JwtService {
     @Value("${access-token-secret-key}")
-    private String SECRET_KEY;
+    private String ACCESS_TOKEN_SECRET_KEY;
 
     @Override
-    public String extractId(String jwtToken) {
-        return extractClaim(jwtToken, Claims::getSubject);
+    public String extractAccessTokenId(String accessToken) {
+        return extractAccessTokenClaim(accessToken, Claims::getSubject);
     }
 
     @Override
-    public <T> T extractClaim(String jwtToken, Function<Claims, T> claimsResolver) {
-        final Claims claims = extractAllClaims(jwtToken);
+    public String extractAccessTokenRole(String accessToken) {
+        return extractAccessTokenClaim(
+                accessToken,
+                claims -> claims.get("role", String.class)
+        );
+    }
+
+    @Override
+    public boolean isAccessTokenValid(String accessToken) {
+        return extractAccessTokenClaim(accessToken, Claims::getExpiration).after(new Date());
+    }
+
+    private <T> T extractAccessTokenClaim(String accessToken, Function<Claims, T> claimsResolver) {
+        final Claims claims = extractAllAccessTokenClaims(accessToken);
         return claimsResolver.apply(claims);
     }
 
-    @Override
-    public boolean isTokenValid(String jwtToken) {
-        return !isTokenExpired(jwtToken);
-    }
-
-    private boolean isTokenExpired(String jwtToken) {
-        return extractExpiration(jwtToken).before(new Date());
-    }
-
-    private Date extractExpiration(String jwtToken) {
-        return extractClaim(jwtToken, Claims::getExpiration);
-    }
-
-    @Override
-    public String extractRole(String jwtToken) {
-        return extractAllClaims(jwtToken).get("role", String.class);
-    }
-
-    private Claims extractAllClaims(String jwtToken) {
+    private Claims extractAllAccessTokenClaims(String accessToken) {
         return Jwts.parserBuilder()
                 .setSigningKey(Keys.hmacShaKeyFor(
-                        Decoders.BASE64.decode(SECRET_KEY)))
+                        Decoders.BASE64.decode(ACCESS_TOKEN_SECRET_KEY)))
                 .build()
-                .parseClaimsJws(jwtToken)
+                .parseClaimsJws(accessToken)
                 .getBody();
     }
 }

@@ -1,21 +1,18 @@
 package org.example.auth.config.security;
 
-import io.jsonwebtoken.Claims;
 import org.example.auth.dto.token.AccessTokenDto;
 import org.example.auth.dto.token.RefreshTokenDto;
-
-import java.util.function.Function;
 
 public interface JwtService {
     AccessTokenDto generateAccessToken(Long personId, String role);
 
     RefreshTokenDto generateRefreshToken(Long personId);
 
-    String extractId(String jwtToken);
+    String extractAccessTokenId(String accessToken);
 
-    <T> T extractClaim(String jwtToken, Function<Claims, T> claimsResolver);
+    String extractAccessTokenRole(String accessToken);
 
-    String extractRole(String jwtToken);
+    boolean isAccessTokenValid(String accessToken);
 
-    boolean isTokenValid(String jwtToken);
+    boolean isRefreshTokenValid(String refreshToken);
 }

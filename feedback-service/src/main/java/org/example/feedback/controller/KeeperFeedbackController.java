@@ -7,9 +7,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.example.feedback.dto.feedback.CreateKeeperFeedbackDto;
 import org.example.feedback.service.KeeperFeedbackService;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -76,7 +78,7 @@ public class KeeperFeedbackController {
     }
 
     @PostMapping("/keeper-feedbacks")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.feedback.enums.AuthenticationRoleType).KEEPER)")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(authentication.authorities, T(org.example.feedback.enums.AuthenticationRoleType).KEEPER)")
     @Operation(summary = "Send feedback for explorer", tags = "keeper feedback")
     @ApiResponses(value = {
             @ApiResponse(
@@ -87,16 +89,18 @@ public class KeeperFeedbackController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> sendFeedbackForExplorer(@Valid @RequestBody CreateKeeperFeedbackDto feedback) {
+    public ResponseEntity<?> sendFeedbackForExplorer(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                                     @AuthenticationPrincipal Long authenticatedPersonId,
+                                                     @Valid @RequestBody CreateKeeperFeedbackDto feedback) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(
-                        keeperFeedbackService.sendFeedbackForExplorer(feedback)
+                        keeperFeedbackService.sendFeedbackForExplorer(authorizationHeader, authenticatedPersonId, feedback)
                 );
     }
 
     @PatchMapping("/keeper-feedbacks/offers/{explorerId}")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.feedback.enums.AuthenticationRoleType).KEEPER)")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(authentication.authorities, T(org.example.feedback.enums.AuthenticationRoleType).KEEPER)")
     @Operation(summary = "Close keeper feedback offer", tags = "keeper feedback")
     @ApiResponses(value = {
             @ApiResponse(
@@ -107,9 +111,11 @@ public class KeeperFeedbackController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> closeKeeperFeedbackOffer(@PathVariable Long explorerId) {
+    public ResponseEntity<?> closeKeeperFeedbackOffer(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                                      @AuthenticationPrincipal Long authenticatedPersonId,
+                                                      @PathVariable Long explorerId) {
         return ResponseEntity.ok(
-                keeperFeedbackService.closeKeeperFeedbackOffer(explorerId)
+                keeperFeedbackService.closeKeeperFeedbackOffer(authorizationHeader, authenticatedPersonId, explorerId)
         );
     }
 }

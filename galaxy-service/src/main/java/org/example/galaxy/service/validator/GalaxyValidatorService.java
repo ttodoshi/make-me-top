@@ -1,37 +1,44 @@
 package org.example.galaxy.service.validator;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.galaxy.dto.galaxy.CreateGalaxyDto;
 import org.example.galaxy.dto.galaxy.UpdateGalaxyDto;
-import org.example.galaxy.exception.classes.galaxy.GalaxyAlreadyExistsException;
+import org.example.galaxy.exception.galaxy.GalaxyAlreadyExistsException;
+import org.example.galaxy.exception.galaxy.GalaxyNotFoundException;
 import org.example.galaxy.repository.GalaxyRepository;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
+@Service
 @RequiredArgsConstructor
+@Slf4j
 public class GalaxyValidatorService {
     private final GalaxyRepository galaxyRepository;
 
     @Transactional(readOnly = true)
-    public void validatePostRequest(CreateGalaxyDto request) {
-        if (galaxyExists(request.getGalaxyName()))
-            throw new GalaxyAlreadyExistsException(request.getGalaxyName());
-    }
-
-    private boolean galaxyExists(String galaxyName) {
-        return galaxyRepository.findAll().stream()
-                .anyMatch(g -> g.getGalaxyName().equals(galaxyName));
+    public void validatePostRequest(CreateGalaxyDto galaxy) {
+        if (galaxyRepository.existsGalaxyByGalaxyName(galaxy.getGalaxyName())) {
+            log.warn("galaxy '{}' already exists", galaxy.getGalaxyName());
+            throw new GalaxyAlreadyExistsException(galaxy.getGalaxyName());
+        }
     }
 
     @Transactional(readOnly = true)
     public void validatePutRequest(Long galaxyId, UpdateGalaxyDto galaxy) {
-        if (galaxyExists(galaxyId, galaxy.getGalaxyName()))
+        if (galaxyRepository.existsGalaxyByGalaxyIdNotAndGalaxyName(
+                galaxyId, galaxy.getGalaxyName()
+        )) {
+            log.warn("galaxy '{}' already exists", galaxy.getGalaxyName());
             throw new GalaxyAlreadyExistsException(galaxy.getGalaxyName());
+        }
     }
 
-    private boolean galaxyExists(Long galaxyId, String galaxyName) {
-        return galaxyRepository.findAll().stream()
-                .anyMatch(g -> g.getGalaxyName().equals(galaxyName) && !g.getGalaxyId().equals(galaxyId));
+    @Transactional(readOnly = true)
+    public void validateDeleteRequest(Long galaxyId) {
+        if (!galaxyRepository.existsById(galaxyId)) {
+            log.warn("galaxy by id {} not found", galaxyId);
+            throw new GalaxyNotFoundException(galaxyId);
+        }
     }
 }

@@ -1,131 +1,21 @@
 package org.example.course.service;
 
-import lombok.RequiredArgsConstructor;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.example.course.config.security.RoleService;
 import org.example.course.dto.course.CourseDetailedDto;
 import org.example.course.dto.course.CourseDto;
 import org.example.course.dto.course.UpdateCourseDto;
-import org.example.course.dto.event.CourseCreateEvent;
-import org.example.course.dto.explorer.ExplorerWithRatingDto;
-import org.example.course.dto.keeper.KeeperWithRatingDto;
-import org.example.course.enums.AuthenticationRoleType;
-import org.example.course.exception.classes.course.CourseNotFoundException;
-import org.example.course.model.Course;
-import org.example.course.repository.CourseMarkRepository;
-import org.example.course.repository.CourseRepository;
-import org.example.course.service.validator.CourseValidatorService;
-import org.modelmapper.ModelMapper;
-import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.core.Authentication;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-@Service
-@RequiredArgsConstructor
-public class CourseService {
-    private final CourseRepository courseRepository;
-    private final CourseMarkRepository courseMarkRepository;
+public interface CourseService {
+    CourseDto findCourseByCourseId(Long courseId);
 
-    private final ExplorerService explorerService;
-    private final KeeperService keeperService;
-    private final CourseValidatorService courseValidatorService;
-    private final RoleService roleService;
-    private final PersonService personService;
+    CourseDetailedDto findCourseByCourseIdDetailed(String authorizationHeader, Authentication authentication, Long courseId);
 
-    private final ModelMapper mapper;
+    Map<Long, CourseDto> findCoursesByCourseIdIn(List<Long> courseIds);
 
-    @Transactional(readOnly = true)
-    public CourseDto findCourseByCourseId(Long courseId) {
-        return courseRepository.findById(courseId)
-                .map(c -> mapper.map(c, CourseDto.class))
-                .orElseThrow(() -> new CourseNotFoundException(courseId));
-    }
+    CourseDto updateCourse(String authorizationHeader, Long galaxyId, Long courseId, UpdateCourseDto course);
 
-    @Transactional(readOnly = true)
-    public CourseDetailedDto findCourseByCourseIdDetailed(Long courseId) {
-        CourseDto course = findCourseByCourseId(courseId);
-
-        Map<Long, ExplorerWithRatingDto> explorers = explorerService.getExplorersForCourse(courseId);
-        Map<Long, KeeperWithRatingDto> keepers = keeperService.getKeepersForCourse(courseId);
-
-        CourseDetailedDto courseDetailed = new CourseDetailedDto(
-                course,
-                new ArrayList<>(explorers.values()),
-                new ArrayList<>(keepers.values())
-        );
-
-        if (roleService.hasAnyAuthenticationRole(AuthenticationRoleType.EXPLORER)) {
-            Long authenticatedPersonId = personService.getAuthenticatedPersonId();
-
-            if (explorers.containsKey(authenticatedPersonId)) {
-                ExplorerWithRatingDto personExplorer = explorers.get(authenticatedPersonId);
-
-                courseDetailed.setYou(personExplorer);
-                courseDetailed.setYourKeeper(
-                        keepers.get(
-                                keeperService
-                                        .getKeeperForExplorer(personExplorer.getExplorerId())
-                                        .getPersonId()
-                        )
-                );
-                courseMarkRepository
-                        .findById(personExplorer.getExplorerId())
-                        .ifPresent(m -> courseDetailed.setMark(m.getValue()));
-            }
-        }
-
-        return courseDetailed;
-    }
-
-    @Transactional(readOnly = true)
-    public Map<Long, CourseDto> findCoursesByCourseIdIn(List<Long> courseIds) {
-        return courseRepository.findCoursesByCourseIdIn(courseIds)
-                .stream()
-                .collect(Collectors.toMap(
-                        Course::getCourseId,
-                        c -> mapper.map(c, CourseDto.class)
-                ));
-    }
-
-    @KafkaListener(topics = "createCourseTopic", containerFactory = "createCourseKafkaListenerContainerFactory")
-    public void createCourse(CourseCreateEvent course) {
-        courseRepository.save(mapper.map(course, Course.class));
-    }
-
-    @KafkaListener(topics = "updateCourseTopic", containerFactory = "updateCourseKafkaListenerContainerFactory")
-    @Transactional
-    public void updateCourseTitle(ConsumerRecord<Long, String> record) {
-        Course course = courseRepository.findById(record.key())
-                .orElseThrow(() -> new CourseNotFoundException(record.key()));
-
-        course.setTitle(record.value());
-        courseRepository.save(course);
-    }
-
-    @Transactional
-    public CourseDto updateCourse(Long galaxyId, Long courseId, UpdateCourseDto course) {
-        Course updatedCourse = courseRepository.findById(courseId)
-                .orElseThrow(() -> new CourseNotFoundException(courseId));
-
-        courseValidatorService.validatePutRequest(galaxyId, courseId, updatedCourse);
-
-        updatedCourse.setTitle(course.getTitle());
-        updatedCourse.setDescription(course.getDescription());
-
-        return mapper.map(
-                courseRepository.save(updatedCourse),
-                CourseDto.class
-        );
-    }
-
-    @KafkaListener(topics = "deleteCourseTopic", containerFactory = "deleteCourseKafkaListenerContainerFactory")
-    @Transactional
-    public void deleteCourse(Long courseId) {
-        courseRepository.deleteById(courseId);
-    }
+    void deleteCourse(Long courseId);
 }

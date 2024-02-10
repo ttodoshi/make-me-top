@@ -11,5 +11,4 @@ public interface PictureRepository {
     Long save(Long personId, MultipartFile file);
 
     void deleteByPersonId(Long personId);
-
 }

@@ -3,5 +3,5 @@ package org.example.course.service;
 import org.example.course.dto.progress.CourseWithThemesProgressDto;
 
 public interface CourseProgressService {
-    CourseWithThemesProgressDto getCourseProgress(Long explorerId);
+    CourseWithThemesProgressDto getCourseProgress(String authorizationHeader, Long explorerId);
 }

@@ -19,12 +19,14 @@ spring:
     name: course-registration-service
   profiles:
     default: local
+  mvc:
+    log-resolved-exception: false
   kafka:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
     template:
-      default-topic: explorerTopic
+      default-topic: createExplorerTopic
   jpa:
     properties:
       hibernate:

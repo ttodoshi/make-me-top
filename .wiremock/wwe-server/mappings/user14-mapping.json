@@ -1,0 +1,122 @@
+{
+  "priority": 1,
+  "request": {
+    "url": "/ts-rest/SingleSignOn/authorization/",
+    "method": "POST",
+    "headers": {
+      "Content-Type": {
+        "equalTo": "application/json"
+      },
+      "Accept-Charset": {
+        "equalTo": "utf-8"
+      }
+    },
+    "bodyPatterns": [
+      {
+        "equalToJson": {
+          "login": "user14",
+          "password": "user14"
+        },
+        "ignoreArrayOrder": true,
+        "ignoreExtraElements": true
+      }
+    ]
+  },
+  "response": {
+    "status": 200,
+    "jsonBody": {
+      "isSuccess": true,
+      "message": null,
+      "exception": null,
+      "object": {
+        "isHourlyPayment": false,
+        "city": "City",
+        "telegram": null,
+        "softlineEmail": "user14@softline.com",
+        "legalEntityId": 2,
+        "externalRankId": 2,
+        "reasonForSwitchedOffId": null,
+        "isRentViewer": false,
+        "isStaffCoordinator": false,
+        "lastTeamLeader": null,
+        "isSwitchedOn": true,
+        "kindOfActivity": "user14",
+        "groups": null,
+        "token": null,
+        "numberOfVacationDays": 25,
+        "dateOfReviseHolidays": "2525-08-01",
+        "isRemoteWork": false,
+        "isNoMentorRequired": false,
+        "isProjectManager": false,
+        "isTestManager": false,
+        "isGroupManager": false,
+        "isDeputyingEmployee": false,
+        "isDepartmentManager": false,
+        "id": 25,
+        "teamLeaderId": null,
+        "isShiftWork": false,
+        "employeeDeputies": null,
+        "deleted": false,
+        "isDeleted": false,
+        "positionsList": null,
+        "isInternalEmployee": false,
+        "rating": null,
+        "grade360Name": null,
+        "mainCompetenceName": null,
+        "deputyId": null,
+        "departments": null,
+        "employeeId": 25,
+        "isStudent": false,
+        "satisfaction": null,
+        "dismissedDate": null,
+        "gradeName": null,
+        "lastName": "Гитигноров",
+        "firstName": "Кирill",
+        "employmentDate": "2599-06-01",
+        "patronymic": "Свичкейсович",
+        "dateOfBirth": "2598-06-02",
+        "login": "user14",
+        "email": "user14@mmtr.ru",
+        "workTime": 8,
+        "kindOfActivityId": 15,
+        "mentorId": 0,
+        "gradeId": 0,
+        "phoneNumber": "+7 800 555 3535",
+        "interests": null,
+        "mentorName": null,
+        "isAdmin": false,
+        "isContentEditor": false,
+        "genderId": 1,
+        "skype": null,
+        "phoneConfirmationDate": "2525-06-02",
+        "isDismissed": false,
+        "userToken": {
+          "expiration": 1686572510641,
+          "isDeleted": false,
+          "employeeId": 25,
+          "tokenInfo": "098bgj3489gjmsdmf8943jgmidgj934jt093tjh8gn",
+          "tokenId": null
+        },
+        "isExternalUser": false,
+        "inheritedRights": null,
+        "personnelNumber": null,
+        "itn": "430986934i",
+        "isVisiblePrivateData": true,
+        "isSupportManager": false,
+        "course": null,
+        "isHRManager": false,
+        "isStudentCurator": true,
+        "isCertificateManager": false,
+        "isCommonEmployee": true,
+        "satisfactionIndex": null,
+        "teamLeaderName": null,
+        "positions": "85,"
+      },
+      "list": null,
+      "map": null
+    },
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

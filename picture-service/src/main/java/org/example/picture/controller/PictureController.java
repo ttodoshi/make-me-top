@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.example.grpc.PeopleService;
 import org.example.picture.enums.PictureType;
 import org.example.picture.service.PictureService;
 import org.springframework.http.MediaType;
@@ -21,7 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class PictureController {
     private final PictureService pictureService;
 
-    @GetMapping("/{picId}")
+    @GetMapping("/{personId}")
     @Operation(summary = "Get picture", tags = "pics")
     @ApiResponses(value = {
             @ApiResponse(
@@ -32,11 +31,11 @@ public class PictureController {
                                     mediaType = "*")
                     })
     })
-    public ResponseEntity<?> findPicture(@PathVariable Long picId, @RequestParam PictureType type) {
+    public ResponseEntity<?> findPicture(@PathVariable Long personId, @RequestParam PictureType type) {
         return ResponseEntity
                 .ok()
                 .contentType(MediaType.IMAGE_JPEG)
-                .body(pictureService.findPicture(picId, type));
+                .body(pictureService.findPicture(personId, type));
     }
 
     @PutMapping
@@ -51,9 +50,9 @@ public class PictureController {
                                     mediaType = "*")
                     })
     })
-    public ResponseEntity<?> setPicture(@AuthenticationPrincipal PeopleService.Person person, @RequestParam("file") MultipartFile file) {
+    public ResponseEntity<?> setPicture(@AuthenticationPrincipal Long personId, @RequestParam("file") MultipartFile file) {
         return ResponseEntity.ok(
-                pictureService.savePicture(person.getPersonId(), file)
+                pictureService.savePicture(personId, file)
         );
     }
 
@@ -69,8 +68,8 @@ public class PictureController {
                                     mediaType = "*")
                     })
     })
-    public ResponseEntity<?> deletePicture(@AuthenticationPrincipal PeopleService.Person person) {
-        pictureService.deletePicture(person.getPersonId());
+    public ResponseEntity<?> deletePicture(@AuthenticationPrincipal Long personId) {
+        pictureService.deletePicture(personId);
         return ResponseEntity
                 .noContent()
                 .build();

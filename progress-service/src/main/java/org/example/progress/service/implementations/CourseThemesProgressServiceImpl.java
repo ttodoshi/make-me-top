@@ -1,18 +1,18 @@
 package org.example.progress.service.implementations;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.grpc.ExplorersService;
 import org.example.progress.dto.course.CourseDto;
 import org.example.progress.dto.mark.ThemeMarkDto;
 import org.example.progress.dto.progress.CourseThemeCompletedDto;
 import org.example.progress.dto.progress.CourseWithThemesProgressDto;
-import org.example.progress.exception.classes.course.CourseNotFoundException;
 import org.example.progress.model.CourseThemeCompletion;
-import org.example.progress.repository.CourseRepository;
 import org.example.progress.repository.CourseThemeCompletionRepository;
-import org.example.progress.repository.ExplorerGroupRepository;
-import org.example.progress.repository.PlanetRepository;
+import org.example.progress.service.CourseService;
 import org.example.progress.service.CourseThemesProgressService;
+import org.example.progress.service.ExplorerGroupService;
+import org.example.progress.service.PlanetService;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,24 +23,27 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CourseThemesProgressServiceImpl implements CourseThemesProgressService {
-    private final CourseRepository courseRepository;
     private final CourseThemeCompletionRepository courseThemeCompletionRepository;
-    private final ExplorerGroupRepository explorerGroupRepository;
-    private final PlanetRepository planetRepository;
+
+    private final CourseService courseService;
+    private final ExplorerGroupService explorerGroupService;
+    private final PlanetService planetService;
 
     private final ModelMapper mapper;
 
     @Override
     @Transactional(readOnly = true)
-    public CourseWithThemesProgressDto getThemesProgress(ExplorersService.Explorer explorer) {
-        Long courseId = explorerGroupRepository
-                .getReferenceById(explorer.getGroupId()).getCourseId();
-        CourseDto course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new CourseNotFoundException(courseId));
+    public CourseWithThemesProgressDto getThemesProgress(String authorizationHeader, ExplorersService.Explorer explorer) {
+        Long courseId = explorerGroupService.findById(
+                authorizationHeader, explorer.getGroupId()
+        ).getCourseId();
+        CourseDto course = courseService.findById(authorizationHeader, courseId);
 
-        List<CourseThemeCompletedDto> themesProgress = planetRepository.findPlanetsBySystemId(courseId)
-                .stream()
+        List<CourseThemeCompletedDto> themesProgress = planetService.findPlanetsBySystemId(
+                        authorizationHeader, courseId
+                ).stream()
                 .map(p -> {
                     boolean completed = courseThemeCompletionRepository
                             .findCourseThemeCompletionByExplorerIdAndCourseThemeId(explorer.getExplorerId(), p.getPlanetId()).isPresent();

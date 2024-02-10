@@ -87,7 +87,7 @@ public class GalaxyController {
     }
 
     @PostMapping("/galaxies")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.galaxy.enums.AuthenticationRoleType).BIG_BROTHER)")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(authentication.authorities, T(org.example.galaxy.enums.AuthenticationRoleType).BIG_BROTHER)")
     @Operation(summary = "Create galaxy", tags = "galaxy")
     @ApiResponses(value = {
             @ApiResponse(
@@ -107,7 +107,7 @@ public class GalaxyController {
     }
 
     @PutMapping("/galaxies/{galaxyId}")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.galaxy.enums.AuthenticationRoleType).BIG_BROTHER)")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(authentication.authorities, T(org.example.galaxy.enums.AuthenticationRoleType).BIG_BROTHER)")
     @Operation(summary = "Update galaxy", tags = "galaxy")
     @ApiResponses(value = {
             @ApiResponse(
@@ -124,7 +124,7 @@ public class GalaxyController {
     }
 
     @DeleteMapping("/galaxies/{galaxyId}")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.galaxy.enums.AuthenticationRoleType).BIG_BROTHER)")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(authentication.authorities, T(org.example.galaxy.enums.AuthenticationRoleType).BIG_BROTHER)")
     @Operation(summary = "Delete galaxy", tags = "galaxy")
     @ApiResponses(value = {
             @ApiResponse(

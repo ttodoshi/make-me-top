@@ -6,7 +6,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.example.person.dto.keeper.CreateKeeperDto;
-import org.example.person.service.KeeperService;
+import org.example.person.service.implementations.KeeperService;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,7 +22,7 @@ public class KeeperController {
     private final KeeperService keeperService;
 
     @PostMapping("/courses/{courseId}/keepers")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.person.enums.AuthenticationRoleType).BIG_BROTHER)")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(authentication.authorities, T(org.example.person.enums.AuthenticationRoleType).BIG_BROTHER)")
     @Operation(summary = "Add keeper on course", tags = "keeper")
     @ApiResponses(value = {
             @ApiResponse(
@@ -32,12 +33,13 @@ public class KeeperController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> setKeeperToCourse(@PathVariable Long courseId,
+    public ResponseEntity<?> setKeeperToCourse(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                               @PathVariable Long courseId,
                                                @Valid @RequestBody CreateKeeperDto keeper) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(
-                        keeperService.setKeeperToCourse(courseId, keeper)
+                        keeperService.setKeeperToCourse(authorizationHeader, courseId, keeper)
                 );
     }
 }

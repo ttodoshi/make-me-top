@@ -6,7 +6,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.example.feedback.dto.feedback.CreateExplorerFeedbackDto;
 import org.example.feedback.dto.feedback.CreateKeeperFeedbackDto;
-import org.example.feedback.exception.classes.feedback.OfferNotFoundException;
+import org.example.feedback.exception.feedback.OfferNotFoundException;
 import org.example.feedback.repository.ExplorerFeedbackOfferRepository;
 import org.example.feedback.repository.KeeperFeedbackOfferRepository;
 import org.springframework.cache.Cache;
@@ -28,12 +28,12 @@ public class CacheEvictionAspect {
     private final KeeperFeedbackOfferRepository keeperFeedbackOfferRepository;
 
     @Pointcut(value = "execution(* org.example.feedback.service.ExplorerFeedbackService.sendFeedbackForKeeper(..)) " +
-            "&& args(feedback)", argNames = "feedback")
-    public void sendFeedbackForKeeperPointcut(CreateExplorerFeedbackDto feedback) {
+            "&& args(authorizationHeader, authenticatedPersonId, feedback)", argNames = "authorizationHeader, authenticatedPersonId, feedback")
+    public void sendFeedbackForKeeperPointcut(String authorizationHeader, Long authenticatedPersonId, CreateExplorerFeedbackDto feedback) {
     }
 
-    @AfterReturning(pointcut = "sendFeedbackForKeeperPointcut(feedback)", argNames = "feedback")
-    public void clearKeeperRatingCacheAfterFeedback(CreateExplorerFeedbackDto feedback) {
+    @AfterReturning(pointcut = "sendFeedbackForKeeperPointcut(authorizationHeader, authenticatedPersonId, feedback)", argNames = "authorizationHeader, authenticatedPersonId, feedback")
+    public void clearKeeperRatingCacheAfterFeedback(String authorizationHeader, Long authenticatedPersonId, CreateExplorerFeedbackDto feedback) {
         clearKeeperRatingCache(
                 explorerFeedbackOfferRepository.findById(
                                 feedback.getExplorerId()
@@ -57,12 +57,12 @@ public class CacheEvictionAspect {
     }
 
     @Pointcut(value = "execution(* org.example.feedback.service.KeeperFeedbackService.sendFeedbackForExplorer(..)) " +
-            "&& args(feedback)", argNames = "feedback")
-    public void sendFeedbackForExplorerPointcut(CreateKeeperFeedbackDto feedback) {
+            "&& args(authorizationHeader, authenticatedPersonId, feedback)", argNames = "authorizationHeader, authenticatedPersonId, feedback")
+    public void sendFeedbackForExplorerPointcut(String authorizationHeader, Long authenticatedPersonId, CreateKeeperFeedbackDto feedback) {
     }
 
-    @AfterReturning(pointcut = "sendFeedbackForExplorerPointcut(feedback)", argNames = "feedback")
-    public void clearExplorerRatingCacheAfterFeedback(CreateKeeperFeedbackDto feedback) {
+    @AfterReturning(pointcut = "sendFeedbackForExplorerPointcut(authorizationHeader, authenticatedPersonId, feedback)", argNames = "authorizationHeader, authenticatedPersonId, feedback")
+    public void clearExplorerRatingCacheAfterFeedback(String authorizationHeader, Long authenticatedPersonId, CreateKeeperFeedbackDto feedback) {
         clearExplorerRatingCache(
                 keeperFeedbackOfferRepository.findById(
                                 feedback.getExplorerId()

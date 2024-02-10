@@ -21,5 +21,7 @@ public interface KeeperRepository extends JpaRepository<Keeper, Long> {
 
     List<Keeper> findKeepersByPersonIdAndCourseIdIn(Long personId, List<Long> courseIds);
 
+    boolean existsKeeperByPersonIdAndCourseId(Long personId, Long courseId);
+
     void deleteKeepersByCourseId(Long courseId);
 }

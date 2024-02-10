@@ -2,63 +2,61 @@ package org.example.courseregistration.service.validator;
 
 import lombok.RequiredArgsConstructor;
 import org.example.courseregistration.dto.courserequest.CreateCourseRegistrationRequestDto;
-import org.example.courseregistration.exception.classes.course.CourseNotFoundException;
-import org.example.courseregistration.exception.classes.courserequest.PersonIsKeeperException;
-import org.example.courseregistration.exception.classes.courserequest.PersonIsNotPersonInRequestException;
-import org.example.courseregistration.exception.classes.courserequest.RequestAlreadySentException;
-import org.example.courseregistration.exception.classes.keeper.KeeperNotFoundException;
-import org.example.courseregistration.exception.classes.progress.AlreadyStudyingException;
-import org.example.courseregistration.exception.classes.progress.PersonIsStudyingException;
-import org.example.courseregistration.exception.classes.progress.SystemParentsNotCompletedException;
+import org.example.courseregistration.exception.course.CourseNotFoundException;
+import org.example.courseregistration.exception.courserequest.PersonIsKeeperException;
+import org.example.courseregistration.exception.courserequest.PersonIsNotPersonInRequestException;
+import org.example.courseregistration.exception.courserequest.RequestAlreadySentException;
+import org.example.courseregistration.exception.courserequest.RequestNotFoundException;
+import org.example.courseregistration.exception.keeper.KeeperNotFoundException;
+import org.example.courseregistration.exception.progress.AlreadyStudyingException;
+import org.example.courseregistration.exception.progress.PersonIsStudyingException;
+import org.example.courseregistration.exception.progress.SystemParentsNotCompletedException;
 import org.example.courseregistration.model.CourseRegistrationRequest;
 import org.example.courseregistration.model.CourseRegistrationRequestStatusType;
 import org.example.courseregistration.repository.CourseRegistrationRequestRepository;
-import org.example.courseregistration.repository.CourseRepository;
-import org.example.courseregistration.repository.KeeperRepository;
 import org.example.courseregistration.service.CourseProgressService;
 import org.example.courseregistration.service.CourseRegistrationRequestStatusService;
-import org.example.courseregistration.service.PersonService;
-import org.springframework.stereotype.Component;
+import org.example.courseregistration.service.CourseService;
+import org.example.courseregistration.service.KeeperService;
+import org.springframework.stereotype.Service;
 
-@Component
+@Service
 @RequiredArgsConstructor
 public class ExplorerCourseRegistrationRequestValidatorService {
-    private final CourseRepository courseRepository;
-    private final KeeperRepository keeperRepository;
     private final CourseRegistrationRequestRepository courseRegistrationRequestRepository;
+
+    private final CourseService courseService;
+    private final KeeperService keeperService;
     private final CourseRegistrationRequestStatusService courseRegistrationRequestStatusService;
 
-    private final PersonService personService;
     private final CourseProgressService courseProgressService;
 
-    public void validateSendRequest(Long personId, CreateCourseRegistrationRequestDto request) {
-        if (!courseRepository.existsById(request.getCourseId()))
+    public void validateSendRequest(String authorizationHeader, Long personId, CreateCourseRegistrationRequestDto request) {
+        if (!courseService.existsById(authorizationHeader, request.getCourseId()))
             throw new CourseNotFoundException(request.getCourseId());
-        keeperRepository.findKeepersByKeeperIdIn(request.getKeeperIds())
+        keeperService.findKeepersByKeeperIdIn(authorizationHeader, request.getKeeperIds())
                 .values()
                 .forEach(k -> {
                     if (!request.getCourseId().equals(k.getCourseId()))
                         throw new KeeperNotFoundException(k.getKeeperId());
                 });
-        if (courseProgressService.isAuthenticatedPersonCurrentlyStudying()) {
+        if (courseProgressService.isAuthenticatedPersonCurrentlyStudying(authorizationHeader, personId))
             throw new PersonIsStudyingException();
-        }
-        if (isPersonKeeperOnCourse(personId, request.getCourseId()))
+        if (keeperService.existsKeeperByPersonIdAndCourseId(authorizationHeader, personId, request.getCourseId()))
             throw new PersonIsKeeperException();
-        if (!courseProgressService.isCourseOpenedForAuthenticatedPerson(request.getCourseId()))
+        if (!courseProgressService.isCourseOpenedForAuthenticatedPerson(authorizationHeader, request.getCourseId()))
             throw new SystemParentsNotCompletedException(request.getCourseId());
         if (courseRegistrationRequestRepository.findCourseRegistrationRequestByPersonIdAndStatus_NotAccepted(personId).isPresent())
             throw new RequestAlreadySentException();
     }
 
-    private boolean isPersonKeeperOnCourse(Long authenticatedPersonId, Long courseId) {
-        return keeperRepository.findKeeperByPersonIdAndCourseId(authenticatedPersonId, courseId).isPresent();
-    }
+    public void validateCancelRequest(Long authenticatedPersonId, Long requestId) {
+        CourseRegistrationRequest request = courseRegistrationRequestRepository
+                .findById(requestId)
+                .orElseThrow(() -> new RequestNotFoundException(requestId));
 
-    public void validateCancelRequest(CourseRegistrationRequest request) {
-        if (!request.getPersonId().equals(personService.getAuthenticatedPersonId()))
+        if (!request.getPersonId().equals(authenticatedPersonId))
             throw new PersonIsNotPersonInRequestException();
-
         Long acceptedStatusId = courseRegistrationRequestStatusService
                 .findCourseRegistrationRequestStatusByStatus(CourseRegistrationRequestStatusType.ACCEPTED)
                 .getStatusId();

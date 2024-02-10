@@ -42,9 +42,11 @@ public interface SystemDependencyRepository extends JpaRepository<SystemDependen
             "WHERE child_id = ?1", nativeQuery = true)
     List<SystemDependency> getSystemParents(Long systemId);
 
-    @Query(value = "SELECT * FROM system_dependency WHERE child_id=?1 and parent_id = ?2", nativeQuery = true)
-    Optional<SystemDependency> getSystemDependencyByChildIdAndParentId(Long childId, Long parentId);
+    Optional<SystemDependency> findSystemDependencyByChildIdAndParentId(Long childId, Long parentId);
 
-    @Query(value = "SELECT * FROM system_dependency WHERE child_id=?1 and parent_id ISNULL", nativeQuery = true)
-    Optional<SystemDependency> getSystemDependencyByChildIdAndParentNull(Long childId);
+    Optional<SystemDependency> findSystemDependencyByChildIdAndParentNull(Long childId);
+
+    boolean existsSystemDependencyByChildIdAndParentId(Long childId, Long parentId);
+
+    boolean existsSystemDependencyByChildIdAndParentNull(Long childId);
 }

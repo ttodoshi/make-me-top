@@ -8,9 +8,11 @@ import lombok.RequiredArgsConstructor;
 import org.example.courseregistration.dto.courserequest.CreateKeeperRejectionDto;
 import org.example.courseregistration.service.KeeperCourseRegistrationRequestService;
 import org.example.courseregistration.service.KeeperRejectionService;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -24,8 +26,7 @@ public class KeeperCourseRegistrationRequestController {
     private final KeeperRejectionService keeperRejectionService;
 
     @PatchMapping("/course-requests/{requestId}")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.courseregistration.enums.AuthenticationRoleType).KEEPER) && " +
-            "@roleService.hasAnyCourseRoleByRequestId(#requestId, T(org.example.courseregistration.enums.CourseRoleType).KEEPER)")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(authentication.authorities, T(org.example.courseregistration.enums.AuthenticationRoleType).KEEPER)")
     @Operation(summary = "Approve course registration request", tags = "keeper course request")
     @ApiResponses(value = {
             @ApiResponse(
@@ -36,15 +37,16 @@ public class KeeperCourseRegistrationRequestController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> approveRequest(@PathVariable Long requestId) {
+    public ResponseEntity<?> approveRequest(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                            @AuthenticationPrincipal Long authenticatedPersonId,
+                                            @PathVariable Long requestId) {
         return ResponseEntity.ok(
-                keeperCourseRegistrationRequestService.approveRequest(requestId)
+                keeperCourseRegistrationRequestService.approveRequest(authorizationHeader, authenticatedPersonId, requestId)
         );
     }
 
     @PostMapping("/course-requests/{requestId}/rejections")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.courseregistration.enums.AuthenticationRoleType).KEEPER) && " +
-            "@roleService.hasAnyCourseRoleByRequestId(#requestId, T(org.example.courseregistration.enums.CourseRoleType).KEEPER)")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(authentication.authorities, T(org.example.courseregistration.enums.AuthenticationRoleType).KEEPER)")
     @Operation(summary = "Reject course registration request", tags = "keeper course request")
     @ApiResponses(value = {
             @ApiResponse(
@@ -55,17 +57,19 @@ public class KeeperCourseRegistrationRequestController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> rejectRequest(@PathVariable Long requestId,
+    public ResponseEntity<?> rejectRequest(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                           @AuthenticationPrincipal Long authenticatedPersonId,
+                                           @PathVariable Long requestId,
                                            @Valid @RequestBody CreateKeeperRejectionDto rejection) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(
-                        keeperCourseRegistrationRequestService.rejectRequest(requestId, rejection)
+                        keeperCourseRegistrationRequestService.rejectRequest(authorizationHeader, authenticatedPersonId, requestId, rejection)
                 );
     }
 
     @GetMapping("/course-requests/rejections")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.courseregistration.enums.AuthenticationRoleType).KEEPER)")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(authentication.authorities, T(org.example.courseregistration.enums.AuthenticationRoleType).KEEPER)")
     @Operation(summary = "Get keeper rejection reasons", tags = "keeper course request")
     @ApiResponses(value = {
             @ApiResponse(
@@ -81,7 +85,7 @@ public class KeeperCourseRegistrationRequestController {
     }
 
     @GetMapping("/course-requests/approved")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.courseregistration.enums.AuthenticationRoleType).KEEPER)")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(authentication.authorities, T(org.example.courseregistration.enums.AuthenticationRoleType).KEEPER)")
     @Operation(summary = "Get approved requests", tags = "keeper course request")
     @ApiResponses(value = {
             @ApiResponse(
@@ -92,15 +96,16 @@ public class KeeperCourseRegistrationRequestController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> getApprovedRequests(@RequestParam List<Long> keeperIds) {
+    public ResponseEntity<?> getApprovedRequests(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                                 @AuthenticationPrincipal Long authenticatedPersonId,
+                                                 @RequestParam List<Long> keeperIds) {
         return ResponseEntity.ok(
-                keeperCourseRegistrationRequestService.getApprovedRequests(keeperIds)
+                keeperCourseRegistrationRequestService.getApprovedRequests(authorizationHeader, authenticatedPersonId, keeperIds)
         );
     }
 
     @PostMapping("/courses/{courseId}/groups")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.courseregistration.enums.AuthenticationRoleType).KEEPER) && " +
-            "@roleService.hasAnyCourseRole(#courseId, T(org.example.courseregistration.enums.CourseRoleType).KEEPER)")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(authentication.authorities, T(org.example.courseregistration.enums.AuthenticationRoleType).KEEPER)")
     @Operation(summary = "Start education on course", tags = "keeper course request")
     @ApiResponses(value = {
             @ApiResponse(
@@ -111,9 +116,11 @@ public class KeeperCourseRegistrationRequestController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> startTeaching(@PathVariable Long courseId) {
+    public ResponseEntity<?> startTeaching(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                           @AuthenticationPrincipal Long authenticatedPersonId,
+                                           @PathVariable Long courseId) {
         return ResponseEntity.ok(
-                keeperCourseRegistrationRequestService.startTeaching(courseId)
+                keeperCourseRegistrationRequestService.startTeaching(authorizationHeader, authenticatedPersonId, courseId)
         );
     }
 }

@@ -25,7 +25,7 @@ public class SystemDependencyController {
     private final SystemDependencyService systemDependencyService;
 
     @PostMapping
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.galaxy.enums.AuthenticationRoleType).BIG_BROTHER)")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(authentication.authorities, T(org.example.galaxy.enums.AuthenticationRoleType).BIG_BROTHER)")
     @Operation(summary = "Create dependency", tags = "dependency")
     @ApiResponses(value = {
             @ApiResponse(
@@ -45,7 +45,7 @@ public class SystemDependencyController {
     }
 
     @DeleteMapping
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.galaxy.enums.AuthenticationRoleType).BIG_BROTHER)")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(authentication.authorities, T(org.example.galaxy.enums.AuthenticationRoleType).BIG_BROTHER)")
     @Operation(summary = "Delete dependency", tags = "dependency")
     @ApiResponses(value = {
             @ApiResponse(

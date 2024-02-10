@@ -24,6 +24,8 @@ service KeeperService {
   }
   rpc findKeepersByPersonIdAndCourseIdIn(KeepersByPersonIdAndCourseIdInRequest) returns (KeepersByPersonIdAndCourseIdInResponse) {
   }
+  rpc existsKeeperByPersonIdAndCourseId(KeeperByPersonIdAndCourseIdRequest) returns(KeeperExistsResponse){
+  }
 }
 
 message KeeperByIdRequest {
@@ -88,4 +90,8 @@ message Keeper {
 
 message KeeperList {
   repeated Keeper keepers = 1;
+}
+
+message KeeperExistsResponse{
+  bool keeperExists = 1;
 }

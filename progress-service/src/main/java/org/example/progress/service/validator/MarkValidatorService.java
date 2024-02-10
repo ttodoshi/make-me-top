@@ -1,31 +1,28 @@
 package org.example.progress.service.validator;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.grpc.ExplorerGroupsService;
 import org.example.grpc.ExplorersService;
 import org.example.grpc.KeepersService;
-import org.example.grpc.PeopleService;
 import org.example.progress.dto.course.CourseDto;
 import org.example.progress.dto.homework.HomeworkDto;
 import org.example.progress.dto.mark.MarkDto;
 import org.example.progress.dto.planet.PlanetDto;
 import org.example.progress.dto.progress.CourseThemeCompletedDto;
 import org.example.progress.dto.progress.CourseWithThemesProgressDto;
-import org.example.progress.exception.classes.connect.ConnectException;
-import org.example.progress.exception.classes.course.CourseNotFoundException;
-import org.example.progress.exception.classes.explorer.ExplorerNotFoundException;
-import org.example.progress.exception.classes.keeper.DifferentKeeperException;
-import org.example.progress.exception.classes.mark.ExplorerDoesNotNeedMarkException;
-import org.example.progress.exception.classes.progress.HomeworkNotCompletedException;
-import org.example.progress.exception.classes.progress.ThemeAlreadyCompletedException;
-import org.example.progress.exception.classes.progress.UnexpectedCourseThemeException;
+import org.example.progress.exception.connect.ConnectException;
+import org.example.progress.exception.keeper.DifferentKeeperException;
+import org.example.progress.exception.mark.ExplorerDoesNotNeedMarkException;
+import org.example.progress.exception.progress.HomeworkNotCompletedException;
+import org.example.progress.exception.progress.ThemeAlreadyCompletedException;
+import org.example.progress.exception.progress.UnexpectedCourseThemeException;
 import org.example.progress.model.CourseThemeCompletion;
-import org.example.progress.repository.*;
-import org.example.progress.service.PersonService;
-import org.example.progress.utils.AuthorizationHeaderContextHolder;
+import org.example.progress.repository.CourseThemeCompletionRepository;
+import org.example.progress.service.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -34,51 +31,49 @@ import reactor.core.publisher.Mono;
 import java.time.Duration;
 import java.util.*;
 
-@Component
+@Service
 @RequiredArgsConstructor
+@Slf4j
 public class MarkValidatorService {
-    private final WebClient.Builder webClientBuilder;
-    private final AuthorizationHeaderContextHolder authorizationHeaderContextHolder;
-
-    private final ExplorerRepository explorerRepository;
-    private final ExplorerGroupRepository explorerGroupRepository;
-    private final KeeperRepository keeperRepository;
-    private final CourseRepository courseRepository;
-    private final PlanetRepository planetRepository;
     private final CourseThemeCompletionRepository courseThemeCompletionRepository;
-    private final HomeworkRepository homeworkRepository;
 
-    private final PersonService personService;
+    private final ExplorerService explorerService;
+    private final ExplorerGroupService explorerGroupService;
+    private final KeeperService keeperService;
+    private final CourseService courseService;
+    private final PlanetService planetService;
+    private final HomeworkService homeworkService;
 
-    public void validateThemesMarksRequest(Long courseId) {
-        if (courseRepository.findById(courseId).isEmpty()) {
-            throw new CourseNotFoundException(courseId);
-        }
+    private final WebClient.Builder webClientBuilder;
+
+    public void validateThemesMarksRequest(String authorizationHeader, Long courseId) {
+        courseService.findById(authorizationHeader, courseId);
     }
 
     @Transactional(readOnly = true)
-    public void validateCourseMarkRequest(MarkDto courseMark) {
-        ExplorersService.Explorer explorer = explorerRepository.findById(courseMark.getExplorerId())
-                .orElseThrow(() -> new ExplorerNotFoundException(courseMark.getExplorerId()));
+    public void validateCourseMarkRequest(String authorizationHeader, Long authenticatedPersonId, MarkDto courseMark) {
+        ExplorersService.Explorer explorer = explorerService.findById(authorizationHeader, courseMark.getExplorerId());
 
-        if (isNotKeeperForThisExplorer(explorer))
+        if (isNotKeeperForThisExplorer(authorizationHeader, authenticatedPersonId, explorer)) {
+            log.warn("authenticated person is not keeper for explorer with id {}", explorer.getExplorerId());
             throw new DifferentKeeperException();
-        if (!explorerNeedFinalAssessment(courseMark.getExplorerId()))
+        }
+        if (!explorerNeedFinalAssessment(authorizationHeader, courseMark.getExplorerId())) {
+            log.warn("explorer {} doesn't need course mark", explorer.getExplorerId());
             throw new ExplorerDoesNotNeedMarkException(courseMark.getExplorerId());
+        }
     }
 
-    private boolean isNotKeeperForThisExplorer(ExplorersService.Explorer explorer) {
-        ExplorerGroupsService.ExplorerGroup explorerGroup = explorerGroupRepository
-                .getReferenceById(explorer.getGroupId());
-        KeepersService.Keeper keeper = keeperRepository
-                .getReferenceById(explorerGroup.getKeeperId());
+    private boolean isNotKeeperForThisExplorer(String authorizationHeader, Long authenticatedPersonId, ExplorersService.Explorer explorer) {
+        ExplorerGroupsService.ExplorerGroup explorerGroup = explorerGroupService
+                .findById(authorizationHeader, explorer.getGroupId());
+        KeepersService.Keeper keeper = keeperService
+                .findById(authorizationHeader, explorerGroup.getKeeperId());
 
-        PeopleService.Person authenticatedPerson = personService.getAuthenticatedPerson();
-
-        return !(authenticatedPerson.getPersonId() == keeper.getPersonId());
+        return !(authenticatedPersonId.equals(keeper.getPersonId()));
     }
 
-    private boolean explorerNeedFinalAssessment(Long explorerId) {
+    private boolean explorerNeedFinalAssessment(String authorizationHeader, Long explorerId) {
         List<Long> explorerNeededFinalAssessment = webClientBuilder
                 .baseUrl("http://progress-service/api/v1/progress-app/").build()
                 .get()
@@ -87,15 +82,22 @@ public class MarkValidatorService {
                         .queryParam("explorerIds", Collections.singletonList(explorerId))
                         .build()
                 )
-                .header("Authorization", authorizationHeaderContextHolder.getAuthorizationHeader())
+                .header("Authorization", authorizationHeader)
                 .retrieve()
                 .onStatus(httpStatus -> httpStatus.isError() && !httpStatus.equals(HttpStatus.UNAUTHORIZED), response -> {
+                    log.error("failed to get explorers needed final assessment");
                     throw new ConnectException();
                 })
                 .bodyToFlux(Long.class)
                 .timeout(Duration.ofSeconds(5))
-                .onErrorResume(WebClientResponseException.Unauthorized.class, error -> Mono.error(new AccessDeniedException("Вам закрыт доступ к данной функциональности бортового компьютера")))
-                .collectList()
+                .onErrorResume(
+                        WebClientResponseException.Unauthorized.class,
+                        error -> Mono.error(
+                                new AccessDeniedException(
+                                        "Вам закрыт доступ к данной функциональности бортового компьютера"
+                                )
+                        )
+                ).collectList()
                 .block();
         if (explorerNeededFinalAssessment == null)
             return false;
@@ -103,27 +105,36 @@ public class MarkValidatorService {
     }
 
     @Transactional(readOnly = true)
-    public void validateThemeMarkRequest(Long themeId, MarkDto mark) {
-        ExplorersService.Explorer explorer = explorerRepository.findById(mark.getExplorerId())
-                .orElseThrow(() -> new ExplorerNotFoundException(mark.getExplorerId()));
+    public void validateThemeMarkRequest(String authorizationHeader, Long authenticatedPersonId, Long themeId, MarkDto mark) {
+        ExplorersService.Explorer explorer = explorerService.findById(authorizationHeader, mark.getExplorerId());
 
-        if (isNotKeeperForThisExplorer(explorer))
+        if (isNotKeeperForThisExplorer(authorizationHeader, authenticatedPersonId, explorer)) {
+            log.warn("authenticated person is not keeper for explorer with id {}", explorer.getExplorerId());
             throw new DifferentKeeperException();
+        }
 
         Optional<CourseThemeCompletion> courseThemeProgressOptional = courseThemeCompletionRepository
                 .findCourseThemeCompletionByExplorerIdAndCourseThemeId(explorer.getExplorerId(), themeId);
 
-        if (courseThemeProgressOptional.isPresent())
+        if (courseThemeProgressOptional.isPresent()) {
+            log.warn("mark already exists on theme {} for explorer {}", themeId, explorer.getExplorerId());
             throw new ThemeAlreadyCompletedException(courseThemeProgressOptional.get().getCourseThemeId());
-        Long currentThemeId = getCurrentCourseThemeDtoId(explorer);
-        if (!currentThemeId.equals(themeId))
+        }
+        Long currentThemeId = getCurrentCourseThemeDtoId(authorizationHeader, explorer);
+        if (!currentThemeId.equals(themeId)) {
+            log.warn("theme {} is not current theme for explorer {}", themeId, explorer.getExplorerId());
             throw new UnexpectedCourseThemeException(themeId, currentThemeId);
-        if (homeworkNotCompleted(themeId, explorer))
+        }
+        if (homeworkNotCompleted(authorizationHeader, themeId, explorer)) {
+            log.warn("explorer {} didn't complete all homework for theme {}", explorer.getExplorerId(), themeId);
             throw new HomeworkNotCompletedException(themeId);
+        }
     }
 
-    private Long getCurrentCourseThemeDtoId(ExplorersService.Explorer explorer) {
-        List<CourseThemeCompletedDto> themesProgress = getThemesProgress(explorer).getThemesWithProgress();
+    private Long getCurrentCourseThemeDtoId(String authorizationHeader, ExplorersService.Explorer explorer) {
+        List<CourseThemeCompletedDto> themesProgress = getThemesProgress(
+                authorizationHeader, explorer
+        ).getThemesWithProgress();
         for (CourseThemeCompletedDto theme : themesProgress) {
             if (!theme.getCompleted())
                 return theme.getCourseThemeId();
@@ -131,14 +142,14 @@ public class MarkValidatorService {
         return themesProgress.get(themesProgress.size() - 1).getCourseThemeId();
     }
 
-    private CourseWithThemesProgressDto getThemesProgress(ExplorersService.Explorer explorer) {
-        Long courseId = explorerGroupRepository
-                .getReferenceById(explorer.getGroupId()).getCourseId();
-        CourseDto course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new CourseNotFoundException(courseId));
+    private CourseWithThemesProgressDto getThemesProgress(String authorizationHeader, ExplorersService.Explorer explorer) {
+        Long courseId = explorerGroupService.findById(
+                authorizationHeader, explorer.getGroupId()
+        ).getCourseId();
+        CourseDto course = courseService.findById(authorizationHeader, courseId);
 
         List<CourseThemeCompletedDto> themesCompletion = new ArrayList<>();
-        for (PlanetDto p : planetRepository.findPlanetsBySystemId(courseId)) {
+        for (PlanetDto p : planetService.findPlanetsBySystemId(authorizationHeader, courseId)) {
             Boolean themeCompleted = courseThemeCompletionRepository
                     .findCourseThemeCompletionByExplorerIdAndCourseThemeId(explorer.getExplorerId(), p.getPlanetId()).isPresent();
             themesCompletion.add(
@@ -152,12 +163,13 @@ public class MarkValidatorService {
                 .build();
     }
 
-    private boolean homeworkNotCompleted(Long themeId, ExplorersService.Explorer explorer) {
-        List<HomeworkDto> allHomeworksByThemeId = homeworkRepository
-                .findHomeworksByCourseThemeIdAndGroupId(themeId, explorer.getGroupId());
-        Map<Long, List<HomeworkDto>> allCompletedHomeworkByThemeId = homeworkRepository
+    private boolean homeworkNotCompleted(String authorizationHeader, Long themeId, ExplorersService.Explorer explorer) {
+        List<HomeworkDto> allHomeworksByThemeId = homeworkService
+                .findHomeworksByCourseThemeIdAndGroupId(authorizationHeader, themeId, explorer.getGroupId());
+        Map<Long, List<HomeworkDto>> allCompletedHomeworkByThemeId = homeworkService
                 .findAllCompletedByCourseThemeIdAndGroupIdForExplorers(
-                        themeId, explorer.getGroupId(), Collections.singletonList(explorer.getExplorerId())
+                        authorizationHeader, themeId, explorer.getGroupId(),
+                        Collections.singletonList(explorer.getExplorerId())
                 );
         return allHomeworksByThemeId.size() != allCompletedHomeworkByThemeId.get(explorer.getExplorerId()).size();
     }

@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.planet.dto.planet.CreatePlanetDto;
 import org.example.planet.dto.planet.UpdatePlanetDto;
 import org.example.planet.service.PlanetService;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -52,8 +53,11 @@ public class PlanetController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> findPlanetsBySystemId(@PathVariable Long systemId) {
-        return ResponseEntity.ok(planetService.findPlanetsBySystemId(systemId));
+    public ResponseEntity<?> findPlanetsBySystemId(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                                   @PathVariable Long systemId) {
+        return ResponseEntity.ok(
+                planetService.findPlanetsBySystemId(authorizationHeader, systemId)
+        );
     }
 
     @GetMapping("/planets")
@@ -89,7 +93,7 @@ public class PlanetController {
     }
 
     @PostMapping("/systems/{systemId}/planets")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.planet.enums.AuthenticationRoleType).BIG_BROTHER)")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(authentication.authorities, T(org.example.planet.enums.AuthenticationRoleType).BIG_BROTHER)")
     @Operation(summary = "Create planets", tags = "planet")
     @ApiResponses(value = {
             @ApiResponse(
@@ -100,17 +104,18 @@ public class PlanetController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> createPlanets(@PathVariable Long systemId,
+    public ResponseEntity<?> createPlanets(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                           @PathVariable Long systemId,
                                            @RequestBody List<@Valid CreatePlanetDto> planetList) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(
-                        planetService.createPlanets(systemId, planetList)
+                        planetService.createPlanets(authorizationHeader, systemId, planetList)
                 );
     }
 
     @PutMapping("/planets/{planetId}")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.planet.enums.AuthenticationRoleType).BIG_BROTHER)")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(authentication.authorities, T(org.example.planet.enums.AuthenticationRoleType).BIG_BROTHER)")
     @Operation(summary = "Update planet", tags = "planet")
     @ApiResponses(value = {
             @ApiResponse(
@@ -121,13 +126,16 @@ public class PlanetController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> updatePlanetById(@PathVariable Long planetId,
+    public ResponseEntity<?> updatePlanetById(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                              @PathVariable Long planetId,
                                               @Valid @RequestBody UpdatePlanetDto planet) {
-        return ResponseEntity.ok(planetService.updatePlanet(planetId, planet));
+        return ResponseEntity.ok(
+                planetService.updatePlanet(authorizationHeader, planetId, planet)
+        );
     }
 
     @DeleteMapping("/planets/{planetId}")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.planet.enums.AuthenticationRoleType).BIG_BROTHER)")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(authentication.authorities, T(org.example.planet.enums.AuthenticationRoleType).BIG_BROTHER)")
     @Operation(summary = "Delete planet", tags = "planet")
     @ApiResponses(value = {
             @ApiResponse(

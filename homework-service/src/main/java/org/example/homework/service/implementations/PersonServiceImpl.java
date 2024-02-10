@@ -1,33 +1,51 @@
 package org.example.homework.service.implementations;
 
-import lombok.RequiredArgsConstructor;
+import io.grpc.CallCredentials;
+import net.devh.boot.grpc.client.inject.GrpcClient;
+import net.devh.boot.grpc.client.security.CallCredentialsHelper;
 import org.example.grpc.PeopleService;
-import org.example.homework.exception.classes.person.PersonNotFoundException;
-import org.example.homework.repository.PersonRepository;
+import org.example.grpc.PersonServiceGrpc;
+import org.example.homework.exception.person.PersonNotFoundException;
 import org.example.homework.service.PersonService;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Map;
+
 @Service
-@RequiredArgsConstructor
 public class PersonServiceImpl implements PersonService {
-    private final PersonRepository personRepository;
+    @GrpcClient("people")
+    private PersonServiceGrpc.PersonServiceBlockingStub personServiceBlockingStub;
 
     @Override
-    public Long getAuthenticatedPersonId() {
-        PeopleService.Person authenticatedPerson = (PeopleService.Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return authenticatedPerson.getPersonId();
+    public PeopleService.Person findPersonById(String authorizationHeader, Long personId) {
+        CallCredentials callCredentials = CallCredentialsHelper.authorizationHeader(
+                authorizationHeader
+        );
+        try {
+            return personServiceBlockingStub
+                    .withCallCredentials(callCredentials)
+                    .findPersonById(
+                            PeopleService.PersonByIdRequest.newBuilder()
+                                    .setPersonId(personId)
+                                    .build()
+                    );
+        } catch (Exception e) {
+            throw new PersonNotFoundException();
+        }
     }
 
     @Override
-    public PeopleService.Person getAuthenticatedPerson() {
-        return (PeopleService.Person) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    }
-
-    @Override
-    public PeopleService.Person findPersonById(Long personId) {
-        return personRepository.findById(personId)
-                .orElseThrow(PersonNotFoundException::new);
+    public Map<Long, PeopleService.Person> findPeopleByPersonIdIn(String authorizationHeader, List<Long> personIds) {
+        CallCredentials callCredentials = CallCredentialsHelper.authorizationHeader(
+                authorizationHeader
+        );
+        return personServiceBlockingStub
+                .withCallCredentials(callCredentials)
+                .findPeopleByPersonIdIn(
+                        PeopleService.PeopleByPersonIdInRequest.newBuilder()
+                                .addAllPersonIds(personIds)
+                                .build()
+                ).getPeopleByPersonIdMapMap();
     }
 }

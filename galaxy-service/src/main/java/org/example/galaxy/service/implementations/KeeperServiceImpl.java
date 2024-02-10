@@ -1,11 +1,10 @@
 package org.example.galaxy.service.implementations;
 
-import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.example.galaxy.dto.person.PersonWithSystemsDto;
+import org.example.galaxy.mapper.PersonWithSystemsMapper;
 import org.example.galaxy.model.StarSystem;
 import org.example.galaxy.service.KeeperService;
-import org.example.galaxy.utils.mapper.PersonWithSystemsMapper;
 import org.example.grpc.KeeperServiceGrpc;
 import org.example.grpc.KeepersService;
 import org.springframework.stereotype.Service;
@@ -14,7 +13,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class KeeperServiceImpl implements KeeperService {
     @GrpcClient("keepers")
     private KeeperServiceGrpc.KeeperServiceBlockingStub keeperServiceBlockingStub;

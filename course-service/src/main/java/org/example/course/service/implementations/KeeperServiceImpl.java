@@ -1,40 +1,92 @@
 package org.example.course.service.implementations;
 
+import io.grpc.CallCredentials;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import net.devh.boot.grpc.client.inject.GrpcClient;
+import net.devh.boot.grpc.client.security.CallCredentialsHelper;
 import org.example.course.dto.keeper.KeeperWithRatingDto;
-import org.example.course.exception.classes.explorer.ExplorerNotFoundException;
-import org.example.course.exception.classes.keeper.KeeperNotFoundException;
-import org.example.course.repository.ExplorerGroupRepository;
-import org.example.course.repository.ExplorerRepository;
-import org.example.course.repository.KeeperRepository;
-import org.example.course.repository.PersonRepository;
-import org.example.course.service.KeeperService;
-import org.example.course.service.RatingService;
+import org.example.course.exception.keeper.KeeperNotFoundException;
+import org.example.course.service.*;
+import org.example.grpc.ExplorerGroupsService;
+import org.example.grpc.KeeperServiceGrpc;
 import org.example.grpc.KeepersService;
 import org.example.grpc.PeopleService;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Component
+@Service
 @RequiredArgsConstructor
+@Slf4j
 public class KeeperServiceImpl implements KeeperService {
-    private final PersonRepository personRepository;
-    private final ExplorerRepository explorerRepository;
-    private final ExplorerGroupRepository explorerGroupRepository;
-    private final KeeperRepository keeperRepository;
-
+    private final PersonService personService;
+    private final ExplorerService explorerService;
+    private final ExplorerGroupService explorerGroupService;
     private final RatingService ratingService;
 
+    @GrpcClient("keepers")
+    private KeeperServiceGrpc.KeeperServiceBlockingStub keeperServiceBlockingStub;
+
     @Override
-    public Map<Long, KeeperWithRatingDto> getKeepersForCourse(Long courseId) {
-        List<KeepersService.Keeper> keepers = keeperRepository.findKeepersByCourseId(courseId);
-        Map<Long, PeopleService.Person> people = personRepository.findPeopleByPersonIdIn(
+    public KeepersService.Keeper findById(String authorizationHeader, Long keeperId) {
+        CallCredentials callCredentials = CallCredentialsHelper.authorizationHeader(
+                authorizationHeader
+        );
+        try {
+            return keeperServiceBlockingStub
+                    .withCallCredentials(callCredentials)
+                    .findKeeperById(
+                            KeepersService.KeeperByIdRequest.newBuilder()
+                                    .setKeeperId(keeperId)
+                                    .build()
+                    );
+        } catch (Exception e) {
+            log.warn("keeper by id {} not found", keeperId);
+            throw new KeeperNotFoundException();
+        }
+    }
+
+    @Override
+    public List<KeepersService.Keeper> findKeepersByCourseId(String authorizationHeader, Long courseId) {
+        CallCredentials callCredentials = CallCredentialsHelper.authorizationHeader(
+                authorizationHeader
+        );
+        return keeperServiceBlockingStub
+                .withCallCredentials(callCredentials)
+                .findKeepersByCourseId(
+                        KeepersService.KeepersByCourseIdRequest.newBuilder()
+                                .setCourseId(courseId)
+                                .build()
+                ).getKeepersList();
+    }
+
+    @Override
+    public Boolean existsKeeperByPersonIdAndCourseId(String authorizationHeader, Long personId, Long courseId) {
+        CallCredentials callCredentials = CallCredentialsHelper.authorizationHeader(
+                authorizationHeader
+        );
+        return keeperServiceBlockingStub
+                .withCallCredentials(callCredentials)
+                .existsKeeperByPersonIdAndCourseId(
+                        KeepersService.KeeperByPersonIdAndCourseIdRequest.newBuilder()
+                                .setPersonId(personId)
+                                .setCourseId(courseId)
+                                .build()
+                ).getKeeperExists();
+    }
+
+    @Override
+    public Map<Long, KeeperWithRatingDto> getKeepersForCourse(String authorizationHeader, Long courseId) {
+        List<KeepersService.Keeper> keepers = findKeepersByCourseId(authorizationHeader, courseId);
+        Map<Long, PeopleService.Person> people = personService.findPeopleByPersonIdIn(
+                authorizationHeader,
                 keepers.stream().map(KeepersService.Keeper::getPersonId).collect(Collectors.toList())
         );
         Map<Long, Double> ratings = ratingService.getPeopleRatingAsKeeperByPersonIdIn(
+                authorizationHeader,
                 keepers.stream().map(KeepersService.Keeper::getPersonId).collect(Collectors.toList())
         );
         return keepers.stream().collect(Collectors.toMap(
@@ -54,13 +106,13 @@ public class KeeperServiceImpl implements KeeperService {
     }
 
     @Override
-    public KeepersService.Keeper getKeeperForExplorer(Long explorerId) {
-        return keeperRepository.findById(
-                explorerGroupRepository.getReferenceById(
-                        explorerRepository.findById(explorerId)
-                                .orElseThrow(ExplorerNotFoundException::new)
-                                .getGroupId()
-                ).getKeeperId()
-        ).orElseThrow(KeeperNotFoundException::new);
+    public KeepersService.Keeper getKeeperForExplorer(String authorizationHeader, Long explorerId) {
+        ExplorerGroupsService.ExplorerGroup explorerGroup = explorerGroupService.findById(
+                authorizationHeader,
+                explorerService.findById(authorizationHeader, explorerId).getGroupId()
+        );
+        return findById(
+                authorizationHeader, explorerGroup.getKeeperId()
+        );
     }
 }

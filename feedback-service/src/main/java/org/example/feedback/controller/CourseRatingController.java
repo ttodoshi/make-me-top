@@ -6,12 +6,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.example.feedback.service.CourseRatingService;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -33,7 +31,10 @@ public class CourseRatingController {
                                     mediaType = "*")
                     })
     })
-    public ResponseEntity<?> getCoursesRating(@RequestParam List<Long> courseIds) {
-        return ResponseEntity.ok(courseRatingService.getCoursesRating(courseIds));
+    public ResponseEntity<?> getCoursesRating(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                              @RequestParam List<Long> courseIds) {
+        return ResponseEntity.ok(
+                courseRatingService.getCoursesRating(authorizationHeader, courseIds)
+        );
     }
 }

@@ -4,7 +4,7 @@ import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
-import org.example.course.exception.classes.course.CourseNotFoundException;
+import org.example.course.exception.course.CourseNotFoundException;
 import org.example.course.model.CourseTheme;
 import org.example.course.repository.CourseRepository;
 import org.springframework.beans.factory.annotation.Qualifier;

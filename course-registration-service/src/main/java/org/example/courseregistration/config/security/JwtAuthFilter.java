@@ -1,8 +1,6 @@
 package org.example.courseregistration.config.security;
 
 import lombok.RequiredArgsConstructor;
-import org.example.courseregistration.service.PersonService;
-import org.example.grpc.PeopleService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,44 +16,41 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
-    private final PersonService personService;
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
-        Optional<String> accessTokenOptional = getToken(request);
-        final String accessToken;
-        if (accessTokenOptional.isPresent())
-            accessToken = accessTokenOptional.get().substring(7);
-        else {
+        final String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if (authorizationHeader == null) {
             filterChain.doFilter(request, response);
             return;
         }
+        final String accessToken = authorizationHeader.substring(7);
 
-        final String userId = jwtService.extractId(accessToken);
-        if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            PeopleService.Person person = personService.findPersonById(Long.valueOf(userId));
-            if (jwtService.isTokenValid(accessToken)) {
+        final String personId = jwtService.extractAccessTokenId(accessToken);
+        if (personId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            if (jwtService.isAccessTokenValid(accessToken)) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        person,
+                        Long.valueOf(personId),
                         accessToken,
-                        List.of(new SimpleGrantedAuthority(jwtService.extractRole(accessToken)))
+                        List.of(
+                                new SimpleGrantedAuthority(
+                                        jwtService.extractAccessTokenRole(accessToken)
+                                )
+                        )
                 );
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                authToken.setDetails(
+                        new WebAuthenticationDetailsSource().buildDetails(request)
+                );
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }
         filterChain.doFilter(request, response);
-    }
-
-    private Optional<String> getToken(HttpServletRequest request) {
-        return Optional.ofNullable(request.getHeader(HttpHeaders.AUTHORIZATION));
     }
 }

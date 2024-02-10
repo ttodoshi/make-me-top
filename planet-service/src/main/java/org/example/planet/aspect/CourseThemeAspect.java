@@ -32,12 +32,12 @@ public class CourseThemeAspect {
     }
 
     @Pointcut(value = "execution(* org.example.planet.service.PlanetService.createPlanets(..)) " +
-            "&& args(systemId, planets)", argNames = "systemId, planets")
-    public void createCourseThemesPointcut(Long systemId, List<CreatePlanetDto> planets) {
+            "&& args(authorizationHeader, systemId, planets)", argNames = "authorizationHeader, systemId, planets")
+    public void createCourseThemesPointcut(String authorizationHeader, Long systemId, List<CreatePlanetDto> planets) {
     }
 
-    @AfterReturning(pointcut = "createCourseThemesPointcut(systemId, planets)", returning = "result", argNames = "systemId, planets, result")
-    public void createCourseThemesAfterPlanetsCreated(Long systemId, List<CreatePlanetDto> planets, List<Long> result) {
+    @AfterReturning(pointcut = "createCourseThemesPointcut(authorizationHeader, systemId, planets)", returning = "result", argNames = "authorizationHeader, systemId, planets, result")
+    public void createCourseThemesAfterPlanetsCreated(String authorizationHeader, Long systemId, List<CreatePlanetDto> planets, List<Long> result) {
         for (int i = 0; i < planets.size(); i++) {
             createThemeKafkaTemplate.send(
                     "createCourseThemeTopic",
@@ -54,12 +54,12 @@ public class CourseThemeAspect {
     }
 
     @Pointcut(value = "execution(* org.example.planet.service.PlanetService.updatePlanet(..)) " +
-            "&& args(planetId, planet)", argNames = "planetId, planet")
-    public void updateCourseThemeTitlePointcut(Long planetId, UpdatePlanetDto planet) {
+            "&& args(authorizationHeader, planetId, planet)", argNames = "authorizationHeader, planetId, planet")
+    public void updateCourseThemeTitlePointcut(String authorizationHeader, Long planetId, UpdatePlanetDto planet) {
     }
 
-    @AfterReturning(pointcut = "updateCourseThemeTitlePointcut(planetId, planet)", returning = "result", argNames = "planetId, planet, result")
-    public void updateCourseThemeAfterPlanetUpdated(Long planetId, UpdatePlanetDto planet, PlanetDto result) {
+    @AfterReturning(pointcut = "updateCourseThemeTitlePointcut(authorizationHeader,planetId, planet)", returning = "result", argNames = "authorizationHeader,planetId, planet, result")
+    public void updateCourseThemeAfterPlanetUpdated(String authorizationHeader, Long planetId, UpdatePlanetDto planet, PlanetDto result) {
         updateThemeKafkaTemplate.send(
                 "updateCourseThemeTopic",
                 planetId,

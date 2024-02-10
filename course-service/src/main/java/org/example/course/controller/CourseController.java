@@ -7,8 +7,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.example.course.dto.course.UpdateCourseDto;
 import org.example.course.service.CourseService;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -32,10 +35,14 @@ public class CourseController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> findCourseById(@PathVariable Long courseId,
+    public ResponseEntity<?> findCourseById(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                            @CurrentSecurityContext(expression = "authentication") Authentication authentication,
+                                            @PathVariable Long courseId,
                                             @RequestParam(required = false) Boolean detailed) {
         if (detailed != null && detailed)
-            return ResponseEntity.ok(courseService.findCourseByCourseIdDetailed(courseId));
+            return ResponseEntity.ok(
+                    courseService.findCourseByCourseIdDetailed(authorizationHeader, authentication, courseId)
+            );
         else
             return ResponseEntity.ok(courseService.findCourseByCourseId(courseId));
     }
@@ -57,7 +64,7 @@ public class CourseController {
     }
 
     @PutMapping("/galaxies/{galaxyId}/courses/{courseId}")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.course.enums.AuthenticationRoleType).BIG_BROTHER)")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(authentication.authorities, T(org.example.course.enums.AuthenticationRoleType).BIG_BROTHER)")
     @Operation(summary = "Update course by id", tags = "course")
     @ApiResponses(value = {
             @ApiResponse(
@@ -68,9 +75,12 @@ public class CourseController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> updateCourse(@PathVariable Long galaxyId,
+    public ResponseEntity<?> updateCourse(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                          @PathVariable Long galaxyId,
                                           @PathVariable Long courseId,
                                           @Valid @RequestBody UpdateCourseDto course) {
-        return ResponseEntity.ok(courseService.updateCourse(galaxyId, courseId, course));
+        return ResponseEntity.ok(
+                courseService.updateCourse(authorizationHeader, galaxyId, courseId, course)
+        );
     }
 }

@@ -42,7 +42,7 @@ public class OrbitController {
     }
 
     @PostMapping("/galaxies/{galaxyId}/orbits")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.galaxy.enums.AuthenticationRoleType).BIG_BROTHER)")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(authentication.authorities, T(org.example.galaxy.enums.AuthenticationRoleType).BIG_BROTHER)")
     @Operation(summary = "Create orbit", tags = "orbit")
     @ApiResponses(value = {
             @ApiResponse(
@@ -63,7 +63,7 @@ public class OrbitController {
     }
 
     @PutMapping("/orbits/{orbitId}")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.galaxy.enums.AuthenticationRoleType).BIG_BROTHER)")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(authentication.authorities, T(org.example.galaxy.enums.AuthenticationRoleType).BIG_BROTHER)")
     @Operation(summary = "Update orbit by id", tags = "orbit")
     @ApiResponses(value = {
             @ApiResponse(
@@ -80,7 +80,7 @@ public class OrbitController {
     }
 
     @DeleteMapping("/orbits/{orbitId}")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.galaxy.enums.AuthenticationRoleType).BIG_BROTHER)")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(authentication.authorities, T(org.example.galaxy.enums.AuthenticationRoleType).BIG_BROTHER)")
     @Operation(summary = "Delete orbit by id", tags = "orbit")
     @ApiResponses(value = {
             @ApiResponse(

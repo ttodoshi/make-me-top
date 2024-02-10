@@ -1,6 +1,7 @@
 package org.example.homework.service.validator;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.grpc.ExplorerGroupsService;
 import org.example.grpc.KeepersService;
 import org.example.homework.config.security.RoleService;
@@ -8,81 +9,74 @@ import org.example.homework.dto.homework.UpdateHomeworkDto;
 import org.example.homework.dto.planet.PlanetDto;
 import org.example.homework.dto.progress.CourseThemeCompletedDto;
 import org.example.homework.enums.AuthenticationRoleType;
-import org.example.homework.exception.classes.explorer.ExplorerGroupIsNotOnCourseException;
-import org.example.homework.exception.classes.explorer.ExplorerGroupNotFoundException;
-import org.example.homework.exception.classes.explorer.ExplorerNotFoundException;
-import org.example.homework.exception.classes.explorer.ExplorerNotInGroupException;
-import org.example.homework.exception.classes.homework.HomeworkNotFoundException;
-import org.example.homework.exception.classes.keeper.KeeperNotForGroupException;
-import org.example.homework.exception.classes.keeper.KeeperNotFoundException;
-import org.example.homework.exception.classes.planet.PlanetNotFoundException;
-import org.example.homework.exception.classes.theme.CourseThemeNotFoundException;
-import org.example.homework.exception.classes.theme.ThemeClosedException;
-import org.example.homework.exception.classes.theme.ThemeFromDifferentCourseException;
+import org.example.homework.exception.explorer.ExplorerGroupIsNotOnCourseException;
+import org.example.homework.exception.explorer.ExplorerNotFoundException;
+import org.example.homework.exception.explorer.ExplorerNotInGroupException;
+import org.example.homework.exception.homework.HomeworkNotFoundException;
+import org.example.homework.exception.keeper.KeeperNotForGroupException;
+import org.example.homework.exception.theme.CourseThemeNotFoundException;
+import org.example.homework.exception.theme.ThemeClosedException;
+import org.example.homework.exception.theme.ThemeFromDifferentCourseException;
 import org.example.homework.model.Homework;
-import org.example.homework.repository.*;
-import org.example.homework.service.PersonService;
-import org.springframework.stereotype.Component;
+import org.example.homework.repository.HomeworkRepository;
+import org.example.homework.service.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
-@Component
+@Service
 @RequiredArgsConstructor
+@Slf4j
 public class HomeworkValidatorService {
     private final HomeworkRepository homeworkRepository;
-    private final ExplorerGroupRepository explorerGroupRepository;
-    private final ExplorerRepository explorerRepository;
-    private final KeeperRepository keeperRepository;
-    private final PlanetRepository planetRepository;
+    private final ExplorerGroupService explorerGroupService;
+    private final ExplorerService explorerService;
+    private final KeeperService keeperService;
+    private final PlanetService planetService;
 
-    private final PersonService personService;
-    private final CourseProgressRepository courseProgressRepository;
+    private final CourseProgressService courseProgressService;
     private final RoleService roleService;
 
     @Transactional(readOnly = true)
-    public void validateGetRequest(Long themeId, Long groupId) {
-        ExplorerGroupsService.ExplorerGroup explorerGroup = explorerGroupRepository.findById(groupId)
-                .orElseThrow(() -> new ExplorerGroupNotFoundException(groupId));
-        Long courseId = planetRepository.findById(themeId)
-                .orElseThrow(() -> new PlanetNotFoundException(themeId))
-                .getSystemId();
+    public void validateGetRequest(String authorizationHeader, Authentication authentication, Long themeId, Long groupId) {
+        ExplorerGroupsService.ExplorerGroup explorerGroup = explorerGroupService.findById(authorizationHeader, groupId);
+        Long courseId = planetService.findById(authorizationHeader, themeId).getSystemId();
 
-        if (!courseId.equals(explorerGroup.getCourseId()))
+        if (!courseId.equals(explorerGroup.getCourseId())) {
+            log.warn("the theme {} does not apply to the course that the group {} is studying", themeId, groupId);
             throw new ThemeFromDifferentCourseException(themeId, groupId);
+        }
 
-        final Long personId = personService.getAuthenticatedPersonId();
-
-        if (roleService.hasAnyAuthenticationRole(AuthenticationRoleType.EXPLORER)) {
-            isExplorerInGroup(personId, explorerGroup);
+        if (roleService.hasAnyAuthenticationRole(authentication.getAuthorities(), AuthenticationRoleType.EXPLORER)) {
+            isExplorerInGroup(authorizationHeader, (Long) authentication.getPrincipal(), explorerGroup);
 
             if (!isThemeOpened(
-                    explorerRepository
-                            .findExplorerByPersonIdAndGroup_CourseId(personId, explorerGroup.getCourseId())
-                            .orElseThrow(ExplorerNotFoundException::new)
-                            .getExplorerId(),
+                    authorizationHeader,
+                    explorerService.findExplorerByPersonIdAndGroup_CourseId(
+                            authorizationHeader, (Long) authentication.getPrincipal(), explorerGroup.getCourseId()
+                    ).getExplorerId(),
                     themeId)) {
+                log.warn("theme {} closed for explorer", themeId);
                 throw new ThemeClosedException(themeId);
             }
         } else {
-            isKeeperForGroup(personId, explorerGroup);
+            isKeeperForGroup(authorizationHeader, (Long) authentication.getPrincipal(), explorerGroup);
         }
     }
 
     @Transactional(readOnly = true)
-    public void validateGetByCourseThemeIdInRequest(Long groupId) {
-        ExplorerGroupsService.ExplorerGroup explorerGroup = explorerGroupRepository.findById(groupId)
-                .orElseThrow(() -> new ExplorerGroupNotFoundException(groupId));
-
-        final Long personId = personService.getAuthenticatedPersonId();
-
-        isKeeperForGroup(personId, explorerGroup);
+    public void validateGetByCourseThemeIdInRequest(String authorizationHeader, Long authenticatedPersonId, Long groupId) {
+        isKeeperForGroup(
+                authorizationHeader, authenticatedPersonId, explorerGroupService.findById(authorizationHeader, groupId)
+        );
     }
 
-    private boolean isThemeOpened(Long explorerId, Long themeId) {
-        List<CourseThemeCompletedDto> themesProgress = courseProgressRepository
-                .getCourseProgress(explorerId)
+    private boolean isThemeOpened(String authorizationHeader, Long explorerId, Long themeId) {
+        List<CourseThemeCompletedDto> themesProgress = courseProgressService
+                .getCourseProgress(authorizationHeader, explorerId)
                 .getThemesWithProgress();
         Optional<CourseThemeCompletedDto> themeCompletion = themesProgress
                 .stream()
@@ -90,7 +84,10 @@ public class HomeworkValidatorService {
                 .findAny();
 
         Boolean themeCompleted = themeCompletion.orElseThrow(
-                () -> new CourseThemeNotFoundException(themeId)
+                () -> {
+                    log.warn("theme by id {} not found", themeId);
+                    return new CourseThemeNotFoundException(themeId);
+                }
         ).getCompleted();
         return themeId.equals(getCurrentCourseThemeId(themesProgress)) || themeCompleted;
     }
@@ -103,69 +100,75 @@ public class HomeworkValidatorService {
         return themesProgress.get(themesProgress.size() - 1).getCourseThemeId();
     }
 
-    private void isExplorerInGroup(Long personId, ExplorerGroupsService.ExplorerGroup explorerGroup) {
-        if (explorerRepository.findExplorerByPersonIdAndGroup_CourseId(personId, explorerGroup.getCourseId()).isEmpty())
+    private void isExplorerInGroup(String authorizationHeader, Long personId, ExplorerGroupsService.ExplorerGroup explorerGroup) {
+        if (!explorerService.existsExplorerByPersonIdAndGroup_CourseId(authorizationHeader, personId, explorerGroup.getCourseId())) {
+            log.warn("person {} is not in group {}", personId, explorerGroup.getGroupId());
             throw new ExplorerNotInGroupException();
+        }
     }
 
-    private void isKeeperForGroup(Long personId, ExplorerGroupsService.ExplorerGroup explorerGroup) {
-        KeepersService.Keeper keeper = keeperRepository
-                .findKeeperByPersonIdAndCourseId(personId, explorerGroup.getCourseId())
-                .orElseThrow(KeeperNotFoundException::new);
-
-        if (!(explorerGroup.getKeeperId() == keeper.getKeeperId()))
+    private void isKeeperForGroup(String authorizationHeader, Long personId, ExplorerGroupsService.ExplorerGroup explorerGroup) {
+        KeepersService.Keeper keeper = keeperService.findKeeperByPersonIdAndCourseId(
+                authorizationHeader, personId, explorerGroup.getCourseId()
+        );
+        if (!(explorerGroup.getKeeperId() == keeper.getKeeperId())) {
+            log.warn("person {} is not keeper for group {}", personId, explorerGroup.getGroupId());
             throw new KeeperNotForGroupException();
+        }
     }
 
     @Transactional(readOnly = true)
-    public void validateGetCompletedRequest(List<Long> themeIds, Long groupId, List<Long> explorerIds) {
-        if (explorerRepository.findExplorersByExplorerIdIn(explorerIds).size() != explorerIds.size()) {
+    public void validateGetCompletedRequest(String authorizationHeader, Long authenticatedPersonId, List<Long> themeIds, Long groupId, List<Long> explorerIds) {
+        if (explorerService.findExplorersByExplorerIdIn(authorizationHeader, explorerIds).size() != explorerIds.size()) {
+            log.warn("all explorers by explorer ids not found");
             throw new ExplorerNotFoundException();
         }
-        ExplorerGroupsService.ExplorerGroup explorerGroup = explorerGroupRepository.findById(groupId)
-                .orElseThrow(() -> new ExplorerGroupNotFoundException(groupId));
-        for (PlanetDto planet : planetRepository.findPlanetsByPlanetIdIn(themeIds).values()) {
+        ExplorerGroupsService.ExplorerGroup explorerGroup = explorerGroupService.findById(authorizationHeader, groupId);
+
+        for (PlanetDto planet : planetService.findPlanetsByPlanetIdIn(authorizationHeader, themeIds).values()) {
             if (!planet.getSystemId().equals(explorerGroup.getCourseId())) {
+                log.warn("the theme {} does not apply to the course that the group {} is studying", planet.getPlanetId(), groupId);
                 throw new ThemeFromDifferentCourseException(planet.getPlanetId(), groupId);
             }
         }
-        final Long personId = personService.getAuthenticatedPersonId();
-        isKeeperForGroup(personId, explorerGroup);
+        isKeeperForGroup(authorizationHeader, authenticatedPersonId, explorerGroup);
     }
 
     @Transactional(readOnly = true)
-    public void validatePostRequest(Long themeId, Long groupId) {
-        ExplorerGroupsService.ExplorerGroup explorerGroup = explorerGroupRepository.findById(groupId)
-                .orElseThrow(() -> new ExplorerGroupNotFoundException(groupId));
-        Long courseId = planetRepository.findById(themeId)
-                .orElseThrow(() -> new PlanetNotFoundException(themeId))
-                .getSystemId();
+    public void validatePostRequest(String authorizationHeader, Long authenticatedPersonId, Long themeId, Long groupId) {
+        ExplorerGroupsService.ExplorerGroup explorerGroup = explorerGroupService.findById(authorizationHeader, groupId);
+        Long courseId = planetService.findById(authorizationHeader, themeId).getSystemId();
 
-        if (!courseId.equals(explorerGroup.getCourseId()))
+        if (!courseId.equals(explorerGroup.getCourseId())) {
+            log.warn("group {} is not on course {}", groupId, courseId);
             throw new ExplorerGroupIsNotOnCourseException(groupId, courseId);
-        isKeeperForGroup(personService.getAuthenticatedPersonId(), explorerGroup);
+        }
+        isKeeperForGroup(authorizationHeader, authenticatedPersonId, explorerGroup);
     }
 
     @Transactional(readOnly = true)
-    public void validatePutRequest(UpdateHomeworkDto updateHomeworkDto) {
-        ExplorerGroupsService.ExplorerGroup explorerGroup = explorerGroupRepository.findById(updateHomeworkDto.getGroupId())
-                .orElseThrow(() -> new ExplorerGroupNotFoundException(updateHomeworkDto.getGroupId()));
-        Long courseId = planetRepository.findById(updateHomeworkDto.getCourseThemeId())
-                .orElseThrow(() -> new PlanetNotFoundException(updateHomeworkDto.getCourseThemeId()))
-                .getSystemId();
+    public void validatePutRequest(String authorizationHeader, Long authenticatedPersonId, UpdateHomeworkDto updateHomeworkDto) {
+        ExplorerGroupsService.ExplorerGroup explorerGroup = explorerGroupService.findById(
+                authorizationHeader, updateHomeworkDto.getGroupId()
+        );
+        Long courseId = planetService.findById(authorizationHeader, updateHomeworkDto.getCourseThemeId()).getSystemId();
 
-        if (!courseId.equals(explorerGroup.getCourseId()))
+        if (!courseId.equals(explorerGroup.getCourseId())) {
+            log.warn("group {} is not on course {}", updateHomeworkDto.getGroupId(), courseId);
             throw new ExplorerGroupIsNotOnCourseException(updateHomeworkDto.getGroupId(), courseId);
-        isKeeperForGroup(personService.getAuthenticatedPersonId(), explorerGroup);
+        }
+        isKeeperForGroup(authorizationHeader, authenticatedPersonId, explorerGroup);
     }
 
     @Transactional(readOnly = true)
-    public void validateDeleteRequest(Long homeworkId) {
+    public void validateDeleteRequest(String authorizationHeader, Long authenticatedPersonId, Long homeworkId) {
         Homework homework = homeworkRepository.findById(homeworkId)
-                .orElseThrow(() -> new HomeworkNotFoundException(homeworkId));
-        ExplorerGroupsService.ExplorerGroup explorerGroup = explorerGroupRepository.findById(homework.getGroupId())
-                .orElseThrow(() -> new ExplorerGroupNotFoundException(homework.getGroupId()));
+                .orElseThrow(() -> {
+                    log.warn("homework by id {} not found", homeworkId);
+                    return new HomeworkNotFoundException(homeworkId);
+                });
+        ExplorerGroupsService.ExplorerGroup explorerGroup = explorerGroupService.findById(authorizationHeader, homework.getGroupId());
 
-        isKeeperForGroup(personService.getAuthenticatedPersonId(), explorerGroup);
+        isKeeperForGroup(authorizationHeader, authenticatedPersonId, explorerGroup);
     }
 }

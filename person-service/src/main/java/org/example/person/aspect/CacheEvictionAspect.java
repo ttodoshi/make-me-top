@@ -23,7 +23,7 @@ import java.util.concurrent.CompletableFuture;
 public class CacheEvictionAspect {
     private final CacheManager cacheManager;
 
-    @Pointcut(value = "execution(* org.example.person.service.PersonService.setMaxExplorersValueForPerson(..)) " +
+    @Pointcut(value = "execution(* org.example.person.service.implementations.PersonService.setMaxExplorersValueForPerson(..)) " +
             "&& args(personId, person)", argNames = "personId, person")
     public void setMaxExplorersValueForPersonPointcut(Long personId, UpdatePersonDto person) {
     }
@@ -33,7 +33,7 @@ public class CacheEvictionAspect {
         clearPeopleByPersonIdInCache(personId);
     }
 
-    @Pointcut(value = "execution(* org.example.person.service.PersonService.savePerson(..)) " +
+    @Pointcut(value = "execution(* org.example.person.service.implementations.PersonService.savePerson(..)) " +
             "&& args(person)", argNames = "person")
     public void savePersonPointcut(PersonSaveEvent person) {
     }

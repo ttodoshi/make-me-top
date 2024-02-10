@@ -61,7 +61,7 @@ public class StarSystemController {
     }
 
     @PostMapping("/orbits/{orbitId}/systems")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.galaxy.enums.AuthenticationRoleType).BIG_BROTHER)")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(authentication.authorities, T(org.example.galaxy.enums.AuthenticationRoleType).BIG_BROTHER)")
     @Operation(summary = "Create system", tags = "system")
     @ApiResponses(value = {
             @ApiResponse(
@@ -83,7 +83,7 @@ public class StarSystemController {
 
 
     @PutMapping("/systems/{systemId}")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.galaxy.enums.AuthenticationRoleType).BIG_BROTHER)")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(authentication.authorities, T(org.example.galaxy.enums.AuthenticationRoleType).BIG_BROTHER)")
     @Operation(summary = "Update system by id", tags = "system")
     @ApiResponses(value = {
             @ApiResponse(
@@ -100,7 +100,7 @@ public class StarSystemController {
     }
 
     @DeleteMapping("/systems/{systemId}")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.galaxy.enums.AuthenticationRoleType).BIG_BROTHER)")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(authentication.authorities, T(org.example.galaxy.enums.AuthenticationRoleType).BIG_BROTHER)")
     @Operation(summary = "Delete system by id", tags = "system")
     @ApiResponses(value = {
             @ApiResponse(

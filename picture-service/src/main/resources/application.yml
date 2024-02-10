@@ -7,9 +7,11 @@ grpc:
       negotiationType: PLAINTEXT
 spring:
   application:
-    name: pics-service
+    name: picture-service
   profiles:
     default: local
+  mvc:
+    log-resolved-exception: false
   servlet:
     multipart:
       max-file-size: 10MB
@@ -27,3 +29,4 @@ logging:
     name: logs/info.log
 access-token-secret-key: secretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecret
 pics-directory: ./pics
+valid-pics-extensions: png,jpg,jpeg

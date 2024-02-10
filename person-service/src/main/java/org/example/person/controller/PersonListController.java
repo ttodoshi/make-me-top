@@ -5,15 +5,13 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.example.person.exception.classes.role.RoleNotAvailableException;
-import org.example.person.service.ExplorerListService;
-import org.example.person.service.KeeperListService;
+import org.example.person.exception.role.RoleNotAvailableException;
+import org.example.person.service.api.profile.ExplorerListService;
+import org.example.person.service.api.profile.KeeperListService;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/person-app/people")
@@ -34,11 +32,16 @@ public class PersonListController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> getPersonList(@RequestParam String as, @RequestParam Integer page, @RequestParam Integer size) {
+    public ResponseEntity<?> getPersonList(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                           @RequestParam String as, @RequestParam Integer page, @RequestParam Integer size) {
         if (as.equals("explorer"))
-            return ResponseEntity.ok(explorerListService.getExplorers(page, size));
+            return ResponseEntity.ok(
+                    explorerListService.getExplorers(authorizationHeader, page, size)
+            );
         else if (as.equals("keeper"))
-            return ResponseEntity.ok(keeperListService.getKeepers(page, size));
+            return ResponseEntity.ok(
+                    keeperListService.getKeepers(authorizationHeader, page, size)
+            );
         else throw new RoleNotAvailableException();
     }
 }

@@ -25,6 +25,8 @@ public interface ExplorerRepository extends JpaRepository<Explorer, Long> {
 
     List<Explorer> findExplorersByPersonIdAndGroup_CourseIdIn(Long personId, List<Long> courseIds);
 
+    boolean existsExplorerByPersonIdAndGroup_CourseId(Long personId, Long courseId);
+
     @Override
     @Modifying
     @Query("DELETE FROM Explorer e WHERE e.explorerId = :explorerId")

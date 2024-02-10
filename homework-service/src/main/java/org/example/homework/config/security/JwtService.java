@@ -1,17 +1,10 @@
 package org.example.homework.config.security;
 
 
-import io.jsonwebtoken.Claims;
-
-import java.util.function.Function;
-
 public interface JwtService {
+    String extractAccessTokenId(String accessToken);
 
-    String extractId(String jwtToken);
+    String extractAccessTokenRole(String accessToken);
 
-    <T> T extractClaim(String jwtToken, Function<Claims, T> claimsResolver);
-
-    String extractRole(String jwtToken);
-
-    boolean isTokenValid(String jwtToken);
+    boolean isAccessTokenValid(String accessToken);
 }

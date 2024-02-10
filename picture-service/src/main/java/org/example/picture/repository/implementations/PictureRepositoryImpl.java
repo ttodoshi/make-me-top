@@ -1,19 +1,22 @@
 package org.example.picture.repository.implementations;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.picture.enums.PictureType;
-import org.example.picture.exception.classes.picture.FileNotChangedException;
-import org.example.picture.exception.classes.picture.PictureNotFoundException;
-import org.example.picture.exception.classes.picture.PictureNotValidException;
+import org.example.picture.exception.picture.FileNotChangedException;
+import org.example.picture.exception.picture.PictureNotFoundException;
+import org.example.picture.exception.picture.PictureNotValidException;
 import org.example.picture.repository.PictureRepository;
 import org.example.picture.utils.image.ImageCropper;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import org.springframework.core.io.ResourceLoader;
+import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -24,19 +27,27 @@ import java.util.stream.Stream;
 
 import static org.apache.commons.lang.StringUtils.isBlank;
 
-@Component
+@Repository
 @RequiredArgsConstructor
+@Slf4j
 public class PictureRepositoryImpl implements PictureRepository {
-    private final Set<String> VALID_EXTENSIONS = Set.of("png", "jpg", "jpeg");
     private final ImageCropper imageCropper;
+    private final ResourceLoader resourceLoader;
+    @Value("#{'${valid-pics-extensions}'.split(',')}")
+    private Set<String> VALID_EXTENSIONS;
     @Value("${pics-directory}")
     private String PICS_DIR;
 
     @PostConstruct
-    public void init() throws IOException {
+    public void init() {
         Path picsDirectory = Paths.get(PICS_DIR);
         if (Files.notExists(picsDirectory)) {
-            Files.createDirectory(picsDirectory);
+            try {
+                Files.createDirectory(picsDirectory);
+            } catch (IOException e) {
+                log.error("failed to create pics directory");
+                throw new RuntimeException(e);
+            }
         }
     }
 
@@ -44,11 +55,11 @@ public class PictureRepositoryImpl implements PictureRepository {
     public Optional<byte[]> findPictureByPersonIdAndPictureType(Long personId, PictureType type) {
         try {
             Path personDirectory = findPersonDirectory(String.valueOf(personId));
-            Path picture = findFileByName(personDirectory, personId + "-" + type.getName());
-            return Optional.of(
-                    Files.readAllBytes(picture)
-            );
+            try (InputStream picture = findFile(personDirectory, personId, type.getName())) {
+                return Optional.of(picture.readAllBytes());
+            }
         } catch (IOException e) {
+            log.error(e.toString());
             return Optional.empty();
         }
     }
@@ -66,14 +77,30 @@ public class PictureRepositoryImpl implements PictureRepository {
         return directory;
     }
 
-    private Path findFileByName(Path path, String filename) throws IOException {
+    private InputStream findFile(Path path, Long personId, String type) throws IOException {
         try (Stream<Path> filesStream = Files.list(path)) {
             return filesStream
                     .filter(p -> StringUtils
                             .stripFilenameExtension(p.getFileName().toString())
-                            .equals(filename))
+                            .equals(String.format("%d-%s", personId, type)))
                     .findFirst()
-                    .orElseThrow(PictureNotFoundException::new);
+                    .map(p -> {
+                        try {
+                            return Files.newInputStream(p);
+                        } catch (IOException e) {
+                            throw new PictureNotFoundException();
+                        }
+                    })
+                    .orElseGet(() -> {
+                        try {
+                            return resourceLoader.getResource(
+                                    String.format("classpath:default-%s.jpeg", type)
+                            ).getInputStream();
+                        } catch (IOException e) {
+                            log.error("default picture not found in directory");
+                            throw new PictureNotFoundException();
+                        }
+                    });
         }
     }
 
@@ -81,6 +108,7 @@ public class PictureRepositoryImpl implements PictureRepository {
     public Long save(Long personId, MultipartFile file) {
         String extension = StringUtils.getFilenameExtension(file.getOriginalFilename());
         if (isBlank(extension) || !VALID_EXTENSIONS.contains(extension)) {
+            log.warn("picture extension not valid");
             throw new PictureNotValidException();
         }
 
@@ -89,6 +117,7 @@ public class PictureRepositoryImpl implements PictureRepository {
             clearDirectory(personDirectory);
             saveCroppedPictures(personDirectory, personId, file, extension);
         } catch (IOException e) {
+            log.error(e.toString());
             throw new FileNotChangedException();
         }
         return personId;
@@ -112,7 +141,8 @@ public class PictureRepositoryImpl implements PictureRepository {
                     findPersonDirectory(String.valueOf(personId))
             );
         } catch (IOException e) {
-            throw new PictureNotFoundException();
+            log.error(e.toString());
+            throw new FileNotChangedException();
         }
     }
 

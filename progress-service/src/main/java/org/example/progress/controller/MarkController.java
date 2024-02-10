@@ -7,9 +7,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.example.progress.dto.mark.MarkDto;
 import org.example.progress.service.MarkService;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -37,8 +39,7 @@ public class MarkController {
     }
 
     @GetMapping("/courses/{courseId}/themes/marks")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.progress.enums.AuthenticationRoleType).EXPLORER) && " +
-            "@roleService.hasAnyCourseRole(#courseId, T(org.example.progress.enums.CourseRoleType).EXPLORER)")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(authentication.authorities, T(org.example.progress.enums.AuthenticationRoleType).EXPLORER)")
     @Operation(summary = "Get explorer themes mark", tags = "mark")
     @ApiResponses(value = {
             @ApiResponse(
@@ -49,13 +50,16 @@ public class MarkController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> findThemesMarks(@PathVariable Long courseId) {
-        return ResponseEntity.ok(markService.findThemesMarks(courseId));
+    public ResponseEntity<?> findThemesMarks(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                             @AuthenticationPrincipal Long authenticatedPersonId,
+                                             @PathVariable Long courseId) {
+        return ResponseEntity.ok(
+                markService.findThemesMarks(authorizationHeader, authenticatedPersonId, courseId)
+        );
     }
 
     @PostMapping("/marks")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.progress.enums.AuthenticationRoleType).KEEPER) && " +
-            "@roleService.hasAnyCourseRoleByExplorerId(#courseMark.explorerId, T(org.example.progress.enums.CourseRoleType).KEEPER)")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(authentication.authorities, T(org.example.progress.enums.AuthenticationRoleType).KEEPER)")
     @Operation(summary = "Set course mark from 1 to 5 to explorer", tags = "mark")
     @ApiResponses(value = {
             @ApiResponse(
@@ -66,16 +70,18 @@ public class MarkController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> setCourseMark(@Valid @RequestBody MarkDto courseMark) {
+    public ResponseEntity<?> setCourseMark(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                           @AuthenticationPrincipal Long authenticatedPersonId,
+                                           @Valid @RequestBody MarkDto courseMark) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(
-                        markService.setCourseMark(courseMark)
+                        markService.setCourseMark(authorizationHeader, authenticatedPersonId, courseMark)
                 );
     }
 
     @GetMapping("/themes/marks")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.progress.enums.AuthenticationRoleType).KEEPER)")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(authentication.authorities, T(org.example.progress.enums.AuthenticationRoleType).KEEPER)")
     @Operation(summary = "Get themes waiting for explorers mark", tags = "mark")
     @ApiResponses(value = {
             @ApiResponse(
@@ -86,15 +92,16 @@ public class MarkController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> getThemesWaitingForExplorersMark() {
+    public ResponseEntity<?> getThemesWaitingForExplorersMark(
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader
+    ) {
         return ResponseEntity.ok(
-                markService.getThemesWaitingForExplorersMark()
+                markService.getThemesWaitingForExplorersMark(authorizationHeader)
         );
     }
 
     @GetMapping("/themes/{themeId}/marks")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.progress.enums.AuthenticationRoleType).KEEPER) && " +
-            "@roleService.hasAnyCourseRoleByThemeId(#themeId, T(org.example.progress.enums.CourseRoleType).KEEPER)")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(authentication.authorities, T(org.example.progress.enums.AuthenticationRoleType).KEEPER)")
     @Operation(summary = "Get explorers waiting for theme mark", tags = "mark")
     @ApiResponses(value = {
             @ApiResponse(
@@ -105,15 +112,16 @@ public class MarkController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> getExplorersWaitingForThemeMark(@PathVariable Long themeId) {
+    public ResponseEntity<?> getExplorersWaitingForThemeMark(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                                             @AuthenticationPrincipal Long authenticatedPersonId,
+                                                             @PathVariable Long themeId) {
         return ResponseEntity.ok(
-                markService.getExplorersWaitingForThemeMark(themeId)
+                markService.getExplorersWaitingForThemeMark(authorizationHeader, authenticatedPersonId, themeId)
         );
     }
 
     @PostMapping("/themes/{themeId}/marks")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.progress.enums.AuthenticationRoleType).KEEPER) && " +
-            "@roleService.hasAnyCourseRoleByThemeId(#themeId, T(org.example.progress.enums.CourseRoleType).KEEPER)")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(authentication.authorities, T(org.example.progress.enums.AuthenticationRoleType).KEEPER)")
     @Operation(summary = "Set theme mark from 1 to 5 to explorer", tags = "mark")
     @ApiResponses(value = {
             @ApiResponse(
@@ -124,12 +132,14 @@ public class MarkController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> setThemeMark(@PathVariable Long themeId,
+    public ResponseEntity<?> setThemeMark(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                          @AuthenticationPrincipal Long authenticatedPersonId,
+                                          @PathVariable Long themeId,
                                           @Valid @RequestBody MarkDto completeThemeRequest) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(
-                        markService.setThemeMark(themeId, completeThemeRequest)
+                        markService.setThemeMark(authorizationHeader, authenticatedPersonId, themeId, completeThemeRequest)
                 );
     }
 }

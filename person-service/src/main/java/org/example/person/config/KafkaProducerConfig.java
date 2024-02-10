@@ -19,6 +19,18 @@ public class KafkaProducerConfig {
     private String bootstrapAddress;
 
     @Bean
+    @Qualifier("deleteHomeworkRequestByExplorerIdProducer")
+    public ProducerFactory<Long, Long> deleteHomeworkRequestByExplorerIdProducer() {
+        return new DefaultKafkaProducerFactory<>(deleteProducerProperties());
+    }
+
+    @Bean
+    @Qualifier("deleteHomeworkRequestByExplorerIdKafkaTemplate")
+    public KafkaTemplate<Long, Long> deleteHomeworkRequestByExplorerIdKafkaTemplate() {
+        return new KafkaTemplate<>(deleteHomeworkRequestByExplorerIdProducer());
+    }
+
+    @Bean
     @Qualifier("deleteProgressAndMarkByExplorerIdProducer")
     public ProducerFactory<Long, Long> deleteProgressAndMarkByExplorerIdProducer() {
         return new DefaultKafkaProducerFactory<>(deleteProducerProperties());

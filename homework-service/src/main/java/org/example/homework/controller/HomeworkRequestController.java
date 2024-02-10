@@ -6,8 +6,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.example.homework.service.HomeworkRequestService;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,8 +21,7 @@ public class HomeworkRequestController {
     private final HomeworkRequestService homeworkRequestService;
 
     @GetMapping("/homeworks/{homeworkId}/homework-requests")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.homework.enums.AuthenticationRoleType).EXPLORER) && " +
-            "@roleService.hasAnyCourseRoleByHomeworkId(#homeworkId, T(org.example.homework.enums.CourseRoleType).EXPLORER)")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(authentication.authorities, T(org.example.homework.enums.AuthenticationRoleType).EXPLORER)")
     @Operation(summary = "Get homework with request", tags = "homework request")
     @ApiResponses(value = {
             @ApiResponse(
@@ -31,16 +32,17 @@ public class HomeworkRequestController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> findHomeworkWithRequestByHomeworkId(@PathVariable Long homeworkId) {
+    public ResponseEntity<?> findHomeworkWithRequestByHomeworkId(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                                                 @AuthenticationPrincipal Long authenticatedPersonId,
+                                                                 @PathVariable Long homeworkId) {
         return ResponseEntity.ok(
                 homeworkRequestService
-                        .findHomeworkWithRequestByHomeworkId(homeworkId)
+                        .findHomeworkWithRequestByHomeworkId(authorizationHeader, authenticatedPersonId, homeworkId)
         );
     }
 
     @GetMapping("/homework-requests/{requestId}")
-    @PreAuthorize("@roleService.hasAnyAuthenticationRole(T(org.example.homework.enums.AuthenticationRoleType).KEEPER) && " +
-            "@roleService.hasAnyCourseRoleByHomeworkRequestId(#requestId, T(org.example.homework.enums.CourseRoleType).KEEPER)")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(authentication.authorities, T(org.example.homework.enums.AuthenticationRoleType).KEEPER)")
     @Operation(summary = "Get homework with request", tags = "homework request")
     @ApiResponses(value = {
             @ApiResponse(
@@ -51,16 +53,17 @@ public class HomeworkRequestController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> findHomeworkWithRequestByRequestId(@PathVariable Long requestId) {
+    public ResponseEntity<?> findHomeworkWithRequestByRequestId(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                                                @AuthenticationPrincipal Long authenticatedPersonId,
+                                                                @PathVariable Long requestId) {
         return ResponseEntity.ok(
-                homeworkRequestService.findHomeworkWithRequestByRequestId(requestId)
+                homeworkRequestService.findHomeworkWithRequestByRequestId(authorizationHeader, authenticatedPersonId, requestId)
         );
     }
 
     @GetMapping("/homework-requests")
-    @PreAuthorize("(@roleService.hasAnyAuthenticationRole(T(org.example.homework.enums.AuthenticationRoleType).EXPLORER) &&" +
-            "@roleService.hasAnyCourseRoleByExplorerIds(#explorerIds, T(org.example.homework.enums.CourseRoleType).EXPLORER)) ||" +
-            "@roleService.hasAnyCourseRoleByExplorerIds(#explorerIds, T(org.example.homework.enums.CourseRoleType).KEEPER)")
+    @PreAuthorize("@roleService.hasAnyAuthenticationRole(authentication.authorities, T(org.example.homework.enums.AuthenticationRoleType).EXPLORER) || " +
+            "@roleService.hasAnyAuthenticationRole(authentication.authorities, T(org.example.homework.enums.AuthenticationRoleType).KEEPER)")
     @Operation(summary = "Find opened homework requests by explorer id in", tags = "homework request")
     @ApiResponses(value = {
             @ApiResponse(
@@ -71,10 +74,13 @@ public class HomeworkRequestController {
                                     mediaType = "application/json")
                     })
     })
-    public ResponseEntity<?> findOpenedHomeworkRequestsByExplorerIdIn(@RequestParam List<Long> explorerIds) {
+    public ResponseEntity<?> findOpenedHomeworkRequestsByExplorerIdIn(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                                                      @AuthenticationPrincipal Long authenticatedPersonId,
+                                                                      @RequestParam List<Long> explorerIds) {
         return ResponseEntity.ok(
-                homeworkRequestService
-                        .findOpenedHomeworkRequestsByExplorerIdIn(explorerIds)
+                homeworkRequestService.findOpenedHomeworkRequestsByExplorerIdIn(
+                        authorizationHeader, authenticatedPersonId, explorerIds
+                )
         );
     }
 }

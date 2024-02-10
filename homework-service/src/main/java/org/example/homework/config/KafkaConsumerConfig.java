@@ -21,12 +21,7 @@ public class KafkaConsumerConfig {
 
     @Bean
     public ConsumerFactory<Long, Long> deleteHomeworksFactory() {
-        Map<String, Object> properties = new HashMap<>();
-        properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
-        properties.put(ConsumerConfig.GROUP_ID_CONFIG, "homework");
-        properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, LongDeserializer.class);
-        properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, LongDeserializer.class);
-        return new DefaultKafkaConsumerFactory<>(properties);
+        return new DefaultKafkaConsumerFactory<>(deleteFactoryProperties());
     }
 
     @Bean
@@ -35,5 +30,27 @@ public class KafkaConsumerConfig {
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(deleteHomeworksFactory());
         return factory;
+    }
+
+    @Bean
+    public ConsumerFactory<Long, Long> deleteHomeworkRequestByExplorerIdFactory() {
+        return new DefaultKafkaConsumerFactory<>(deleteFactoryProperties());
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<Long, Long> deleteHomeworkRequestByExplorerIdKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<Long, Long> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(deleteHomeworksFactory());
+        return factory;
+    }
+
+    private Map<String, Object> deleteFactoryProperties() {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
+        properties.put(ConsumerConfig.GROUP_ID_CONFIG, "homework");
+        properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, LongDeserializer.class);
+        properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, LongDeserializer.class);
+        return properties;
     }
 }

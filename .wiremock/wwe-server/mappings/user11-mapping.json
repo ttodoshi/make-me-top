@@ -23,7 +23,7 @@
     ]
   },
   "response": {
-    "status": 220,
+    "status": 200,
     "jsonBody": {
       "isSuccess": true,
       "message": null,

@@ -1,16 +1,15 @@
 package org.example.galaxy.config.security;
 
-import lombok.RequiredArgsConstructor;
 import org.example.galaxy.enums.AuthenticationRoleType;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
+
 @Service
-@RequiredArgsConstructor
 public class RoleService {
-    public boolean hasAnyAuthenticationRole(AuthenticationRoleType role) {
-        for (GrantedAuthority authority : SecurityContextHolder.getContext().getAuthentication().getAuthorities()) {
+    public boolean hasAnyAuthenticationRole(Collection<? extends GrantedAuthority> authorities, AuthenticationRoleType role) {
+        for (GrantedAuthority authority : authorities) {
             if (authority.getAuthority().equals(role.name()))
                 return true;
         }

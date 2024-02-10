@@ -19,6 +19,8 @@ spring:
     name: homework-service
   profiles:
     default: local
+  mvc:
+    log-resolved-exception: false
   jpa:
     properties:
       hibernate:

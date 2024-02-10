@@ -16,6 +16,8 @@ spring:
     name: galaxy-service
   profiles:
     default: local
+  mvc:
+    log-resolved-exception: false
   jpa:
     properties:
       hibernate:

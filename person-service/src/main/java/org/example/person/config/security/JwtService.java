@@ -1,16 +1,10 @@
 package org.example.person.config.security;
 
 
-import io.jsonwebtoken.Claims;
-
-import java.util.function.Function;
-
 public interface JwtService {
-    String extractId(String jwtToken);
+    String extractAccessTokenId(String accessToken);
 
-    <T> T extractClaim(String jwtToken, Function<Claims, T> claimsResolver);
+    String extractAccessTokenRole(String accessToken);
 
-    String extractRole(String jwtToken);
-
-    boolean isTokenValid(String jwtToken);
+    boolean isAccessTokenValid(String accessToken);
 }

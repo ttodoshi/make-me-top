@@ -9,9 +9,8 @@ import org.example.feedback.dto.event.KeeperFeedbackOfferCreateEvent;
 import org.example.grpc.ExplorerGroupsService;
 import org.example.grpc.ExplorersService;
 import org.example.progress.dto.mark.MarkDto;
-import org.example.progress.exception.classes.explorer.ExplorerNotFoundException;
-import org.example.progress.repository.ExplorerGroupRepository;
-import org.example.progress.repository.ExplorerRepository;
+import org.example.progress.service.ExplorerGroupService;
+import org.example.progress.service.ExplorerService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
@@ -23,32 +22,33 @@ public class FeedbackOfferAspect {
     private final KafkaTemplate<Long, Object> createExplorerFeedbackOfferKafkaTemplate;
     private final KafkaTemplate<Long, Object> createKeeperFeedbackOfferKafkaTemplate;
 
-    private final ExplorerRepository explorerRepository;
-    private final ExplorerGroupRepository explorerGroupRepository;
+    private final ExplorerService explorerService;
+    private final ExplorerGroupService explorerGroupService;
 
     public FeedbackOfferAspect(
             @Qualifier("createCourseRatingOfferKafkaTemplate") KafkaTemplate<Long, Object> createCourseRatingOfferKafkaTemplate,
             @Qualifier("createExplorerFeedbackOfferKafkaTemplate") KafkaTemplate<Long, Object> createExplorerFeedbackOfferKafkaTemplate,
             @Qualifier("createKeeperFeedbackOfferKafkaTemplate") KafkaTemplate<Long, Object> createKeeperFeedbackOfferKafkaTemplate,
-            ExplorerRepository explorerRepository,
-            ExplorerGroupRepository explorerGroupRepository) {
+            ExplorerService explorerService,
+            ExplorerGroupService explorerGroupService) {
         this.createCourseRatingOfferKafkaTemplate = createCourseRatingOfferKafkaTemplate;
         this.createExplorerFeedbackOfferKafkaTemplate = createExplorerFeedbackOfferKafkaTemplate;
         this.createKeeperFeedbackOfferKafkaTemplate = createKeeperFeedbackOfferKafkaTemplate;
-        this.explorerRepository = explorerRepository;
-        this.explorerGroupRepository = explorerGroupRepository;
+        this.explorerService = explorerService;
+        this.explorerGroupService = explorerGroupService;
     }
 
     @Pointcut(value = "execution(* org.example.progress.service.MarkService.setCourseMark(..)) " +
-            "&& args(mark)", argNames = "mark")
-    public void createFeedbackOfferPointcut(MarkDto mark) {
+            "&& args(authorizationHeader, authenticatedPersonId, mark)", argNames = "authorizationHeader, authenticatedPersonId, mark")
+    public void createFeedbackOfferPointcut(String authorizationHeader, Long authenticatedPersonId, MarkDto mark) {
     }
 
-    @AfterReturning(value = "createFeedbackOfferPointcut(mark)", argNames = "mark")
-    public void createFeedbackOfferPointcutAfterSendingCourseMark(MarkDto mark) {
-        ExplorersService.Explorer explorer = explorerRepository.findById(mark.getExplorerId())
-                .orElseThrow(() -> new ExplorerNotFoundException(mark.getExplorerId()));
-        ExplorerGroupsService.ExplorerGroup group = explorerGroupRepository.getReferenceById(explorer.getGroupId());
+    @AfterReturning(value = "createFeedbackOfferPointcut(authorizationHeader, authenticatedPersonId, mark)", argNames = "authorizationHeader, authenticatedPersonId, mark")
+    public void createFeedbackOfferPointcutAfterSendingCourseMark(String authorizationHeader, Long authenticatedPersonId, MarkDto mark) {
+        ExplorersService.Explorer explorer = explorerService.findById(authorizationHeader, mark.getExplorerId());
+        ExplorerGroupsService.ExplorerGroup group = explorerGroupService.findById(
+                authorizationHeader, explorer.getGroupId()
+        );
 
         createCourseRatingOfferKafkaTemplate.send(
                 "createCourseRatingOfferTopic",

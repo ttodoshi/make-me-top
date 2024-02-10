@@ -18,12 +18,12 @@ public class StarSystemAspect {
     }
 
     @Pointcut(value = "execution(* org.example.course.service.CourseService.updateCourse(..)) " +
-            "&& args(galaxyId, courseId, course)", argNames = "galaxyId, courseId, course")
-    public void updateSystemNamePointcut(Long galaxyId, Long courseId, UpdateCourseDto course) {
+            "&& args(authorizationHeader, galaxyId, courseId, course)", argNames = "authorizationHeader, galaxyId, courseId, course")
+    public void updateSystemNamePointcut(String authorizationHeader, Long galaxyId, Long courseId, UpdateCourseDto course) {
     }
 
-    @AfterReturning(pointcut = "updateSystemNamePointcut(galaxyId, courseId, course)", argNames = "galaxyId, courseId, course")
-    public void updateSystemNameAfterUpdateCourseTitle(Long galaxyId, Long courseId, UpdateCourseDto course) {
+    @AfterReturning(pointcut = "updateSystemNamePointcut(authorizationHeader, galaxyId, courseId, course)", argNames = "authorizationHeader, galaxyId, courseId, course")
+    public void updateSystemNameAfterUpdateCourseTitle(String authorizationHeader, Long galaxyId, Long courseId, UpdateCourseDto course) {
         updateSystemKafkaTemplate.send("updateSystemTopic", courseId, course.getTitle());
     }
 }
