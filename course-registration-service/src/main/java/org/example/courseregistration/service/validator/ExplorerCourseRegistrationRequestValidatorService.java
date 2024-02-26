@@ -6,7 +6,6 @@ import org.example.courseregistration.exception.course.CourseNotFoundException;
 import org.example.courseregistration.exception.courserequest.PersonIsKeeperException;
 import org.example.courseregistration.exception.courserequest.PersonIsNotPersonInRequestException;
 import org.example.courseregistration.exception.courserequest.RequestAlreadySentException;
-import org.example.courseregistration.exception.courserequest.RequestNotFoundException;
 import org.example.courseregistration.exception.keeper.KeeperNotFoundException;
 import org.example.courseregistration.exception.progress.AlreadyStudyingException;
 import org.example.courseregistration.exception.progress.PersonIsStudyingException;
@@ -14,10 +13,7 @@ import org.example.courseregistration.exception.progress.SystemParentsNotComplet
 import org.example.courseregistration.model.CourseRegistrationRequest;
 import org.example.courseregistration.model.CourseRegistrationRequestStatusType;
 import org.example.courseregistration.repository.CourseRegistrationRequestRepository;
-import org.example.courseregistration.service.CourseProgressService;
-import org.example.courseregistration.service.CourseRegistrationRequestStatusService;
-import org.example.courseregistration.service.CourseService;
-import org.example.courseregistration.service.KeeperService;
+import org.example.courseregistration.service.*;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -27,8 +23,8 @@ public class ExplorerCourseRegistrationRequestValidatorService {
 
     private final CourseService courseService;
     private final KeeperService keeperService;
+    private final CourseRegistrationRequestService courseRegistrationRequestService;
     private final CourseRegistrationRequestStatusService courseRegistrationRequestStatusService;
-
     private final CourseProgressService courseProgressService;
 
     public void validateSendRequest(String authorizationHeader, Long personId, CreateCourseRegistrationRequestDto request) {
@@ -51,9 +47,8 @@ public class ExplorerCourseRegistrationRequestValidatorService {
     }
 
     public void validateCancelRequest(Long authenticatedPersonId, Long requestId) {
-        CourseRegistrationRequest request = courseRegistrationRequestRepository
-                .findById(requestId)
-                .orElseThrow(() -> new RequestNotFoundException(requestId));
+        CourseRegistrationRequest request = courseRegistrationRequestService
+                .findCourseRegistrationRequestById(requestId);
 
         if (!request.getPersonId().equals(authenticatedPersonId))
             throw new PersonIsNotPersonInRequestException();

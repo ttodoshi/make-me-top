@@ -6,8 +6,7 @@ import org.example.courseregistration.dto.courserequest.ApprovedRequestDto;
 import org.example.courseregistration.dto.courserequest.CourseRegistrationRequestKeeperDto;
 import org.example.courseregistration.dto.courserequest.CreateKeeperRejectionDto;
 import org.example.courseregistration.exception.courserequest.NoApprovedRequestsFoundException;
-import org.example.courseregistration.exception.courserequest.RequestNotFoundException;
-import org.example.courseregistration.exception.keeper.DifferentKeeperException;
+import org.example.courseregistration.mapper.CourseRegistrationRequestMapper;
 import org.example.courseregistration.model.*;
 import org.example.courseregistration.repository.CourseRegistrationRequestKeeperRepository;
 import org.example.courseregistration.repository.CourseRegistrationRequestRepository;
@@ -38,6 +37,7 @@ public class KeeperCourseRegistrationRequestServiceImpl implements KeeperCourseR
     private final ExplorerService explorerService;
     private final KeeperService keeperService;
     private final PersonService personService;
+    private final CourseRegistrationRequestService courseRegistrationRequestService;
     private final CourseRegistrationRequestStatusService courseRegistrationRequestStatusService;
     private final CourseRegistrationRequestKeeperService courseRegistrationRequestKeeperService;
     private final CourseRegistrationRequestKeeperStatusService courseRegistrationRequestKeeperStatusService;
@@ -49,12 +49,8 @@ public class KeeperCourseRegistrationRequestServiceImpl implements KeeperCourseR
     @Override
     @Transactional
     public CourseRegistrationRequestKeeperDto approveRequest(String authorizationHeader, Long authenticatedPersonId, Long requestId) {
-        CourseRegistrationRequest request = courseRegistrationRequestRepository
-                .findById(requestId)
-                .orElseThrow(() -> {
-                    log.warn("request {} not found", requestId);
-                    return new RequestNotFoundException();
-                });
+        CourseRegistrationRequest request = courseRegistrationRequestService
+                .findCourseRegistrationRequestById(requestId);
 
         keeperCourseRegistrationRequestValidatorService.validateApproveRequest(request);
 
@@ -64,35 +60,28 @@ public class KeeperCourseRegistrationRequestServiceImpl implements KeeperCourseR
                 );
 
         courseRegistrationRequestKeeperService.closeRequestForKeepers(request);
+        updateRequestStatusToApproved(request, keeperResponse);
 
+        return mapper.map(keeperResponse, CourseRegistrationRequestKeeperDto.class);
+    }
+
+    private void updateRequestStatusToApproved(CourseRegistrationRequest request, CourseRegistrationRequestKeeper keeperResponse) {
         courseRegistrationRequestStatusService.updateCourseRegistrationRequestStatus(
                 request, CourseRegistrationRequestStatusType.APPROVED
         );
         courseRegistrationRequestKeeperStatusService.updateCourseRegistrationRequestKeeperStatus(
                 keeperResponse, CourseRegistrationRequestKeeperStatusType.APPROVED
         );
-        return mapper.map(keeperResponse, CourseRegistrationRequestKeeperDto.class);
     }
 
     @Override
     @Transactional
     public Long rejectRequest(String authorizationHeader, Long authenticatedPersonId, Long requestId, CreateKeeperRejectionDto rejection) {
-        CourseRegistrationRequest request = courseRegistrationRequestRepository
-                .findById(requestId)
-                .orElseThrow(() -> {
-                    log.warn("request {} not found", requestId);
-                    return new RequestNotFoundException();
-                });
-        KeepersService.Keeper keeper = keeperService.findKeeperByPersonIdAndCourseId(
-                authorizationHeader, authenticatedPersonId, request.getCourseId()
+        CourseRegistrationRequest request = courseRegistrationRequestService
+                .findCourseRegistrationRequestById(requestId);
+        CourseRegistrationRequestKeeper keeperResponse = courseRegistrationRequestKeeperService.findCourseRegistrationRequestKeeperForPerson(
+                authorizationHeader, authenticatedPersonId, request
         );
-        CourseRegistrationRequestKeeper keeperResponse = courseRegistrationRequestKeeperRepository
-                .findCourseRegistrationRequestKeeperByRequestIdAndKeeperId(
-                        requestId, keeper.getKeeperId()
-                ).orElseThrow(() -> {
-                    log.warn("this request not for you");
-                    return new DifferentKeeperException();
-                });
 
         keeperCourseRegistrationRequestValidatorService.validateRejectRequest(request, keeperResponse, rejection);
 
@@ -112,53 +101,48 @@ public class KeeperCourseRegistrationRequestServiceImpl implements KeeperCourseR
                 .findKeepersByKeeperIdIn(authorizationHeader, keeperIds);
         keeperCourseRegistrationRequestValidatorService.validateGetApprovedRequests(authenticatedPersonId, keepers);
 
-        return courseRegistrationRequestRepository.findApprovedKeeperRequestsByKeeperIdIn(keeperIds)
+        return courseRegistrationRequestKeeperRepository.findApprovedKeeperRequestsByKeeperIdIn(keeperIds)
                 .stream()
-                .map(r -> new ApprovedRequestDto(
-                        r.getRequestId(),
-                        r.getRequest().getCourseId(),
-                        r.getRequest().getPersonId(),
-                        r.getRequest().getStatusId(),
-                        r.getKeeperId(),
-                        r.getResponseDate()
-                )).collect(Collectors.toList());
+                .map(CourseRegistrationRequestMapper::mapCourseRegistrationRequestKeeperToApprovedRequestDto)
+                .collect(Collectors.toList());
     }
 
     @Override
     @Transactional
     public Long startTeaching(String authorizationHeader, Long authenticatedPersonId, Long courseId) {
-        keeperCourseRegistrationRequestValidatorService.validateStartTeachingRequest(
-                authorizationHeader, authenticatedPersonId
-        );
+        keeperCourseRegistrationRequestValidatorService
+                .validateStartTeachingRequest(authorizationHeader, authenticatedPersonId);
 
         KeepersService.Keeper keeper = keeperService.findKeeperByPersonIdAndCourseId(
                 authorizationHeader, authenticatedPersonId, courseId
         );
         List<CourseRegistrationRequest> approvedRequests = courseRegistrationRequestRepository
                 .findApprovedRequestsByKeeperId(keeper.getKeeperId());
+
+        return createExplorerGroup(
+                authorizationHeader, authenticatedPersonId, courseId, keeper.getKeeperId(), approvedRequests
+        );
+    }
+
+    private Long createExplorerGroup(String authorizationHeader, Long authenticatedPersonId, Long courseId, Long keeperId, List<CourseRegistrationRequest> approvedRequests) {
         if (approvedRequests.isEmpty()) {
             log.warn("no approved requests found");
             throw new NoApprovedRequestsFoundException();
         }
 
-        Long createdGroupId = createExplorerGroup(authorizationHeader, courseId, keeper.getKeeperId());
-        createExplorers(authorizationHeader, authenticatedPersonId, approvedRequests, createdGroupId);
-        return createdGroupId;
-    }
-
-    private Long createExplorerGroup(String authorizationHeader, Long courseId, Long keeperId) {
-        return explorerGroupService.save(
+        Long createdGroupId = explorerGroupService.save(
                 authorizationHeader,
                 ExplorerGroupsService.CreateGroupRequest.newBuilder()
                         .setCourseId(courseId)
                         .setKeeperId(keeperId)
                         .build()
         ).getGroupId();
+        createExplorers(authorizationHeader, authenticatedPersonId, approvedRequests, createdGroupId);
+        return createdGroupId;
     }
 
     private void createExplorers(String authorizationHeader, Long authenticatedPersonId, List<CourseRegistrationRequest> approvedRequests, Long groupId) {
         PeopleService.Person person = personService.findPersonById(authorizationHeader, authenticatedPersonId);
-
         Long acceptedStatusId = courseRegistrationRequestStatusService
                 .findCourseRegistrationRequestStatusByStatus(CourseRegistrationRequestStatusType.ACCEPTED)
                 .getStatusId();

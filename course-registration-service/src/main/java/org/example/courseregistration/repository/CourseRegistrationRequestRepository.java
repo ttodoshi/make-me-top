@@ -27,11 +27,5 @@ public interface CourseRegistrationRequestRepository extends JpaRepository<Cours
             "ORDER BY crrk.responseDate")
     List<CourseRegistrationRequest> findApprovedRequestsByKeeperId(@Param("keeperId") Long keeperId);
 
-    @Query(value = "SELECT crrk FROM CourseRegistrationRequest crr\n" +
-            "JOIN CourseRegistrationRequestKeeper crrk ON crrk.requestId = crr.requestId\n" +
-            "WHERE crrk.keeperId IN :keeperIds AND crr.status.status = 'APPROVED' AND crrk.status.status = 'APPROVED'\n" +
-            "ORDER BY crrk.responseDate")
-    List<CourseRegistrationRequestKeeper> findApprovedKeeperRequestsByKeeperIdIn(@Param("keeperIds") List<Long> keeperIds);
-
     void deleteCourseRegistrationRequestsByCourseId(Long courseId);
 }

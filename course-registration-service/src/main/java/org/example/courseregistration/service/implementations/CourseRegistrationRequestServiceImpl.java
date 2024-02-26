@@ -32,6 +32,18 @@ public class CourseRegistrationRequestServiceImpl implements CourseRegistrationR
 
     @Override
     @Transactional(readOnly = true)
+    public CourseRegistrationRequest findCourseRegistrationRequestById(Long requestId) {
+        return courseRegistrationRequestRepository
+                .findById(requestId)
+                .orElseThrow(() -> {
+                    log.warn("request {} not found", requestId);
+                    return new RequestNotFoundException(requestId);
+                });
+    }
+
+
+    @Override
+    @Transactional(readOnly = true)
     public CourseRegistrationRequestDto findProcessingCourseRegistrationRequestByPersonId(Long personId) {
         return courseRegistrationRequestRepository
                 .findCourseRegistrationRequestByPersonIdAndStatus_NotAccepted(
