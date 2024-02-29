@@ -18,6 +18,7 @@ import org.example.person.service.api.course.CourseService;
 import org.example.person.service.api.homework.HomeworkRequestService;
 import org.example.person.service.api.homework.HomeworkService;
 import org.example.person.service.api.planet.PlanetService;
+import org.example.person.service.implementations.ExplorerService;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
@@ -38,6 +39,8 @@ import java.util.stream.Collectors;
 public class HomeworkServiceImpl implements HomeworkService {
     private final ExplorerRepository explorerRepository;
     private final ExplorerGroupRepository explorerGroupRepository;
+
+    private final ExplorerService explorerService;
     private final HomeworkRequestService homeworkRequestService;
     private final CourseService courseService;
     private final PlanetService planetService;
@@ -129,29 +132,24 @@ public class HomeworkServiceImpl implements HomeworkService {
         );
         return homeworkRequests.stream()
                 .map(hr -> {
-                    Explorer currentRequestExplorer = explorers.get(hr.getExplorerId());
-                    Person person = currentRequestExplorer.getPerson();
-                    CourseDto currentRequestCourse = courses.get(
+                    Explorer requestExplorer = explorers.get(hr.getExplorerId());
+                    Person person = requestExplorer.getPerson();
+                    CourseDto requestCourse = courses.get(
                             explorerGroups.get(
-                                    currentRequestExplorer.getGroupId()
+                                    requestExplorer.getGroupId()
                             ).getCourseId()
                     );
-                    PlanetDto currentRequestPlanet = planets.get(
+                    PlanetDto requestPlanet = planets.get(
                             homeworks.get(hr.getHomeworkId()).getCourseThemeId()
                     );
                     return new GetHomeworkRequestDto(
                             hr.getRequestId(),
-                            person.getPersonId(),
-                            person.getFirstName(),
-                            person.getLastName(),
-                            person.getPatronymic(),
-                            currentRequestCourse.getCourseId(),
-                            currentRequestCourse.getTitle(),
+                            person.getPersonId(), person.getFirstName(),
+                            person.getLastName(), person.getPatronymic(),
+                            requestCourse.getCourseId(), requestCourse.getTitle(),
                             hr.getExplorerId(),
-                            currentRequestPlanet.getPlanetId(),
-                            currentRequestPlanet.getPlanetName(),
-                            hr.getHomeworkId(),
-                            hr.getStatus()
+                            requestPlanet.getPlanetId(), requestPlanet.getPlanetName(),
+                            hr.getHomeworkId(), hr.getStatus()
                     );
                 }).collect(Collectors.toList());
     }
@@ -186,28 +184,22 @@ public class HomeworkServiceImpl implements HomeworkService {
         return openedHomeworkRequests
                 .stream()
                 .map(hr -> {
-                    Explorer explorer = explorerRepository.getReferenceById(hr.getExplorerId());
-                    Person person = explorer.getPerson();
-                    Long courseId = explorerGroupRepository.getReferenceById(
-                            explorer.getGroupId()
-                    ).getCourseId();
-                    CourseDto requestCourse = courses.get(courseId);
-                    PlanetDto requestTheme = planets.get(
+                    Explorer requestExplorer = explorerRepository.getReferenceById(hr.getExplorerId());
+                    Person person = requestExplorer.getPerson();
+                    CourseDto requestCourse = courses.get(
+                            requestExplorer.getGroup().getCourseId()
+                    );
+                    PlanetDto requestPlanet = planets.get(
                             homeworks.get(hr.getHomeworkId()).getCourseThemeId()
                     );
                     return new GetHomeworkRequestDto(
                             hr.getRequestId(),
-                            person.getPersonId(),
-                            person.getFirstName(),
-                            person.getLastName(),
-                            person.getPatronymic(),
-                            requestCourse.getCourseId(),
-                            requestCourse.getTitle(),
+                            person.getPersonId(), person.getFirstName(),
+                            person.getLastName(), person.getPatronymic(),
+                            requestCourse.getCourseId(), requestCourse.getTitle(),
                             hr.getExplorerId(),
-                            requestTheme.getPlanetId(),
-                            requestTheme.getPlanetName(),
-                            hr.getHomeworkId(),
-                            hr.getStatus()
+                            requestPlanet.getPlanetId(), requestPlanet.getPlanetName(),
+                            hr.getHomeworkId(), hr.getStatus()
                     );
                 }).collect(Collectors.toList());
     }

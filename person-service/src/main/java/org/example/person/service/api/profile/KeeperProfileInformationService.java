@@ -1,7 +1,9 @@
 package org.example.person.service.api.profile;
 
+import org.example.person.dto.profile.KeeperProfileDto;
+
 import java.util.Map;
 
 public interface KeeperProfileInformationService {
-    Map<String, Object> getKeeperProfileInformation(String authorizationHeader, Long authenticatedPersonId);
+    KeeperProfileDto getKeeperProfileInformation(String authorizationHeader, Long authenticatedPersonId);
 }

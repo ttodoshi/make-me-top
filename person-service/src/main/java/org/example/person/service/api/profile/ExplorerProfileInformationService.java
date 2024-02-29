@@ -1,7 +1,9 @@
 package org.example.person.service.api.profile;
 
+import org.example.person.dto.profile.ExplorerProfileDto;
+
 import java.util.Map;
 
 public interface ExplorerProfileInformationService {
-    Map<String, Object> getExplorerProfileInformation(String authorizationHeader, Long authenticatedPersonId);
+    ExplorerProfileDto getExplorerProfileInformation(String authorizationHeader, Long authenticatedPersonId);
 }

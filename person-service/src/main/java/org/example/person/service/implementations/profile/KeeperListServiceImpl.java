@@ -36,33 +36,21 @@ public class KeeperListServiceImpl implements KeeperListService {
         Page<Person> peoplePage = personRepository.findKeeperPeople(
                 PageRequest.of(page, size)
         );
-        Map<Long, Double> ratings = ratingService.getPeopleRatingAsExplorerByPersonIdIn(
+        Map<Long, Double> ratings = ratingService.getPeopleRatingAsKeeperByPersonIdIn(
                 peoplePage.stream()
                         .map(Person::getPersonId)
                         .collect(Collectors.toList())
         );
-
         Map<Long, List<Keeper>> keepers = keeperService.findKeepersByPersonIdIn(
                 peoplePage.stream()
                         .map(Person::getPersonId)
                         .collect(Collectors.toList())
         );
-        Map<Long, GalaxyDto> galaxyMap = galaxyService.findGalaxiesBySystemIdIn(
-                authorizationHeader,
-                keepers.entrySet()
-                        .stream()
-                        .flatMap(e -> e.getValue().stream())
-                        .map(Keeper::getCourseId)
-                        .distinct()
-                        .collect(Collectors.toList())
-        );
+        Map<Long, GalaxyDto> galaxyMap = findKeepersGalaxies(authorizationHeader, keepers);
 
         return peoplePage.map(
                 p -> new PersonWithGalaxiesDto(
-                        p.getPersonId(),
-                        p.getFirstName(),
-                        p.getLastName(),
-                        p.getPatronymic(),
+                        p.getPersonId(), p.getFirstName(), p.getLastName(), p.getPatronymic(),
                         ratings.getOrDefault(p.getPersonId(), 0.0),
                         keepers.getOrDefault(p.getPersonId(), Collections.emptyList())
                                 .stream()
@@ -70,6 +58,18 @@ public class KeeperListServiceImpl implements KeeperListService {
                                 .distinct()
                                 .collect(Collectors.toList())
                 )
+        );
+    }
+
+    private Map<Long, GalaxyDto> findKeepersGalaxies(String authorizationHeader, Map<Long, List<Keeper>> keepers) {
+        return galaxyService.findGalaxiesBySystemIdIn(
+                authorizationHeader,
+                keepers.entrySet()
+                        .stream()
+                        .flatMap(e -> e.getValue().stream())
+                        .map(Keeper::getCourseId)
+                        .distinct()
+                        .collect(Collectors.toList())
         );
     }
 }

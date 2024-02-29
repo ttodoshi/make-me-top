@@ -1,6 +1,6 @@
 package org.example.person.service.implementations.profile;
 
-import lombok.RequiredArgsConstructor;
+import org.example.person.dto.profile.ExplorerProfileDto;
 import org.example.person.model.Explorer;
 import org.example.person.repository.ExplorerRepository;
 import org.example.person.service.api.course.CourseService;
@@ -12,73 +12,85 @@ import org.example.person.service.api.profile.ExplorerListService;
 import org.example.person.service.api.profile.ExplorerProfileInformationService;
 import org.example.person.service.api.progress.CourseProgressService;
 import org.example.person.service.implementations.PersonService;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
-public class ExplorerProfileInformationServiceImpl implements ExplorerProfileInformationService {
+public class ExplorerProfileInformationServiceImpl extends PersonProfileInformationService implements ExplorerProfileInformationService {
     private final ExplorerRepository explorerRepository;
 
-    private final PersonService personService;
     private final ExplorerListService explorerListService;
-    private final FeedbackService feedbackService;
     private final CourseRegistrationRequestService courseRegistrationRequestService;
-    private final CourseService courseService;
-    private final RatingService ratingService;
     private final CourseProgressService courseProgressService;
     private final HomeworkService homeworkService;
 
+    public ExplorerProfileInformationServiceImpl(PersonService personService, RatingService ratingService, ExplorerRepository explorerRepository, ExplorerListService explorerListService, FeedbackService feedbackService, CourseRegistrationRequestService courseRegistrationRequestService, CourseService courseService, CourseProgressService courseProgressService, HomeworkService homeworkService, ModelMapper mapper) {
+        super(ratingService, courseService, feedbackService, personService, mapper);
+        this.explorerRepository = explorerRepository;
+        this.explorerListService = explorerListService;
+        this.courseRegistrationRequestService = courseRegistrationRequestService;
+        this.courseProgressService = courseProgressService;
+        this.homeworkService = homeworkService;
+    }
+
     @Override
     @Transactional(readOnly = true)
-    public Map<String, Object> getExplorerProfileInformation(String authorizationHeader, Long authenticatedPersonId) {
-        Map<String, Object> response = new LinkedHashMap<>();
-        response.put("person", personService.findPersonById(authenticatedPersonId));
-        response.put("rating", ratingService.getPersonRatingAsExplorer(authenticatedPersonId));
+    public ExplorerProfileDto getExplorerProfileInformation(String authorizationHeader, Long authenticatedPersonId) {
         List<Explorer> personExplorers = explorerRepository.findExplorersByPersonId(authenticatedPersonId);
-        response.put("totalSystems", personExplorers.size());
+        ExplorerProfileDto explorerProfile = addPersonProfileInformation(
+                new ExplorerProfileDto(), authenticatedPersonId, personExplorers.size()
+        );
 
-        return Mono.when(
-                Mono.fromRunnable(() ->
-                        courseProgressService
+        Flux.concat(
+                        Mono.fromRunnable(() ->
+                                explorerProfile.setRating(ratingService.getPersonRatingAsExplorer(authenticatedPersonId))
+                        ), Mono.fromRunnable(() -> courseProgressService
                                 .getCurrentCourseProgressProfile(authorizationHeader, authenticatedPersonId)
-                                .ifPresent(p -> response.put("currentSystem", p))
-                ),
-                Mono.fromRunnable(() -> response.put(
-                        "explorerFeedbacks",
-                        feedbackService.getExplorerFeedbackOffers(
-                                authorizationHeader,
-                                personExplorers.stream().map(Explorer::getExplorerId).collect(Collectors.toList())
+                                .ifPresent(explorerProfile::setCurrentSystem)
+                        ),
+                        Mono.fromRunnable(() -> explorerProfile.setExplorerFeedbacks(
+                                feedbackService.getExplorerFeedbackOffers(
+                                        authorizationHeader,
+                                        personExplorers.stream().map(Explorer::getExplorerId).collect(Collectors.toList())
+                                ))
+                        ),
+                        Mono.fromRunnable(() -> explorerProfile.setCourseFeedbacks(
+                                feedbackService.getCourseRatingOffers(
+                                        authorizationHeader,
+                                        personExplorers.stream().map(Explorer::getExplorerId).collect(Collectors.toList())
+                                ))
+                        ),
+                        Mono.fromRunnable(() -> courseRegistrationRequestService
+                                .getStudyRequestForExplorerByPersonId(authorizationHeader)
+                                .ifPresent(explorerProfile::setStudyRequest)),
+                        Mono.fromRunnable(() -> explorerProfile.setInvestigatedSystems(
+                                courseService.getCoursesRating(
+                                        authorizationHeader,
+                                        courseProgressService.getInvestigatedSystemIds(authorizationHeader, personExplorers)
+                                ))
+                        ),
+                        Mono.fromRunnable(() -> explorerProfile.setRatingTable(
+                                explorerListService
+                                        .getExplorers(authorizationHeader, 0, 10)
+                                        .getContent())
+                        ),
+                        Mono.fromRunnable(() -> explorerProfile.setHomeworkRequests(
+                                homeworkService.getHomeworkRequestsFromPerson(
+                                        authorizationHeader, personExplorers
+                                ))
                         )
-                )),
-                Mono.fromRunnable(() -> response.put(
-                        "courseFeedbacks",
-                        feedbackService.getCourseRatingOffers(
-                                authorizationHeader,
-                                personExplorers.stream().map(Explorer::getExplorerId).collect(Collectors.toList())
-                        )
-                )),
-                Mono.fromSupplier(() -> courseRegistrationRequestService
-                        .getStudyRequestForExplorerByPersonId(authorizationHeader)
-                        .map(r -> response.put("studyRequest", r))),
-                Mono.fromRunnable(() -> response.put("investigatedSystems", courseService.getCoursesRating(
-                        authorizationHeader,
-                        courseProgressService.getInvestigatedSystemIds(authorizationHeader, personExplorers)
-                ))),
-                Mono.fromRunnable(() -> response.put(
-                        "ratingTable",
-                        explorerListService.getExplorers(authorizationHeader, 0, 10)
-                                .getContent()
-                )),
-                Mono.fromRunnable(() -> response.put("homeworkRequests", homeworkService.getHomeworkRequestsFromPerson(
-                        authorizationHeader, personExplorers
-                )))
-        ).then(Mono.just(response)).block();
+                ).parallel()
+                .runOn(Schedulers.parallel())
+                .then()
+                .block();
+
+        return explorerProfile;
     }
 }

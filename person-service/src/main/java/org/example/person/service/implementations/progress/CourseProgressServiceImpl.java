@@ -14,6 +14,7 @@ import org.example.person.dto.progress.CurrentCourseProgressProfileDto;
 import org.example.person.dto.progress.CurrentCourseProgressPublicDto;
 import org.example.person.exception.connect.ConnectException;
 import org.example.person.exception.explorer.ExplorerNotFoundException;
+import org.example.person.mapper.KeeperMapper;
 import org.example.person.model.Explorer;
 import org.example.person.model.ExplorerGroup;
 import org.example.person.model.Keeper;
@@ -61,27 +62,18 @@ public class CourseProgressServiceImpl implements CourseProgressService {
 
                     double progress = getCourseProgressValue(courseProgress);
 
-                    Keeper keeper = e.getGroup().getKeeper();
-                    Person keeperPerson = keeper.getPerson();
-                    KeeperBasicInfoDto keeperInfo = new KeeperBasicInfoDto(
-                            keeperPerson.getPersonId(),
-                            keeperPerson.getFirstName(),
-                            keeperPerson.getLastName(),
-                            keeperPerson.getPatronymic(),
-                            keeper.getKeeperId()
+                    KeeperBasicInfoDto keeperInfo = KeeperMapper.mapKeeperToKeeperBasicInfoDto(
+                            e.getGroup().getKeeper()
                     );
 
                     return new CurrentCourseProgressProfileDto(
                             e.getExplorerId(),
-                            currentTheme.getCourseThemeId(),
-                            currentTheme.getTitle(),
-                            courseProgress.getCourseId(),
-                            courseProgress.getTitle(),
+                            currentTheme.getCourseThemeId(), currentTheme.getTitle(),
+                            courseProgress.getCourseId(), courseProgress.getTitle(),
                             keeperInfo,
                             e.getGroupId(),
                             progress,
-                            homeworkService
-                                    .findHomeworksByCourseThemeId(
+                            homeworkService.findHomeworksByCourseThemeId(
                                             authorizationHeader, currentTheme.getCourseThemeId()
                                     ).stream()
                                     .filter(h -> h.getStatus() == null)
@@ -100,22 +92,14 @@ public class CourseProgressServiceImpl implements CourseProgressService {
                     );
                     CourseThemeCompletedDto currentTheme = getCurrentCourseTheme(courseProgress);
 
-                    Keeper keeper = e.getGroup().getKeeper();
-                    Person keeperPerson = keeper.getPerson();
-                    KeeperBasicInfoDto keeperInfo = new KeeperBasicInfoDto(
-                            keeperPerson.getPersonId(),
-                            keeperPerson.getFirstName(),
-                            keeperPerson.getLastName(),
-                            keeperPerson.getPatronymic(),
-                            keeper.getKeeperId()
+                    KeeperBasicInfoDto keeperInfo = KeeperMapper.mapKeeperToKeeperBasicInfoDto(
+                            e.getGroup().getKeeper()
                     );
 
                     return new CurrentCourseProgressPublicDto(
                             e.getExplorerId(),
-                            currentTheme.getCourseThemeId(),
-                            currentTheme.getTitle(),
-                            courseProgress.getCourseId(),
-                            courseProgress.getTitle(),
+                            currentTheme.getCourseThemeId(), currentTheme.getTitle(),
+                            courseProgress.getCourseId(), courseProgress.getTitle(),
                             keeperInfo
                     );
                 });
@@ -191,7 +175,43 @@ public class CourseProgressServiceImpl implements CourseProgressService {
                 .map(Explorer::getExplorerId)
                 .collect(Collectors.toList());
 
-        List<Long> explorerNeededFinalAssessment = webClientBuilder
+        List<Long> explorerNeededFinalAssessment = getExplorerIdsNeededFinalAssessment(authorizationHeader, explorerIds);
+
+        Map<Long, CourseDto> courses = courseService.findCoursesByCourseIdIn(
+                authorizationHeader,
+                keeperGroups.stream().map(ExplorerGroup::getCourseId).collect(Collectors.toList())
+        );
+
+        Map<Long, List<ThemeMarkDto>> explorersThemesMarks = getExplorersThemesMarks(authorizationHeader, explorerNeededFinalAssessment);
+
+        return keeperGroups.stream()
+                .flatMap(g -> g.getExplorers().stream()
+                        .filter(e ->
+                                explorerNeededFinalAssessment.contains(e.getExplorerId()))
+                        .map(e -> {
+                            Person person = e.getPerson();
+
+                            double averageCourseMark = explorersThemesMarks.get(e.getExplorerId())
+                                    .stream()
+                                    .mapToInt(ThemeMarkDto::getMark)
+                                    .average()
+                                    .orElse(0.0);
+
+                            return new ExplorerNeededFinalAssessmentDto(
+                                    person.getPersonId(), person.getFirstName(),
+                                    person.getLastName(), person.getPatronymic(),
+                                    g.getCourseId(),
+                                    courses.get(g.getCourseId()).getTitle(),
+                                    e.getExplorerId(),
+                                    Math.ceil(averageCourseMark * 10) / 10
+
+                            );
+                        })
+                ).collect(Collectors.toList());
+    }
+
+    private List<Long> getExplorerIdsNeededFinalAssessment(String authorizationHeader, List<Long> explorerIds) {
+        return webClientBuilder
                 .baseUrl("http://progress-service/api/v1/progress-app/").build()
                 .get()
                 .uri(uri -> uri
@@ -216,42 +236,6 @@ public class CourseProgressServiceImpl implements CourseProgressService {
                         )
                 ).collectList()
                 .block();
-        if (explorerNeededFinalAssessment == null)
-            return Collections.emptyList();
-
-        Map<Long, CourseDto> courses = courseService.findCoursesByCourseIdIn(
-                authorizationHeader,
-                keeperGroups.stream().map(ExplorerGroup::getCourseId).collect(Collectors.toList())
-        );
-
-        Map<Long, List<ThemeMarkDto>> explorersThemesMarks = getExplorersThemesMarks(authorizationHeader, explorerNeededFinalAssessment);
-
-        return keeperGroups.stream()
-                .flatMap(g -> g.getExplorers().stream()
-                        .filter(e ->
-                                explorerNeededFinalAssessment.contains(e.getExplorerId()))
-                        .map(e -> {
-                            Person person = e.getPerson();
-
-                            double averageCourseMark = explorersThemesMarks.get(e.getExplorerId())
-                                    .stream()
-                                    .mapToInt(ThemeMarkDto::getMark)
-                                    .average()
-                                    .orElse(0.0);
-
-                            return new ExplorerNeededFinalAssessmentDto(
-                                    person.getPersonId(),
-                                    person.getFirstName(),
-                                    person.getLastName(),
-                                    person.getPatronymic(),
-                                    g.getCourseId(),
-                                    courses.get(g.getCourseId()).getTitle(),
-                                    e.getExplorerId(),
-                                    Math.ceil(averageCourseMark * 10) / 10
-
-                            );
-                        })
-                ).collect(Collectors.toList());
     }
 
     private Map<Long, List<ThemeMarkDto>> getExplorersThemesMarks(String authorizationHeader, List<Long> explorerIds) {
@@ -331,22 +315,16 @@ public class CourseProgressServiceImpl implements CourseProgressService {
                 .map(g -> {
                     CourseDto course = courseService.findCourseById(authorizationHeader, g.getCourseId());
                     return new CurrentKeeperGroupDto(
-                            g.getGroupId(),
-                            g.getCourseId(),
-                            g.getKeeperId(),
+                            g.getGroupId(), g.getCourseId(), g.getKeeperId(),
                             course.getTitle(),
                             g.getExplorers()
                                     .stream()
                                     .map(e -> {
                                         Person person = e.getPerson();
                                         return new ExplorerBasicInfoDto(
-                                                person.getPersonId(),
-                                                person.getFirstName(),
-                                                person.getLastName(),
-                                                person.getPatronymic(),
-                                                e.getExplorerId(),
-                                                g.getCourseId(),
-                                                e.getGroupId()
+                                                person.getPersonId(), person.getFirstName(),
+                                                person.getLastName(), person.getPatronymic(),
+                                                e.getExplorerId(), g.getCourseId(), e.getGroupId()
                                         );
                                     }).collect(Collectors.toList())
                     );

@@ -57,6 +57,27 @@
         "employeeInAuthorDepartment": false,
         "id": 12,
         "activeProgramName": true
+      },
+      {
+        "employeeId": 14,
+        "firstName": "Зенька",
+        "lastName": "Бэкэндов",
+        "patronymic": "Скролович",
+        "kindOfActivityId": 1,
+        "employmentDate": "2023-06-01",
+        "startMentoringDate": "2023-06-02",
+        "isDeleted": false,
+        "programName": "Base",
+        "programGroupId": 6,
+        "groupName": "Обучение Frontend",
+        "mentoringProgramId": 72,
+        "courseCount": 0,
+        "countOfSameTimeMentoring": 2,
+        "actuallyFinishedCourses": 0,
+        "programNameId": 72,
+        "employeeInAuthorDepartment": false,
+        "id": 14,
+        "activeProgramName": true
       }
     ],
     "headers": {

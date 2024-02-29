@@ -18,7 +18,7 @@ public interface CourseRegistrationRequestService {
 
     Optional<CourseRegistrationRequestForExplorerDto> getStudyRequestForExplorerByPersonId(String authorizationHeader);
 
-    Optional<CourseRegistrationRequestForKeeperWithGalaxyDto> getStudyRequestByExplorerPersonId(String authorizationHeader, Long authenticatedPersonId, Long personId);
+    Optional<CourseRegistrationRequestForKeeperWithGalaxyDto> getStudyRequesForKeepertByExplorerPersonId(String authorizationHeader, Long authenticatedPersonId, Long personId);
 
     List<GetApprovedCourseRegistrationRequestsForKeeperDto> getApprovedRequestsForKeeper(String authorizationHeader, List<Keeper> keepers);
 }

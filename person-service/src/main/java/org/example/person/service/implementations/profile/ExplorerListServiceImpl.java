@@ -40,28 +40,16 @@ public class ExplorerListServiceImpl implements ExplorerListService {
                         .map(Person::getPersonId)
                         .collect(Collectors.toList())
         );
-
         Map<Long, List<Explorer>> explorers = explorerService.findExplorersByPersonIdIn(
                 peoplePage.stream()
                         .map(Person::getPersonId)
                         .collect(Collectors.toList())
         );
-        Map<Long, GalaxyDto> galaxyMap = galaxyService.findGalaxiesBySystemIdIn(
-                authorizationHeader,
-                explorers.entrySet()
-                        .stream()
-                        .flatMap(e -> e.getValue().stream())
-                        .map(e -> e.getGroup().getCourseId())
-                        .distinct()
-                        .collect(Collectors.toList())
-        );
+        Map<Long, GalaxyDto> galaxyMap = findExplorersGalaxies(authorizationHeader, explorers);
 
         return peoplePage.map(
                 p -> new PersonWithGalaxiesDto(
-                        p.getPersonId(),
-                        p.getFirstName(),
-                        p.getLastName(),
-                        p.getPatronymic(),
+                        p.getPersonId(), p.getFirstName(), p.getLastName(), p.getPatronymic(),
                         ratings.getOrDefault(p.getPersonId(), 0.0),
                         explorers.getOrDefault(p.getPersonId(), Collections.emptyList())
                                 .stream()
@@ -69,6 +57,18 @@ public class ExplorerListServiceImpl implements ExplorerListService {
                                 .distinct()
                                 .collect(Collectors.toList())
                 )
+        );
+    }
+
+    private Map<Long, GalaxyDto> findExplorersGalaxies(String authorizationHeader, Map<Long, List<Explorer>> explorers) {
+        return galaxyService.findGalaxiesBySystemIdIn(
+                authorizationHeader,
+                explorers.entrySet()
+                        .stream()
+                        .flatMap(e -> e.getValue().stream())
+                        .map(e -> e.getGroup().getCourseId())
+                        .distinct()
+                        .collect(Collectors.toList())
         );
     }
 }

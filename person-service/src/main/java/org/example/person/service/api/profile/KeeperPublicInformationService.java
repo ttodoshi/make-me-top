@@ -1,9 +1,7 @@
 package org.example.person.service.api.profile;
 
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Map;
+import org.example.person.dto.profile.KeeperPublicProfileDto;
 
 public interface KeeperPublicInformationService {
-    Map<String, Object> getKeeperPublicInformation(String authorizationHeader, Long personId);
+    KeeperPublicProfileDto getKeeperPublicInformation(String authorizationHeader, Long personId);
 }

@@ -1,8 +1,6 @@
 package org.example.person.service.implementations.profile;
 
-import lombok.RequiredArgsConstructor;
-import org.example.person.dto.person.GetPersonDto;
-import org.example.person.model.Explorer;
+import org.example.person.dto.profile.KeeperPublicProfileDto;
 import org.example.person.model.ExplorerGroup;
 import org.example.person.model.Keeper;
 import org.example.person.repository.ExplorerGroupRepository;
@@ -15,57 +13,57 @@ import org.example.person.service.implementations.PersonService;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
-public class KeeperPublicInformationServiceImpl implements KeeperPublicInformationService {
+public class KeeperPublicInformationServiceImpl extends PersonProfileInformationService implements KeeperPublicInformationService {
     private final ExplorerGroupRepository explorerGroupRepository;
     private final KeeperRepository keeperRepository;
 
-    private final PersonService personService;
-    private final FeedbackService feedbackService;
-    private final CourseService courseService;
-    private final RatingService ratingService;
-
-    private final ModelMapper mapper;
+    public KeeperPublicInformationServiceImpl(PersonService personService, RatingService ratingService, ExplorerGroupRepository explorerGroupRepository, KeeperRepository keeperRepository, FeedbackService feedbackService, CourseService courseService, ModelMapper mapper) {
+        super(ratingService, courseService, feedbackService, personService, mapper);
+        this.explorerGroupRepository = explorerGroupRepository;
+        this.keeperRepository = keeperRepository;
+    }
 
     @Override
     @Transactional(readOnly = true)
-    public Map<String, Object> getKeeperPublicInformation(String authorizationHeader, Long personId) {
-        Map<String, Object> response = new LinkedHashMap<>();
-        response.put(
-                "person",
-                mapper.map(
-                        personService.findPersonById(personId),
-                        GetPersonDto.class
-                )
-        );
-        response.put("rating", ratingService.getPersonRatingAsKeeper(personId));
+    public KeeperPublicProfileDto getKeeperPublicInformation(String authorizationHeader, Long personId) {
         List<Keeper> keepers = keeperRepository.findKeepersByPersonId(personId);
-        response.put("totalSystems", keepers.size());
-
         List<ExplorerGroup> explorerGroups = explorerGroupRepository.findExplorerGroupsByKeeperIdIn(
                 keepers.stream().map(Keeper::getKeeperId).collect(Collectors.toList())
         );
-        List<Explorer> explorers = explorerGroups
-                .stream()
-                .flatMap(g -> g.getExplorers().stream())
-                .collect(Collectors.toList());
-        response.put("totalExplorers", explorers.size());
+        KeeperPublicProfileDto keeperPublicProfile = addPersonProfileInformation(
+                new KeeperPublicProfileDto(), personId, keepers.size()
+        );
 
-        return Mono.when(
-                Mono.fromRunnable(() -> response.put("systems", courseService.getCoursesRating(
-                        authorizationHeader,
-                        keepers.stream().map(Keeper::getCourseId).collect(Collectors.toList())
-                ))), Mono.fromRunnable(() -> response.put("feedback", feedbackService
-                        .getFeedbackForPersonAsKeeper(authorizationHeader, explorerGroups))
-                )
-        ).then(Mono.just(response)).block();
+        Flux.concat(
+                        Mono.fromRunnable(() ->
+                                keeperPublicProfile.setRating(ratingService.getPersonRatingAsKeeper(personId))
+                        ), Mono.fromRunnable(() -> keeperPublicProfile.setTotalExplorers(
+                                explorerGroups
+                                        .stream()
+                                        .mapToLong(g -> g.getExplorers().size())
+                                        .sum()
+                        )), Mono.fromRunnable(() -> keeperPublicProfile.setSystems(
+                                courseService.getCoursesRating(
+                                        authorizationHeader,
+                                        keepers.stream().map(Keeper::getCourseId).collect(Collectors.toList())
+                                ))
+                        ), Mono.fromRunnable(() -> keeperPublicProfile.setFeedback(
+                                feedbackService
+                                        .getFeedbackForPersonAsKeeper(authorizationHeader, explorerGroups))
+                        )
+                ).parallel()
+                .runOn(Schedulers.parallel())
+                .then()
+                .block();
+
+        return keeperPublicProfile;
     }
 }

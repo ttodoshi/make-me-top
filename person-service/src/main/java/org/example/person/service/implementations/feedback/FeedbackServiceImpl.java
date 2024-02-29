@@ -72,25 +72,20 @@ public class FeedbackServiceImpl implements FeedbackService {
         Map<Long, Keeper> keepers = keeperService.findKeepersByKeeperIdIn(
                 offers.stream().map(ExplorerFeedbackOfferDto::getKeeperId).collect(Collectors.toList())
         );
-
-        List<Long> courseIds = keepers.values()
-                .stream()
-                .map(Keeper::getCourseId)
-                .collect(Collectors.toList());
-        Map<Long, CourseDto> courses = courseService
-                .findCoursesByCourseIdIn(authorizationHeader, courseIds);
+        Map<Long, CourseDto> courses = findCoursesForKeepers(authorizationHeader, keepers);
 
         return offers.stream()
                 .map(o -> {
+                    Keeper currentKeeper = keepers.get(o.getKeeperId());
                     CourseDto currentCourse = courses.get(
-                            keepers.get(o.getKeeperId()).getCourseId()
+                            currentKeeper.getCourseId()
                     );
                     return new ExplorerFeedbackOfferProfileDto(
                             o.getExplorerId(),
-                            keepers.get(o.getKeeperId()).getPersonId(),
-                            keepers.get(o.getKeeperId()).getPerson().getFirstName(),
-                            keepers.get(o.getKeeperId()).getPerson().getLastName(),
-                            keepers.get(o.getKeeperId()).getPerson().getPatronymic(),
+                            currentKeeper.getPersonId(),
+                            currentKeeper.getPerson().getFirstName(),
+                            currentKeeper.getPerson().getLastName(),
+                            currentKeeper.getPerson().getPatronymic(),
                             o.getKeeperId(),
                             currentCourse.getCourseId(),
                             currentCourse.getTitle()
@@ -107,13 +102,7 @@ public class FeedbackServiceImpl implements FeedbackService {
         Map<Long, Keeper> keepers = keeperService.findKeepersByKeeperIdIn(
                 offers.stream().map(KeeperFeedbackOfferDto::getKeeperId).collect(Collectors.toList())
         );
-
-        List<Long> courseIds = keepers.values()
-                .stream()
-                .map(Keeper::getCourseId)
-                .collect(Collectors.toList());
-        Map<Long, CourseDto> courses = courseService
-                .findCoursesByCourseIdIn(authorizationHeader, courseIds);
+        Map<Long, CourseDto> courses = findCoursesForKeepers(authorizationHeader, keepers);
 
         return offers.stream()
                 .map(o -> {
@@ -133,6 +122,14 @@ public class FeedbackServiceImpl implements FeedbackService {
                             currentCourse.getTitle()
                     );
                 }).collect(Collectors.toList());
+    }
+
+    private Map<Long, CourseDto> findCoursesForKeepers(String authorizationHeader, Map<Long, Keeper> keepers) {
+        List<Long> courseIds = keepers.values()
+                .stream()
+                .map(Keeper::getCourseId)
+                .collect(Collectors.toList());
+        return courseService.findCoursesByCourseIdIn(authorizationHeader, courseIds);
     }
 
     @Override
@@ -165,15 +162,11 @@ public class FeedbackServiceImpl implements FeedbackService {
                             keepers.get(currentOffer.getKeeperId()).getCourseId()
                     );
                     return new KeeperCommentDto(
-                            person.getPersonId(),
-                            person.getFirstName(),
-                            person.getLastName(),
-                            person.getPatronymic(),
+                            person.getPersonId(), person.getFirstName(),
+                            person.getLastName(), person.getPatronymic(),
                             currentOffer.getKeeperId(),
-                            currentCourse.getCourseId(),
-                            currentCourse.getTitle(),
-                            f.getRating(),
-                            f.getComment()
+                            currentCourse.getCourseId(), currentCourse.getTitle(),
+                            f.getRating(), f.getComment()
                     );
                 }).collect(Collectors.toList());
     }
@@ -217,15 +210,11 @@ public class FeedbackServiceImpl implements FeedbackService {
                             currentOffer.getKeeperId()
                     ).getCourseId());
                     return new ExplorerCommentDto(
-                            person.getPersonId(),
-                            person.getFirstName(),
-                            person.getLastName(),
-                            person.getPatronymic(),
+                            person.getPersonId(), person.getFirstName(),
+                            person.getLastName(), person.getPatronymic(),
                             currentOffer.getExplorerId(),
-                            currentCourse.getCourseId(),
-                            currentCourse.getTitle(),
-                            f.getRating(),
-                            f.getComment()
+                            currentCourse.getCourseId(), currentCourse.getTitle(),
+                            f.getRating(), f.getComment()
                     );
                 }).collect(Collectors.toList());
     }

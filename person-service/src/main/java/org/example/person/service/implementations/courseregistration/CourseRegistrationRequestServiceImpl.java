@@ -198,31 +198,24 @@ public class CourseRegistrationRequestServiceImpl implements CourseRegistrationR
                             .map(e -> {
                                 Person person = e.getValue().getPerson();
                                 return new KeeperBasicInfoDto(
-                                        person.getPersonId(),
-                                        person.getFirstName(),
-                                        person.getLastName(),
-                                        person.getPatronymic(),
-                                        e.getKey()
+                                        person.getPersonId(), person.getFirstName(),
+                                        person.getLastName(), person.getPatronymic(), e.getKey()
                                 );
                             }).collect(Collectors.toList());
 
                     return new CourseRegistrationRequestForExplorerDto(
-                            r.getRequestId(),
-                            r.getCourseId(),
-                            course.getTitle(),
-                            galaxy.getGalaxyId(),
-                            galaxy.getGalaxyName(),
-                            keepers
+                            r.getRequestId(), r.getCourseId(), course.getTitle(),
+                            galaxy.getGalaxyId(), galaxy.getGalaxyName(), keepers
                     );
                 });
     }
 
     @Override
-    public Optional<CourseRegistrationRequestForKeeperWithGalaxyDto> getStudyRequestByExplorerPersonId(String authorizationHeader, Long authenticatedPersonId, Long personId) {
+    public Optional<CourseRegistrationRequestForKeeperWithGalaxyDto> getStudyRequesForKeepertByExplorerPersonId(String authorizationHeader, Long keeperPersonId, Long personId) {
         // returns information about the request only if the authorized keeper is the one to whom it was sent
         return getStudyRequestsForKeeper(
                 authorizationHeader,
-                keeperService.findKeepersByPersonId(authenticatedPersonId)
+                keeperService.findKeepersByPersonId(keeperPersonId)
         ).stream()
                 .flatMap(requests -> requests.getRequests().stream())
                 .filter(r -> r.getPersonId().equals(personId))
@@ -230,16 +223,10 @@ public class CourseRegistrationRequestServiceImpl implements CourseRegistrationR
                 .map(r -> {
                     GalaxyDto galaxy = galaxyService.findGalaxyBySystemId(authorizationHeader, r.getCourseId());
                     return new CourseRegistrationRequestForKeeperWithGalaxyDto(
-                            r.getRequestId(),
-                            r.getPersonId(),
-                            r.getFirstName(),
-                            r.getLastName(),
-                            r.getPatronymic(),
-                            r.getCourseId(),
-                            r.getCourseTitle(),
+                            r.getRequestId(), r.getPersonId(), r.getFirstName(),
+                            r.getLastName(), r.getPatronymic(), r.getCourseId(), r.getCourseTitle(),
                             ratingService.getPersonRatingAsExplorer(personId),
-                            galaxy.getGalaxyId(),
-                            galaxy.getGalaxyName()
+                            galaxy.getGalaxyId(), galaxy.getGalaxyName()
                     );
                 });
     }
@@ -265,15 +252,9 @@ public class CourseRegistrationRequestServiceImpl implements CourseRegistrationR
                 .map(r -> {
                     Person person = personService.findPersonById(r.getPersonId());
                     return new GetApprovedCourseRegistrationRequestsForKeeperDto.ApprovedCourseRegistrationRequestDto(
-                            person.getPersonId(),
-                            person.getFirstName(),
-                            person.getLastName(),
-                            person.getPatronymic(),
-                            r.getCourseId(),
-                            courses.get(r.getCourseId()).getTitle(),
-                            r.getRequestId(),
-                            r.getResponseDate(),
-                            r.getKeeperId(),
+                            person.getPersonId(), person.getFirstName(), person.getLastName(), person.getPatronymic(),
+                            r.getCourseId(), courses.get(r.getCourseId()).getTitle(),
+                            r.getRequestId(), r.getResponseDate(), r.getKeeperId(),
                             ratings.get(person.getPersonId())
                     );
                 }).collect(Collectors.groupingBy(
