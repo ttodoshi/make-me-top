@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface GalaxyService {
-    GetGalaxyDto findGalaxyById(Long galaxyId);
+    GetGalaxyDto findGalaxyWithOrbitsById(Long galaxyId);
 
     GetGalaxyInformationDto findGalaxyByIdDetailed(Long galaxyId);
 

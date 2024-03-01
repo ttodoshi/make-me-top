@@ -52,10 +52,10 @@ public class PictureRepositoryImpl implements PictureRepository {
     }
 
     @Override
-    public Optional<byte[]> findPictureByPersonIdAndPictureType(Long personId, PictureType type) {
+    public Optional<byte[]> findPictureByPersonIdAndPictureType(String id, PictureType type) {
         try {
-            Path personDirectory = findPersonDirectory(String.valueOf(personId));
-            try (InputStream picture = findFile(personDirectory, personId, type.getName())) {
+            Path personDirectory = findPersonDirectory(id);
+            try (InputStream picture = findFile(personDirectory, id, type.getName())) {
                 return Optional.of(picture.readAllBytes());
             }
         } catch (IOException e) {
@@ -64,9 +64,9 @@ public class PictureRepositoryImpl implements PictureRepository {
         }
     }
 
-    private Path findPersonDirectory(String personId) throws IOException {
+    private Path findPersonDirectory(String id) throws IOException {
         return createDirectoryIfNotExists(
-                Paths.get(PICS_DIR, personId)
+                Paths.get(PICS_DIR, id)
         );
     }
 
@@ -77,12 +77,12 @@ public class PictureRepositoryImpl implements PictureRepository {
         return directory;
     }
 
-    private InputStream findFile(Path path, Long personId, String type) throws IOException {
+    private InputStream findFile(Path path, String id, String type) throws IOException {
         try (Stream<Path> filesStream = Files.list(path)) {
             return filesStream
                     .filter(p -> StringUtils
                             .stripFilenameExtension(p.getFileName().toString())
-                            .equals(String.format("%d-%s", personId, type)))
+                            .equals(String.format("%s-%s", id, type)))
                     .findFirst()
                     .map(p -> {
                         try {
@@ -91,21 +91,14 @@ public class PictureRepositoryImpl implements PictureRepository {
                             throw new PictureNotFoundException();
                         }
                     })
-                    .orElseGet(() -> {
-                        try {
-                            return resourceLoader.getResource(
-                                    String.format("classpath:default-%s.jpeg", type)
-                            ).getInputStream();
-                        } catch (IOException e) {
-                            log.error("default picture not found in directory");
-                            throw new PictureNotFoundException();
-                        }
-                    });
+                    .orElse(resourceLoader.getResource(
+                            String.format("classpath:default-%s.jpeg", type)
+                    ).getInputStream());
         }
     }
 
     @Override
-    public Long save(Long personId, MultipartFile file) {
+    public String save(String id, MultipartFile file) {
         String extension = StringUtils.getFilenameExtension(file.getOriginalFilename());
         if (isBlank(extension) || !VALID_EXTENSIONS.contains(extension)) {
             log.warn("picture extension not valid");
@@ -113,19 +106,19 @@ public class PictureRepositoryImpl implements PictureRepository {
         }
 
         try {
-            Path personDirectory = findPersonDirectory(String.valueOf(personId));
+            Path personDirectory = findPersonDirectory(id);
             clearDirectory(personDirectory);
-            saveCroppedPictures(personDirectory, personId, file, extension);
+            saveCroppedPictures(personDirectory, id, file, extension);
         } catch (IOException e) {
             log.error(e.toString());
             throw new FileNotChangedException();
         }
-        return personId;
+        return id;
     }
 
-    private void saveCroppedPictures(Path personDirectory, Long personId, MultipartFile file, String extension) throws IOException {
+    private void saveCroppedPictures(Path personDirectory, String id, MultipartFile file, String extension) throws IOException {
         Path picturePath = personDirectory.resolve(
-                personId + "." + extension
+                id + "." + extension
         );
         file.transferTo(picturePath);
         for (PictureType type : PictureType.values()) {
@@ -135,10 +128,10 @@ public class PictureRepositoryImpl implements PictureRepository {
     }
 
     @Override
-    public void deleteByPersonId(Long personId) {
+    public void deleteById(String id) {
         try {
             clearDirectory(
-                    findPersonDirectory(String.valueOf(personId))
+                    findPersonDirectory(id)
             );
         } catch (IOException e) {
             log.error(e.toString());

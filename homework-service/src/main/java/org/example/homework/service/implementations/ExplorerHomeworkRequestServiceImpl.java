@@ -48,8 +48,7 @@ public class ExplorerHomeworkRequestServiceImpl implements ExplorerHomeworkReque
                 .orElseThrow(() -> {
                     log.warn("homework by id {} not found", homeworkId);
                     return new HomeworkNotFoundException(homeworkId);
-                })
-                .getCourseThemeId();
+                }).getCourseThemeId();
         Long courseId = planetService.findById(authorizationHeader, themeId).getSystemId();
         ExplorersService.Explorer explorer = explorerService.findExplorerByPersonIdAndGroup_CourseId(
                 authorizationHeader, authenticatedPersonId, courseId

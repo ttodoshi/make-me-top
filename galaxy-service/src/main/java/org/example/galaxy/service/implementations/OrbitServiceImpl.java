@@ -69,8 +69,9 @@ public class OrbitServiceImpl implements OrbitService {
         orbit.setGalaxyId(galaxyId);
         Long savedOrbitId = orbitRepository.save(orbit).getOrbitId();
 
-        orbitRequest.getSystemList().forEach(s ->
-                systemService.createSystem(savedOrbitId, s));
+        orbitRequest
+                .getSystemList()
+                .forEach(s -> systemService.createSystem(savedOrbitId, s));
 
         return savedOrbitId;
     }

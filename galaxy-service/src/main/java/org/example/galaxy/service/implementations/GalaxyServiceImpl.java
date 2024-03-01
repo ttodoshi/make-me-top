@@ -42,14 +42,11 @@ public class GalaxyServiceImpl implements GalaxyService {
 
     @Override
     @Transactional(readOnly = true)
-    public GetGalaxyDto findGalaxyById(Long galaxyId) {
-        Galaxy galaxy = galaxyRepository.findById(galaxyId)
-                .orElseThrow(() -> {
-                    log.warn("galaxy by id {} not found", galaxyId);
-                    return new GalaxyNotFoundException(galaxyId);
-                });
-
-        GetGalaxyDto galaxyWithOrbits = mapper.map(galaxy, GetGalaxyDto.class);
+    public GetGalaxyDto findGalaxyWithOrbitsById(Long galaxyId) {
+        GetGalaxyDto galaxyWithOrbits = mapper.map(
+                findGalaxyById(galaxyId),
+                GetGalaxyDto.class
+        );
         galaxyWithOrbits.setOrbitList(
                 orbitRepository.findOrbitsByGalaxyIdOrderByOrbitLevel(galaxyId)
                         .stream()
@@ -63,11 +60,7 @@ public class GalaxyServiceImpl implements GalaxyService {
     @Override
     @Transactional(readOnly = true)
     public GetGalaxyInformationDto findGalaxyByIdDetailed(Long galaxyId) {
-        Galaxy galaxy = galaxyRepository.findById(galaxyId)
-                .orElseThrow(() -> {
-                    log.warn("galaxy by id {} not found", galaxyId);
-                    return new GalaxyNotFoundException(galaxyId);
-                });
+        Galaxy galaxy = findGalaxyById(galaxyId);
 
         List<StarSystem> systems = galaxy.getOrbits().stream()
                 .flatMap(o -> o.getSystems().stream())
@@ -84,6 +77,14 @@ public class GalaxyServiceImpl implements GalaxyService {
                 personAsExplorerList.size(), personAsExplorerList,
                 personAsKeeperList.size(), personAsKeeperList
         );
+    }
+
+    private Galaxy findGalaxyById(Long galaxyId) {
+        return galaxyRepository.findById(galaxyId)
+                .orElseThrow(() -> {
+                    log.warn("galaxy by id {} not found", galaxyId);
+                    return new GalaxyNotFoundException(galaxyId);
+                });
     }
 
     @Override
@@ -129,7 +130,8 @@ public class GalaxyServiceImpl implements GalaxyService {
         Galaxy galaxy = mapper.map(createGalaxyRequest, Galaxy.class);
         Long savedGalaxyId = galaxyRepository.save(galaxy).getGalaxyId();
 
-        createGalaxyRequest.getOrbitList()
+        createGalaxyRequest
+                .getOrbitList()
                 .forEach(o -> orbitService.createOrbit(savedGalaxyId, o));
 
         return savedGalaxyId;
@@ -138,11 +140,7 @@ public class GalaxyServiceImpl implements GalaxyService {
     @Override
     @Transactional
     public GalaxyDto updateGalaxy(Long galaxyId, UpdateGalaxyDto galaxy) {
-        Galaxy updatedGalaxy = galaxyRepository.findById(galaxyId)
-                .orElseThrow(() -> {
-                    log.warn("galaxy by id {} not found", galaxyId);
-                    return new GalaxyNotFoundException(galaxyId);
-                });
+        Galaxy updatedGalaxy = findGalaxyById(galaxyId);
 
         galaxyValidatorService.validatePutRequest(galaxyId, galaxy);
 

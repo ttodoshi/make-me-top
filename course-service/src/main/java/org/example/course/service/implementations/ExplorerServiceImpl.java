@@ -43,12 +43,10 @@ public class ExplorerServiceImpl implements ExplorerService {
         return explorers.stream().collect(Collectors.toMap(
                 ExplorersService.Explorer::getPersonId,
                 e -> {
-                    PeopleService.Person currentExplorerPerson = people.get(e.getPersonId());
+                    PeopleService.Person person = people.get(e.getPersonId());
                     return new ExplorerWithRatingDto(
-                            currentExplorerPerson.getPersonId(),
-                            currentExplorerPerson.getFirstName(),
-                            currentExplorerPerson.getLastName(),
-                            currentExplorerPerson.getPatronymic(),
+                            person.getPersonId(), person.getFirstName(),
+                            person.getLastName(), person.getPatronymic(),
                             e.getExplorerId(),
                             ratings.get(e.getPersonId())
                     );

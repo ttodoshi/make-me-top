@@ -16,20 +16,22 @@ public class PictureServiceImpl implements PictureService {
     @Override
     public byte[] findPicture(Long personId, PictureType pictureType) {
         return pictureRepository.findPictureByPersonIdAndPictureType(
-                personId, pictureType
+                String.valueOf(personId), pictureType
         ).orElseThrow(PictureNotFoundException::new);
     }
 
     @Override
     public Long savePicture(Long personId, MultipartFile file) {
-        return pictureRepository.save(
-                personId,
+        return Long.valueOf(pictureRepository.save(
+                String.valueOf(personId),
                 file
-        );
+        ));
     }
 
     @Override
     public void deletePicture(Long personId) {
-        pictureRepository.deleteByPersonId(personId);
+        pictureRepository.deleteById(
+                String.valueOf(personId)
+        );
     }
 }

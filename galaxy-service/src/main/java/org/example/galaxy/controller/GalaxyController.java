@@ -36,7 +36,7 @@ public class GalaxyController {
     public ResponseEntity<?> findGalaxyById(@PathVariable Long galaxyId, @RequestParam(required = false) Boolean detailed) {
         if (detailed != null && detailed)
             return ResponseEntity.ok(galaxyService.findGalaxyByIdDetailed(galaxyId));
-        return ResponseEntity.ok(galaxyService.findGalaxyById(galaxyId));
+        return ResponseEntity.ok(galaxyService.findGalaxyWithOrbitsById(galaxyId));
     }
 
     @GetMapping("/galaxies")

@@ -6,9 +6,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.Optional;
 
 public interface PictureRepository {
-    Optional<byte[]> findPictureByPersonIdAndPictureType(Long personId, PictureType type);
+    Optional<byte[]> findPictureByPersonIdAndPictureType(String id, PictureType type);
 
-    Long save(Long personId, MultipartFile file);
+    String save(String id, MultipartFile file);
 
-    void deleteByPersonId(Long personId);
+    void deleteById(String id);
 }

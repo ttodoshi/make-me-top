@@ -92,12 +92,10 @@ public class KeeperServiceImpl implements KeeperService {
         return keepers.stream().collect(Collectors.toMap(
                 KeepersService.Keeper::getPersonId,
                 k -> {
-                    PeopleService.Person currentKeeperPerson = people.get(k.getPersonId());
+                    PeopleService.Person person = people.get(k.getPersonId());
                     return new KeeperWithRatingDto(
-                            currentKeeperPerson.getPersonId(),
-                            currentKeeperPerson.getFirstName(),
-                            currentKeeperPerson.getLastName(),
-                            currentKeeperPerson.getPatronymic(),
+                            person.getPersonId(), person.getFirstName(),
+                            person.getLastName(), person.getPatronymic(),
                             k.getKeeperId(),
                             ratings.get(k.getPersonId())
                     );
