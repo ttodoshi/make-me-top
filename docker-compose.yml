@@ -251,8 +251,8 @@ services:
       make-me-top:
         ipv4_address: 10.10.0.9
 
-  course_registration-service:
-    container_name: course_registration-service
+  course-registration-service:
+    container_name: course-registration-service
     build: ./course-registration-service
     ports:
       - "8105:8105"
@@ -287,7 +287,7 @@ services:
       retries: 5
       start_period: 10s
     depends_on:
-      course_registration-service:
+      course-registration-service:
         condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: docker

@@ -79,9 +79,11 @@ public class CourseRegistrationRequestKeeperServiceImpl implements CourseRegistr
     @Override
     @Transactional(readOnly = true)
     public List<CourseRegistrationRequestKeeperDto> findProcessingCourseRegistrationRequestKeepersByKeeperIdIn(String authorizationHeader, Long authenticatedPersonId, List<Long> keeperIds) {
-        if (keeperService.findKeepersByPersonId(authorizationHeader, authenticatedPersonId)
+        if (!keeperService.findKeepersByPersonId(authorizationHeader, authenticatedPersonId)
                 .stream()
-                .noneMatch(k -> keeperIds.contains(k.getKeeperId()))) {
+                .map(KeepersService.Keeper::getKeeperId)
+                .collect(Collectors.toSet())
+                .containsAll(keeperIds)) {
             log.warn("not yours requests");
             throw new AccessDeniedException("Вам закрыт доступ к данной функциональности бортового компьютера");
         }
